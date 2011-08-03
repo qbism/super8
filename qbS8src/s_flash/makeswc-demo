@@ -1,0 +1,118 @@
+#Command line to make this .swc:
+#alc-on;	(needed 1st time only)
+#make -j3 -f makeswc;
+
+SRCS= \
+	../nonintel.c \
+	../net_vcr.c \
+	../net_main.c \
+	../net_loop.c \
+	../net_dgrm.c \
+	../model.c \
+	../menu.c \
+	../mathlib.c \
+	../keys.c \
+	../host_cmd.c \
+	../host.c \
+	../r_draw.c \
+	../d_zpoint.c \
+	../d_vars.c \
+	../d_surf.c \
+	../d_sprite.c \
+	../d_sky.c \
+	../d_scan.c \
+	../d_polyse.c \
+	../d_part.c \
+	../d_modech.c \
+	../d_init.c \
+	../d_fill.c \
+	../d_edge.c \
+	../cvar.c \
+	../crc.c \
+	../console.c \
+	../common.c \
+	../cmd.c \
+	../cl_tent.c \
+	../cl_parse.c \
+	../cl_main.c \
+	../cl_input.c \
+	../cl_demo.c \
+	../chase.c \
+	../zone.c \
+	../world.c \
+	../wad.c \
+	../view.c \
+	../sv_user.c \
+	../sv_phys.c \
+	../sv_move.c \
+	../sv_main.c \
+	../screen.c \
+	../sbar.c \
+	../r_vars.c \
+	../r_surf.c \
+	../r_sprite.c \
+	../r_sky.c \
+	../r_part.c \
+	../r_misc.c \
+	../r_main.c \
+	../r_light.c \
+	../r_efrag.c \
+	../r_edge.c \
+	../r_bsp.c \
+	../r_alias.c \
+	../r_aclip.c \
+	../pr_exec.c \
+	../pr_edict.c \
+	../pr_cmds.c \
+	sys_flash.c \
+	vid_flash.c \
+	cd_flash.c \
+	in_flash.c \
+	../snd_dma.c \
+	../snd_mix.c \
+	../snd_mem.c \
+	../r_2d.c \
+	../draw.c \
+	../net_none.c
+
+SRCTYPE=c
+CC=gcc
+
+WARN= -Wall -Werror-implicit-function-declaration
+OUTPUT= quake
+CFLAGS= $(WARN) -DFLASH -DFLASHDEMO
+
+ifeq ($(DEBUG),1)
+OPTIM= -g
+OBJDIR= Debug
+else
+OPTIM= -O3
+OBJDIR= Release
+endif
+
+
+#The reason we move the swc instead of compiling it directly to the destination lib folder,
+#is that it would prefix the folder names onto the namespace of the CLibInit class.
+OUTPUTFILE= $(OUTPUT).swc
+OUTPUTDIR= lib
+
+all: $(OBJDIR)/$(OUTPUTFILE)
+	@mkdir -p $(OUTPUTDIR)
+	cp $(OBJDIR)/$(OUTPUTFILE) $(OUTPUTDIR)/$(OUTPUTFILE)
+
+#make sure all the bullet directories are on the vpath, so we can make a list of .o files
+VPATH += $(dir $(SRCS))
+OBJS= $(patsubst %.$(SRCTYPE),$(OBJDIR)/%.o,$(notdir $(SRCS)))
+$(OBJDIR)/$(OUTPUTFILE): $(OBJS)
+	@#export ACHACKS_TMPS=1; keeps the generated .as file
+	export ACHACKS_TMPS=0; cd $(OBJDIR); $(CC) $(notdir $(OBJS)) $(OPTIM) -swc -o $(OUTPUTFILE)
+	
+INCLUDES=
+$(OBJDIR)/%.o: %.$(SRCTYPE)
+	@mkdir -p $(OBJDIR)
+	@rm -f $@
+	cd $(OBJDIR); $(CC) $(CFLAGS) $(INCLUDES) $(OPTIM) -c ../$< -o $(notdir $@)
+	
+clean:
+	@rm -f $(OBJS)
+	
