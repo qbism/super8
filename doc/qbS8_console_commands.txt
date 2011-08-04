@@ -1,0 +1,89 @@
+qbismSuper8 console commands
+-----------------------------
+[+] indicates a command that is added or altered compared to original Quake.
+Note that some original Quake commands have been removed, especially obsolete networking controls.
+
+For commands that take arguments, type the name in the console for more information.  For example, "record" will output:
+record <demoname> [<map> [cd track]]
+
+
+Much credit and thanks to the classic Quake console references produced by Niklata and Daniel Rinehart.
+
+GENERAL COMMANDS
+-----------------------------
+alias  - names a new command that executes a command string.  Without args, lists current aliases.
+
+changelevel  - continue game on a new level
+clear  - clear the console
+connect  - connect to server
+[+] cmdlist  - list commands
+disconnect  - disconnect from server
+entities  - displays a list of objects used in the game
+exec  - execute a script file
+echo  - prints the rest of the line to console+
+fly  - fly, use moveup and movedown to control altitude
+god  - indestructable mode
+
+impulse  - Weapon selection, custom command, or cheats.  This is dependent on the current progs.dat, so may vary between servers or game mods.  Typical values:
+
+	Value 	Action
+	1-8	 Select corresponding weapon
+	9 	 Gives all the weapons and keys
+	10 	 Selects next weapon by numerical value
+	11 	 Gives a rune
+	12 	 Selects previous weapon by numerical value
+	100+ Typical start of custom commands coded in qc (progs.dat)
+		Example:  in the Frikbot mod, "impulse 100" adds a bot.
+	255  Gives quad damage
+
+map  - load map
+name  - set server name, or display the user name if no args
+noclip  - move through level without being blocked
+notarget  - toggle if creature automatically attacks player
+reconnect  - reconnect to server
+record  - record demo
+restart  - restart level
+stop  - stop demo recording
+playdemo  - play demo
+quit  - end the program
+stuffcmds  - 
+timedemo  - time the length of a demo and show average fps
+viewpos  - show viewpoint coordinates and angles
+mapname  - the name of the current map
+messagemode - puts up the "say:" prompt
+messagemode2 - puts up the "say:" prompt for team-only message
+path  - display current search path
+say  - puts up the "say:" prompt
+say_team  - puts up the "say:" prompt for team-only message
+staticents  - display list of static entities
+status  - display server status
+stuffcmds  - adds command line parameters as script statements
+toggleconsole  - hide or show console
+unalias  - delete alias
+unaliasall  - delete all aliases
+version  - displays the server version
+
+wait  - Causes execution of the remainder of the command buffer to be delayed until next frame.  This allows commands like:
+bind g "impulse 5 ; +attack ; wait ; -attack ; impulse 2"
+
+
+MOVEMENT AND ACTION COMMANDS
+-----------------------------
++attack  - fire current weapon
++back  - move backward
++forward  - move forward
++impulse  - 
++jump  - jump
++left  - rotate left
++lookdown  - rotate down
++lookup  - rotate up
++moveup  - move up vertically, when swimming
++movedown  - move down vertically, when swimming
++moveleft  - move left (strafe)
++moveright  - move right (strafe)
++right  - rotate right
++speed  - run, instead of walk
++strafe  - move left or right without rotating when +left or +right are active
+[+] +shift  - function shift
++use  - use object, may be implemented by some custom modifications
+

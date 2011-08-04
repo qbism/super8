@@ -1,0 +1,72 @@
+qbismSuper8 compile notes
+06-16-2011
+
+Building the Flash version of qbismSuper8 on Windows
+-----------------------------------------------------
+
+The notes below outline how I setup Flash compiling tools for qbism-super8.  If you wish to follow along, it is up to you to comprehend what you are doing at each step!  Realize that there could be typos or missing steps.  Please post comments or questions at qbism.com or inside3d.com.  Also try a search for "flash" on inside3d.com to see discussions about Flash Quake.  
+
+1.  Install Cygwin with the auto-installer from http://cygwin.com/ and be sure perl, zip, and gcc packages are selected.
+
+2.  Install FlashDevelop:  http://www.flashdevelop.org  The installer will download the Flex SDK.
+Config instructions:  http://www.flashdevelop.org/wikidocs/index.php?title=Configuration
+
+3.  Download Alchemy Toolkit:  http://labs.adobe.com/downloads/alchemy.html Unzip, locate the folder under C: drive, and rename the folder to "alchemy".  C:\alchemy
+Current build uses Alchemy updated December 10, 2008
+   
+4.	Install Java Runtime Environment (JRE):  http://developers.sun.com/products/
+
+5. 	(optional) Install Flash 10 stand-alone debug player http://www.adobe.com/support/flashplayer/downloads.html
+Note, you may have to uninstall the browser flash player, although I did not.  Using Firefox in Vista.
+
+6. 	Run Cygwin (should be a desktop icon from the install) and navigate to /cygdrive/c/alchemy.  Run ./config.  Close Cygwin.
+   
+7.  Copy C:\alchemy\bin\asc.jar to C:\alchemy\asm-asc\lib\asc.jar  Note that \asm-asc\lib directories will have to be created.  (The compiler can't find it otherwise.)
+    
+8. 	Open c:\cygwin\etc\profile in a text editor. Find the PATH and add "source /cygdrive/c/alchemy/alchemy-setup" above PATH if it's not already there.  Add the Java JDK 6 and Flex binaries to the Cygwin path- /cygdrive/c/Program\ Files/Java/jre6/bin and /cygdrive/c/flex_sdk/bin  The result will look something like:
+
+source /cygdrive/c/alchemy/alchemy-setup
+PATH=/usr/local/bin:/usr/bin:/bin:/usr/X11R6/bin:/cygdrive/c/Program\ Files/Java/jre6/bin:/cygdrive/c/Program\ Files\ \(x86\)/FlashDevelop/Tools/flexsdk/bin:$PATH
+
+9. Start Cygwin again and navigate to /cygdrive/c/qbismSuper8/qbismS8src/s_flash
+   (Cygwin has path autocomplete if you type a couple of characters.)
+   
+11. Type:  alc-on
+
+12. Compile the swc.  Type:  make -j3 -f makeswf
+    A list of compiled .o files will scroll by.  The end should look similar to:
+
+WARNING: While resolving call to function 'main' arguments were dropped!
+
+2296.achacks.swf, 1972726 bytes written
+frame rate: 60
+frame count: 1
+69 : 4
+72 : 1972661
+76 : 28
+1 : 0
+0 : 0
+frame rate: 24
+frame count: 1
+69 : 4
+77 : 506
+64 : 31
+63 : 16
+65 : 4
+9 : 3
+41 : 26
+82 : 471
+1 : 0
+0 : 0
+converting to DOS line endings
+catalog.xml: done.
+adding: catalog.xml (deflated 76%)
+adding: library.swf (deflated 76%)
+cp Release/quake.swc lib/quake.swc 
+
+  
+13. Start up FlashDevelop, open the project located in C:\qbismSuper8\qbismS8src\s_flash, and compile.
+
+Among many others: Thanks to Baker for his Flash quakePro port and his installation help and instructions on inside3d, Michael Rennie for the initial port, and to Manoel Kasimier for Makaqu quake.
+
+Jeff Ford
