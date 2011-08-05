@@ -78,6 +78,7 @@ cvar_t ambient_level = {"ambient_level", "0.3"};
 cvar_t ambient_fade = {"ambient_fade", "100"};
 cvar_t snd_noextraupdate = {"snd_noextraupdate", "0"};
 cvar_t snd_show = {"snd_show", "0"};
+cvar_t snd_speed = {"snd_speed", "44100"};  //qbism
 cvar_t _snd_mixahead = {"_snd_mixahead", "0.2", true}; //qbism- Dan East was 0.1
 cvar_t snd_stereo = {"snd_stereo", "1", true}; // Manoel Kasimier
 cvar_t snd_swapstereo = {"snd_swapstereo", "0", true}; // Manoel Kasimier
@@ -193,6 +194,7 @@ void S_Init (void)
 	Cvar_RegisterVariable(&ambient_fade);
 	Cvar_RegisterVariable(&snd_noextraupdate);
 	Cvar_RegisterVariable(&snd_show);
+	Cvar_RegisterVariable(&snd_speed);  //qbism
 	Cvar_RegisterVariable(&_snd_mixahead);
 	Cvar_RegisterVariable(&snd_swapstereo); // Manoel Kasimier
 	Cvar_RegisterVariable(&snd_stereo); // Manoel Kasimier

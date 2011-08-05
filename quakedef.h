@@ -329,6 +329,6 @@ extern	cvar_t	host_timescale;
 // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
 
 extern	cvar_t vid_mode; //qbism
-
+extern	cvar_t snd_speed; //qbism
 extern int current_protocol; //qbism
 

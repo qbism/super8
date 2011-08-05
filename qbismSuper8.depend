@@ -2,7 +2,7 @@
 1309137754 source:c:\qbismsuper8\qbs8src\chase.c
 	"quakedef.h"
 
-1311908143 c:\qbismsuper8\qbs8src\quakedef.h
+1312502022 c:\qbismsuper8\qbs8src\quakedef.h
 	<math.h>
 	<string.h>
 	<stdarg.h>
@@ -678,7 +678,7 @@
 1284553981 c:\program files\codeblocks\mingw\include\_mingw_float.h
 	<_mingw.h>
 
-1310348162 source:c:\qbismsuper8\qbs8src\common.c
+1312500901 source:c:\qbismsuper8\qbs8src\common.c
 	"quakedef.h"
 
 1311821574 source:c:\qbismsuper8\qbs8src\console.c
@@ -983,7 +983,7 @@
 
 1287953220 source:c:\qbismsuper8\qbs8src\s_win32\qbism-s8.rc
 
-1308246092 source:c:\qbismsuper8\qbs8src\s_win32\snd_win.c
+1312499110 source:c:\qbismsuper8\qbs8src\s_win32\snd_win.c
 	"../quakedef.h"
 	"winquake.h"
 
@@ -1013,7 +1013,7 @@
 	"r_local.h"
 	"s_win32/movie.h"
 
-1311810721 source:c:\qbismsuper8\qbs8src\snd_dma.c
+1312499655 source:c:\qbismsuper8\qbs8src\snd_dma.c
 	"quakedef.h"
 	"s_win32/winquake.h"
 	"s_win32/movie.h"

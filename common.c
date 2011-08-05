@@ -1985,6 +1985,10 @@ void COM_InitFilesystem (void)
 	if (i && i < com_argc-1)
 		strncpy (gamedir, com_argv[i+1], sizeof(gamedir) - 1);
 
+	i = COM_CheckParm ("-sndspeed");  //qbism- from Darkplaces
+	if (i && i < com_argc-1)
+			snd_speed.value = Q_atoi (com_argv[i+1]);
+
 //
 // start up with GAMENAME by default (id1)
 //
