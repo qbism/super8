@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // protocol.h -- communications protocols
 
 #define	PROTOCOL_NETQUAKE	15
+#define PROTOCOL_FITZQUAKE  666 //qbism -  added from FQ
 #define PROTOCOL_QBS8  888 //qbism
 
 // if the high bit of the servercmd is set, the low bits are fast update flags:
@@ -40,19 +41,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	U_SKIN		(1<<12)
 #define	U_EFFECTS	(1<<13)
 #define	U_LONGENTITY	(1<<14)
-// Tomaz - QC Alpha Scale Glow Control Begin
-#define	U_EXTEND1	(1<<15)
-#define	U_SCALE		(1<<16)
-#define	U_ALPHA		(1<<17)
-#define	U_GLOW_SIZE	(1<<20)
-//#define	U_GLOW_BLUE	(1<<21)
-#define	U_SCALEV	(1<<22)
-// Tomaz - QC Alpha Scale Glow Control End
-#define	U_EXTEND2		(1<<23)
 
-#define U_EFFECTS2		(1<<24) // qbism- jump up to 4 bytes
-#define U_FRAMEINTERVAL	(1<<25) // Manoel Kasimier - QC frame_interval - be careful, as this uses the same number as U_COLORMOD
-#define U_COLORMOD		(1<<25) // 1 byte, 3 bit red, 3 bit green, 2 bit blue, this lets you tint an object artifically, so you could make a red rocket, or a blue fiend...
+//qbism- changed bits 15-19 to match PROTOCOL_FITZQUAKE
+#define U_EXTEND1		(1<<15)
+#define U_ALPHA			(1<<16) // 1 byte, uses ENTALPHA_ENCODE, not sent if equal to baseline
+#define U_FRAME2		(1<<17) // 1 byte, this is .frame & 0xFF00 (second byte)
+#define U_MODEL2		(1<<18) // 1 byte, this is .modelindex & 0xFF00 (second byte)
+#define U_LERPFINISH	(1<<19) // 1 byte, 0.0-1.0 maps to 0-255, not sent if exactly 0.1, this is ent->v.nextthink - sv.time, used for lerping
+#define U_SCALE			(1<<20) //qbism - from Makaqu
+#define U_SCALEV		(1<<21) //qbism - from Makaqu
+#define U_GLOW_SIZE		(1<<22) //qbism - from Makaqu
+#define U_EXTEND2		(1<<23) // another byte to follow
+
+#define U_EFFECTS2		(1<<24) // qbism- jump up to 4 bytes for DP effects
+#define U_FRAMEINTERVAL	(1<<25) // Manoel Kasimier - QC frame_interval
+//qbism- remove  #define U_COLORMOD		(1<<25) // 1 byte, 3 bit red, 3 bit green, 2 bit blue, this lets you tint an object artifically, so you could make a red rocket, or a blue fiend...
 #define U_VIEWMODEL		(1<<26) // attachs the model to the view (origin and angles become relative to it), only shown to owner, a more powerful alternative to .weaponmodel and such
 #define U_EXTERIORMODEL	(1<<27) // causes this model to not be drawn when using a first person view (third person will draw it, first person will not)
 #define U_EXTEND3		(1<<31) // another byte to follow, future expansion
@@ -73,6 +76,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	SU_ARMOR		(1<<13)
 #define	SU_WEAPON		(1<<14)
 
+//qbism- from johnfitz -- PROTOCOL_FITZQUAKE -- new bits
+#define SU_EXTEND1		(1<<15) // another byte to follow
+#define SU_WEAPON2		(1<<16) // 1 byte, this is .weaponmodel & 0xFF00 (second byte)
+#define SU_ARMOR2		(1<<17) // 1 byte, this is .armorvalue & 0xFF00 (second byte)
+#define SU_AMMO2		(1<<18) // 1 byte, this is .currentammo & 0xFF00 (second byte)
+#define SU_SHELLS2		(1<<19) // 1 byte, this is .ammo_shells & 0xFF00 (second byte)
+#define SU_NAILS2		(1<<20) // 1 byte, this is .ammo_nails & 0xFF00 (second byte)
+#define SU_ROCKETS2		(1<<21) // 1 byte, this is .ammo_rockets & 0xFF00 (second byte)
+#define SU_CELLS2		(1<<22) // 1 byte, this is .ammo_cells & 0xFF00 (second byte)
+#define SU_EXTEND2		(1<<23) // another byte to follow
+#define SU_WEAPONFRAME2	(1<<24) // 1 byte, this is .weaponframe & 0xFF00 (second byte)
+#define SU_WEAPONALPHA	(1<<25) // 1 byte, this is alpha for weaponmodel, uses ENTALPHA_ENCODE, not sent if ENTALPHA_DEFAULT
+#define SU_UNUSED26		(1<<26)
+#define SU_UNUSED27		(1<<27)
+#define SU_UNUSED28		(1<<28)
+#define SU_UNUSED29		(1<<29)
+#define SU_UNUSED30		(1<<30)
+#define SU_EXTEND3		(1<<31) // another byte to follow, future expansion
+//johnfitz
 // a sound with no channel is a local only sound
 #define	SND_VOLUME		(1<<0)		// a byte
 #define	SND_ATTENUATION	(1<<1)		// a byte
@@ -82,6 +104,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // -- new bits
 #define	SND_LARGEENTITY	(1<<3)	// a short + byte (instead of just a short)
 #define	SND_LARGESOUND	(1<<4)	// a short soundindex (instead of a byte)
+
+//johnfitz -- PROTOCOL_FITZQUAKE -- flags for entity baseline messages
+#define B_LARGEMODEL	(1<<0)	// modelindex is short instead of byte
+#define B_LARGEFRAME	(1<<1)	// frame is short instead of byte
+#define B_ALPHA			(1<<2)	// 1 byte, uses ENTALPHA_ENCODE, not sent if ENTALPHA_DEFAULT
+//johnfitz
 
 //johnfitz -- PROTOCOL_FITZQUAKE -- alpha encoding
 #define ENTALPHA_DEFAULT	0	//entity's alpha is "default" (i.e. water obeys r_wateralpha) -- must be zero so zeroed out memory works
@@ -160,10 +188,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define svc_cutscene		34
 
-#define svc_letterbox		60	// Manoel Kasimier - svc_letterbox
-#define svc_vibrate			61	// Manoel Kasimier
+//johnfitz -- PROTOCOL_FITZQUAKE -- new server messages
+#define	svc_skybox				37	// [string] name
+#define svc_bf					40
+#define svc_fog					41	// [byte] density [byte] red [byte] green [byte] blue [float] time
+#define svc_spawnbaseline2		42  // support for large modelindex, large framenum, alpha, using flags
+#define svc_spawnstatic2		43	// support for large modelindex, large framenum, alpha, using flags
+#define	svc_spawnstaticsound2	44	// [coord3] [short] samp [byte] vol [byte] aten
+//johnfitz
 
-#define	svc_say				70	//qbism TTS [string] null terminated string
+#define	svc_say				49	//qbism TTS [string] null terminated string
+#define svc_letterbox		50	// Manoel Kasimier - svc_letterbox
+#define svc_vibrate			51	// Manoel Kasimier
+
+
 
 
 //

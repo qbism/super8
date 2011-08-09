@@ -27,7 +27,7 @@ static char     *largv[MAX_NUM_ARGVS + NUM_SAFE_ARGVS + 1];
 static char     *argvdummy = " ";
 
 static char     *safeargvs[NUM_SAFE_ARGVS] =
-{"-stdvid", "-nolan", "-nosound", "-nocdaudio", "-nojoy", "-nomouse", "-dibonly"};
+{"-nolan", "-nosound", "-nocdaudio", "-nojoy", "-nomouse"};
 
 cvar_t  registered = {"registered","0"};
 cvar_t  cmdline = {"cmdline","0", false, true};
@@ -651,7 +651,7 @@ void MSG_WriteString (sizebuf_t *sb, char *s)
 
 void MSG_WriteCoord (sizebuf_t *sb, float f)
 {
-    if (current_protocol == PROTOCOL_QBS8) //qbism extended coordinates by JTR
+    if (current_protocol != PROTOCOL_NETQUAKE) //qbism extended coordinates by JTR
         MSG_WriteLong (sb, (int)(f*8));
     else
         MSG_WriteShort (sb, (int)(f*8));
@@ -661,7 +661,7 @@ void MSG_WriteCoord (sizebuf_t *sb, float f)
 void MSG_WriteAngle (sizebuf_t *sb, float f)
 {
     // Manoel Kasimier - 16-bit angles - begin
-    if (current_protocol == PROTOCOL_QBS8)
+    if (current_protocol != PROTOCOL_NETQUAKE)  //qbism - modified for multiple protocols
         MSG_WriteShort (sb, (int)(f*65536.0/360.0) & 65535);// MSG_WriteFloat(sb, f);
     else
         // Manoel Kasimier - 16-bit angles - end
@@ -796,7 +796,7 @@ float MSG_ReadCoord (void)
 
 {
 
-    if (current_protocol == PROTOCOL_QBS8) //qbism extended coordinates - JTR
+    if (current_protocol != PROTOCOL_NETQUAKE) //qbism extended coordinates - JTR
         return MSG_ReadLong("MSG_ReadCoord") * (1.0/8);
     else
         return MSG_ReadShort() * (1.0/8);
@@ -805,7 +805,7 @@ float MSG_ReadCoord (void)
 float MSG_ReadAngle (void)
 {
     // Manoel Kasimier - 16-bit angles - begin
-    if (current_protocol == PROTOCOL_QBS8)
+    if (current_protocol != PROTOCOL_NETQUAKE)
         return MSG_ReadShort () * (360.0/65536.0);//MSG_ReadFloat();
     else
         // Manoel Kasimier - 16-bit angles - end

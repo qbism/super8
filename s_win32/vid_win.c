@@ -613,11 +613,11 @@ void VID_InitModes (HINSTANCE hInstance)
 	// automatically stretch the default mode up if > 640x480 desktop resolution
 	hdc = GetDC (NULL);
 
-	if ((GetDeviceCaps (hdc, HORZRES) > 800) && !COM_CheckParm ("-noautostretch"))
+	if ((GetDeviceCaps (hdc, HORZRES) > modelist[1].width) && !COM_CheckParm ("-noautostretch"))  //qbism - was 800
 	{
 		vid_default = MODE_WINDOWED + 2;
 	}
-	else if ((GetDeviceCaps (hdc, HORZRES) > 640) && !COM_CheckParm ("-noautostretch"))
+	else if ((GetDeviceCaps (hdc, HORZRES) > modelist[0].width) && !COM_CheckParm ("-noautostretch"))  //qbism - was 640
 	{
 		vid_default = MODE_WINDOWED + 1;
 	}
