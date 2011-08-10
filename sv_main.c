@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // sv_main.c -- server main program
 
 #include "quakedef.h"
-int current_protocol = PROTOCOL_QBS8; //qbism: similar to PROTOCOL_FITZQUAKE
+int current_protocol = PROTOCOL_QBS8; //qbism
 extern qboolean		pr_alpha_supported; //johnfitz
 
 server_t		sv;
@@ -50,8 +50,8 @@ void SV_Protocol_f (void)
         break;
     case 2:
         i = atoi(Cmd_Argv(1));
-        if (i != PROTOCOL_NETQUAKE && i != PROTOCOL_QBS8 && i != PROTOCOL_FITZQUAKE)
-            Con_Printf ("sv_protocol must be %i or %i OR %i\n", PROTOCOL_NETQUAKE, PROTOCOL_FITZQUAKE, PROTOCOL_QBS8);
+        if (i != PROTOCOL_NETQUAKE && i != PROTOCOL_QBS8)
+            Con_Printf ("sv_protocol must be %i or %i\n", PROTOCOL_NETQUAKE, PROTOCOL_QBS8);
         else
         {
             current_protocol = i;
@@ -739,15 +739,15 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             if (ent->baseline.alpha != ent->alpha) bits |= U_ALPHA;
             if (bits & U_FRAME && (int)ent->v.frame & 0xFF00) bits |= U_FRAME2;
             if (bits & U_MODEL && (int)ent->v.modelindex & 0xFF00) bits |= U_MODEL2;
-//qbism- not implemented			if (ent->sendinterval) bits |= U_LERPFINISH;
+//qbism- not implemented yet			if (ent->sendinterval) bits |= U_LERPFINISH;
             if (bits >= 65536) bits |= U_EXTEND1;
             if (bits >= 16777216) bits |= U_EXTEND2;
  //       }
         //johnfitz
 
         // Tomaz - QC Alpha Scale Glow Begin
- //       if (current_protocol == PROTOCOL_QBS8)
- //       {
+        if (current_protocol == PROTOCOL_QBS8)
+        {
             eval_t  *val;
 
             if (val = GetEdictFieldValue(ent, "scale"))
@@ -777,7 +777,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
                     bits |= U_GLOW_SIZE;
 
                 }
-           // }
+            }
             // Manoel Kasimier - edited - end
             // Manoel Kasimier - QC frame_interval - begin
             if ((val = GetEdictFieldValue(ent, "frame_interval")))
@@ -859,8 +859,8 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
                 MSG_WriteByte(msg, (int)ent->v.modelindex >> 8);
   //      }
         // Tomaz - QC Alpha Scale Glow Begin
- //       if (current_protocol == PROTOCOL_QBS8)  //qbism
- //       {
+        if (current_protocol == PROTOCOL_QBS8)  //qbism
+        {
             if (bits & U_SCALE)
                 MSG_WriteFloat(msg, scale);
             if (bits & U_SCALEV)
@@ -874,7 +874,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             if (bits & U_FRAMEINTERVAL)
                 MSG_WriteFloat(msg, frame_interval);
             // Manoel Kasimier - QC frame_interval - end
- //       }
+        }
     }
 }
 

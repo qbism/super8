@@ -69,7 +69,7 @@ char *svc_strings[] =
     "svc_cdtrack",			// [byte] track [byte] looptrack
     "svc_sellscreen",
     "svc_cutscene",
-//johnfitz -- new server messages
+//qbism - from johnfitz -- new server messages
     "",	// 35
     "",	// 36
     "svc_skybox", // 37					// [string] skyname
@@ -102,11 +102,15 @@ This error checks and tracks the total number of entities
 */
 entity_t	*CL_EntityNum (int num)
 {
-    if (num < 0 || num >= cl.num_entities)
-    {
-        if (num < 0 || num >= MAX_EDICTS)
-            Host_Error ("CL_EntityNum: invalid edict (%d, max = %d)", num, MAX_EDICTS);
+    //johnfitz -- check minimum number too
+    if (num < 0)
+        Host_Error ("CL_EntityNum: %i is an invalid number",num);
+    //john
 
+    if (num >= cl.num_entities)
+    {
+        if (num >= MAX_EDICTS) //johnfitz -- no more MAX_EDICTS
+            Host_Error ("CL_EntityNum: %i is an invalid number",num);
         while (cl.num_entities<=num)
         {
             cl_entities[cl.num_entities].colormap = vid.colormap;
@@ -262,11 +266,11 @@ void CL_ParseServerInfo (void)
 // parse protocol version number
 
     current_protocol = MSG_ReadLong ("ReadLong CL_ParseServerInfo");
-    if((current_protocol != PROTOCOL_NETQUAKE) && (current_protocol != PROTOCOL_QBS8) && (current_protocol != PROTOCOL_FITZQUAKE)) // qbism added
+    if((current_protocol != PROTOCOL_NETQUAKE) && (current_protocol != PROTOCOL_QBS8)) // qbism added
     {
         Con_Printf ("\n"); //becuase there's no newline after serverinfo print
         Host_Error/*Con_Printf*/ ("Server returned version %i, not %i, %i, or %i.\n",
-                                  current_protocol, PROTOCOL_NETQUAKE, PROTOCOL_FITZQUAKE, PROTOCOL_QBS8);
+                                  current_protocol, PROTOCOL_NETQUAKE, PROTOCOL_QBS8);
         return;
     }
     else Con_Printf("Protocol version: %i", current_protocol);
@@ -513,48 +517,53 @@ void CL_ParseUpdate (int bits)
         ent->forcelink = true;
 
 //    if (current_protocol != PROTOCOL_NETQUAKE)  //qbism - from Fitzquake
- //   {
-        if (bits & U_ALPHA)
-            ent->alpha = MSG_ReadByte();
-        else
-            ent->alpha = ent->baseline.alpha;
-        if (bits & U_FRAME2)
-            ent->frame = (ent->frame & 0x00FF) | (MSG_ReadByte() << 8);
-        if (bits & U_MODEL2)
-            modnum = (modnum & 0x00FF) | (MSG_ReadByte() << 8);
- //   }
- //   else ent->alpha = ent->baseline.alpha;
+//   {
+    if (bits & U_ALPHA)
+        ent->alpha = MSG_ReadByte();
+    else
+        ent->alpha = ent->baseline.alpha;
+    if (bits & U_FRAME2)
+        ent->frame = (ent->frame & 0x00FF) | (MSG_ReadByte() << 8);
+    if (bits & U_MODEL2)
+        modnum = (modnum & 0x00FF) | (MSG_ReadByte() << 8);
+    if (bits & U_LERPFINISH)  //qbism- for potential PROTOCOL_FITZQUAKE support, not implemented yet, so dump.
+    {
+        MSG_ReadByte(); //ent->lerpfinish = ent->msgtime + ((float)(MSG_ReadByte()) / 255);
+        //ent->lerpflags |= LERP_FINISH;
+    }
+//   }
+//   else ent->alpha = ent->baseline.alpha;
 
- //       if (current_protocol == PROTOCOL_QBS8)  //qbism
- //       {
-            // Tomaz - QC Scale Glow Begin
-            if (bits & U_SCALE)
-                ent->scale2 = MSG_ReadFloat();
-            else ent->scale2 = 1.0f;
+//       if (current_protocol == PROTOCOL_QBS8)  //qbism
+//       {
+    // Tomaz - QC Scale Glow Begin
+    if (bits & U_SCALE)
+        ent->scale2 = MSG_ReadFloat();
+    else ent->scale2 = 1.0f;
 
-            if (bits & U_SCALEV)
-            {
-                for (i=0 ; i<3 ; i++)
-                    ent->scalev[i] = MSG_ReadFloat();
-            }
-            else
-                ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
+    if (bits & U_SCALEV)
+    {
+        for (i=0 ; i<3 ; i++)
+            ent->scalev[i] = MSG_ReadFloat();
+    }
+    else
+        ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
 
-            if (bits & U_GLOW_SIZE)
-                ent->glow_size = MSG_ReadFloat();
-            else
-                ent->glow_size = 0;
-            // Tomaz - QC Scale Glow End
+    if (bits & U_GLOW_SIZE)
+        ent->glow_size = MSG_ReadFloat();
+    else
+        ent->glow_size = 0;
+    // Tomaz - QC Scale Glow End
 
-            // Manoel Kasimier - QC frame_interval - begin
-            if (bits & U_FRAMEINTERVAL)
-                ent->frame_interval = MSG_ReadFloat();
-            else
-                ent->frame_interval = 0.1f;
-            // Manoel Kasimier - QC frame_interval - end
- //       }
+    // Manoel Kasimier - QC frame_interval - begin
+    if (bits & U_FRAMEINTERVAL)
+        ent->frame_interval = MSG_ReadFloat();
+    else
+        ent->frame_interval = 0.1f;
+    // Manoel Kasimier - QC frame_interval - end
+//       }
 
-      model = cl.model_precache[modnum];
+    model = cl.model_precache[modnum];
     if (model != ent->model)
     {
         ent->model = model;
@@ -571,668 +580,672 @@ void CL_ParseUpdate (int bits)
             forcelink = true;	// hack to make null model players work
     }
 
-        if ( forcelink )
-        {
-            // didn't have an update last message
-            VectorCopy (ent->msg_origins[0], ent->msg_origins[1]);
-            VectorCopy (ent->msg_origins[0], ent->origin);
-            VectorCopy (ent->msg_angles[0], ent->msg_angles[1]);
-            VectorCopy (ent->msg_angles[0], ent->angles);
-            ent->forcelink = true;
-        }
+    if ( forcelink )
+    {
+        // didn't have an update last message
+        VectorCopy (ent->msg_origins[0], ent->msg_origins[1]);
+        VectorCopy (ent->msg_origins[0], ent->origin);
+        VectorCopy (ent->msg_angles[0], ent->msg_angles[1]);
+        VectorCopy (ent->msg_angles[0], ent->angles);
+        ent->forcelink = true;
+    }
+}
+
+/*
+==================
+CL_ParseBaseline  //qbism-  from Fitzquake
+==================
+*/
+
+void CL_ParseBaseline (entity_t *ent, int version) //johnfitz -- added argument
+{
+    int	i;
+    int bits; //johnfitz
+
+    //johnfitz -- PROTOCOL_FITZQUAKE
+    bits = (version == 2) ? MSG_ReadByte() : 0;
+    ent->baseline.modelindex = (bits & B_LARGEMODEL) ? MSG_ReadShort() : MSG_ReadByte();
+    ent->baseline.frame = (bits & B_LARGEFRAME) ? MSG_ReadShort() : MSG_ReadByte();
+    //johnfitz
+
+    ent->baseline.colormap = MSG_ReadByte();
+    ent->baseline.skin = MSG_ReadByte();
+    for (i=0 ; i<3 ; i++)
+    {
+        ent->baseline.origin[i] = MSG_ReadCoord ();
+        ent->baseline.angles[i] = MSG_ReadAngle ();
     }
 
-    /*
-    ==================
-    CL_ParseBaseline  //qbism-  from Fitzquake
-    ==================
-    */
+    ent->baseline.alpha = (bits & B_ALPHA) ? MSG_ReadByte() : ENTALPHA_DEFAULT; //johnfitz -- PROTOCOL_FITZQUAKE
+}
 
-    void CL_ParseBaseline (entity_t *ent, int version) //johnfitz -- added argument
+/*
+==================
+CL_ParseClientdata
+
+Server information pertaining to this client only
+==================
+*/
+void CL_ParseClientdata (void ) //qbism read bits in function similar to johnfitz
+{
+    int		i, j, bits;
+    float newpunchangle, oldpunchangle = Length(cl.punchangle); // Manoel Kasimier
+
+    bits = (unsigned short)MSG_ReadShort (); //qbism:  johnfitz -- read bits here instead of in CL_ParseServerMessage()
+
+    //qbism- from johnfitz -- PROTOCOL_FITZQUAKE
+    if (bits & SU_EXTEND1)
+        bits |= (MSG_ReadByte() << 16);
+    if (bits & SU_EXTEND2)
+        bits |= (MSG_ReadByte() << 24);
+    //johnfitz
+
+    if (bits & SU_VIEWHEIGHT)
+        cl.viewheight = MSG_ReadChar ();
+    else
+        cl.viewheight = DEFAULT_VIEWHEIGHT;
+
+    if (bits & SU_IDEALPITCH)
+        cl.idealpitch = MSG_ReadChar ();
+    else
+        cl.idealpitch = 0;
+
+    VectorCopy (cl.mvelocity[0], cl.mvelocity[1]);
+    for (i=0 ; i<3 ; i++)
     {
-        int	i;
-        int bits; //johnfitz
-
-        //johnfitz -- PROTOCOL_FITZQUAKE
-        bits = (version == 2) ? MSG_ReadByte() : 0;
-        ent->baseline.modelindex = (bits & B_LARGEMODEL) ? MSG_ReadShort() : MSG_ReadByte();
-        ent->baseline.frame = (bits & B_LARGEFRAME) ? MSG_ReadShort() : MSG_ReadByte();
-        //johnfitz
-
-        ent->baseline.colormap = MSG_ReadByte();
-        ent->baseline.skin = MSG_ReadByte();
-        for (i=0 ; i<3 ; i++)
+        if (bits & (SU_PUNCH1<<i) )
+            // Manoel Kasimier - 16-bit angles - begin
         {
-            ent->baseline.origin[i] = MSG_ReadCoord ();
-            ent->baseline.angles[i] = MSG_ReadAngle ();
-        }
-
-        ent->baseline.alpha = (bits & B_ALPHA) ? MSG_ReadByte() : ENTALPHA_DEFAULT; //johnfitz -- PROTOCOL_FITZQUAKE
+            if (current_protocol == PROTOCOL_QBS8)
+                cl.punchangle[i] = MSG_ReadAngle();
+            else
+                // Manoel Kasimier - 16-bit angles - end
+                cl.punchangle[i] = MSG_ReadChar();
+        } // Manoel Kasimier - 16-bit angles
+        else
+            cl.punchangle[i] = 0;
+        if (bits & (SU_VELOCITY1<<i) )
+            cl.mvelocity[0][i] = MSG_ReadChar()*16;
+        else
+            cl.mvelocity[0][i] = 0;
     }
 
-    /*
-    ==================
-    CL_ParseClientdata
-
-    Server information pertaining to this client only
-    ==================
-    */
-    void CL_ParseClientdata (void ) //qbism read bits in function similar to johnfitz
+    // Manoel Kasimier - begin
+    newpunchangle = Length(cl.punchangle);
+    if (newpunchangle && !cl.intermission)
     {
-        int		i, j, bits;
-        float newpunchangle, oldpunchangle = Length(cl.punchangle); // Manoel Kasimier
-
-        bits = (unsigned short)MSG_ReadShort (); //qbism:  johnfitz -- read bits here instead of in CL_ParseServerMessage()
-
-        //qbism- from johnfitz -- PROTOCOL_FITZQUAKE
-        if (bits & SU_EXTEND1)
-            bits |= (MSG_ReadByte() << 16);
-        if (bits & SU_EXTEND2)
-            bits |= (MSG_ReadByte() << 24);
-        //johnfitz
-
-        if (bits & SU_VIEWHEIGHT)
-            cl.viewheight = MSG_ReadChar ();
-        else
-            cl.viewheight = DEFAULT_VIEWHEIGHT;
-
-        if (bits & SU_IDEALPITCH)
-            cl.idealpitch = MSG_ReadChar ();
-        else
-            cl.idealpitch = 0;
-
-        VectorCopy (cl.mvelocity[0], cl.mvelocity[1]);
-        for (i=0 ; i<3 ; i++)
+        if (oldpunchangle <= newpunchangle && cl_vibration.value != 2) // increasing
         {
-            if (bits & (SU_PUNCH1<<i) )
-                // Manoel Kasimier - 16-bit angles - begin
-            {
-                if (current_protocol == PROTOCOL_QBS8)
-                    cl.punchangle[i] = MSG_ReadAngle();
-                else
-                    // Manoel Kasimier - 16-bit angles - end
-                    cl.punchangle[i] = MSG_ReadChar();
-            } // Manoel Kasimier - 16-bit angles
-            else
-                cl.punchangle[i] = 0;
-            if (bits & (SU_VELOCITY1<<i) )
-                cl.mvelocity[0][i] = MSG_ReadChar()*16;
-            else
-                cl.mvelocity[0][i] = 0;
-        }
-
-        // Manoel Kasimier - begin
-        newpunchangle = Length(cl.punchangle);
-        if (newpunchangle && !cl.intermission)
-        {
-            if (oldpunchangle <= newpunchangle && cl_vibration.value != 2) // increasing
-            {
-                vibration_update[0] = true;
+            vibration_update[0] = true;
 //			Con_Printf("%f\n", newpunchangle);
-            }
         }
-        // Manoel Kasimier - end
+    }
+    // Manoel Kasimier - end
 
-        i = MSG_ReadLong ("ReadLong CL_ParseClientdata");
+    i = MSG_ReadLong ("ReadLong CL_ParseClientdata");
 
-        if (cl.items != i)
-        {
-            // set flash times
-            Sbar_Changed ();
-            for (j=0 ; j<32 ; j++)
-                if ( (i & (1<<j)) && !(cl.items & (1<<j)))
-                    cl.item_gettime[j] = cl.time;
-            cl.items = i;
-        }
-
-        cl.onground = (bits & SU_ONGROUND) != 0;
-        cl.inwater = (bits & SU_INWATER) != 0;
-
-        if (bits & SU_WEAPONFRAME)
-            cl.stats[STAT_WEAPONFRAME] = MSG_ReadByte ();
-        else
-            cl.stats[STAT_WEAPONFRAME] = 0;
-
-        if (bits & SU_ARMOR)
-            i = MSG_ReadByte ();
-        else
-            i = 0;
-        if (cl.stats[STAT_ARMOR] != i)
-        {
-            cl.stats[STAT_ARMOR] = i;
-            Sbar_Changed ();
-        }
-
-        if (bits & SU_WEAPON)
-            i = MSG_ReadByte ();
-        else
-            i = 0;
-        if (cl.stats[STAT_WEAPON] != i)
-        {
-            cl.stats[STAT_WEAPON] = i;
-            Sbar_Changed ();
-        }
-
-        i = MSG_ReadShort ();
-        if (cl.stats[STAT_HEALTH] != i)
-        {
-            cl.stats[STAT_HEALTH] = i;
-            Sbar_Changed ();
-        }
-
-        i = MSG_ReadByte ();
-        if (cl.stats[STAT_AMMO] != i)
-        {
-            cl.stats[STAT_AMMO] = i;
-            Sbar_Changed ();
-        }
-
-        for (i=0 ; i<4 ; i++)
-        {
-            j = MSG_ReadByte ();
-            if (cl.stats[STAT_SHELLS+i] != j)
-            {
-                cl.stats[STAT_SHELLS+i] = j;
-                Sbar_Changed ();
-            }
-        }
-
-        i = MSG_ReadByte ();
-
-        if (standard_quake)
-        {
-            if (cl.stats[STAT_ACTIVEWEAPON] != i)
-            {
-                cl.stats[STAT_ACTIVEWEAPON] = i;
-                Sbar_Changed ();
-            }
-        }
-        else
-        {
-            if (cl.stats[STAT_ACTIVEWEAPON] != (1<<i))
-            {
-                cl.stats[STAT_ACTIVEWEAPON] = (1<<i);
-                Sbar_Changed ();
-            }
-        }
-        //johnfitz -- PROTOCOL_FITZQUAKE
-        if (bits & SU_WEAPON2)
-            cl.stats[STAT_WEAPON] |= (MSG_ReadByte() << 8);
-        if (bits & SU_ARMOR2)
-            cl.stats[STAT_ARMOR] |= (MSG_ReadByte() << 8);
-        if (bits & SU_AMMO2)
-            cl.stats[STAT_AMMO] |= (MSG_ReadByte() << 8);
-        if (bits & SU_SHELLS2)
-            cl.stats[STAT_SHELLS] |= (MSG_ReadByte() << 8);
-        if (bits & SU_NAILS2)
-            cl.stats[STAT_NAILS] |= (MSG_ReadByte() << 8);
-        if (bits & SU_ROCKETS2)
-            cl.stats[STAT_ROCKETS] |= (MSG_ReadByte() << 8);
-        if (bits & SU_CELLS2)
-            cl.stats[STAT_CELLS] |= (MSG_ReadByte() << 8);
-        if (bits & SU_WEAPONFRAME2)
-            cl.stats[STAT_WEAPONFRAME] |= (MSG_ReadByte() << 8);
-        if (bits & SU_WEAPONALPHA)
-            cl.viewent.alpha = MSG_ReadByte();
-        else
-            cl.viewent.alpha = ENTALPHA_DEFAULT;
-        //johnfitz
+    if (cl.items != i)
+    {
+        // set flash times
+        Sbar_Changed ();
+        for (j=0 ; j<32 ; j++)
+            if ( (i & (1<<j)) && !(cl.items & (1<<j)))
+                cl.item_gettime[j] = cl.time;
+        cl.items = i;
     }
 
-    /*
-    =====================
-    CL_NewTranslation
-    =====================
-    */
-    void CL_NewTranslation (int slot)
-    {
-        int		i, j;
-        int		top, bottom;
-        byte	*dest, *source;
+    cl.onground = (bits & SU_ONGROUND) != 0;
+    cl.inwater = (bits & SU_INWATER) != 0;
 
-        if (slot > cl.maxclients)
-            Sys_Error ("CL_NewTranslation: slot > cl.maxclients");
-        dest = cl.scores[slot].translations;
-        source = vid.colormap;
-        memcpy (dest, vid.colormap, sizeof(cl.scores[slot].translations));
-        top = cl.scores[slot].colors & 0xf0;
-        bottom = (cl.scores[slot].colors &15)<<4;
+    if (bits & SU_WEAPONFRAME)
+        cl.stats[STAT_WEAPONFRAME] = MSG_ReadByte ();
+    else
+        cl.stats[STAT_WEAPONFRAME] = 0;
+
+    if (bits & SU_ARMOR)
+        i = MSG_ReadByte ();
+    else
+        i = 0;
+    if (cl.stats[STAT_ARMOR] != i)
+    {
+        cl.stats[STAT_ARMOR] = i;
+        Sbar_Changed ();
+    }
+
+    if (bits & SU_WEAPON)
+        i = MSG_ReadByte ();
+    else
+        i = 0;
+    if (cl.stats[STAT_WEAPON] != i)
+    {
+        cl.stats[STAT_WEAPON] = i;
+        Sbar_Changed ();
+    }
+
+    i = MSG_ReadShort ();
+    if (cl.stats[STAT_HEALTH] != i)
+    {
+        cl.stats[STAT_HEALTH] = i;
+        Sbar_Changed ();
+    }
+
+    i = MSG_ReadByte ();
+    if (cl.stats[STAT_AMMO] != i)
+    {
+        cl.stats[STAT_AMMO] = i;
+        Sbar_Changed ();
+    }
+
+    for (i=0 ; i<4 ; i++)
+    {
+        j = MSG_ReadByte ();
+        if (cl.stats[STAT_SHELLS+i] != j)
+        {
+            cl.stats[STAT_SHELLS+i] = j;
+            Sbar_Changed ();
+        }
+    }
+
+    i = MSG_ReadByte ();
+
+    if (standard_quake)
+    {
+        if (cl.stats[STAT_ACTIVEWEAPON] != i)
+        {
+            cl.stats[STAT_ACTIVEWEAPON] = i;
+            Sbar_Changed ();
+        }
+    }
+    else
+    {
+        if (cl.stats[STAT_ACTIVEWEAPON] != (1<<i))
+        {
+            cl.stats[STAT_ACTIVEWEAPON] = (1<<i);
+            Sbar_Changed ();
+        }
+    }
+    //johnfitz -- PROTOCOL_FITZQUAKE
+    if (bits & SU_WEAPON2)
+        cl.stats[STAT_WEAPON] |= (MSG_ReadByte() << 8);
+    if (bits & SU_ARMOR2)
+        cl.stats[STAT_ARMOR] |= (MSG_ReadByte() << 8);
+    if (bits & SU_AMMO2)
+        cl.stats[STAT_AMMO] |= (MSG_ReadByte() << 8);
+    if (bits & SU_SHELLS2)
+        cl.stats[STAT_SHELLS] |= (MSG_ReadByte() << 8);
+    if (bits & SU_NAILS2)
+        cl.stats[STAT_NAILS] |= (MSG_ReadByte() << 8);
+    if (bits & SU_ROCKETS2)
+        cl.stats[STAT_ROCKETS] |= (MSG_ReadByte() << 8);
+    if (bits & SU_CELLS2)
+        cl.stats[STAT_CELLS] |= (MSG_ReadByte() << 8);
+    if (bits & SU_WEAPONFRAME2)
+        cl.stats[STAT_WEAPONFRAME] |= (MSG_ReadByte() << 8);
+    if (bits & SU_WEAPONALPHA)
+        cl.viewent.alpha = MSG_ReadByte();
+    else
+        cl.viewent.alpha = ENTALPHA_DEFAULT;
+    //johnfitz
+}
+
+/*
+=====================
+CL_NewTranslation
+=====================
+*/
+void CL_NewTranslation (int slot)
+{
+    int		i, j;
+    int		top, bottom;
+    byte	*dest, *source;
+
+    if (slot > cl.maxclients)
+        Sys_Error ("CL_NewTranslation: slot > cl.maxclients");
+    dest = cl.scores[slot].translations;
+    source = vid.colormap;
+    memcpy (dest, vid.colormap, sizeof(cl.scores[slot].translations));
+    top = cl.scores[slot].colors & 0xf0;
+    bottom = (cl.scores[slot].colors &15)<<4;
 #ifdef GLQUAKE  //qbism - TODO can use this?  SKIN
-        R_TranslatePlayerSkin (slot);
+    R_TranslatePlayerSkin (slot);
 #endif
 
-        for (i=0 ; i<VID_GRADES ; i++, dest += 256, source+=256)
-        {
-            if (top < 128)	// the artists made some backwards ranges.  sigh.
-                memcpy (dest + TOP_RANGE, source + top, 16);
-            else
-                for (j=0 ; j<16 ; j++)
-                    dest[TOP_RANGE+j] = source[top+15-j];
-
-            if (bottom < 128)
-                memcpy (dest + BOTTOM_RANGE, source + bottom, 16);
-            else
-                for (j=0 ; j<16 ; j++)
-                    dest[BOTTOM_RANGE+j] = source[bottom+15-j];
-        }
-    }
-
-    /*
-    =====================
-    CL_ParseStatic
-    =====================
-    */
-    void CL_ParseStatic (int version) //qbism- from johnfitz -- added a parameter
+    for (i=0 ; i<VID_GRADES ; i++, dest += 256, source+=256)
     {
-        entity_t *ent;
-        int		i;
+        if (top < 128)	// the artists made some backwards ranges.  sigh.
+            memcpy (dest + TOP_RANGE, source + top, 16);
+        else
+            for (j=0 ; j<16 ; j++)
+                dest[TOP_RANGE+j] = source[top+15-j];
 
-        i = cl.num_statics;
-        if (i >= MAX_STATIC_ENTITIES)
-            Host_Error ("Too many static entities");
-        ent = &cl_static_entities[i];
-        cl.num_statics++;
-        CL_ParseBaseline (ent, version); //qbism- from johnfitz -- added second parameter
+        if (bottom < 128)
+            memcpy (dest + BOTTOM_RANGE, source + bottom, 16);
+        else
+            for (j=0 ; j<16 ; j++)
+                dest[BOTTOM_RANGE+j] = source[bottom+15-j];
+    }
+}
+
+/*
+=====================
+CL_ParseStatic
+=====================
+*/
+void CL_ParseStatic (int version) //qbism- from johnfitz -- added a parameter
+{
+    entity_t *ent;
+    int		i;
+
+    i = cl.num_statics;
+    if (i >= MAX_STATIC_ENTITIES)
+        Host_Error ("Too many static entities");
+    ent = &cl_static_entities[i];
+    cl.num_statics++;
+    CL_ParseBaseline (ent, version); //qbism- from johnfitz -- added second parameter
 
 // copy it to the current state
-        ent->model = cl.model_precache[ent->baseline.modelindex];
-        ent->frame = ent->baseline.frame;
-        ent->colormap = vid.colormap;
-        ent->skinnum = ent->baseline.skin;
-        ent->effects = ent->baseline.effects;
-        ent->alpha = ent->baseline.alpha; //johnfitz -- alpha
-        // Manoel Kasimier - model interpolation - begin
-        ent->pose1 = ent->pose2 = ent->frame;
-        ent->frame_start_time = cl.time;
-        ent->translate_start_time = 0;
-        ent->rotate_start_time = 0;
-        // Manoel Kasimier - model interpolation - end
+    ent->model = cl.model_precache[ent->baseline.modelindex];
+    ent->frame = ent->baseline.frame;
+    ent->colormap = vid.colormap;
+    ent->skinnum = ent->baseline.skin;
+    ent->effects = ent->baseline.effects;
+    ent->alpha = ent->baseline.alpha; //johnfitz -- alpha
+    // Manoel Kasimier - model interpolation - begin
+    ent->pose1 = ent->pose2 = ent->frame;
+    ent->frame_start_time = cl.time;
+    ent->translate_start_time = 0;
+    ent->rotate_start_time = 0;
+    // Manoel Kasimier - model interpolation - end
 
-        // Manoel Kasimier - QC Glow Scale - begin
-        ent->glow_size = 0;
-        ent->scale2 = 1.0f;
-        ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
+    // Manoel Kasimier - QC Glow Scale - begin
+    ent->glow_size = 0;
+    ent->scale2 = 1.0f;
+    ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
 
-        // Manoel Kasimier - QC Glow Scale - end
+    // Manoel Kasimier - QC Glow Scale - end
 
-        VectorCopy (ent->baseline.origin, ent->origin);
-        VectorCopy (ent->baseline.angles, ent->angles);
-        R_AddEfrags (ent);
-    }
+    VectorCopy (ent->baseline.origin, ent->origin);
+    VectorCopy (ent->baseline.angles, ent->angles);
+    R_AddEfrags (ent);
+}
 
-    /*
-    ===================
-    CL_ParseStaticSound
-    ===================
-    */
-    void CL_ParseStaticSound (int version) //qbism- from johnfitz -- added argument
-    {
-        vec3_t		org;
-        int			sound_num, vol, atten;
-        int			i;
+/*
+===================
+CL_ParseStaticSound
+===================
+*/
+void CL_ParseStaticSound (int version) //qbism- from johnfitz -- added argument
+{
+    vec3_t		org;
+    int			sound_num, vol, atten;
+    int			i;
 
-        for (i=0 ; i<3 ; i++)
-            org[i] = MSG_ReadCoord ();
+    for (i=0 ; i<3 ; i++)
+        org[i] = MSG_ReadCoord ();
 
-        //qbism- from johnfitz -- PROTOCOL_FITZQUAKE
-        if (version == 2)
-            sound_num = MSG_ReadShort ();
-        else
-            sound_num = MSG_ReadByte ();
-        //johnfitz
+    //qbism- from johnfitz -- PROTOCOL_FITZQUAKE
+    if (version == 2)
+        sound_num = MSG_ReadShort ();
+    else
+        sound_num = MSG_ReadByte ();
+    //johnfitz
 
-        vol = MSG_ReadByte ();
-        atten = MSG_ReadByte ();
+    vol = MSG_ReadByte ();
+    atten = MSG_ReadByte ();
 
-        S_StaticSound (cl.sound_precache[sound_num], org, vol, atten);
-    }
+    S_StaticSound (cl.sound_precache[sound_num], org, vol, atten);
+}
 
 
 #define SHOWNET(x) if(cl_shownet.value==2)Con_Printf ("%3i:%s\n", msg_readcount-1, x);
 
-    /*
-    =====================
-    CL_ParseServerMessage
-    =====================
-    */
-    void CL_ParseServerMessage (void)
-    {
-        int			cmd;
-        int			i;
-        char		*str; //qbism:  johnfitz
-        int			lastcmd=0; //qbism:  johnfitz
+/*
+=====================
+CL_ParseServerMessage
+=====================
+*/
+void CL_ParseServerMessage (void)
+{
+    int			cmd;
+    int			i;
+    char		*str; //qbism:  johnfitz
+    int			lastcmd=0; //qbism:  johnfitz
 
 //
 // if recording demos, copy the message out
 //
-        if (cl_shownet.value == 1)
-            Con_Printf ("%i ",net_message.cursize);
-        else if (cl_shownet.value == 2)
-            Con_Printf ("------------------\n");
+    if (cl_shownet.value == 1)
+        Con_Printf ("%i ",net_message.cursize);
+    else if (cl_shownet.value == 2)
+        Con_Printf ("------------------\n");
 
-        cl.onground = false;	// unless the server says otherwise
+    cl.onground = false;	// unless the server says otherwise
 //
 // parse the message
 //
-        MSG_BeginReading ();
+    MSG_BeginReading ();
 
-        while (1)
+    while (1)
+    {
+        if (msg_badread)
+            Host_Error ("CL_ParseServerMessage: Bad server message from %s\n", msg_badread);
+
+        cmd = MSG_ReadByte ();
+
+        if (cmd == -1)
         {
-            if (msg_badread)
-                Host_Error ("CL_ParseServerMessage: Bad server message from %s\n", msg_badread);
-
-            cmd = MSG_ReadByte ();
-
-            if (cmd == -1)
-            {
-                SHOWNET("END OF MESSAGE");
-                return;		// end of message
-            }
-
-            // if the high bit of the command byte is set, it is a fast update
-            if (cmd & 128)
-            {
-                SHOWNET("fast update");
-                CL_ParseUpdate (cmd&127);
-                continue;
-            }
-
-            SHOWNET(svc_strings[cmd]);
-
-            // other commands
-            switch (cmd)
-            {
-            default:
-                Host_Error ("CL_ParseServerMessage: Illegible server message, previous was %s\n", svc_strings[lastcmd]); //qbism:  johnfitz -- added svc_strings[lastcmd]
-                break;
-
-            case svc_nop:
-//			Con_Printf ("svc_nop\n");
-                break;
-
-            case svc_time:
-                cl.mtime[1] = cl.mtime[0];
-                cl.mtime[0] = MSG_ReadFloat ();
-                break;
-
-            case svc_clientdata:
-                CL_ParseClientdata ();
-                break;
-
-            case svc_version:
-                // Manoel Kasimier - 16-bit angles - edited - begin
-                current_protocol = MSG_ReadLong ("ReadLong CL_ParseServerMessage1");
-                if((current_protocol != PROTOCOL_NETQUAKE) && (current_protocol != PROTOCOL_FITZQUAKE)
-                        && (current_protocol != PROTOCOL_QBS8)) // added
-                    Host_Error ("CL_ParseServerMessage: Server is unknown protocol %i", current_protocol); //qbism
-                // Manoel Kasimier - 16-bit angles - edited - end
-                break;
-
-            case svc_disconnect:
-                Host_EndGame ("Server disconnected\n");
-
-            case svc_print:
-                Con_Printf ("%s", MSG_ReadString ());
-                break;
-
-            case svc_say:  //qbism svc_say TODO - find a simple TTS library...
-                Con_Printf ("%s", MSG_ReadString ());
-                break;
-
-            case svc_centerprint:
-                //qbism:  johnfitz begin -- log centerprints to console
-                str = MSG_ReadString ();
-                SCR_CenterPrint (str);
-                Con_LogCenterPrint (str);
-                //qbism:  johnfitz end
-                break;
-
-
-            case svc_stufftext:
-                Cbuf_AddText (MSG_ReadString ());
-                break;
-
-            case svc_damage:
-                V_ParseDamage ();
-                break;
-
-            case svc_serverinfo:
-                CL_ParseServerInfo ();
-                vid.recalc_refdef = true;	// leave intermission full screen
-                break;
-
-            case svc_setangle:
-                for (i=0 ; i<3 ; i++)
-                    cl.viewangles[i] = MSG_ReadAngle ();
-                break;
-
-            case svc_setview:
-                cl.viewentity = MSG_ReadShort ();
-                break;
-
-            case svc_lightstyle:
-                i = MSG_ReadByte ();
-                if (i >= MAX_LIGHTSTYLES)
-                    Sys_Error ("svc_lightstyle > MAX_LIGHTSTYLES");
-                Q_strcpy (cl_lightstyle[i].map,  MSG_ReadString());
-                cl_lightstyle[i].length = Q_strlen(cl_lightstyle[i].map);
-                break;
-
-            case svc_sound:
-                CL_ParseStartSoundPacket();
-                break;
-
-
-            case svc_stopsound:
-                i = MSG_ReadShort();
-                S_StopSound(i>>3, i&7);
-                break;
-
-
-            case svc_updatename:
-                Sbar_Changed ();
-                i = MSG_ReadByte ();
-                if (i >= cl.maxclients)
-                    Host_Error ("CL_ParseServerMessage: svc_updatename > MAX_SCOREBOARD");
-                Q_strcpy (cl.scores[i].name, MSG_ReadString ());
-                break;
-
-            case svc_updatefrags:
-                Sbar_Changed ();
-                i = MSG_ReadByte ();
-                if (i >= cl.maxclients)
-                    Host_Error ("CL_ParseServerMessage: svc_updatefrags > MAX_SCOREBOARD");
-                cl.scores[i].frags = MSG_ReadShort ();
-                break;
-
-            case svc_updatecolors:
-                Sbar_Changed ();
-                i = MSG_ReadByte ();
-                if (i >= cl.maxclients)
-                    Host_Error ("CL_ParseServerMessage: svc_updatecolors > MAX_SCOREBOARD");
-                cl.scores[i].colors = MSG_ReadByte ();
-                CL_NewTranslation (i);
-                break;
-
-            case svc_particle:
-                R_ParseParticleEffect ();
-                break;
-
-            case svc_spawnbaseline:
-                i = MSG_ReadShort ();
-                // must use CL_EntityNum() to force cl.num_entities up
-                CL_ParseBaseline (CL_EntityNum(i), 1); //qbism- from johnfitz -- added second parameter
-                break;
-            case svc_spawnstatic:
-                CL_ParseStatic (1);
-                break;
-            case svc_temp_entity:
-                CL_ParseTEnt ();
-                break;
-
-            case svc_setpause:
-            {
-                cl.paused = MSG_ReadByte ();
-
-                if (cl.paused)
-                {
-                    CDAudio_Pause ();
-
-#ifdef _WIN32
-                    VID_HandlePause (true);
-#endif
-
-                    Vibration_Stop (0); // Manoel Kasimier
-                    Vibration_Stop (1); // Manoel Kasimier
-                }
-                else
-                {
-                    CDAudio_Resume ();
-#ifdef _WIN32
-                    VID_HandlePause (false);
-#endif
-                }
-            }
-            break;
-
-            case svc_signonnum:
-                i = MSG_ReadByte ();
-                if (i <= cls.signon)
-                    Host_Error ("Received signon %i when at %i", i, cls.signon);
-                cls.signon = i;
-                //qbism:  similar to johnfitz
-                if (i == 2)
-                {
-                    if (cl.num_statics > 128)
-                        Con_DPrintf ("%i static entities exceeds standard limit of 128.\n", cl.num_statics);
-                }
-
-                CL_SignonReply ();
-                break;
-
-            case svc_killedmonster:
-                cl.stats[STAT_MONSTERS]++;
-                break;
-
-            case svc_foundsecret:
-                cl.stats[STAT_SECRETS]++;
-                break;
-
-            case svc_updatestat:
-                i = MSG_ReadByte ();
-                if (i < 0 || i >= MAX_CL_STATS)
-                    Sys_Error ("svc_updatestat: %i is invalid", i);
-                cl.stats[i] = MSG_ReadLong ("ReadLong CL_ParseServerMessage2");
-                break;
-
-            case svc_spawnstaticsound:
-                CL_ParseStaticSound (1);
-                break;
-
-            case svc_cdtrack:
-                cl.cdtrack = MSG_ReadByte ();
-                cl.looptrack = MSG_ReadByte ();
-                if ( (cls.demoplayback || cls.demorecording) && (cls.forcetrack != -1) )
-                    CDAudio_Play ((byte)cls.forcetrack, true);
-                else
-                    CDAudio_Play ((byte)cl.cdtrack, true);
-                break;
-
-            case svc_intermission:
-                cl.letterbox = 0; // Manoel Kasimier - svc_letterbox
-                cl.intermission = 1;
-                //cl.completed_time = cl.time;//qbism: intermission bugfix -- by joe
-                cl.completed_time = cl.mtime[0];
-                vid.recalc_refdef = true;	// go to full screen
-                break;
-
-            case svc_finale:
-                cl.letterbox = 0; // Manoel Kasimier - svc_letterbox
-                cl.intermission = 2;
-                cl.completed_time = cl.time;
-                vid.recalc_refdef = true;	// go to full screen
-                //qbism:  johnfitz -- log centerprints to console
-                str = MSG_ReadString ();
-                Con_DPrintf("svc_finale: cl.intermission = 2\n");
-                SCR_CenterPrint (str);
-                Con_LogCenterPrint (str);
-                //qbism:  johnfitz
-                break;
-
-            case svc_cutscene:
-                cl.letterbox = 0; // Manoel Kasimier - svc_letterbox
-                cl.intermission = 3;
-                cl.completed_time = cl.time;
-                vid.recalc_refdef = true;	// go to full screen
-                //qbism:  johnfitz -- log centerprints to console
-                str = MSG_ReadString ();
-                SCR_CenterPrint (str);
-                Con_LogCenterPrint (str);
-                break;
-
-            case svc_sellscreen:
-                Cmd_ExecuteString ("help", src_command);
-                break;
-
-                //qbism- from johnfitz -- new svc types
-            case svc_skybox:
-                R_LoadSky (MSG_ReadString());
-                break;
-
-            case svc_bf:
-                Cmd_ExecuteString ("bf", src_command);
-                break;
-
-            case svc_fog:
-                //qbism- FIXME not implemented... yet... Fog_ParseServerMessage ();
-                break;
-
-            case svc_spawnbaseline2: //PROTOCOL_FITZQUAKE
-                i = MSG_ReadShort ();
-                // must use CL_EntityNum() to force cl.num_entities up
-                CL_ParseBaseline (CL_EntityNum(i), 2);
-                break;
-
-            case svc_spawnstatic2: //PROTOCOL_FITZQUAKE
-                CL_ParseStatic (2);
-                break;
-
-            case svc_spawnstaticsound2: //PROTOCOL_FITZQUAKE
-                CL_ParseStaticSound (2);
-                break;
-                //johnfitz
-
-
-                // Manoel Kasimier - svc_letterbox - begin
-            case svc_letterbox:
-                cl.letterbox = (float)(MSG_ReadByte ())/100.0;
-                if (cl.letterbox < 0) cl.letterbox = 0;
-                if (cl.letterbox > 1) cl.letterbox = 1;
-                if (cl.letterbox)
-                    cl.intermission = 0;
-                vid.recalc_refdef = true;
-                break;
-                // Manoel Kasimier - svc_letterbox - end
-
-                // Manoel Kasimier - begin
-            case svc_vibrate:
-            {
-                byte s, e1, e2, d;
-                int player;
-                s = MSG_ReadByte ();
-                e1 = MSG_ReadByte ();
-                e2 = MSG_ReadByte ();
-                d = MSG_ReadByte ();
-                player = MSG_ReadByte ();
-                if (player > 1)
-                    break; // invalid player
-
-                vibration_update[player] = true;
-            }
-            break;
-            // Manoel Kasimier - end
-            }
-            lastcmd = cmd;
+            SHOWNET("END OF MESSAGE");
+            return;		// end of message
         }
+
+        // if the high bit of the command byte is set, it is a fast update
+        if (cmd & 128) //U_SIGNAL
+        {
+            SHOWNET("fast update");
+            CL_ParseUpdate (cmd&127);
+            continue;
+        }
+
+        SHOWNET(svc_strings[cmd]);
+
+        // other commands
+        switch (cmd)
+        {
+        default:
+            Host_Error ("CL_ParseServerMessage: Illegible server message, previous was %s\n", svc_strings[lastcmd]); //qbism:  johnfitz -- added svc_strings[lastcmd]
+            break;
+
+        case svc_nop:
+//			Con_Printf ("svc_nop\n");
+            break;
+
+        case svc_time:
+            cl.mtime[1] = cl.mtime[0];
+            cl.mtime[0] = MSG_ReadFloat ();
+            break;
+
+        case svc_clientdata:
+            CL_ParseClientdata ();  //qbism- removed bits per johnfitz
+            break;
+
+        case svc_version:
+            // Manoel Kasimier - 16-bit angles - edited - begin
+            current_protocol = MSG_ReadLong ("ReadLong CL_ParseServerMessage1");
+            if((current_protocol != PROTOCOL_NETQUAKE) && (current_protocol != PROTOCOL_QBS8)) // added
+                Host_Error ("CL_ParseServerMessage: Server is unknown protocol %i", current_protocol); //qbism
+            // Manoel Kasimier - 16-bit angles - edited - end
+            break;
+
+        case svc_disconnect:
+            Host_EndGame ("Server disconnected\n");
+
+        case svc_print:
+            Con_Printf ("%s", MSG_ReadString ());
+            break;
+
+        case svc_say:  //qbism svc_say TODO - find a simple TTS library...
+            Con_Printf ("%s", MSG_ReadString ());
+            break;
+
+        case svc_centerprint:
+            //qbism:  johnfitz begin -- log centerprints to console
+            str = MSG_ReadString ();
+            SCR_CenterPrint (str);
+            Con_LogCenterPrint (str);
+            //qbism:  johnfitz end
+            break;
+
+
+        case svc_stufftext:
+            Cbuf_AddText (MSG_ReadString ());
+            break;
+
+        case svc_damage:
+            V_ParseDamage ();
+            break;
+
+        case svc_serverinfo:
+            CL_ParseServerInfo ();
+            vid.recalc_refdef = true;	// leave intermission full screen
+            break;
+
+        case svc_setangle:
+            for (i=0 ; i<3 ; i++)
+                cl.viewangles[i] = MSG_ReadAngle ();
+            break;
+
+        case svc_setview:
+            cl.viewentity = MSG_ReadShort ();
+            break;
+
+        case svc_lightstyle:
+            i = MSG_ReadByte ();
+            if (i >= MAX_LIGHTSTYLES)
+                Sys_Error ("svc_lightstyle > MAX_LIGHTSTYLES");
+            Q_strcpy (cl_lightstyle[i].map,  MSG_ReadString());
+            cl_lightstyle[i].length = Q_strlen(cl_lightstyle[i].map);
+            break;
+
+        case svc_sound:
+            CL_ParseStartSoundPacket();
+            break;
+
+
+        case svc_stopsound:
+            i = MSG_ReadShort();
+            S_StopSound(i>>3, i&7);
+            break;
+
+
+        case svc_updatename:
+            Sbar_Changed ();
+            i = MSG_ReadByte ();
+            if (i >= cl.maxclients)
+                Host_Error ("CL_ParseServerMessage: svc_updatename > MAX_SCOREBOARD");
+            Q_strcpy (cl.scores[i].name, MSG_ReadString ());
+            break;
+
+        case svc_updatefrags:
+            Sbar_Changed ();
+            i = MSG_ReadByte ();
+            if (i >= cl.maxclients)
+                Host_Error ("CL_ParseServerMessage: svc_updatefrags > MAX_SCOREBOARD");
+            cl.scores[i].frags = MSG_ReadShort ();
+            break;
+
+        case svc_updatecolors:
+            Sbar_Changed ();
+            i = MSG_ReadByte ();
+            if (i >= cl.maxclients)
+                Host_Error ("CL_ParseServerMessage: svc_updatecolors > MAX_SCOREBOARD");
+            cl.scores[i].colors = MSG_ReadByte ();
+            CL_NewTranslation (i);
+            break;
+
+        case svc_particle:
+            R_ParseParticleEffect ();
+            break;
+
+        case svc_spawnbaseline:
+            i = MSG_ReadShort ();
+            // must use CL_EntityNum() to force cl.num_entities up
+            CL_ParseBaseline (CL_EntityNum(i), 1); //qbism- from johnfitz -- added second parameter
+            break;
+        case svc_spawnstatic:
+            CL_ParseStatic (1);
+            break;
+        case svc_temp_entity:
+            CL_ParseTEnt ();
+            break;
+
+        case svc_setpause:
+        {
+            cl.paused = MSG_ReadByte ();
+
+            if (cl.paused)
+            {
+                CDAudio_Pause ();
+
+#ifdef _WIN32
+                VID_HandlePause (true);
+#endif
+
+                Vibration_Stop (0); // Manoel Kasimier
+                Vibration_Stop (1); // Manoel Kasimier
+            }
+            else
+            {
+                CDAudio_Resume ();
+#ifdef _WIN32
+                VID_HandlePause (false);
+#endif
+            }
+        }
+        break;
+
+        case svc_signonnum:
+            i = MSG_ReadByte ();
+            if (i <= cls.signon)
+                Host_Error ("Received signon %i when at %i", i, cls.signon);
+            cls.signon = i;
+            //qbism:  similar to johnfitz
+            if (i == 2)
+            {
+                if (cl.num_statics > 128)
+                    Con_DPrintf ("%i static entities exceeds standard limit of 128.\n", cl.num_statics);
+            }
+
+            CL_SignonReply ();
+            break;
+
+        case svc_killedmonster:
+            cl.stats[STAT_MONSTERS]++;
+            break;
+
+        case svc_foundsecret:
+            cl.stats[STAT_SECRETS]++;
+            break;
+
+        case svc_updatestat:
+            i = MSG_ReadByte ();
+            if (i < 0 || i >= MAX_CL_STATS)
+                Sys_Error ("svc_updatestat: %i is invalid", i);
+            cl.stats[i] = MSG_ReadLong ("ReadLong CL_ParseServerMessage2");
+            break;
+
+        case svc_spawnstaticsound:
+            CL_ParseStaticSound (1);
+            break;
+
+        case svc_cdtrack:
+            cl.cdtrack = MSG_ReadByte ();
+            cl.looptrack = MSG_ReadByte ();
+            if ( (cls.demoplayback || cls.demorecording) && (cls.forcetrack != -1) )
+                CDAudio_Play ((byte)cls.forcetrack, true);
+            else
+                CDAudio_Play ((byte)cl.cdtrack, true);
+            break;
+
+        case svc_intermission:
+            cl.letterbox = 0; // Manoel Kasimier - svc_letterbox
+            cl.intermission = 1;
+            //cl.completed_time = cl.time;//qbism: intermission bugfix -- by joe
+            cl.completed_time = cl.mtime[0];
+            vid.recalc_refdef = true;	// go to full screen
+            break;
+
+        case svc_finale:
+            cl.letterbox = 0; // Manoel Kasimier - svc_letterbox
+            cl.intermission = 2;
+            cl.completed_time = cl.time;
+            vid.recalc_refdef = true;	// go to full screen
+            //qbism:  johnfitz -- log centerprints to console
+            str = MSG_ReadString ();
+            Con_DPrintf("svc_finale: cl.intermission = 2\n");
+            SCR_CenterPrint (str);
+            Con_LogCenterPrint (str);
+            //qbism:  johnfitz
+            break;
+
+        case svc_cutscene:
+            cl.letterbox = 0; // Manoel Kasimier - svc_letterbox
+            cl.intermission = 3;
+            cl.completed_time = cl.time;
+            vid.recalc_refdef = true;	// go to full screen
+            //qbism:  johnfitz -- log centerprints to console
+            str = MSG_ReadString ();
+            SCR_CenterPrint (str);
+            Con_LogCenterPrint (str);
+            break;
+
+        case svc_sellscreen:
+            Cmd_ExecuteString ("help", src_command);
+            break;
+
+            //qbism- from johnfitz -- new svc types
+        case svc_skybox:
+            R_LoadSky (MSG_ReadString());
+            break;
+
+        case svc_bf:
+            Cmd_ExecuteString ("bf", src_command);
+            break;
+
+        case svc_fog:
+            //qbism- not implemented yet, so dump
+            MSG_ReadByte(); //density = MSG_ReadByte() / 255.0;
+            MSG_ReadByte(); //red = MSG_ReadByte() / 255.0;
+            MSG_ReadByte(); //green = MSG_ReadByte() / 255.0;
+            MSG_ReadByte(); //blue = MSG_ReadByte() / 255.0;
+            MSG_ReadShort(); //time = max(0.0, MSG_ReadShort() / 100.0);
+            break;
+
+        case svc_spawnbaseline2: //PROTOCOL_FITZQUAKE
+            i = MSG_ReadShort ();
+            // must use CL_EntityNum() to force cl.num_entities up
+            CL_ParseBaseline (CL_EntityNum(i), 2);
+            break;
+
+        case svc_spawnstatic2: //PROTOCOL_FITZQUAKE
+            CL_ParseStatic (2);
+            break;
+
+        case svc_spawnstaticsound2: //PROTOCOL_FITZQUAKE
+            CL_ParseStaticSound (2);
+            break;
+            //johnfitz
+
+
+            // Manoel Kasimier - svc_letterbox - begin
+        case svc_letterbox:
+            cl.letterbox = (float)(MSG_ReadByte ())/100.0;
+            if (cl.letterbox < 0) cl.letterbox = 0;
+            if (cl.letterbox > 1) cl.letterbox = 1;
+            if (cl.letterbox)
+                cl.intermission = 0;
+            vid.recalc_refdef = true;
+            break;
+            // Manoel Kasimier - svc_letterbox - end
+
+            // Manoel Kasimier - begin
+        case svc_vibrate:
+        {
+            byte s, e1, e2, d;
+            int player;
+            s = MSG_ReadByte ();
+            e1 = MSG_ReadByte ();
+            e2 = MSG_ReadByte ();
+            d = MSG_ReadByte ();
+            player = MSG_ReadByte ();
+            if (player > 1)
+                break; // invalid player
+
+            vibration_update[player] = true;
+        }
+        break;
+        // Manoel Kasimier - end
+        }
+        lastcmd = cmd;
     }
+}
 
