@@ -1063,7 +1063,7 @@ void Host_Name_f (void)
 
 void Host_Version_f (void)
 {
-	Con_Printf ("Version %4.2f\n", VERSION);
+	Con_Printf ("Version %i\n", VERSION);  //qbism - changed to integer to match build #
 	Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
 }
 

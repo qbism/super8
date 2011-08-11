@@ -483,8 +483,8 @@ void GrabColormap (void)  //qbism - fixed, was a little screwy
 // shaded levels
     for (l=1; l<levels; l++)
     {
-        frac = (float)l/(levels-1);  //qbism- preemptive gamma
-        frac = 1.0 - (frac * frac);  //qbism- preemptive gamma
+        frac = (float)l/(levels-1);  //qbism- preemptive gamma boost - Quake is too dark!
+        frac = 1.0 - (frac * frac * frac);  //qbism- preemptive gamma
         for (c=0 ; c<256-brights ; c++)
         {
             red = (int)((float)host_basepal[c*3]*frac+0.5 + ((float)r_colmapred.value * frac * frac));  //qbism - boost

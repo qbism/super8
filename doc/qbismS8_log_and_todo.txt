@@ -1,6 +1,25 @@
 qbism Super 8 log and todo
 jeff@qbism.com
 
+2011-08-10
+Add more great protocol stuff from Fitzquake
+More colormap gamma boost
+
+2011-08-03
+Remove r_stereo_separation and lcd_x
+
+2011-07-30
+Add grabcolormap, grabalphamap, and grabaddmap.  Generates these maps instead of loading lmp files.
+Add r_colmapred,  r_colmapgreen,  and r_colmapblue to give color tint to lighter colors in colormap regeneration (grabcolormap).
+
+2011-07-27
+Add sbarup and sbardown
+Remove fightoon stuff
+
+2011-07-24
+Working on Commands and Variables list
+Removed several unused commands and cvars
+
 2011-07-17
 Set qbs8 protocol to 888
 Increase size of built-in windowed video modes.
@@ -36,15 +55,12 @@ engoo shadowhack, stainmap shadowhack.  Just playing, may omit.
 Load TGA skymaps
 Removed reliance on ancient dxsdk (actually some time ago but now removed from compile search path)
 
-
 2011-03-22
 Process input from keyboard/mouse/etc. before possible host_filtertime return, possibly improves responsiveness.
-
 
 2011-03-18
 Change from mh's dib vid_win.c to mh's directx version, to allow vid modes that aren't a multiple of 4.  Silly dib.
 Loadpalette loads tweaked palette lmp from /gfx and regenerates colormap.
-
 
 2011-01-09
 Start alternate palette loading code.  TODO- should become similar to loadsky, via map or keyboard.
@@ -92,7 +108,7 @@ Plays bigmaps!  Release 'Halloween Special'!
 Plays mh's 400 knights map
 
 2010-10-18
-Clipnode fix (m_clipnotes) for SV_HullPointContents SV_RecursiveHullCheck needed for more than 32768 clipnodes in a map, thanks to mh!  Fixed func_walls and func_plats seeming to behave like SOLID_NOT.   
+Clipnode fix (m_clipnotes) for SV_HullPointContents SV_RecursiveHullCheck needed for more than 32768 clipnodes in a map, thanks to mh!  Fixed func_walls and func_plats seeming to behave like SOLID_NOT.
 
 2010-10-16
 Expanded use of alpha to PF_makestatic and baseline entity creation.  Added float alpha to entity_t.
@@ -167,7 +183,7 @@ Finally fixed crash during waypoint loading, thanks Spike + inside3d!
 Increased zone buffer to 256k
 Added svc_say, TODO intent is to print this differently in future
 Un-ifdefed MOVETYPE_BOUNCEMISSILE, needs testing
-Added FOV slider, and move view model based on FOV 
+Added FOV slider, and move view model based on FOV
 
 2010-02-13
 Tools used-
@@ -218,12 +234,12 @@ Remove static entity and efrag limits [Note:  Due to Flash crashing, this has be
 Remove zone limitations per mh tute [Note:  this has been undone!]
 
 TODO... 'fix', 'wish' or 'maybe, maybe not' list:
-'give' : why not armor?
+Create sbar 5 mode
+Generate transparency and additive maps instead of loading .pal files
+Take gif screenshots instead of pcx. Maybe even a series for animated gifs!
 Support mp3 and/or ogg music playing
 Epand font and overlay graphics size by 2,3, or 4 depending on video mode width.
 Alpha entities - plats, func_walls, etc. (MK has started this in Makaqu 1.4)
 Can't drag window since moving to ddraw implementation.  Compare to dib version.
 Check timefrag2 for ideas.  Lipsync?  Text-to-speech?  Integrated multi-part models?  The idea of generating lipsync sequence and speech from basic text strings is interesting.  But how much talking do we really want in an FPS?
 SV_StartLocalSound from timefrag-  Plays a local sound to a specific client, others can't hear it.  Was this from a tute?  Equivalent to any DP extension?
-
-

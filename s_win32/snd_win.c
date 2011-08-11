@@ -197,6 +197,8 @@ int SNDDMA_InitDirect (void)  //qbism was sndinitstat
 
 	shm->channels = 2;
 	shm->samplebits = 16;
+	if (snd_speed.value < 11025) snd_speed.value = 11025; //qbism- bound snd_speed
+	if (snd_speed.value > 44100) snd_speed.value = 44100;
 	shm->speed = snd_speed.value; //qbism was 11025;
 
 	memset (&format, 0, sizeof(format));
