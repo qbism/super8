@@ -578,7 +578,7 @@ void ED_Write (FILE *f, edict_t *ed)
 		fprintf (f, "}\n");
 		return;
 	}
-
+    //qbism - remove reduced saves here, getting "closing brace without data" on some big maps.
 	for (i=1 ; i<progs->numfielddefs ; i++)
 	{
 		d = &pr_fielddefs[i];
