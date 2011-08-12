@@ -583,7 +583,7 @@ void ED_Write (FILE *f, edict_t *ed)
 	{
 		d = &pr_fielddefs[i];
 		name = pr_strings + d->s_name;
-		if (name[Q_strlen(name)-2] == '_')
+		if (name[strlen(name)-2] == '_')
 			continue;	// skip _x, _y, _z vars
 
 		v = (int *)((char *)&ed->v + d->ofs*4);
@@ -596,42 +596,18 @@ void ED_Write (FILE *f, edict_t *ed)
 		if (j == type_size[type])
 			continue;
 
-		// Manoel Kasimier - reduced savegames - begin
-		{
-			char s[256];
-			eval_t	*val;
-			val = (eval_t *)v;
-			Q_strcpy(s, PR_UglyValueString(d->type, (eval_t *)v));
-			// this happens when a string is set to "" in the QC code
-			if (d->type == ev_string && !Q_strcmp(s, ""))
-				continue;
-			// these happens sometimes
-			if (d->type == ev_float && !Q_strcmp(s, "0"))
-				continue;
-			if (d->type == ev_vector && !Q_strcmp(s, "0 0 0"))
-				continue;
-			// absmin/absmax are generated when the engine relinks entities to nodes
-			// The engine will need to relink entities on load to properly associate them with areas of the map,
-			// so yeah, it is pretty pointless to save em.
-			if (!Q_strcmp(name, "absmin"))
-				continue;
-			if (!Q_strcmp(name, "absmax"))
-				continue;
-			fprintf (f,"%s ", name);
-			Cmd_TokenizeString(s);
-			if (Cmd_Argc() != 1)
-				fprintf (f,"\"%s\"\n", s);
-			else
-				fprintf (f,"%s\n", s);
-		}
-		// Manoel Kasimier - reduced savegames - end
+		fprintf (f,"\"%s\" ",name);
+		fprintf (f,"\"%s\"\n", PR_UglyValueString(d->type, (eval_t *)v));
 	}
-	//qbism- from Fitzquake -- save entity alpha manually when progs.dat doesn't know about alpha
+
+	//qbism- from johnfitz -- save entity alpha manually when progs.dat doesn't know about alpha
 	if (!pr_alpha_supported && ed->alpha != ENTALPHA_DEFAULT)
 		fprintf (f,"\"alpha\" \"%f\"\n", ENTALPHA_TOSAVE(ed->alpha));
+	//johnfitz
 
 	fprintf (f, "}\n");
 }
+
 
 void ED_PrintNum (int ent)
 {
@@ -746,26 +722,8 @@ void ED_WriteGlobals (FILE *f)
 			continue;
 
 		name = pr_strings + def->s_name;
-
-		// Manoel Kasimier - reduced savegames - begin
-		{
-			eval_t *val;
-			val = (eval_t *)&pr_globals[def->ofs];
-			if (type == ev_string && !Q_strcmp(pr_strings + val->string, ""))
-				continue;
-			if (type == ev_float && fabs(val->_float) < 0.000001)
-				continue;
-			if (type == ev_entity && val->edict == 0)
-				continue;
-			fprintf (f,"%s ", name);
-			Cmd_TokenizeString(PR_UglyValueString(type, (eval_t *)&pr_globals[def->ofs]));
-			if (Cmd_Argc() != 1)
-				fprintf (f,"\"%s\"\n", PR_UglyValueString(type, (eval_t *)&pr_globals[def->ofs]));
-			else
-				fprintf (f,"%s\n", PR_UglyValueString(type, (eval_t *)&pr_globals[def->ofs]));
-		}
-		// Manoel Kasimier - reduced savegames - end
-
+		fprintf (f,"\"%s\" ", name);
+		fprintf (f,"\"%s\"\n", PR_UglyValueString(type, (eval_t *)&pr_globals[def->ofs]));
 	}
 	fprintf (f,"}\n");
 }

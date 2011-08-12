@@ -1,0 +1,662 @@
+qbismSuper8 Console Commands, Variables and Command Line Parameters
+
+Last update:  8/6/11
+Contents
+
+1.  Notes
+2.  General Console Commands
+3.  Alias
+4.  Bind
+5.  Movement and View Control
+6.  Graphics
+7.  Screenshot, Video, and Demo Recording
+8.  Client
+9.  Server
+10.  Cheats
+11.  Video Settings
+12.  Audio
+13.  Development and Debugging
+14.  Com and Modem
+15.  Command Line Parameters
+16.  Quake Console Command Pages by Daniel Rinehart README
+17.  JakFrost's Quake Console Commands README
+
+ 
+1.  Notes
+
+    This command list is based on Quake Console Command Pages by Daniel Rinehart
+    http://www.neophi.com/home/danielr/quake/console.html
+    and Quake Console Commands by JakFrost
+    http://www.quakewiki.net/archives/console/commands/quake.html
+    This symbol [+] denotes a new or modified feature in Super8, compared to the GPL licensed Quake source code.
+    Autocomplete:  Type the first few letters of a command or variable and then 'TAB' key.  The command will autocomplete, or list possible alternatives.  Certain arguments will autocomplete, including map names and demo file names.  For example, type 'map a' then 'TAB', and all maps starting with 'a' will be listed.  Type 'map *' to list all maps.
+    To display the current value of a console variable (cvar):  Simply type the command without a value.
+
+	
+2.  General Console Commands
+
+clear - clears the console screen
+[+] cmdlist [name] lists commands starting with name. If no name, list all commands.
+
+[+] cvarlist[name] - Lists cvars starting with name. If none, list all cvars. Server cvars are noted with "S", archive cvars with "*"
+
+echo [string] - Print text to your own console.
+help - Bring up the help system (like pressing F1.)
+path - Show what file paths Quake is using.
+pause - Pause and unpause the game.
+ping - Find the ping time to the server and to all other connected players.
+quit - Exit the game no questions asked.
+status - Report current game information.
+
+say [string] - Broadcast a string to all other players. The string is entered on the console, unlike the messagemode and messagemode2 commands, allowing it to be used on a dedicated server. Thanks to Robert Coward INF-SP for improved documentation of this command.
+
+say_team [string] - Broadcast a string to all players on your team. The string is entered on the console, unlike the messagemode and messagemode2 commands, allowing it to be used on a dedicated server. Thanks to Robert Coward INF-SP for improved documentation of this command.
+
+skill [level] - Set the skill level of the game. Useful to set before recording a demo, or manually loading a single-player map.   Also used by some multiplayer mods.
+Value Difficulty
+0 Easy
+1 Normal
+2 Hard
+3 Nightmare
+
+slist - Show Quake servers located on the LAN.
+tell [player] [string] - Send a message to a single player. Very nice in large network games.
+
+toggleconsole - Display or remove the console screen.
+version - Report version information.
+
+wait - Wait a game tic. Typically used within alias commands.
+
+ 
+3.  Alias
+
+alias [name] [command]
+Using alias without the [command] option will erase the alias specified in [name].
+
+From techinfo.txt:
+The alias command is used to create a reference to a command or list
+of commands. When aliasing multiple commands, or commands that contain
+multiple words (such as "fraglimit 50"), you must enclose all the
+commands in quotation marks and separate each command with a
+semi-colon.
+
+Example of an alias that changes some Deathmatch server parameters:
+
+alias net_game "hostname my_server ; fraglimit 15 ; timelimit 15"
+bind INS net_game
+
+Now, the INS key will execute the alias 'net_game'.
+
+ 
+4.  Bind
+
+bind [key] [command]  - Assign a command or a set of commands to a key. To bind multiple commands to a key, enclose the commands in double-quotes (") and separate them with semicolons (;). To bind bind keys which do not produce any characters use the key's name to bind to it.
+
+Examples:
+bind q "impulse 7; +attack; wait; -attack; impulse 5"
+bind h "echo Hi Foo!"
+bind mouse1 "+attack;+jump;wait;-jump;-attack;echo Foo!"
+
+When using actions commands in a bind (ie +attack or +left) the first action will automatically be stopped when the key is released. To prevent this, start the command with a semicolon:
+bind q ";+mlook" (This will keep mlook on until a -mlook is executed.)
+
+From techinfo.txt:
+Where [key] is a valid key control and [command] is a valid
+Quake command.
+
+Example: To bind the j key to the 'jump' command, you would type:
+bind j +jump
+and press enter.
+
+Non-printable keys such as 'page up' and buttons from the
+mouse/joystick are bound in the same manner as printable
+characters.
+
+The following keys can be bound: ALT, AUX1, AUX10, AUX11, AUX12, AUX13, AUX14, AUX15, AUX16, AUX17, AUX18, AUX19, AUX2, AUX20, AUX21, AUX22, AUX23, AUX24, AUX25, AUX26, AUX27, AUX28, AUX29, AUX3, AUX30, AUX31, AUX32, AUX4, AUX5, AUX6, AUX7, AUX8, AUX9, BACKSPACE, CTRL, DEL, DOWNARROW, END, ENTER, ESCAPE, F1, F10, F11, F12, F2, F3, F4, F5, F6, F7, F8, F9, HOME, INS, JOY1, JOY2, JOY3, JOY4, LEFTARROW, MOUSE1, MOUSE2, MOUSE3, MWHEELDOWN, MWHEELUP, PAUSE, PGDN, PGUP, RIGHTARROW, SEMICOLON, SHIFT, SPACE, TAB, UPARROW.
+The ESCAPE, and ~ (tilde) keys can only be bound from an external configuration file.
+
+[+] bindable  - Show list of keys that could be bound.
+[+] bindshift  - Bind command to a SHIFTed key.
+unbind [key] - Remove the current commands bound to a key.
+
+unbindall - Remove every key binding.  (Use with caution. Current key bindings are saved when you exit so if you unbindall then exit only the ESC key will work.)
+[+] unbindshift  - Unbind command from a SHIFTed key.
+
+
+5.  Movement and View Control
+
++attack / -attack            Fire current weapon
++back / -back                Move backwards
++forward / -forward          Move forward
++jump / -jump                Jump
++klook / -klook              Keyboard look toggle
++left / -left                Turn left
++lookdown / -lookdown        Look down
++lookup / -lookup            Look up
++movedown / - movedown       Move down
++moveleft / -moveleft        Move left
++moveright / -moveright      Move right
++moveup / -moveup            Move up
++right / -right              Move right
++showscores / -showscores    Current level stats, frags in multiplayer
++speed / -speed              Run
++strafe / -strafe            Strafe toggle
++use / -use                  Use item (for mods that implement this feature)
+centerview  - Reset player's view to straight ahead
+
+[+] chase_active[0/1/2]  - (Not a new command, but greatly improved)  Move camera to a third-person view behind player.  Mode '1' always points the camera in the direction
+the player is facing.   Mode '2' keeps the camera direction fixed, like an overhead-view adventure game.
+
+chase_back [distance]  - camera distance behind player, when chase_active = 1 or 2.
+chase_up [distance]  - camera distance behind player, when chase_active = 1 or 2.
+chase_right [distance]  - camera distance behind player, when chase_active = 1 or 2.
+[+] chase_roll [angle]  - camera roll, when chase_active = 2.
+[+] chase_yaw [angle]  - camera yaw, when chase_active = 2.
+[+] chase_pitch [angle]  - camera pitch, when chase_active = 2.
+cl_bob [value] - Sets how much your weapon moves up and down when moving
+cl_bobcycle [value] - Adjusts time between each bob
+cl_bobup [value]  - Adjusts amount that the weapon bobs
+cl_backspeed [value]  - Adjusts maximum backwards speed
+cl_forwardspeed [value]  - Adjusts maximum forwards speed
+cl_movespeedkey [value]  - Adjusts maximum run speed
+cl_nolerp [0/1]  - Turn off position interpolation (smoothing) in multiplayer
+cl_rollspeed [value]  - Adjusts amount of screen rolling when moving and turning
+cl_rollangle [value]  - Adjusts the angle that the screen rolls towards when moving
+cl_sidespeed [value]  - Adjusts maximum strafe speed
+cl_upspeed [value]  - Adjusts maximum move up/down speed
+cl_pitchspeed [value]  - adjusts speed of look up/down
+
+force_centerview - Snaps the view back to the center regardless if you are in a +mlook, +klook, +lookup, or +lookdown.
+
+joyadvancedupdate  - Update advanced joystick settings based on below:
+[+] _advanced [0/1]  - Toggle
+[+] joy_advaxisx [0/1]  - Toggle
+[+] joy_advaxisy [0/1]  - Toggle
+[+] joy_advaxisz [0/1]  - Toggle
+[+] joy_advaxisr [0/1]  - Toggle
+[+] joy_advaxisu [0/1]  - Toggle
+[+] joy_advaxisv [0/1]  - Toggle
+[+] joy_forwardthreshold [value]
+[+] joy_sidethreshold [value]
+[+] joy_pitchthreshold [value]
+[+]  joy_yawthreshold [value]
+[+] joy_forwardsensitivity [value]
+[+] joy_sidesensitivity [value]
+[+] joy_pitchsensitivity [value]
+[+] joy_yawsensitivity [value]
+[+] joy_wwhack1 [value]
+[+] joy_wwhack2 [value]
+
+joybuttons [value] - Sets the number of joystick buttons.
+joystick [0/1] - Toggles joystick use
+
+lookspring [0/1] - Toggles if the view will recenter after mlook is deactivated. Only works with the mouse and joystick.
+
+lookstrafe [0/1] - Toggles if turn left and right will strafe left and right when a mlook is active. Only works with the mouse.
+
+m_filter [0/1] - Use the average of the last position and the current mouse position to track movement. 1 gives a smoother feel while 0 gives a raw feeling. Thanks to Squirrel Eiserloh for the documentation on this command.
+
+m_forward [value] - Sets how quickly moving the mouse forwards and backwards causes the player to move in the respective direction.
+
+m_pitch [value] - Sets how quickly you lookup and lookdown with the mouse when a mlook is active. Using a negative value will reverse the directions that the mouse looks.
+
+m_side [value] - Strafe speed with mouse
+m_yaw [value] - Sets how quickly you turn left and right with the mouse.
+sensitivity [value] - Sets the sensitivity of the mouse.
+
+[+] mlook [0/1]  - (replaces +mlook / -mlook commands)  Mouse look toggle
+
+v_centermove [value] - Sets how far the player must move forward before the view recenters. A big help for those people that like to use the keyboard. Thanks to James Boswell [boswell@nspace.com.au] for the documentation of this command.
+
+v_centerspeed [value] - Sets how quickly you return to a center view after a lookup or lookdown.
+
+v_cshift [red] [green] [blue] [intensity] - This adjusts all of the colors currently being displayed. Used when you are underwater, hit, or have the Ring of Shadows. Values range from 0-256 for all four values. Thanks to "Mr. Muh" [mr.muh@cww.de] for the documentation of this command.
+
+v_idlescale [0/1] - Toggles whether the the view remains idle. (You can get some cool effects if you turn this on.)
+
+v_ipitch_cycle [value] - Sets how quickly you lean forwards and backwards when v_idlescale is active.
+v_ipitch_level [value] - Sets how far you lean forwards and backwards when v_idlescale is active.
+v_iroll_cycle [value] - Sets how quickly you tilt right and left when v_idlescale is active.
+v_iroll_level [value] - Sets how far you tilt right and left when v_idlescale is active.
+v_iyaw_cycle [value] - Sets how quickly you look left and right when v_idlescale is active.
+v_iyaw_level [value] - Sets how far you look left and right when v_idlescale is active.
+v_kickpitch [value] - Sets how much you look up when hit.
+v_kickroll [value] - Sets how much you lean when hit.
+v_kicktime [value] - Sets how long the "kick" effects last.
+
+ 
+6.  Graphics
+
+[+] crosshair [0-5] - Set crosshair appearance from several styles.  0 is off. 
+[+] crosshair_color [1-255]  - Set crosshair color.
+fov [value] - Sets field of view in degrees. Set to 90 +/- in fisheye mode.
+
+[+] r_fisheye[value] - Render in fisheye mode. The engine renders 6 views at 90 degrees, like the sides of a cube, and warps them into a fisheye lens view. Appearance depends on 'fov' and 'ffov'. fov should be 90, the angle of the 6 cube views, adjusted up or down slightly if needed to improve alignment (you'll see...). ffov is the final output field of view, and can be 180, 360, or more for weirdness! Try a low ffov, about 115, for a subtle curvature effect much like a real lens.
+
+[+] ffov[value] - fisheye field of view.
+
+[+] fviews[1-6] - sets the number of view cube sides to render in fisheye mode. ffov up to about 120 only requires fviews = 3, which speeds up rendering. ffov up to 180 needs 5, and all 6 above 180.
+
+gamma [0.0 - 1.0] - Sets the gamma correction level (brightness). Lower values are brighter.
+[+] loadsky [filename] - Loads a skybox.
+[+] loadpalette [filename] - Loads a .pal file to replace the base palette.
+r_ambient [value] - Set minimum light value for map lighting.
+r_drawentities [0/1] - Toggles the drawing of objects like doors, bars, buttons, monsters, items, nails, rockets, and grenades.
+r_drawflat [0/1] - Toggles the drawing of texture maps (0=use texture maps.)
+r_draworder [0/1] - Toggles correct drawing order. (1=x-ray vision.)
+r_drawviewmodel [0/1] - Toggles the drawing of your weapon.
+r_fullbright [0/1] - Toggles whether light shading is in effect.
+[+]  r_interpolation [0/1]  - Toggle interpolate model animation.  Animation is jerky when off.
+[+]  r_light_style [0/1]  - Toggle dramatic lighting of models.
+[+]  r_light_vec_x [value]  - X vector when r_light_style is active.
+[+]  r_light_vec_y [value]  - Y vector when r_light_style is active.
+[+]  r_light_vec_z [value]  - Z vector when r_light_style is active.
+[+]  r_particlealpha  [0.0-1.0]  - Set transparency of particles.
+[+] r_polyblend [0/1]  - Toggle full-screen color blending effects, like bonus flashes and underwater tinting. (renamed from "gl_polyblend")
+[+]  r_shadowhack [0/1]  - Fake shadows for entities using darklights.
+[+]  r_shadowhacksize [value]  - Size factor of fake entity shadows.
+[+]  r_stains [0.0 - 1.0]  - Stainmap opacity.  Set to 0 to turn off stains.
+[+]  r_stainfadeamount [value]  - Amount to fade stain each cycle.
+[+]  r_stainfadetime [value] - How long a stain will stay before fading.
+[+]  r_wateralpha [0.0 - 1.0]  - Set transparency of water textures.  Note:  lava is always opaque.
+r_waterwarp [0/1] - Toggles whether surfaces are warped when in a liquid.
+
+[+]  r_sprite_addblend [0/1]  - Toggle to use additive color blending of sprites rather than averaging blend.  Additive is brighter.
+
+[+]  sbar[1-5] -  Status bar mode.  0 is off, 1-3 are 'classic' modes, 4 and 5 are 'new' modes
+[+]  sbar_show_scores [0/1]  - Toggle to show scores in statusbar.
+[+]  sbar_show_ammolist [0/1]  - Toggle to show ammo list in statusbar.
+[+]  sbar_show_weaponlist [0/1]  - Toggle to show weapon list in statusbar.
+[+]   sbar_show_keys [0/1]  - Toggle to show keys in statusbar.
+[+]  sbar_show_runes [0/1]  - Toggle to show runes in statusbar.
+[+]  sbar_show_powerups [0/1]  - Toggle to show powerups in statusbar.
+[+]  sbar_show_armor [0/1]  - Toggle to show armor in statusbar.
+[+]  sbar_show_health [0/1]  - Toggle to show health in statusbar.
+[+]  sbar_show_ammo [0/1]  - Toggle to show ammo in statusbar.
+[+]  sbar_show_bg [0/1]  -Toggle to draw statusbar background.
+[+]  sbarup  - Go up to the next statusbar mode.
+[+]  sbardown  - Go down to the next statusbar mode.
+scr_showpause [0/1] - Show 'pause' plaque. Turn off for screenshots.
+sizedown - Reduces the screen size. (adds border)
+sizeup - Increases the screen size.
+[+]  sw_stipplealpha [0/1]  - Toggle simulated transparency with alternating dots.
+viewsize [value] - Set the view size by adding a border around the screen.
+
+ 
+7.  Screenshot, Demo, and Video Recording
+
+[+] capture_codec [ code]  - A 4-letter code for the desired codec to use.  XVID has been tested to work as a high-quality compressed format, others include MPG4 and DIVX.  The K-lite codec pack includes a tool to identify available codecs and their codes.
+
+[+] capture_fps [value]  - Frames-per-second for video capture.
+[+] capture_console [0/1]  - Toggle to show the console in video capture output.
+[+] capture_hack[value]  - Set to a low integer value like 1 or 2 if captured video looks like slow motion.  Sometimes it helps.
+[+] capture_mp3 [0/1]  - Capture audio in mp3 format instead of wav format.  Used during video capture.
+[+] capture_mp3_kbps[value]  - mp3 data rate, used  if capture_mp3 is set.
+[+] capture_start  - Start video capture in real-time.  Takes a high performance CPU to avoid jerkiness.
+[+] capture_stop  - Stop video capture.
+[+] capturedemo [demoname]  - Play back a demo and capture it to video.  This is the best way to capture smooth video on most computers.
+[+]  con_logcenterprint [0/1]  - record centerprint messages in demos.  Set to 0 for less screen text during playback.
+
+demos - Start playing queued demo(s) or cycle to next one if already playing.
+playdemo [filename] - Play a demo.
+record [filename] [map] [cd track] - Record a demo on a map using an optional cd track.
+screenshot - Captures a .pcx file of your current view. Automatically generates sequential names.
+
+startdemos [filename1] [filename2] [...] - Setup a queue of demos to loop. Note: once you queue 3 demos your list must always have 3 demos in it. Likewise if you queue 5 any future lists must also have 5 demos in it. If after queueing 4 demos you then queue 2, the two demos from the 4 demo queue will be played after your two newly queued demos.
+
+stop - Stop the recording of a demo.
+stopdemo - Stops the current playback of demos.
+timedemo [demoname] - Plays back a demo and times its duration and frames-per-second.
+
+ 
+8.  Client
+
+_cl_color [value] - Player colors. SC*16+PC where SC is shirt color and PC is pants color. Not intended to be set directly, see "color" below.
+
+_cl_name [string] - Player name. Not intended to be set directly, see "player" below.
+color [shirt] [pants] - sets players colors. Both will be set if only one color is entered.
+con_notifytime [time] - sets how long messages are displayed when playing.
+
+connect [server] - Connect to a Quake server. The name can be an absolute LAN address, IP, or hostname, depending on your network connection. You can also use the following format "connect xxx.xxx.xxx.xxx: xxxxx" to connect to a certain udpport of a server. The quotes ("") are required. To connect to a port other than 26000 on a server, use the port command before a connect command.
+
+[+] cl_maxfps [20-999]  - Maximum frames-per-second.  Generally, set a little above screen refresh rate.
+[+] cutscene [0/1]  - Toggles whether or not to show cutscenes.  Based on command from Nehahra.
+
+disconnect - Leave current server.
+kill - Reduces your health to zero.
+load [filename] - Load a saved game.
+[+] loadsmall  - Load game saved with savesmall.
+messagemode - Like say, but prompts for text on-screen to broadcast to all players.
+messagemode2 - Like say_team, but prompts for text on-screen to broadcast to your team members.
+name [string] Sets your name
+port [port] - Sets which port the connect command will use by default.
+reconnect - Reconnect to last server.
+save [filename] - Save a game.
+[+] savesmall  - Smaller save game files by reducing empty fluff.
+
+scr_centertime [time] - Sets how long the screen hints are displayed on the screen. This includes messages like "Step into the slipgate...". Thanks to Sky Golightly for information on this command.
+
+scr_conspeed [value] Sets how quickly the console screen scrolls up and down.
+scr_ofsx [value] - offset player viewpoint in the x direction.
+scr_ofsy [value] - offset player viewpoint in the y direction.
+scr_ofsz [value] - offset player viewpoint in the z direction.
+
+scr_printspeed [speed] - Controls how fast the text is displayed at the end of the single player episodes. Thanks to Phrog`gee for the syntax of this command.
+
+ 
+9.  Server and Map Loading
+
+ban [ip address] [mask] - At long last you can ban those troublesome players. Just get their ip with the status command and enter it in. However, don't get your hopes up that much at this point. It is a quick hack and can only current handle one banned ip address. It also supports higher order domain banning to make it easy to ban players from a particular ISP or site. Once you have declared at least one banned site typing ban without an ip address will list the current sites that are being banned.
+
+To use the higher order domain banning the format is: ban xxx.xxx.0.0 xxx.xxx.0.0 (yes you have to type twice)
+
+Once banning has been turned on you can turn it off by using the command: ban off
+
+Thanks to Daniel A. Sill [sill@zeke.as.utexas.edu] for getting the low-down on this command.
+
+changelevel [map]  - changes level without disconnecting clients.  For use on multiplayer server.
+
+[+] sv_cheats[0/1]  - At next map load, allow cheats:  fly, noclip, god, give
+
+coop [0/1] - Toggle the cooperative play mode in network games.
+deathmatch [0/1] - Toggle deathmatch (multiplayer) play mode.
+edgefriction [value] - Sets how easy it is to fall off an edge.
+[+]  external_vis[0/1]  - Toggle to allow external vis files to be loaded.
+[+]  external_ent  - Toggle to allow external entity files to be loaded.
+fraglimit [value] - The number of frags needed to exit a level in multiplayer.
+
+[+] host_framerate [0.0 - 0.99] - When non-zero, this value will override the calculated framerate.  By contrast, host_timescale multiplies the framerate, whether calculated or overridden by host_framerate.
+
+host_speeds [0/1] - Toggle the display of host info: total time, server time, graphics time, and sound time. Each one is represented in ms and indicates the total time spend in each sub-system.
+
+[+] host_timescale[0.0 to 10.0]  - Scales the passage of time on client and server.  1 for normal speed, less than 1 for slow motion, and greater than 1 for fast-forward. If greater than 0, overrides host_framerate. Default 1.
+
+hostname [name] - Sets the hostname of your computer.
+
+kick [playername] or [# player-number] [message] - Kick a player off of your sever. You can also kick a player based on their number as listed in the status command. (Haven't tried the kick by number yet but it should work. I also believe that you will need the extra spaces between the # and the player-number.) If you add the message at the end it will display it to the user. Thanks to Jim Peterson and Danny Sizemore for updates on this command.
+
+listen [0/1] - Toggles if the server will "listen" for connections.
+maxplayers [value] - Sets the number of players that can connect to a server. (Must use the command line to go above 4. Can't be changed while the server is running.)
+
+map [name] - Disconnect player(s) and load a map.
+[+] Autocomplete: Typing a partial map name, then 'TAB' key will list map(s) starting with those letters. Typing 'map *' then TAB key lists all maps.
+
+net_messagetimeout [value] - Sets how long to wait before considering network connection broken
+net_stats - Reports current network information
+
+noexit [value] - Toggles if players can leave the current level. Useful for servers that what to use only one map. To correct a bug in v1.01 the noexit flag has the following effects on the "start" map:
+0 = noexit off (people can exit at any point)
+1 = noexit on (goes through the levels in order. exits the "start" map when either the fraglimit or timelimit has been reached)
+2 = noexit on (players may exit into what ever episode they want from the "start" map before the fraglimit or timelimit has been reached)
+
+restart - Restart the current level.
+sv_nostep [0/1] - Toggles if players automatically walk up steps or if they have to jump up them.
+sv_stopspeed [value] - Sets how quickly objects stop moving.
+stopsound - Stops all sounds currently being played.
+stuffcmds - Starts execution of command line parameters. (Used during game startup.)
+sv_accelerate [value] - Sets how quickly objects accelerate.
+
+sv_aim [value] - Sets how much leniency there is in the vertical aim when shooting at a target. (0.0 gives the most leniency.)
+[+]  sv_aim_h[0.0-1.0]  - Horizontal autoaim.  A value of 1 is off.  Lower values increase effect.
+sv_friction [value] - Sets how much friction there is.
+sv_gravity [value] - Sets how much gravity there is.
+sv_idealpitchscale [value] - Sets how much a player's view changes when on steps or an incline.
+sv_maxspeed [value] - Sets the maximum rate at which a player can move.
+sv_maxvelocity [value] - Sets the maximum speed at which anything can move including ammunition.
+[+]  sv_qcexec[0/1]  - Toggle to allow qc commands to be executed from the console.
+
+sys_ticrate [value] - From techinfo.txt:
+Only used by dedicated servers. This determines the rate at which the server will send out updates to the clients. The default value is 0.05 (20 updates per second.) For servers where bandwidth is limited, using modems or the internet for example, it is advisable to lower this value to 0.1 (10 updates per second.) This will have a very minor effect on responsiveness, but will half the outbound bandwidth required making the modem players a lot happier.
+
+teamplay [value] - Toggles whether team mode is on during networked games. Set teamplay to 1 to turn this option on. Setting teamplay to 2 allows you to hurt yourself and your team, but if you kill someone on your team you lose a frag.
+
+timelimit [value] - Set a time to play the level before advancing to the next one.
+
+ 
+10.  Cheats(requires sv_cheats = 1)
+
+fly - Toggle fly mode. Use moveup and movedown to adjust height. sv_cheats must be set.
+
+give [item] [amount] - Give yourself an amount of an item. [+] Can give yourself armor.
+Item Description Maximum
+1 Axe
+2 Shotgun
+3 Double Shotgun
+4 Nailgun
+5 Super Nailgun
+6 Grenade Launcher
+7 Rocket Launcher
+8 Lighting Gun
+A Armor 255
+C Batteries 255
+H Health 32767
+N Nails 255
+R Rockets 255
+S Shotgun Shells 255
+
+god [0|1]  - Toggle god mode (indestructible)
+noclip - Toggle no clipping mode.
+
+ 
+11.  Video Settings
+
+[+]  vid_ddraw [0/1]  Toggle use of Direct Draw driver (Windows)
+vid_default_mode_win [mode] - Default setting for windows mode
+vid_describecurrentmode - Report current video mode.
+vid_describemode [mode] - Report information on selected video mode.
+vid_describemodes - Report information on all video modes.
+vid_mode [mode] - Sets the video mode.
+vid_nummodes - Reports the total number of video modes available.
+vid_testmode [mode] - Switch to another videomode temporarily, to test it.
+vid_wait [value] - From techinfo.txt:
+sets the type of waiting that the video adapter should do, as follows:
+0: no waiting
+1: wait for vertical sync active
+2: wait for display enable active
+
+ 
+12.  Audio
+
+ambient_fade [value]  - Sets how quickly ambient sounds fade in/out. Higher values make the sound. fade quicker.
+ambient_level [value]  - Ambient sound volume, background such as wind and water.
+bgmbuffer [size]  - Amount of memory allocated for the background music buffer, used when playing from a cd.
+bgmvolume [vol]  - Volume of background cd music.
+cd [on|off|reset|play|stop|resume|eject]  - controls cd player
+cd info  - displays cd information
+cd loop [track number]  - repeats specified track
+
+cd remap [track1] [track2] [track3] ...  If the CD audio system is told to play track 1, it will instead play the 1st track you specified. For example: assuming a CD with 1 data track and 8 music tracks, the command "cd remap 1 9 8 7 6 5 4 3 2" would leave the data alone and play the audio tracks as if they had been placed on the CD in the opposite order.
+
+nosound [0/1] Audio on/off toggle.
+play - Play a sound effect.
+playvol [filename] [volume] Play a sound at a given volume.
+
+snd_noextraupdate [0/1] - Sound time will be inlcuded in host_speeds unless this is 1. Otherwise it's not recommended, sound can get choppy.
+
+snd_show [0/1] - Toggles the display of sounds currently being played.
+[+] snd_speed [value]  - Sets audio sampling rate.  Must restart program to take effect.  (also, -sndspeed parameter)
+soundinfo - Reports information on the sound system.
+soundlist - Reports a list of sounds current cached.
+volume [volume] - Set the volume for sound playback.
+
+ 
+13.  Development and Debugging
+
+_windowed_mouse  - mouse is "captured" by the program window.  Trap it and hide cursor.
+bf  - Background flash, used when you pick up an item.
+[+] cachelist  - list cached items.
+d_mipcap [0-3] - Sets the detail level. 0 is the highest detail.
+
+d_mipscale [0-40] - Smoothness/detail balance of distant objects. Uses resampled (mip) textures to reduce jagged or flickering edges in distance. 0 turns off mip.
+
+developer [0/1, 100-255] - Toggle display of extra debugging information. [+] Values of 100 to 255 will turn on various colors of depth shading, or colored fog.
+
+edict [value] - Display information on an edict in the game.
+edictcount - Display summary information about game edicts.
+edicts - Display information on all edicts in game.
+entities - Display a list of objects in the game.
+exec [filename] - Execute a script file.
+flush - Clears the current game cache this includes cached sounds.
+[+] hunklist  - List items on the hunk and hunk memory stats.
+
+impulse [value] - Perform weapon selection and also a few cheats. Mods may customarily use impulses 100 and up for commands coded in qc.
+Value Action
+1-8 Select corresponding weapon
+9 Gives you all the weapons and keys
+10 Selects your next weapon by numerical value
+11 Gives you a rune
+12 Selects your last weapon by numerical value
+255 Gives you quad damage
+
+menu_keys - Key customization menu
+menu_load - Load game menu
+menu_main - Main menu
+menu_multiplayer - Multiplayer game option menu
+menu_options - Brings up the options menu
+menu_quit - Brings up the quit dialog box
+menu_save - Save game menu
+menu_setup - Setup menu
+menu_video - Video options menu
+[+] menu_keys_clear  - Clear added commands from the keys menu.
+[+] menu_keys_addcmd  -  Add command to the keys menu (customize controls)
+[+] menu_clearmaps  - Clear added maps from the multiplayer menu.
+[+] menu_addmap  - Add a map to the multiplayer menu.
+[+] menu_addepisode  - Add an episode to the multiplayer menu.
+[+] menu_loadsmall  - Open the menu to load small saves.
+[+] menu_savesmall  - Open the menu for small saves.
+
+notarget - Toggle if creatures automatically attack player.
+pausable [0/1] - Toggles if players can pause the game.
+pointfile [filename.pts] - displays dotted-line trail if qbsp has detected leaks.
+[+]  pr_builtin-remap [0/1]  Toggles remapping built-in progs functions.
+precache [0/1] - Toggle the use of a precache. This caches sound and other game data.
+
+profile [command] - Displays the top 10 qc commands called the most. If the command is 'all', list every qc command called.
+
+r_clearcolor [value] - The color for areas outside of the current map. Only seen if moving "outside" with noclip.
+
+r_dspeeds [0/1] - Toggles the display of drawing times for various categories, per frame:
+render time in milliseconds, particles, world, brushes, scan edges, entities, and viewmodel.
+
+r_graphheight [value] - Set the number of lines displayed in the timegraph.
+
+r_maxedges [value] - Sets the maximum number of edges. The new setting does not take effect until the map is restarted. Probably only helpful for map developers. Thanks to Pat Fox for extra information.
+
+r_maxsurfs [value] - Sets the maximum number of surfaces. The new setting does not take effect until the map is restarted. Probably only helpful for map developers. Thanks to Pat Fox [pat.fox@ukonline.co.uk] for extra information.
+
+r_numedges [0/1] - Toggles display of number of edges currently being viewed.
+r_numsurfs [0/1] - Toggles display of number of surfaces currently being viewed.
+r_reportedgeout [0/1] - Toggle display of how many edges where not displayed.
+r_reportsurfout [0/1] - Toggle display of how many surfaces where not displayed.
+
+r_speeds [0/1] - Toggle display of drawing time, c_faceclip, r_polycount, r_drawnpolycount, and c_surf (see source code for meaning of these variables)
+
+r_timegraph [0/1] - Toggle the display of a performance graph. (Lower levels means better performance.)
+registered [0/1] - Toggles if the game is registered or not.
+samelevel [0/1] - Toggles whether exiting a level advances to the next one.
+serverprofile [0/1] - Toggles if server stats are displayed.
+
+timerefresh - Does a quick test to find out video refresh for your current location. It calculates this based on doing a 360 degree turn.
+
+togglemenu - Display the menu screens.
+
+viewframe [number] - View a particular frame in the current model when 'viewmodel' is used.
+viewmodel [name] - Display a particular model or sprite at the location of the viewthing entity on the map.
+
+Note: In order for this command to work a map must be created with an entity called viewthing. Once a map like that is created you will be able to change the model which is currently displayed at the location of that entity. You can also change the current frame being displayed for that model file with the use of the viewframe command. If a viewthing entity is not located on the message "No viewthing on map" will be displayed.
+
+viewnext - View the next frame in the current model when 'viewmodel' is used.
+viewprev - View the previous frame in the current model when 'viewmodel' is used.
+
+ 
+14.  Modem
+
+If anyone is still playing on a modem or direct serial connection, I'd like to hear about it.
+_config_com_baud [value]  - Modem baud rate
+_config_com_irq [number]  - Modem irq
+_config_com_modem [0/1]  - Set to 1 to use modem
+_config_com_port [value]  - Set default modem port
+_config_modem_clear string]  - Default modem reset command
+_config_modem_dialtype [P/T]  - Touch Tone (T) or Pulse (P)
+_config_modem_hangup [string]  - Default hangup string
+_config_modem_init [string]  - Modem init string
+
+ 
+15.  Command Line Parameters
+
+-basedir [path]  - Location of game data files.
+-condebug  - Log console text to qconsole.log
+-dedicated  - Run a dedicated server.
+-dinput  - Disable direct input (Windows)
+-gamma  - Set gamma.
+-heapsize  - Set heapsize.  (Unlikely to be needed in Super8.  The default heapsize is large.)
+-HCHILD  - Set handle child for Qhost in dedicated server mode.
+-HFILE  - Set handle file for Qhost in dedicated server mode.
+-HPARENT  - Set handle parent for Qhost in dedicated server mode.
+-hipnotic  - Activate internal settings for Hipnotic expansion pack.
+-ip [address]  - Set ip address.
+-ipxport [value]  - Set port if more than one server on a computer.
+-listen [value]  - Maximum number of players supported by server.
+-minmemory  - Run game using minimum allowed memory.
+-noautostretch  - Don't pick the default windowed mode based on screen resolution.
+-nocdaudio  - Don't play CD tracks.
+-noforcemaccel  - Don't force mouse acceleration.
+-noforcemparms  - Don't force any mouse parameters.
+-noforcemspd  - Don't force mouse speed.
+-noipx  - Disable IPX networking.
+-nojoy  - Disable pleasure.  Well, actually, no joystick.
+-nolan  - Disable local area networking.
+-noudp  - Disable UDP protocol.
+-nomouse  - No mouse input.
+-particles [value]  - Set maximum particles value.
+-simsound  - Use a fake sound DMA.
+-nosound  - No sound.
+-port  -   - Set port if more than one server on a computer.
+-primarysound  - Use primary sound buffer only instead of a secondary buffer.
+[+]  -quoth  - Add the "quoth" game data directory to search path.
+-resetwinpos  - Reset windowed mode origin to 0,0
+-rogue  - Activate internal settings for Rogue expansion pack.
+-safe  - Activate safemode switches:  -nolan, -nosound, -nocdaudio, -nojoy, -nomouse
+[+]  -sndspeed [value]  - Set audio sample rate in Mhz
+-snoforceformat  - Use the default format of the primary sound buffer.
+-starttime [value]  - The starting game time in milliseconds.  Default is 0.
+-startwindowed  - Start the game in windowed mode.
+-surfcachesize  - Set the surface cache size in kilobytes.
+-udpport  -   - Set port if more than one server on a computer.
+-usecdvolume  - Remember when CD drives had their own separate volume control?
+-wavonly  - Use basic wav audio rather than advanced audio (direct sound).
+
+
+16.  Quake Console Command Pages by Daniel Rinehart README
+
+This list would not have been possible without help from:
+
+Lauri Alanko who's list got me interested in the console.
+
+Juergen P. Meier for his hints on how to extract the important information out of the Quake executable.
+
+Pat Pinatiello for getting me to produce text versions of the console list.
+
+If anything in this document is either incorrect, missing, or not explained well, please let me know so that I can correct it. http://www.neophi.com/home/danielr/contact.html
+
+The most recent version of this document can always be found at:
+http://www.neophi.com/home/danielr/quake/console.html
+
+Daniel Rinehart aka Prog.
+Cite this document as a source if used in another document.
+
+Disclaimer: This document is provided as is and may not be perfect. I do not guarantee the validity of any of the information in it. I will not be held liable or responsible for any damages caused from use or misuse of the information contained within this document.
+
+ 
+17.  JakFrost's Quake Console Commands README
+
+This work is copyrighted pseudonymously by the author under all applicable laws. The author reserves all rights to this work. The copyright statement for this work is "Copyright (C) 1998-2000 JakFrost, All Rights Reserved".
+
+License
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.1 or any later version published by the Free Software Foundation; with no Invariant Sections, no Front-Cover Texts and no Back-Cover Texts. You can access the license at http://www.gnu.org/copyleft/fdl.html or you can write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA to request a copy. Please preserve all authorship and contact information when distributing or modifying this work. All derivative works or works containing parts of this work must be released under the same license or a later version of it.
+
+Trademarks and Servicemarks
+All trademarks and servicemarks used in this work are acknowledged and are the property of their rightful owners. Quake is a trademark of id Software.
+
+Warranty Disclaimer
+THIS WORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY; WITHOUT EVEN THE IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE. THE AUTHOR IS NOT LIABLE FOR ANY RESULTS ARRISING FROM THE USE OF THIS WORK. ALL RISKS AND RESULTS THEREOF FALL ON THE USER.
