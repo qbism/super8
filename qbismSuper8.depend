@@ -39,68 +39,6 @@
 	"menu.h"
 	"cdaudio.h"
 
-1284553983 c:\program files\codeblocks\mingw\include\math.h
-	<_mingw.h>
-
-1284553981 c:\program files\codeblocks\mingw\include\_mingw.h
-	"_mingw_mac.h"
-	<vadefs.h>
-	"sdks/_mingw_directx.h"
-
-1284553981 c:\program files\codeblocks\mingw\include\_mingw_mac.h
-
-1284553985 c:\program files\codeblocks\mingw\include\vadefs.h
-	<_mingw.h>
-
-1284553988 c:\program files\codeblocks\mingw\include\sdks\_mingw_directx.h
-
-1284553985 c:\program files\codeblocks\mingw\include\string.h
-	<_mingw.h>
-	<sec_api/string_s.h>
-
-1284553988 c:\program files\codeblocks\mingw\include\sec_api\string_s.h
-	<string.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\stdarg.h
-	<_mingw_stdarg.h>
-
-1284553981 c:\program files\codeblocks\mingw\include\_mingw_stdarg.h
-	<vadefs.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\stdio.h
-	<_mingw.h>
-	<_mingw_print_push.h>
-	<sec_api/stdio_s.h>
-	<_mingw_print_pop.h>
-
-1284553981 c:\program files\codeblocks\mingw\include\_mingw_print_push.h
-
-1284553988 c:\program files\codeblocks\mingw\include\sec_api\stdio_s.h
-	<stdio.h>
-
-1284553981 c:\program files\codeblocks\mingw\include\_mingw_print_pop.h
-
-1284553985 c:\program files\codeblocks\mingw\include\stdlib.h
-	<_mingw.h>
-	<limits.h>
-	<sec_api/stdlib_s.h>
-	<malloc.h>
-
-1284553982 c:\program files\codeblocks\mingw\include\limits.h
-	<_mingw.h>
-
-1284553988 c:\program files\codeblocks\mingw\include\sec_api\stdlib_s.h
-	<stdlib.h>
-
-1284553983 c:\program files\codeblocks\mingw\include\malloc.h
-	<_mingw.h>
-
-1284553984 c:\program files\codeblocks\mingw\include\setjmp.h
-	<crtdefs.h>
-
-1284553981 c:\program files\codeblocks\mingw\include\crtdefs.h
-	<_mingw.h>
-
 1308025337 c:\qbismsuper8\qbs8src\common.h
 
 1307845135 c:\qbismsuper8\qbs8src\bspfile.h
@@ -175,7 +113,7 @@
 	"lbmlib.h"
 	"mathlib.h"
 
-1288496625 c:\qbismsuper8\qbs8src\d_iface.h
+1313291557 c:\qbismsuper8\qbs8src\d_iface.h
 
 945806060 c:\qbismsuper8\qbs8src\input.h
 
@@ -188,8 +126,6 @@
 1312429348 c:\qbismsuper8\qbs8src\view.h
 
 945806060 c:\qbismsuper8\qbs8src\menu.h
-
-945806060 c:\qbismsuper8\qbs8src\crc.h
 
 1304811304 c:\qbismsuper8\qbs8src\cdaudio.h
 
@@ -205,7 +141,7 @@
 1312940964 source:c:\qbismsuper8\qbs8src\cl_main.c
 	"quakedef.h"
 
-1312950797 source:c:\qbismsuper8\qbs8src\cl_parse.c
+1313295432 source:c:\qbismsuper8\qbs8src\cl_parse.c
 	"quakedef.h"
 
 1311732661 source:c:\qbismsuper8\qbs8src\cl_tent.c
@@ -220,464 +156,6 @@
 	<ddraw.h>
 	<dsound.h>
 
-1284553985 c:\program files\codeblocks\mingw\include\windows.h
-	<_mingw.h>
-	<winresrc.h>
-	<excpt.h>
-	<stdarg.h>
-	<windef.h>
-	<winbase.h>
-	<wingdi.h>
-	<winuser.h>
-	<winnls.h>
-	<wincon.h>
-	<winver.h>
-	<winreg.h>
-	<winnetwk.h>
-	<cderr.h>
-	<dde.h>
-	<ddeml.h>
-	<dlgs.h>
-	<lzexpand.h>
-	<mmsystem.h>
-	<nb30.h>
-	<rpc.h>
-	<shellapi.h>
-	<winperf.h>
-	<winsock.h>
-	<wincrypt.h>
-	<winefs.h>
-	<winscard.h>
-	<winspool.h>
-	<ole.h>
-	<ole2.h>
-	<commdlg.h>
-	<stralign.h>
-	<ole2.h>
-	<winsvc.h>
-	<mcx.h>
-	<imm.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\winresrc.h
-	<winuser.rh>
-	<commctrl.rh>
-	<dde.rh>
-	<winnt.rh>
-	<dlgs.h>
-	<winver.h>
-
-1284553986 c:\program files\codeblocks\mingw\include\winuser.rh
-
-1284553986 c:\program files\codeblocks\mingw\include\commctrl.rh
-
-1284553986 c:\program files\codeblocks\mingw\include\dde.rh
-
-1284553986 c:\program files\codeblocks\mingw\include\winnt.rh
-
-1284553982 c:\program files\codeblocks\mingw\include\dlgs.h
-
-1284553985 c:\program files\codeblocks\mingw\include\winver.h
-
-1284553982 c:\program files\codeblocks\mingw\include\excpt.h
-	<_mingw.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\windef.h
-	<winnt.h>
-	<specstrings.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\winnt.h
-	<_mingw.h>
-	<ctype.h>
-	<specstrings.h>
-	<basetsd.h>
-	<guiddef.h>
-	<intrin.h>
-	<pshpack4.h>
-	<poppack.h>
-	"pshpack4.h"
-	"pshpack2.h"
-	"poppack.h"
-	"pshpack2.h"
-	<pshpack2.h>
-	<poppack.h>
-	"poppack.h"
-	"pshpack8.h"
-	"poppack.h"
-	"poppack.h"
-	<string.h>
-
-1284553981 c:\program files\codeblocks\mingw\include\ctype.h
-	<_mingw.h>
-
-1284553984 c:\program files\codeblocks\mingw\include\specstrings.h
-
-1284553981 c:\program files\codeblocks\mingw\include\basetsd.h
-	<_mingw.h>
-
-1284553982 c:\program files\codeblocks\mingw\include\guiddef.h
-	<string.h>
-
-1284553982 c:\program files\codeblocks\mingw\include\intrin.h
-	<_mingw.h>
-	<setjmp.h>
-	<stddef.h>
-	<stdlib.h>
-	<errno.h>
-	<malloc.h>
-	<x86intrin.h>
-	<mm3dnow.h>
-	<dvec.h>
-	<fvec.h>
-	<ivec.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\stddef.h
-	<_mingw.h>
-
-1284553982 c:\program files\codeblocks\mingw\include\errno.h
-	<_mingw.h>
-
-1284553982 c:\program files\codeblocks\mingw\include\dvec.h
-	<intrin.h>
-	<assert.h>
-	<fvec.h>
-	<_mingw.h>
-	<iostream>
-
-1284553981 c:\program files\codeblocks\mingw\include\assert.h
-	<_mingw.h>
-	<stdlib.h>
-
-1284553982 c:\program files\codeblocks\mingw\include\fvec.h
-	<intrin.h>
-	<assert.h>
-	<ivec.h>
-	<_mingw.h>
-	<iostream>
-
-1284553982 c:\program files\codeblocks\mingw\include\ivec.h
-	<intrin.h>
-	<assert.h>
-	<dvec.h>
-	<_mingw.h>
-	<iostream>
-
-1284553984 c:\program files\codeblocks\mingw\include\pshpack4.h
-
-1284553984 c:\program files\codeblocks\mingw\include\poppack.h
-
-1284553984 c:\program files\codeblocks\mingw\include\pshpack2.h
-
-1284553984 c:\program files\codeblocks\mingw\include\pshpack8.h
-
-1284553985 c:\program files\codeblocks\mingw\include\winbase.h
-	<winerror.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\winerror.h
-
-1284553985 c:\program files\codeblocks\mingw\include\wingdi.h
-	<pshpack1.h>
-	<poppack.h>
-	<pshpack2.h>
-	<poppack.h>
-	<pshpack2.h>
-	<poppack.h>
-	<pshpack4.h>
-	<poppack.h>
-
-1284553984 c:\program files\codeblocks\mingw\include\pshpack1.h
-
-1284553985 c:\program files\codeblocks\mingw\include\winuser.h
-	<_mingw.h>
-	<stdarg.h>
-	<guiddef.h>
-	<pshpack2.h>
-	<poppack.h>
-	<tvout.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\tvout.h
-	<guiddef.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\winnls.h
-
-1284553985 c:\program files\codeblocks\mingw\include\wincon.h
-
-1284553985 c:\program files\codeblocks\mingw\include\winreg.h
-	<reason.h>
-
-1284553984 c:\program files\codeblocks\mingw\include\reason.h
-
-1284553985 c:\program files\codeblocks\mingw\include\winnetwk.h
-
-1284553981 c:\program files\codeblocks\mingw\include\cderr.h
-
-1284553981 c:\program files\codeblocks\mingw\include\dde.h
-	<windef.h>
-
-1284553981 c:\program files\codeblocks\mingw\include\ddeml.h
-
-1284553983 c:\program files\codeblocks\mingw\include\lzexpand.h
-
-1284553983 c:\program files\codeblocks\mingw\include\mmsystem.h
-	<pshpack1.h>
-	<poppack.h>
-
-1284553983 c:\program files\codeblocks\mingw\include\nb30.h
-
-1284553984 c:\program files\codeblocks\mingw\include\rpc.h
-	<windows.h>
-	<basetsd.h>
-	<pshpack8.h>
-	<rpcdce.h>
-	<rpcnsi.h>
-	<rpcnterr.h>
-	<excpt.h>
-	<winerror.h>
-	<rpcasync.h>
-	<poppack.h>
-
-1284553984 c:\program files\codeblocks\mingw\include\rpcdce.h
-	<specstrings.h>
-	<guiddef.h>
-	<rpcdcep.h>
-
-1284553984 c:\program files\codeblocks\mingw\include\rpcdcep.h
-
-1284553984 c:\program files\codeblocks\mingw\include\rpcnsi.h
-
-1284553984 c:\program files\codeblocks\mingw\include\rpcnterr.h
-
-1284553984 c:\program files\codeblocks\mingw\include\rpcasync.h
-	<pshpack8.h>
-	<poppack.h>
-
-1284553984 c:\program files\codeblocks\mingw\include\shellapi.h
-	<pshpack1.h>
-	<poppack.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\winperf.h
-	<pshpack8.h>
-	<poppack.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\winsock.h
-	<windows.h>
-	<_timeval.h>
-	<_bsd_types.h>
-	<inaddr.h>
-	<psdk_inc/_socket_types.h>
-	<psdk_inc/_fd_types.h>
-	<psdk_inc/_ip_types.h>
-	<psdk_inc/_ip_mreq1.h>
-	<psdk_inc/_wsadata.h>
-	<psdk_inc/_xmitfile.h>
-	<psdk_inc/_wsa_errnos.h>
-
-1284553981 c:\program files\codeblocks\mingw\include\_timeval.h
-
-1284553981 c:\program files\codeblocks\mingw\include\_bsd_types.h
-
-1284553982 c:\program files\codeblocks\mingw\include\inaddr.h
-	<_bsd_types.h>
-
-1284553988 c:\program files\codeblocks\mingw\include\psdk_inc\_socket_types.h
-
-1284553988 c:\program files\codeblocks\mingw\include\psdk_inc\_fd_types.h
-	<psdk_inc/_socket_types.h>
-
-1284553988 c:\program files\codeblocks\mingw\include\psdk_inc\_ip_types.h
-	<_bsd_types.h>
-	<inaddr.h>
-	<_timeval.h>
-
-1284553988 c:\program files\codeblocks\mingw\include\psdk_inc\_ip_mreq1.h
-	<inaddr.h>
-
-1284553988 c:\program files\codeblocks\mingw\include\psdk_inc\_wsadata.h
-
-1284553988 c:\program files\codeblocks\mingw\include\psdk_inc\_xmitfile.h
-
-1284553988 c:\program files\codeblocks\mingw\include\psdk_inc\_wsa_errnos.h
-
-1284553985 c:\program files\codeblocks\mingw\include\wincrypt.h
-	<guiddef.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\winefs.h
-
-1284553985 c:\program files\codeblocks\mingw\include\winscard.h
-	<wtypes.h>
-	<winioctl.h>
-	"winsmcrd.h"
-	"SCardErr.h"
-
-1284553985 c:\program files\codeblocks\mingw\include\wtypes.h
-	"rpc.h"
-	"rpcndr.h"
-	"basetsd.h"
-	"guiddef.h"
-	<psdk_inc/_varenum.h>
-
-1289795701 c:\program files\codeblocks\mingw\include\rpcndr.h
-	<pshpack8.h>
-	<basetsd.h>
-	<rpcnsip.h>
-	<poppack.h>
-
-1284553984 c:\program files\codeblocks\mingw\include\rpcnsip.h
-
-1284553988 c:\program files\codeblocks\mingw\include\psdk_inc\_varenum.h
-
-1284553985 c:\program files\codeblocks\mingw\include\winioctl.h
-	<pshpack1.h>
-	<poppack.h>
-	<pshpack1.h>
-	<poppack.h>
-	<pshpack1.h>
-	<poppack.h>
-	<pshpack1.h>
-	<poppack.h>
-	<pshpack1.h>
-	<poppack.h>
-	<pshpack1.h>
-	<poppack.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\winsmcrd.h
-
-1284553984 c:\program files\codeblocks\mingw\include\scarderr.h
-
-1284553985 c:\program files\codeblocks\mingw\include\winspool.h
-	<prsht.h>
-
-1284553984 c:\program files\codeblocks\mingw\include\prsht.h
-	<pshpack8.h>
-	<pshpack4.h>
-	<poppack.h>
-
-1284553984 c:\program files\codeblocks\mingw\include\ole.h
-
-1284553984 c:\program files\codeblocks\mingw\include\ole2.h
-	<pshpack8.h>
-	<winerror.h>
-	<objbase.h>
-	<oleauto.h>
-	<oleidl.h>
-	<poppack.h>
-
-1284553983 c:\program files\codeblocks\mingw\include\objbase.h
-	<rpc.h>
-	<rpcndr.h>
-	<pshpack8.h>
-	<stdlib.h>
-	<wtypes.h>
-	<unknwn.h>
-	<objidl.h>
-	<guiddef.h>
-	<cguid.h>
-	<urlmon.h>
-	<propidl.h>
-	<poppack.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\unknwn.h
-	<_mingw.h>
-	"rpc.h"
-	"rpcndr.h"
-	"windows.h"
-	"ole2.h"
-	"wtypes.h"
-
-1284553983 c:\program files\codeblocks\mingw\include\objidl.h
-	"rpc.h"
-	"rpcndr.h"
-	"windows.h"
-	"ole2.h"
-	"unknwn.h"
-
-1284553981 c:\program files\codeblocks\mingw\include\cguid.h
-
-1284553985 c:\program files\codeblocks\mingw\include\urlmon.h
-	"rpc.h"
-	"rpcndr.h"
-	"windows.h"
-	"ole2.h"
-	"objidl.h"
-	"oleidl.h"
-	"servprov.h"
-	"msxml.h"
-
-1284553984 c:\program files\codeblocks\mingw\include\oleidl.h
-	"rpc.h"
-	"rpcndr.h"
-	"windows.h"
-	"ole2.h"
-	"objidl.h"
-
-1284553984 c:\program files\codeblocks\mingw\include\servprov.h
-	<_mingw.h>
-	"rpc.h"
-	"rpcndr.h"
-	"windows.h"
-	"ole2.h"
-	"objidl.h"
-
-1284553983 c:\program files\codeblocks\mingw\include\msxml.h
-	"rpc.h"
-	"rpcndr.h"
-	"unknwn.h"
-	"objidl.h"
-	"oaidl.h"
-
-1284553983 c:\program files\codeblocks\mingw\include\oaidl.h
-	"rpc.h"
-	"rpcndr.h"
-	"windows.h"
-	"ole2.h"
-	"objidl.h"
-
-1284553984 c:\program files\codeblocks\mingw\include\propidl.h
-	"rpc.h"
-	"rpcndr.h"
-	"windows.h"
-	"ole2.h"
-	"objidl.h"
-	"oaidl.h"
-
-1284553984 c:\program files\codeblocks\mingw\include\oleauto.h
-	<pshpack8.h>
-	<oaidl.h>
-	<poppack.h>
-
-1284553981 c:\program files\codeblocks\mingw\include\commdlg.h
-	<prsht.h>
-	<pshpack1.h>
-	<poppack.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\stralign.h
-	<sec_api/stralign_s.h>
-
-1284553988 c:\program files\codeblocks\mingw\include\sec_api\stralign_s.h
-	<stralign.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\winsvc.h
-
-1284553983 c:\program files\codeblocks\mingw\include\mcx.h
-
-1284553982 c:\program files\codeblocks\mingw\include\imm.h
-
-1284553987 c:\program files\codeblocks\mingw\include\ddraw.h
-	<objbase.h>
-	<_mingw_dxhelper.h>
-
-1284553987 c:\program files\codeblocks\mingw\include\_mingw_dxhelper.h
-
-1284553987 c:\program files\codeblocks\mingw\include\dsound.h
-	<_mingw_dxhelper.h>
-	<objbase.h>
-	<float.h>
-
-1284553982 c:\program files\codeblocks\mingw\include\float.h
-	<_mingw_float.h>
-
-1284553981 c:\program files\codeblocks\mingw\include\_mingw_float.h
-	<_mingw.h>
-
 1312862266 source:c:\qbismsuper8\qbs8src\common.c
 	"quakedef.h"
 
@@ -686,38 +164,11 @@
 	<fcntl.h>
 	"quakedef.h"
 
-1284553985 c:\program files\codeblocks\mingw\include\unistd.h
-	<io.h>
-	<process.h>
-	<getopt.h>
-	<sys/types.h>
-
-1284553982 c:\program files\codeblocks\mingw\include\io.h
-	<_mingw.h>
-	<string.h>
-	<string.h>
-	<sec_api/io_s.h>
-
-1284553988 c:\program files\codeblocks\mingw\include\sec_api\io_s.h
-	<io.h>
-
-1284553984 c:\program files\codeblocks\mingw\include\process.h
-	<_mingw.h>
-	<sys/types.h>
-
-1284553989 c:\program files\codeblocks\mingw\include\sys\types.h
-	<_mingw.h>
-
-1284553982 c:\program files\codeblocks\mingw\include\getopt.h
-	<_mingw.h>
-
-1284553982 c:\program files\codeblocks\mingw\include\fcntl.h
-	<_mingw.h>
-	<io.h>
-
 1129714040 source:c:\qbismsuper8\qbs8src\crc.c
 	"quakedef.h"
 	"crc.h"
+
+945806060 c:\qbismsuper8\qbs8src\crc.h
 
 1307488338 source:c:\qbismsuper8\qbs8src\cvar.c
 	"quakedef.h"
@@ -754,7 +205,7 @@
 
 945816200 c:\qbismsuper8\qbs8src\adivtab.h
 
-1306095963 source:c:\qbismsuper8\qbs8src\d_scan.c
+1313296166 source:c:\qbismsuper8\qbs8src\d_scan.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
@@ -823,35 +274,19 @@
 1311045642 source:c:\qbismsuper8\qbs8src\net_main.c
 	"quakedef.h"
 
-945802460 c:\qbismsuper8\qbs8src\net_vcr.h
-
-945802406 source:c:\qbismsuper8\qbs8src\net_vcr.c
-	"quakedef.h"
-	"net_vcr.h"
-
 1312950486 source:c:\qbismsuper8\qbs8src\pr_cmds.c
 	"quakedef.h"
 
-1313127172 source:c:\qbismsuper8\qbs8src\pr_edict.c
+1313185023 source:c:\qbismsuper8\qbs8src\pr_edict.c
 	"quakedef.h"
 
 1271220832 source:c:\qbismsuper8\qbs8src\pr_exec.c
-	"quakedef.h"
-
-1289156830 source:c:\qbismsuper8\qbs8src\r_2d.c
 	"quakedef.h"
 
 1265159264 source:c:\qbismsuper8\qbs8src\r_aclip.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
-
-1311821574 source:c:\qbismsuper8\qbs8src\r_alias.c
-	"quakedef.h"
-	"r_local.h"
-	"anorms.h"
-
-1108298958 c:\qbismsuper8\qbs8src\anorms.h
 
 1309492157 source:c:\qbismsuper8\qbs8src\r_bsp.c
 	"quakedef.h"
@@ -874,6 +309,10 @@
 	"quakedef.h"
 	"r_local.h"
 
+1313023594 source:c:\qbismsuper8\qbs8src\r_main.c
+	"quakedef.h"
+	"r_local.h"
+
 1312429416 source:c:\qbismsuper8\qbs8src\r_misc.c
 	"quakedef.h"
 	"r_local.h"
@@ -891,7 +330,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1311732661 source:c:\qbismsuper8\qbs8src\r_surf.c
+1313297077 source:c:\qbismsuper8\qbs8src\r_surf.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
@@ -916,10 +355,6 @@
 	"winquake.h"
 	"../dosisms.h"
 
-1284553987 c:\program files\codeblocks\mingw\include\dinput.h
-	<objbase.h>
-	<_mingw_dxhelper.h>
-
 945806060 c:\qbismsuper8\qbs8src\dosisms.h
 
 1308246969 source:c:\qbismsuper8\qbs8src\s_win32\movie.c
@@ -936,22 +371,6 @@
 	<vfw.h>
 	<mmreg.h>
 	<msacm.h>
-
-1284553985 c:\program files\codeblocks\mingw\include\vfw.h
-	<mmsystem.h>
-	"pshpack8.h"
-	<mmreg.h>
-	<ole2.h>
-	<msacm.h>
-	"poppack.h"
-
-1284553983 c:\program files\codeblocks\mingw\include\mmreg.h
-	"pshpack1.h"
-	"poppack.h"
-
-1284553983 c:\program files\codeblocks\mingw\include\msacm.h
-	"pshpack1.h"
-	"poppack.h"
 
 1270777048 source:c:\qbismsuper8\qbs8src\s_win32\net_win.c
 	"../quakedef.h"
@@ -979,8 +398,6 @@
 	<wsipx.h>
 	"net_wipx.h"
 
-1284553985 c:\program files\codeblocks\mingw\include\wsipx.h
-
 1287953220 source:c:\qbismsuper8\qbs8src\s_win32\qbism-s8.rc
 
 1313033981 source:c:\qbismsuper8\qbs8src\s_win32\snd_win.c
@@ -998,12 +415,11 @@
 
 945806060 c:\qbismsuper8\qbs8src\conproc.h
 
-1312737611 source:c:\qbismsuper8\qbs8src\s_win32\vid_win.c
+1313293217 source:c:\qbismsuper8\qbs8src\s_win32\vid_win.c
 	"../quakedef.h"
 	"winquake.h"
 	"../d_local.h"
 	"resource.h"
-	<ddraw.h>
 
 1311821615 source:c:\qbismsuper8\qbs8src\sbar.c
 	"quakedef.h"
@@ -1051,9 +467,10 @@
 1308108610 source:c:\qbismsuper8\qbs8src\zone.c
 	"quakedef.h"
 
-1313023594 source:c:\qbismsuper8\qbs8src\r_main.c
+1313207693 source:c:\qbismsuper8\qbs8src\r_alias.c
 	"quakedef.h"
 	"r_local.h"
+	"anorms.h"
 
-897886800 c:\qbismsuper8\qbs8src\s_pocketpc\fcntl_ppc.h
+1108298958 c:\qbismsuper8\qbs8src\anorms.h
 

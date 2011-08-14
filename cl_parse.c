@@ -806,9 +806,6 @@ void CL_NewTranslation (int slot)
     memcpy (dest, vid.colormap, sizeof(cl.scores[slot].translations));
     top = cl.scores[slot].colors & 0xf0;
     bottom = (cl.scores[slot].colors &15)<<4;
-#ifdef GLQUAKE  //qbism - TODO can use this?  SKIN
-    R_TranslatePlayerSkin (slot);
-#endif
 
     for (i=0 ; i<VID_GRADES ; i++, dest += 256, source+=256)
     {

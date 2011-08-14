@@ -112,25 +112,6 @@ void	VID_Update (vrect_t *rects)
 	}
 }
 
-/*
-================
-D_BeginDirectRect
-================
-*/
-void D_BeginDirectRect (int x, int y, byte *pbitmap, int width, int height)
-{
-}
-
-
-/*
-================
-D_EndDirectRect
-================
-*/
-void D_EndDirectRect (int x, int y, int width, int height)
-{
-}
-
 // direct draw software compatability stuff
 
 void VID_HandlePause (qboolean pause)

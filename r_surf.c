@@ -62,11 +62,11 @@ extern cvar_t r_stainfadeamount;
 
 #define	LMBLOCK_WIDTH		128
 #define	LMBLOCK_HEIGHT		128
-#define MAX_LIGHTMAPS		256// qbism was 64
+#define MAX_STAINMAPS		256// qbism was 64
 
 typedef unsigned char stmap;
-stmap stainmaps[MAX_LIGHTMAPS*LMBLOCK_WIDTH*LMBLOCK_HEIGHT];	//added to lightmap for added (hopefully) speed.
-int			allocated[MAX_LIGHTMAPS][LMBLOCK_WIDTH];
+stmap stainmaps[MAX_STAINMAPS*LMBLOCK_WIDTH*LMBLOCK_HEIGHT];	//added to lightmap for added (hopefully) speed.
+int			allocated[MAX_STAINMAPS][LMBLOCK_WIDTH];
 
 //radius, x y z, a
 void R_StainSurf (msurface_t *surf, float *parms)
@@ -295,7 +295,7 @@ int SWAllocBlock (int w, int h, int *x, int *y)
     if (!w || !h)
         Sys_Error ("AllocBlock: bad size");
 
-    for (texnum=0 ; texnum<MAX_LIGHTMAPS ; texnum++)
+    for (texnum=0 ; texnum<MAX_STAINMAPS ; texnum++)
     {
         best = LMBLOCK_HEIGHT;
 
@@ -570,7 +570,7 @@ void R_BuildLightMap (void)
 
 // add all the lightmaps
     if (lightmap)
-        for (maps = 0 ; maps < MAX_LIGHTMAPS && surf->styles[maps] != 255 ;
+        for (maps = 0 ; maps < MAXLIGHTMAPS && surf->styles[maps] != 255 ;
                 maps++)
         {
             scale = r_drawsurf.lightadj[maps];	// 8.8 fraction
