@@ -17,25 +17,322 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-// vid_win.c -- Win32 video driver  //qbism - based on MGL-less version by MH
+// vid_win.c -- Win32 video driver  //qbism - directdraw driver by MH
 
 #include "../quakedef.h"
 #include "winquake.h"
 #include "../d_local.h"
 #include "resource.h"
+#include <ddraw.h>
+
+// true if the ddraw driver started up OK
+qboolean vid_usingddraw = false;
+
 int min_vid_width=320; //qbism- Dan East (for very low-res display)
+
+// main application window
+HWND hWndWinQuake = NULL;
+
+// compatibility
+HWND mainwindow = NULL;
+
+
+byte gammatable[256];
+
+
+static void Check_Gamma (void)
+{
+	int i;
+	float gamm = 0.7f;
+	float f, inf;
+
+	if ((i = COM_CheckParm ("-gamma")) == 0)
+		gamm = 1.0f;
+	else gamm = Q_atof (com_argv [i + 1]);
+
+	for (i = 0; i < 256; i++)
+	{
+		f = pow ((i + 1) / 256.0, gamm);
+		inf = f * 255 + 0.5;
+
+		if (inf < 0) inf = 0;
+		if (inf > 255) inf = 255;
+
+		gammatable[i] = inf;
+	}
+}
+
+
+/*
+=================================================================================================================
+
+				DIRECTDRAW VIDEO DRIVER
+
+=================================================================================================================
+*/
+
+LPDIRECTDRAW dd_Object = NULL;
+HINSTANCE hInstDDraw = NULL;
+
+LPDIRECTDRAWSURFACE dd_FrontBuffer = NULL;
+LPDIRECTDRAWSURFACE dd_BackBuffer = NULL;
+
+LPDIRECTDRAWCLIPPER dd_Clipper = NULL;
+
+typedef HRESULT (WINAPI *DIRECTDRAWCREATEPROC) (GUID FAR *, LPDIRECTDRAW FAR *, IUnknown FAR *);
+DIRECTDRAWCREATEPROC QDirectDrawCreate = NULL;
+
+unsigned int ddpal[256];
+
+unsigned char *vidbuf = NULL;
+
+
+int dd_window_width = 640;
+int dd_window_height = 480;
+RECT SrcRect;
+RECT DstRect;
+
+void DD_UpdateRects (int width, int height)
+{
+	POINT p;
+
+	p.x = 0;
+	p.y = 0;
+
+	// first we need to figure out where on the primary surface our window lives
+	ClientToScreen (hWndWinQuake, &p);
+	GetClientRect (hWndWinQuake, &DstRect);
+	OffsetRect (&DstRect, p.x, p.y);
+	SetRect (&SrcRect, 0, 0, width, height);
+}
+
+
+void VID_CreateDDrawDriver (int width, int height, unsigned char *palette, unsigned char **buffer, int *rowbytes)
+{
+	HRESULT hr;
+	DDSURFACEDESC ddsd;
+
+	vid_usingddraw = false;
+	dd_window_width = width;
+	dd_window_height = height;
+
+	vidbuf = (unsigned char *) Q_malloc (width * height); //qbism was malloc
+	buffer[0] = vidbuf;
+	rowbytes[0] = width;
+
+	if (!(hInstDDraw = LoadLibrary ("ddraw.dll"))) return;
+	if (!(QDirectDrawCreate = (DIRECTDRAWCREATEPROC) GetProcAddress (hInstDDraw, "DirectDrawCreate"))) return;
+
+	if (FAILED (hr = QDirectDrawCreate (NULL, &dd_Object, NULL))) return;
+	if (FAILED (hr = dd_Object->lpVtbl->SetCooperativeLevel (dd_Object, hWndWinQuake, DDSCL_NORMAL))) return;
+
+	// the primary surface in windowed mode is the full screen
+	memset (&ddsd, 0, sizeof (ddsd));
+	ddsd.dwSize = sizeof (ddsd);
+	ddsd.dwFlags = DDSD_CAPS;
+	ddsd.ddsCaps.dwCaps = DDSCAPS_PRIMARYSURFACE | DDSCAPS_VIDEOMEMORY;
+
+	// ...and create it
+	if (FAILED (hr = dd_Object->lpVtbl->CreateSurface (dd_Object, &ddsd, &dd_FrontBuffer, NULL))) return;
+
+	// not using a clipper will slow things down and switch aero off
+	if (FAILED (hr = IDirectDraw_CreateClipper (dd_Object, 0, &dd_Clipper, NULL))) return;
+	if (FAILED (hr = IDirectDrawClipper_SetHWnd (dd_Clipper, 0, hWndWinQuake))) return;
+	if (FAILED (hr = IDirectDrawSurface_SetClipper (dd_FrontBuffer, dd_Clipper))) return;
+
+	// the secondary surface is an offscreen surface that is the currect dimensions
+	// this will be blitted to the correct location on the primary surface (which is the full screen) during our draw op
+	memset (&ddsd, 0, sizeof (ddsd));
+	ddsd.dwSize = sizeof (ddsd);
+	ddsd.dwFlags = DDSD_HEIGHT | DDSD_WIDTH | DDSD_CAPS;
+	ddsd.ddsCaps.dwCaps = DDSCAPS_OFFSCREENPLAIN | DDSCAPS_VIDEOMEMORY;
+	ddsd.dwWidth = width;
+	ddsd.dwHeight = height;
+
+	if (FAILED (hr = IDirectDraw_CreateSurface (dd_Object, &ddsd, &dd_BackBuffer, NULL))) return;
+
+	// direct draw is working now
+	vid_usingddraw = true;
+
+	// create a palette
+	Check_Gamma ();
+	VID_SetPalette (palette);
+
+	// create initial rects
+	DD_UpdateRects (dd_window_width, dd_window_height);
+}
+
+
+/*
+=================================================================================================================
+
+				GDI VIDEO DRIVER
+
+=================================================================================================================
+*/
+
+// common bitmap definition
+typedef struct dibinfo
+{
+	BITMAPINFOHEADER	header;
+	RGBQUAD				acolors[256];
+} dibinfo_t;
+
+
+static HGDIOBJ previously_selected_GDI_obj = NULL;
+HBITMAP hDIBSection;
+unsigned char *pDIBBase = NULL;
+HDC hdcDIBSection = NULL;
+HDC hdcGDI = NULL;
+
+
+void VID_CreateGDIDriver (int width, int height, unsigned char *palette, unsigned char **buffer, int *rowbytes)
+{
+	dibinfo_t   dibheader;
+	BITMAPINFO *pbmiDIB = (BITMAPINFO *) &dibheader;
+	int i;
+
+	hdcGDI = GetDC (hWndWinQuake);
+	memset (&dibheader, 0, sizeof (dibheader));
+
+	// fill in the bitmap info
+	pbmiDIB->bmiHeader.biSize          = sizeof (BITMAPINFOHEADER);
+	pbmiDIB->bmiHeader.biWidth         = width;
+	pbmiDIB->bmiHeader.biHeight        = height;
+	pbmiDIB->bmiHeader.biPlanes        = 1;
+	pbmiDIB->bmiHeader.biCompression   = BI_RGB;
+	pbmiDIB->bmiHeader.biSizeImage     = 0;
+	pbmiDIB->bmiHeader.biXPelsPerMeter = 0;
+	pbmiDIB->bmiHeader.biYPelsPerMeter = 0;
+	pbmiDIB->bmiHeader.biClrUsed       = 256;
+	pbmiDIB->bmiHeader.biClrImportant  = 256;
+	pbmiDIB->bmiHeader.biBitCount      = 8;
+
+	// fill in the palette
+	for (i = 0; i < 256; i++)
+	{
+		// d_8to24table isn't filled in yet so this is just for testing
+		dibheader.acolors[i].rgbRed   = palette[i * 3];
+		dibheader.acolors[i].rgbGreen = palette[i * 3 + 1];
+		dibheader.acolors[i].rgbBlue  = palette[i * 3 + 2];
+	}
+
+	// create the DIB section
+	hDIBSection = CreateDIBSection (hdcGDI,
+							pbmiDIB,
+							DIB_RGB_COLORS,
+							&pDIBBase,
+							NULL,
+							0);
+
+	// set video buffers
+	if (pbmiDIB->bmiHeader.biHeight > 0)
+	{
+		// bottom up
+		buffer[0] = pDIBBase + (height - 1) * width;
+		rowbytes[0] = -width;
+	}
+	else
+	{
+		// top down
+		buffer[0] = pDIBBase;
+		rowbytes[0] = width;
+	}
+
+	// clear the buffer
+	memset (pDIBBase, 0xff, width * height);
+
+	if ((hdcDIBSection = CreateCompatibleDC (hdcGDI)) == NULL)
+		Sys_Error ("DIB_Init() - CreateCompatibleDC failed\n");
+
+	if ((previously_selected_GDI_obj = SelectObject (hdcDIBSection, hDIBSection)) == NULL)
+		Sys_Error ("DIB_Init() - SelectObject failed\n");
+
+	// create a palette
+	Check_Gamma ();
+	VID_SetPalette (palette);
+}
+
+
+void VID_UnloadAllDrivers (void)
+{
+	// shut down ddraw
+	if (vidbuf)
+	{
+		free (vidbuf);
+		vidbuf = NULL;
+	}
+
+	if (dd_Clipper)
+	{
+		IDirectDrawClipper_Release (dd_Clipper);
+		dd_Clipper = NULL;
+	}
+
+	if (dd_FrontBuffer)
+	{
+		IDirectDrawSurface_Release (dd_FrontBuffer);
+		dd_FrontBuffer = NULL;
+	}
+
+	if (dd_BackBuffer)
+	{
+		IDirectDrawSurface_Release (dd_BackBuffer);
+		dd_BackBuffer = NULL;
+	}
+
+	if (dd_Object)
+	{
+		IDirectDraw_Release (dd_Object);
+		dd_Object = NULL;
+	}
+
+	if (hInstDDraw)
+	{
+		FreeLibrary (hInstDDraw);
+		hInstDDraw = NULL;
+	}
+
+	QDirectDrawCreate = NULL;
+
+	// shut down gdi
+	if (hdcDIBSection)
+	{
+		SelectObject (hdcDIBSection, previously_selected_GDI_obj);
+		DeleteDC (hdcDIBSection);
+		hdcDIBSection = NULL;
+	}
+
+	if (hDIBSection)
+	{
+		DeleteObject (hDIBSection);
+		hDIBSection = NULL;
+		pDIBBase = NULL;
+	}
+
+	if (hdcGDI)
+	{
+		// if hdcGDI exists then hWndWinQuake must also be valid
+		ReleaseDC (hWndWinQuake, hdcGDI);
+		hdcGDI = NULL;
+	}
+
+	// not using ddraw now
+	vid_usingddraw = false;
+}
+
+
+// prefer to startup with directdraw
+cvar_t vid_ddraw = {"vid_ddraw", "1", true};
 
 // compatibility
 qboolean		DDActive;
-
 
 #define MAX_MODE_LIST	30
 #define VID_ROW_SIZE	3
 #define VID_WINDOWED_MODES 3 //qbism
 
 extern int		Minimized;
-
-HWND		mainwindow;
 
 HWND WINAPI InitializeWindow (HINSTANCE hInstance, int nCmdShow);
 
@@ -64,23 +361,18 @@ viddef_t	vid;				// global video state
 #define MODE_FULLSCREEN_DEFAULT	(MODE_WINDOWED + VID_WINDOWED_MODES) //qbism was 3
 
 // Note that 0 is MODE_WINDOWED
-cvar_t		vid_mode = {"vid_mode", "0", false};
+cvar_t		vid_mode = {"vid_mode", "0", true}; //qbism was false
 // Note that 0 is MODE_WINDOWED
-cvar_t		_vid_default_mode = {"_vid_default_mode", "0", true};
-// Note that 3 is MODE_FULLSCREEN_DEFAULT
-cvar_t		_vid_default_mode_win = {"_vid_default_mode_win", "3", true};
-cvar_t		vid_wait = {"vid_wait", "0"};
-cvar_t		vid_nopageflip = {"vid_nopageflip", "0", true};
-cvar_t		_vid_wait_override = {"_vid_wait_override", "0", true};
-cvar_t		vid_config_x = {"vid_config_x", "800", true};
-cvar_t		vid_config_y = {"vid_config_y", "600", true};
+cvar_t		vid_default_mode_win = {"vid_default_mode_win", "3", true};
+cvar_t		vid_wait = {"vid_wait", "1", true};
+cvar_t		vid_config_x = {"vid_config_x", "1280", true};
+cvar_t		vid_config_y = {"vid_config_y", "720", true};
 cvar_t		vid_stretch_by_2 = {"vid_stretch_by_2", "0", true};
 cvar_t		_windowed_mouse = {"_windowed_mouse", "1", true};
 cvar_t		vid_fullscreen_mode = {"vid_fullscreen_mode", "3", true};
 cvar_t		vid_windowed_mode = {"vid_windowed_mode", "0", true};
-cvar_t		block_switch = {"block_switch", "0", true};
-cvar_t		vid_window_x = {"vid_window_x", "0", true};
-cvar_t		vid_window_y = {"vid_window_y", "0", true};
+cvar_t		vid_window_x = {"vid_window_x", "0", false}; //qbism was true
+cvar_t		vid_window_y = {"vid_window_y", "0", false};
 
 int			vid_modenum = NO_MODE;
 int			vid_testingmode, vid_realmode;
@@ -92,7 +384,6 @@ modestate_t	modestate = MS_UNINIT;
 
 static byte		*vid_surfcache;
 static int		vid_surfcachesize;
-static int		VID_highhunkmark;
 
 unsigned char	vid_curpal[256*3];
 
@@ -148,107 +439,6 @@ char *VID_GetModeDescriptionMemCheck (int mode);
 void VID_CheckModedescFixup (int mode);
 
 
-
-typedef struct dibinfo
-{
-	BITMAPINFOHEADER	header;
-	RGBQUAD				acolors[256];
-} dibinfo_t;
-
-
-static HGDIOBJ previously_selected_GDI_obj = NULL;
-HBITMAP hDIBSection;
-unsigned char *pDIBBase = NULL;
-HDC hdcDIBSection = NULL;
-HDC maindc = NULL;
-
-
-void VID_ShutdownDIB (void)
-{
-	if (hdcDIBSection)
-	{
-		SelectObject (hdcDIBSection, previously_selected_GDI_obj);
-		DeleteDC (hdcDIBSection);
-		hdcDIBSection = NULL;
-	}
-
-	if (hDIBSection)
-	{
-		DeleteObject (hDIBSection);
-		hDIBSection = NULL;
-		pDIBBase = NULL;
-	}
-
-	if (maindc)
-	{
-		// if maindc exists mainwindow must also be valid
-		ReleaseDC (mainwindow, maindc);
-		maindc = NULL;
-	}
-}
-
-
-void VID_CreateDIB (int width, int height, unsigned char *palette, qboolean windowed)
-{
-	dibinfo_t   dibheader;
-	BITMAPINFO *pbmiDIB = (BITMAPINFO *) &dibheader;
-	int i;
-
-	maindc = GetDC (mainwindow);
-	memset (&dibheader, 0, sizeof (dibheader));
-
-	// fill in the bitmap info
-	pbmiDIB->bmiHeader.biSize          = sizeof (BITMAPINFOHEADER);
-	pbmiDIB->bmiHeader.biWidth         = width;
-	pbmiDIB->bmiHeader.biHeight        = -height;	// top-down
-	pbmiDIB->bmiHeader.biPlanes        = 1;
-	pbmiDIB->bmiHeader.biBitCount      = 8;
-	pbmiDIB->bmiHeader.biCompression   = BI_RGB;
-	pbmiDIB->bmiHeader.biSizeImage     = 0;
-	pbmiDIB->bmiHeader.biXPelsPerMeter = 0;
-	pbmiDIB->bmiHeader.biYPelsPerMeter = 0;
-	pbmiDIB->bmiHeader.biClrUsed       = 256;
-	pbmiDIB->bmiHeader.biClrImportant  = 256;
-
-	// create the DIB section
-	hDIBSection = CreateDIBSection (maindc,
-							pbmiDIB,
-							DIB_RGB_COLORS,
-							&pDIBBase,
-							NULL,
-							0);
-
-	// set video buffers
-	if (pbmiDIB->bmiHeader.biHeight > 0)
-	{
-		// bottom up
-		vid.buffer = pDIBBase + (height - 1) * width;
-		vid.rowbytes = -width;
-	}
-	else
-	{
-		// top down
-		vid.buffer = pDIBBase;
-		vid.rowbytes = width; //qbism was vid.width
-	}
-
-	// set the rest of the buffers we need (why not just use one single buffer instead of all this crap? oh well, it's Quake...)
-	vid.conbuffer = vid.direct = vid.buffer;
-
-	// more crap for the console
-	vid.conrowbytes = vid.rowbytes;
-
-	// clear the buffer
-	memset (pDIBBase, 0xff, width * height);
-
-	if ((hdcDIBSection = CreateCompatibleDC (maindc)) == NULL)
-		Sys_Error ("DIB_Init() - CreateCompatibleDC failed\n");
-
-	if ((previously_selected_GDI_obj = SelectObject (hdcDIBSection, hDIBSection)) == NULL)
-		Sys_Error ("DIB_Init() - SelectObject failed\n");
-}
-
-
 /*
 ================
 VID_RememberWindowPos
@@ -258,7 +448,7 @@ void VID_RememberWindowPos (void)
 {
 	RECT	rect;
 
-	if (GetWindowRect (mainwindow, &rect))
+	if (GetWindowRect (hWndWinQuake, &rect))
 	{
 		if ((rect.left < GetSystemMetrics (SM_CXSCREEN)) &&
 				(rect.top < GetSystemMetrics (SM_CYSCREEN))  &&
@@ -357,12 +547,11 @@ qboolean VID_AllocBuffers (int width, int height)
 	if (d_pzbuffer)
 	{
 		D_FlushCaches ();
-		Hunk_FreeToHighMark (VID_highhunkmark);
+		free (d_pzbuffer);
 		d_pzbuffer = NULL;
 	}
 
-	VID_highhunkmark = Hunk_HighMark ();
-	d_pzbuffer = Hunk_HighAllocName (tbuffersize, "video");
+	d_pzbuffer = Q_malloc (tbuffersize); //qbism was Z_Malloc
 	vid_surfcache = (byte *) d_pzbuffer +
 					width * height * sizeof (*d_pzbuffer);
 
@@ -403,9 +592,9 @@ void VID_InitModes (HINSTANCE hInstance)
 		Sys_Error ("Couldn't register window class");
 
 	modelist[0].type = MS_WINDOWED;
-	modelist[0].width = 800;
+	modelist[0].width = 854;
 	modelist[0].height = 480;
-	strcpy (modelist[0].modedesc, "800x480");
+	strcpy (modelist[0].modedesc, "854x480");
 	modelist[0].modenum = MODE_WINDOWED;
 	modelist[0].fullscreen = 0;
 
@@ -438,6 +627,9 @@ void VID_InitModes (HINSTANCE hInstance)
 	{
 		vid_default = MODE_WINDOWED;
 	}
+
+	// always start at the lowest mode then switch to the higher one if selected
+	vid_default = MODE_WINDOWED;
 
 	windowed_default = vid_default;
 	ReleaseDC (NULL, hdc);
@@ -526,7 +718,7 @@ void VID_DestroyWindow (void)
 	if (modestate == MS_FULLDIB)
 		ChangeDisplaySettings (NULL, CDS_FULLSCREEN);
 
-	VID_ShutdownDIB ();
+	VID_UnloadAllDrivers ();
 }
 
 
@@ -567,31 +759,37 @@ qboolean VID_SetWindowedMode (int modenum)
 	// for the rest of the session
 	if (!vid_mode_set)
 	{
-		mainwindow = CreateWindowEx (
-						 ExWindowStyle,
+		hWndWinQuake = CreateWindowEx
+		(
+			ExWindowStyle,
 			 "qbismSuper8",
 			 "qbismSuper8", //qbism edited
-						 WindowStyle,
-						 0, 0,
-						 WindowRect.right - WindowRect.left,
-						 WindowRect.bottom - WindowRect.top,
-						 NULL,
-						 NULL,
-						 global_hInstance,
-						 NULL);
+			WindowStyle,
+			0, 0,
+			WindowRect.right - WindowRect.left,
+			WindowRect.bottom - WindowRect.top,
+			NULL,
+			NULL,
+			global_hInstance,
+			NULL
+		);
 
-		if (!mainwindow)
+		if (!hWndWinQuake)
 			Sys_Error ("Couldn't create DIB window");
 
+		// compatibility
+		mainwindow = hWndWinQuake;
+
+		// done
 		vid_mode_set = true;
 	}
 	else
 	{
-		SetWindowLong (mainwindow, GWL_STYLE, WindowStyle | WS_VISIBLE);
-		SetWindowLong (mainwindow, GWL_EXSTYLE, ExWindowStyle);
+		SetWindowLong (hWndWinQuake, GWL_STYLE, WindowStyle | WS_VISIBLE);
+		SetWindowLong (hWndWinQuake, GWL_EXSTYLE, ExWindowStyle);
 	}
 
-	if (!SetWindowPos (mainwindow,
+	if (!SetWindowPos (hWndWinQuake,
 					   NULL,
 					   0, 0,
 					   WindowRect.right - WindowRect.left,
@@ -607,16 +805,15 @@ qboolean VID_SetWindowedMode (int modenum)
 
 	// position and show the DIB window
 	VID_CheckWindowXY ();
-	SetWindowPos (mainwindow, NULL, (int) vid_window_x.value,
+	SetWindowPos (hWndWinQuake, NULL, (int) vid_window_x.value,
 				  (int) vid_window_y.value, 0, 0,
 				  SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
 
 	if (force_minimized)
-		ShowWindow (mainwindow, SW_MINIMIZE);
-	else
-		ShowWindow (mainwindow, SW_SHOWDEFAULT);
+		ShowWindow (hWndWinQuake, SW_MINIMIZE);
+	else ShowWindow (hWndWinQuake, SW_SHOWDEFAULT);
 
-	UpdateWindow (mainwindow);
+	UpdateWindow (hWndWinQuake);
 	modestate = MS_WINDOWED;
 	vid_fulldib_on_focus_mode = 0;
 
@@ -632,8 +829,8 @@ qboolean VID_SetWindowedMode (int modenum)
 	vid.aspect = ((float) vid.height / (float) vid.width) *
 				 (320.0 / 240.0);
 
-	SendMessage (mainwindow, WM_SETICON, (WPARAM) TRUE, (LPARAM) hIcon);
-	SendMessage (mainwindow, WM_SETICON, (WPARAM) FALSE, (LPARAM) hIcon);
+	SendMessage (hWndWinQuake, WM_SETICON, (WPARAM) TRUE, (LPARAM) hIcon);
+	SendMessage (hWndWinQuake, WM_SETICON, (WPARAM) FALSE, (LPARAM) hIcon);
 
 	return true;
 }
@@ -669,10 +866,10 @@ qboolean VID_SetFullDIBMode (int modenum)
 
 	AdjustWindowRectEx (&WindowRect, WindowStyle, FALSE, 0);
 
-	SetWindowLong (mainwindow, GWL_STYLE, WindowStyle | WS_VISIBLE);
-	SetWindowLong (mainwindow, GWL_EXSTYLE, ExWindowStyle);
+	SetWindowLong (hWndWinQuake, GWL_STYLE, WindowStyle | WS_VISIBLE);
+	SetWindowLong (hWndWinQuake, GWL_EXSTYLE, ExWindowStyle);
 
-	if (!SetWindowPos (mainwindow,
+	if (!SetWindowPos (hWndWinQuake,
 					   NULL,
 					   0, 0,
 					   WindowRect.right - WindowRect.left,
@@ -683,10 +880,10 @@ qboolean VID_SetFullDIBMode (int modenum)
 	}
 
 	// position and show the DIB window
-	SetWindowPos (mainwindow, HWND_TOPMOST, 0, 0, 0, 0,
+	SetWindowPos (hWndWinQuake, HWND_TOPMOST, 0, 0, 0, 0,
 				  SWP_NOSIZE | SWP_SHOWWINDOW | SWP_DRAWFRAME);
-	ShowWindow (mainwindow, SW_SHOWDEFAULT);
-	UpdateWindow (mainwindow);
+	ShowWindow (hWndWinQuake, SW_SHOWDEFAULT);
+	UpdateWindow (hWndWinQuake);
 
 	vid.numpages = 1;
 //	vid.maxwarpwidth = WARP_WIDTH; //qbism from Manoel Kasimier - hi-res waterwarp - removed
@@ -806,8 +1003,42 @@ int VID_SetMode (int modenum, unsigned char *palette)
 		IN_HideMouse ();
 	}
 
-	// create the DIB
-	VID_CreateDIB (DIBWidth, DIBHeight, palette, (modelist[modenum].type == MS_WINDOWED));
+	// shutdown any old driver that was active
+	VID_UnloadAllDrivers ();
+
+	// because we have set the background brush for the window to NULL (to avoid flickering when re-sizing the window on the desktop),
+	// we clear the window to black when created, otherwise it will be empty while Quake starts up.
+	// this also prevents a screen flash to while when switching drivers.  it still flashes, but at least it's black now
+	hdc = GetDC (hWndWinQuake);
+	PatBlt (hdc, 0, 0, WindowRect.right, WindowRect.bottom, BLACKNESS);
+	ReleaseDC (hWndWinQuake, hdc);
+
+	// create the new driver
+	vid_usingddraw = false;
+
+	// attempt to create a direct draw driver
+	if (vid_ddraw.value)
+		VID_CreateDDrawDriver (DIBWidth, DIBHeight, palette, &vid.buffer, &vid.rowbytes);
+
+	// create a gdi driver if directdraw failed or if we preferred not to use it
+	if (!vid_usingddraw)
+	{
+		// because directdraw may have been partially created we must shut it down again first
+		VID_UnloadAllDrivers ();
+
+		// now create the gdi driver
+		VID_CreateGDIDriver (DIBWidth, DIBHeight, palette, &vid.buffer, &vid.rowbytes);
+	}
+
+	// if ddraw failed to come up we disable the cvar too
+	if (vid_ddraw.value && !vid_usingddraw) Cvar_Set ("vid_ddraw", "0");
+
+	// set the rest of the buffers we need (why not just use one single buffer instead of all this crap? oh well, it's Quake...)
+	vid.direct = (unsigned char *) vid.buffer;
+	vid.conbuffer = vid.buffer;
+
+	// more crap for the console
+	vid.conrowbytes = vid.rowbytes;
 
 	window_width = vid.width;
 	window_height = vid.height;
@@ -831,7 +1062,7 @@ int VID_SetMode (int modenum, unsigned char *palette)
 	// ourselves at the top of the z order, then grab the foreground again,
 	// Who knows if it helps, but it probably doesn't hurt
 	if (!force_minimized)
-		SetForegroundWindow (mainwindow);
+		SetForegroundWindow (hWndWinQuake);
 
 	hdc = GetDC (NULL);
 
@@ -867,10 +1098,11 @@ int VID_SetMode (int modenum, unsigned char *palette)
 
 	if (!force_minimized)
 	{
-		SetWindowPos (mainwindow, HWND_TOP, 0, 0, 0, 0,
+		SetWindowPos (hWndWinQuake, HWND_TOP, 0, 0, 0, 0,
 					  SWP_DRAWFRAME | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW |
 					  SWP_NOCOPYBITS);
-		SetForegroundWindow (mainwindow);
+
+		SetForegroundWindow (hWndWinQuake);
 	}
 
 	// fix the leftover Alt from any Alt-Tab or the like that switched us away
@@ -888,35 +1120,58 @@ int VID_SetMode (int modenum, unsigned char *palette)
 
 void VID_SetPalette (unsigned char *palette)
 {
-	INT			i;
-	//HDC			hdc;
-	RGBQUAD			colors[256];
+	int i;
 	unsigned char *pal = palette;
-	byte *table = (byte *) d_8to24table;
 
 	if (!Minimized)
 	{
-		if (hdcDIBSection)
+		if (vid_usingddraw)
 		{
-		// incoming palette is 3 component
+			// incoming palette is 3 component
 			for (i = 0; i < 256; i++, pal += 3)
-		{
-				colors[i].rgbRed   = pal[0];
-				colors[i].rgbGreen = pal[1];
-				colors[i].rgbBlue  = pal[2];
-				colors[i].rgbReserved = 0;
-			}
-
-			//qbism - no, thanks!   colors[0].rgbRed = 0;
-			//qbism - no, thanks!   colors[0].rgbGreen = 0;
-			//qbism - no, thanks!   colors[0].rgbBlue = 0;
-			colors[255].rgbRed = 0xff;
-			colors[255].rgbGreen = 0xff;
-			colors[255].rgbBlue = 0xff;
-
-			if (SetDIBColorTable (hdcDIBSection, 0, 256, colors) == 0)
 			{
-				Con_Printf ("DIB_SetPalette() - SetDIBColorTable failed\n");
+				PALETTEENTRY *p = (PALETTEENTRY *) &ddpal[i];
+
+				p->peRed = gammatable[pal[2]];
+				p->peGreen = gammatable[pal[1]];
+				p->peBlue = gammatable[pal[0]];
+				p->peFlags = 255;
+			}
+		}
+		else
+		{
+			HDC			hdc;
+			RGBQUAD		colors[256];
+
+			if (hdcDIBSection)
+			{
+				// incoming palette is 3 component
+				for (i = 0; i < 256; i++, pal += 3)
+				{
+					PALETTEENTRY *p = (PALETTEENTRY *) &ddpal[i];
+
+					colors[i].rgbRed   = gammatable[pal[0]];
+					colors[i].rgbGreen = gammatable[pal[1]];
+					colors[i].rgbBlue  = gammatable[pal[2]];
+					colors[i].rgbReserved = 0;
+
+					p->peRed = gammatable[pal[2]];
+					p->peGreen = gammatable[pal[1]];
+					p->peBlue = gammatable[pal[0]];
+					p->peFlags = 255;
+				}
+
+				//qbism- no thanks.... colors[0].rgbRed = 0;
+				//colors[0].rgbGreen = 0;
+				//colors[0].rgbBlue = 0;
+				colors[255].rgbRed = 0xff;
+				colors[255].rgbGreen = 0xff;
+				colors[255].rgbBlue = 0xff;
+
+				if (SetDIBColorTable (hdcDIBSection, 0, 256, colors) == 0)
+				{
+					Con_Printf ("DIB_SetPalette() - SetDIBColorTable failed\n");
+				}
 			}
 		}
 	}
@@ -925,53 +1180,59 @@ void VID_SetPalette (unsigned char *palette)
 }
 
 
-void	VID_ShiftPalette (unsigned char *palette)
+void VID_ShiftPalette (unsigned char *palette)
 {
 	VID_SetPalette (palette);
 }
 
 
-void	VID_Init (unsigned char *palette)
+void VID_Init (unsigned char *palette)
 {
 	int		i, bestmatch, bestmatchmetric, t, dr, dg, db;
 	int		basenummodes;
 	byte	*ptmp;
+	static qboolean firsttime = true;
 
-	Cvar_RegisterVariable (&vid_mode);
-	Cvar_RegisterVariable (&vid_wait);
-	Cvar_RegisterVariable (&vid_nopageflip);
-	Cvar_RegisterVariable (&_vid_wait_override);
-	Cvar_RegisterVariable (&_vid_default_mode);
-	Cvar_RegisterVariable (&_vid_default_mode_win);
-	Cvar_RegisterVariable (&vid_config_x);
-	Cvar_RegisterVariable (&vid_config_y);
-	Cvar_RegisterVariable (&vid_stretch_by_2);
-	Cvar_RegisterVariable (&_windowed_mouse);
-	Cvar_RegisterVariable (&vid_fullscreen_mode);
-	Cvar_RegisterVariable (&vid_windowed_mode);
-	Cvar_RegisterVariable (&block_switch);
-	Cvar_RegisterVariable (&vid_window_x);
-	Cvar_RegisterVariable (&vid_window_y);
-	Cmd_AddCommand ("vid_testmode", VID_TestMode_f);
-	Cmd_AddCommand ("vid_nummodes", VID_NumModes_f);
-	Cmd_AddCommand ("vid_describecurrentmode", VID_DescribeCurrentMode_f);
-	Cmd_AddCommand ("vid_describemode", VID_DescribeMode_f);
-	Cmd_AddCommand ("vid_describemodes", VID_DescribeModes_f);
-	Cmd_AddCommand ("vid_forcemode", VID_ForceMode_f);
-	Cmd_AddCommand ("vid_windowed", VID_Windowed_f);
-	Cmd_AddCommand ("vid_fullscreen", VID_Fullscreen_f);
-	Cmd_AddCommand ("vid_minimize", VID_Minimize_f);
-	VID_InitModes (global_hInstance);
-	basenummodes = nummodes;
-	VID_GetDisplayModes ();
+	Check_Gamma ();
+
+	if (firsttime)
+	{
+		Cvar_RegisterVariable (&vid_ddraw);
+		Cvar_RegisterVariable (&vid_mode);
+		Cvar_RegisterVariable (&vid_wait);
+		Cvar_RegisterVariable (&vid_default_mode_win);
+		Cvar_RegisterVariable (&vid_config_x);
+		Cvar_RegisterVariable (&vid_config_y);
+		Cvar_RegisterVariable (&_windowed_mouse);
+		Cvar_RegisterVariable (&vid_fullscreen_mode);
+		Cvar_RegisterVariable (&vid_windowed_mode);
+		Cvar_RegisterVariable (&vid_window_x);
+		Cvar_RegisterVariable (&vid_window_y);
+
+		Cmd_AddCommand ("vid_testmode", VID_TestMode_f);
+		Cmd_AddCommand ("vid_nummodes", VID_NumModes_f);
+		Cmd_AddCommand ("vid_describecurrentmode", VID_DescribeCurrentMode_f);
+		Cmd_AddCommand ("vid_describemode", VID_DescribeMode_f);
+		Cmd_AddCommand ("vid_describemodes", VID_DescribeModes_f);
+		Cmd_AddCommand ("vid_forcemode", VID_ForceMode_f);
+		Cmd_AddCommand ("vid_windowed", VID_Windowed_f);
+		Cmd_AddCommand ("vid_fullscreen", VID_Fullscreen_f);
+		Cmd_AddCommand ("vid_minimize", VID_Minimize_f);
+
+		VID_InitModes (global_hInstance);
+		basenummodes = nummodes;
+		VID_GetDisplayModes ();
+	}
+
 	//vid.maxwarpwidth = WARP_WIDTH;
 	//vid.maxwarpheight = WARP_HEIGHT;
     vid.maxwarpwidth = vid.width; //qbism from  Manoel Kasimier - hi-res waterwarp
 	vid.maxwarpheight = vid.height; //qbism from  Manoel Kasimier - hi-res waterwarp
-
 	vid.colormap = host_colormap;
 	vid.fullbright = 256 - LittleLong (*((int *) vid.colormap + 2048));
 	vid_testingmode = 0;
+
+#if 0
 	// GDI doesn't let us remap palette index 0, so we'll remap color
 	// mappings from that black to another one
 	bestmatchmetric = 256 * 256 * 3;
@@ -998,8 +1259,9 @@ void	VID_Init (unsigned char *palette)
 		if (*ptmp == 0)
 			*ptmp = bestmatch;
 	}
+#endif
 
-	if (!COM_CheckParm("-nostartwindowed"))
+	if (COM_CheckParm("-startwindowed"))
 	{
 		startwindowed = 1;
 		vid_default = windowed_default;
@@ -1016,7 +1278,7 @@ void	VID_Init (unsigned char *palette)
 	hide_window = true;
 	VID_SetMode (MODE_WINDOWED, palette);
 	hide_window = false;
-	S_Init ();
+	if (firsttime) S_Init ();
 	vid_initialized = true;
 	//force_mode_set = true;
 	//qbism VID_SetMode (vid_default, palette);
@@ -1026,6 +1288,8 @@ void	VID_Init (unsigned char *palette)
 	vid_menudrawfn = VID_MenuDraw;
 	vid_menukeyfn = VID_MenuKey;
 	strcpy (badmode.modedesc, "Bad mode");
+
+	firsttime = false;
 }
 
 
@@ -1039,14 +1303,14 @@ void VID_Shutdown (void)
 		if (modestate == MS_FULLDIB)
 			ChangeDisplaySettings (NULL, CDS_FULLSCREEN);
 
-		PostMessage (HWND_BROADCAST, WM_PALETTECHANGED, (WPARAM) mainwindow, (LPARAM) 0);
+		PostMessage (HWND_BROADCAST, WM_PALETTECHANGED, (WPARAM) hWndWinQuake, (LPARAM) 0);
 		PostMessage (HWND_BROADCAST, WM_SYSCOLORCHANGE, (WPARAM) 0, (LPARAM) 0);
 		AppActivate (false, false);
 
 		VID_DestroyWindow ();
 
 		if (hwnd_dialog) DestroyWindow (hwnd_dialog);
-		if (mainwindow) DestroyWindow (mainwindow);
+		if (hWndWinQuake) DestroyWindow (hWndWinQuake);
 
 		vid_testingmode = 0;
 		vid_initialized = 0;
@@ -1061,28 +1325,199 @@ FlipScreen
 */
 void FlipScreen (vrect_t *rects)
 {
-	if (hdcDIBSection)
+	int numrects = 0;
+
+	while (rects)
 	{
-		int numrects = 0;
-
-		while (rects)
+		if (vid_usingddraw)
 		{
-			BitBlt (maindc,
-					rects->x, rects->y,
-					rects->x + rects->width,
-					rects->y + rects->height,
-					hdcDIBSection,
-					rects->x, rects->y,
-					SRCCOPY);
+			int x, y;
+			HRESULT hr = S_OK;
+			unsigned char *src = NULL;
+			unsigned int *dst = NULL;
 
-			numrects++;
-			rects = rects->pnext;
+			if (dd_BackBuffer)
+			{
+				RECT TheRect;
+				RECT sRect, dRect;
+				DDSURFACEDESC ddsd;
+
+				memset (&ddsd, 0, sizeof (ddsd));
+				ddsd.dwSize = sizeof (DDSURFACEDESC);
+
+				// lock the correct subrect
+				TheRect.left = rects->x;
+				TheRect.right = rects->x + rects->width;
+				TheRect.top = rects->y;
+				TheRect.bottom = rects->y + rects->height;
+
+				if ((hr = IDirectDrawSurface_Lock (dd_BackBuffer, &TheRect, &ddsd, DDLOCK_WRITEONLY | DDLOCK_SURFACEMEMORYPTR, NULL)) == DDERR_WASSTILLDRAWING) return;
+
+				src = (unsigned char *) vidbuf + rects->y * vid.rowbytes + rects->x;
+				dst = (unsigned int *) ddsd.lpSurface;
+
+				// convert pitch to unsigned int addressable
+				ddsd.lPitch >>= 2;
+
+				// because we created a 32 bit backbuffer we need to copy from the 8 bit memory buffer to it before flipping
+				if (!(rects->width & 15))
+				{
+					for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
+					{
+						byte *psrc = src;
+						unsigned int *pdst = dst;
+
+						for (x = 0; x < rects->width; x += 16, psrc += 16, pdst += 16)
+						{
+							pdst[0] = ddpal[psrc[0]];
+							pdst[1] = ddpal[psrc[1]];
+							pdst[2] = ddpal[psrc[2]];
+							pdst[3] = ddpal[psrc[3]];
+
+							pdst[4] = ddpal[psrc[4]];
+							pdst[5] = ddpal[psrc[5]];
+							pdst[6] = ddpal[psrc[6]];
+							pdst[7] = ddpal[psrc[7]];
+
+							pdst[8] = ddpal[psrc[8]];
+							pdst[9] = ddpal[psrc[9]];
+							pdst[10] = ddpal[psrc[10]];
+							pdst[11] = ddpal[psrc[11]];
+
+							pdst[12] = ddpal[psrc[12]];
+							pdst[13] = ddpal[psrc[13]];
+							pdst[14] = ddpal[psrc[14]];
+							pdst[15] = ddpal[psrc[15]];
+						}
+					}
+				}
+				else if (!(rects->width % 10))
+				{
+					for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
+					{
+						byte *psrc = src;
+						unsigned int *pdst = dst;
+
+						for (x = 0; x < rects->width; x += 10, psrc += 10, pdst += 10)
+						{
+							pdst[0] = ddpal[psrc[0]];
+							pdst[1] = ddpal[psrc[1]];
+							pdst[2] = ddpal[psrc[2]];
+							pdst[3] = ddpal[psrc[3]];
+							pdst[4] = ddpal[psrc[4]];
+
+							pdst[5] = ddpal[psrc[5]];
+							pdst[6] = ddpal[psrc[6]];
+							pdst[7] = ddpal[psrc[7]];
+							pdst[8] = ddpal[psrc[8]];
+							pdst[9] = ddpal[psrc[9]];
+						}
+					}
+				}
+				else if (!(rects->width & 7))
+				{
+					for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
+					{
+						byte *psrc = src;
+						unsigned int *pdst = dst;
+
+						for (x = 0; x < rects->width; x += 8, psrc += 8, pdst += 8)
+						{
+							pdst[0] = ddpal[psrc[0]];
+							pdst[1] = ddpal[psrc[1]];
+							pdst[2] = ddpal[psrc[2]];
+							pdst[3] = ddpal[psrc[3]];
+
+							pdst[4] = ddpal[psrc[4]];
+							pdst[5] = ddpal[psrc[5]];
+							pdst[6] = ddpal[psrc[6]];
+							pdst[7] = ddpal[psrc[7]];
+						}
+					}
+				}
+				else if (!(rects->width % 5))
+				{
+					for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
+					{
+						byte *psrc = src;
+						unsigned int *pdst = dst;
+
+						for (x = 0; x < rects->width; x += 5, psrc += 5, pdst += 5)
+						{
+							pdst[0] = ddpal[psrc[0]];
+							pdst[1] = ddpal[psrc[1]];
+							pdst[2] = ddpal[psrc[2]];
+							pdst[3] = ddpal[psrc[3]];
+							pdst[4] = ddpal[psrc[4]];
+						}
+					}
+				}
+				else if (!(rects->width & 3))
+				{
+					for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
+					{
+						byte *psrc = src;
+						unsigned int *pdst = dst;
+
+						for (x = 0; x < rects->width; x += 4, psrc += 4, pdst += 4)
+						{
+							pdst[0] = ddpal[psrc[0]];
+							pdst[1] = ddpal[psrc[1]];
+							pdst[2] = ddpal[psrc[2]];
+							pdst[3] = ddpal[psrc[3]];
+						}
+					}
+				}
+				else
+				{
+					for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
+					{
+						for (x = 0; x < rects->width; x++)
+						{
+							dst[x] = ddpal[src[x]];
+						}
+					}
+				}
+
+				IDirectDrawSurface_Unlock (dd_BackBuffer, NULL);
+
+				// correctly offset source
+				sRect.left = SrcRect.left + rects->x;
+				sRect.right = SrcRect.left + rects->x + rects->width;
+				sRect.top = SrcRect.top + rects->y;
+				sRect.bottom = SrcRect.top + rects->y + rects->height;
+
+				// correctly offset dest
+				dRect.left = DstRect.left + rects->x;
+				dRect.right = DstRect.left + rects->x + rects->width;
+				dRect.top = DstRect.top + rects->y;
+				dRect.bottom = DstRect.top + rects->y + rects->height;
+
+				// copy to front buffer
+				IDirectDrawSurface_Blt (dd_FrontBuffer, &dRect, dd_BackBuffer, &sRect, 0, NULL);
+			}
 		}
+		else if (hdcDIBSection)
+		{
+			BitBlt
+			(
+				hdcGDI,
+				rects->x, rects->y,
+				rects->x + rects->width,
+				rects->y + rects->height,
+				hdcDIBSection,
+				rects->x, rects->y,
+				SRCCOPY
+			);
+		}
+
+		numrects++;
+		rects = rects->pnext;
 	}
 }
 
-
 //qbism removed D_BeginDirectRect and D_EndDirectRect
+
 
 void VID_Update (vrect_t *rects)
 {
@@ -1104,7 +1539,7 @@ void VID_Update (vrect_t *rects)
 	{
 		if (modestate == MS_WINDOWED)
 		{
-			GetWindowRect (mainwindow, &trect);
+			GetWindowRect (hWndWinQuake, &trect);
 
 			if ((trect.left != (int) vid_window_x.value) ||
 					(trect.top  != (int) vid_window_y.value))
@@ -1116,14 +1551,14 @@ void VID_Update (vrect_t *rects)
 				}
 
 				VID_CheckWindowXY ();
-				SetWindowPos (mainwindow, NULL, (int) vid_window_x.value,
+				SetWindowPos (hWndWinQuake, NULL, (int) vid_window_x.value,
 							  (int) vid_window_y.value, 0, 0,
 							  SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
 			}
 		}
 
-		if ((_vid_default_mode_win.value != vid_default) &&
-				(!startwindowed || (_vid_default_mode_win.value < MODE_FULLSCREEN_DEFAULT)))
+		if ((vid_default_mode_win.value != vid_default) &&
+				(!startwindowed || (vid_default_mode_win.value < MODE_FULLSCREEN_DEFAULT)))
 		{
 			firstupdate = 0;
 
@@ -1133,18 +1568,32 @@ void VID_Update (vrect_t *rects)
 				Cvar_SetValue ("vid_window_y", 0.0);
 			}
 
-			if ((_vid_default_mode_win.value < 0) ||
-					(_vid_default_mode_win.value >= nummodes))
+			if ((vid_default_mode_win.value < 0) ||
+					(vid_default_mode_win.value >= nummodes))
 			{
-				Cvar_SetValue ("_vid_default_mode_win", windowed_default);
+				Cvar_SetValue ("vid_default_mode_win", windowed_default);
 			}
 
-			Cvar_SetValue ("vid_mode", _vid_default_mode_win.value);
+			Cvar_SetValue ("vid_mode", vid_default_mode_win.value);
 		}
 	}
 
 	// We've drawn the frame; copy it to the screen
 	FlipScreen (rects);
+
+	// check for a driver change
+	if ((vid_ddraw.value && !vid_usingddraw) || (!vid_ddraw.value && vid_usingddraw))
+	{
+		// reset the mode
+		force_mode_set = true;
+		VID_SetMode ((int) vid_mode.value, vid_curpal);
+		force_mode_set = false;
+
+		// store back
+		if (vid_usingddraw)
+			Con_Printf ("loaded DirectDraw driver\n");
+		else Con_Printf ("loaded GDI driver\n");
+	}
 
 	if (vid_testingmode)
 	{
@@ -1182,7 +1631,7 @@ void VID_Update (vrect_t *rects)
 				IN_ShowMouse ();
 			}
 
-//			windowed_mouse = _windowed_mouse; // Manoel Kasimier - edited
+//			windowed_mouse = _windowed_mouse; //qbism -  Manoel Kasimier - edited
 		}
 	}
 }
@@ -1194,22 +1643,22 @@ byte        scantokey[128] =
 {
 	//  0           1       2       3       4       5       6       7
 	//  8           9       A       B       C       D       E       F
-	0  ,    27,     '1',    '2',    '3',    '4',    '5',    '6',
+	0 ,    27,     '1',    '2',    '3',    '4',    '5',    '6',
 	'7',    '8',    '9',    '0',    '-',    '=',    K_BACKSPACE, 9, // 0
 	'q',    'w',    'e',    'r',    't',    'y',    'u',    'i',
-	'o',    'p',    '[',    ']',    13 ,    K_CTRL, 'a',  's',     // 1
+	'o',    'p',    '[',    ']',    13,    K_CTRL, 'a',  's',     // 1
 	'd',    'f',    'g',    'h',    'j',    'k',    'l',    ';',
-	'\'' ,    '`',    K_SHIFT, '\\',  'z',    'x',    'c',    'v',     // 2
+	'\'',    '`',    K_SHIFT, '\\',  'z',    'x',    'c',    'v',     // 2
 	'b',    'n',    'm',    ',',    '.',    '/',    K_SHIFT, '*',
-	K_ALT, ' ',   0  ,    K_F1, K_F2, K_F3, K_F4, K_F5,  // 3
-	K_F6, K_F7, K_F8, K_F9, K_F10,  K_PAUSE,    0  , K_HOME,
+	K_ALT, ' ',   0 ,    K_F1, K_F2, K_F3, K_F4, K_F5,  // 3
+	K_F6, K_F7, K_F8, K_F9, K_F10,  K_PAUSE,    0 , K_HOME,
 	K_UPARROW, K_PGUP, '-', K_LEFTARROW, '5', K_RIGHTARROW, '+', K_END, //4
 	K_DOWNARROW, K_PGDN, K_INS, K_DEL, 0, 0,             0,              K_F11,
-	K_F12, 0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,       // 5
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,        // 6
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0,
-	0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0  ,    0         // 7
+	K_F12, 0 ,    0 ,    0 ,    0 ,    0 ,    0 ,    0,       // 5
+	0 ,    0 ,    0 ,    0 ,    0 ,    0 ,    0 ,    0,
+	0 ,    0 ,    0 ,    0 ,    0 ,    0 ,    0 ,    0,        // 6
+	0 ,    0 ,    0 ,    0 ,    0 ,    0 ,    0 ,    0,
+	0 ,    0 ,    0 ,    0 ,    0 ,    0 ,    0 ,    0         // 7
 };
 
 /*
@@ -1401,7 +1850,7 @@ LONG WINAPI MainWndProc (
 		case SC_MAXIMIZE:
 
 			// if minimized, bring up as a window before going fullscreen,
-			// so will have the right state to restore
+			// so MGL will have the right state to restore
 			if (Minimized)
 			{
 				force_mode_set = true;
@@ -1447,11 +1896,15 @@ LONG WINAPI MainWndProc (
 		if ((modestate == MS_WINDOWED) && !in_mode_set && !Minimized)
 			VID_RememberWindowPos ();
 
+		// notify the driver that the screen has moved (currently ddraw only)
+		if (vid_usingddraw)
+			DD_UpdateRects (dd_window_width, dd_window_height);
+
 		break;
 	case WM_SIZE:
 		Minimized = false;
 
-		if (! (wParam & SIZE_RESTORED))
+		if (!(wParam & SIZE_RESTORED))
 		{
 			if (wParam & SIZE_MINIMIZED)
 				Minimized = true;
@@ -1464,7 +1917,7 @@ LONG WINAPI MainWndProc (
 	case WM_ACTIVATE:
 		fActive = LOWORD (wParam);
 		fMinimized = (BOOL) HIWORD (wParam);
-		AppActivate (! (fActive == WA_INACTIVE), fMinimized);
+		AppActivate (!(fActive == WA_INACTIVE), fMinimized);
 		// fix the leftover Alt from any Alt-Tab or the like that switched us away
 		ClearAllStates ();
 
@@ -1557,7 +2010,7 @@ LONG WINAPI MainWndProc (
 		// crash on Win95)
 		if (!in_mode_set)
 		{
-			if (MessageBox (mainwindow, "Are you sure you want to quit?", "Confirm Exit",
+			if (MessageBox (hWndWinQuake, "Are you sure you want to quit?", "Confirm Exit",
 							MB_YESNO | MB_SETFOREGROUND | MB_ICONQUESTION) == IDYES)
 			{
 				Sys_Quit ();
@@ -1579,12 +2032,11 @@ LONG WINAPI MainWndProc (
 }
 
 extern void M_Video_f (void); //qbism from Manoel Kasimier - edited
-//qbism extern void M_Menu_Options_f (void);
+//qbismextern void M_Menu_Options_f (void);
 extern void M_Print (int cx, int cy, char *str);
 extern void M_PrintWhite (int cx, int cy, char *str);
 extern void M_DrawCharacter (int cx, int line, int num);
 extern void M_DrawTransPic (int x, int y, qpic_t *pic);
-//qbism- not used - extern void M_DrawPic (int x, int y, qpic_t *pic);
 
 static int	vid_line, vid_wmodes;
 
@@ -1618,9 +2070,10 @@ void VID_MenuDraw (void)
 	p = Draw_CachePic ("gfx/vidmodes.lmp");
 	M_DrawTransPic ( (/*320*/ min_vid_width-p->width)/2, 4, p); //qbism from Manoel Kasimier + Dan East
 
-	for (i = 0; i < VID_WINDOWED_MODES; i++)
+	for (i = 0; i < 3; i++)
 	{
 		ptr = VID_GetModeDescriptionMemCheck (i);
+		if (ptr == NULL) Sys_Error("VID_GetModeDescriptionMemCheck returns NULL"); //qbism
 		modedescs[i].modenum = modelist[i].modenum;
 		modedescs[i].desc = ptr;
 		modedescs[i].iscur = 0;
@@ -1629,22 +2082,22 @@ void VID_MenuDraw (void)
 			modedescs[i].iscur = 1;
 	}
 
-	vid_wmodes = VID_WINDOWED_MODES;
+	vid_wmodes = 3;
 	lnummodes = VID_NumModes ();
 
-	for (i = VID_WINDOWED_MODES; i < lnummodes; i++)
+	for (i = 3; i < lnummodes; i++)
 	{
 		ptr = VID_GetModeDescriptionMemCheck (i);
 		pv = VID_GetModePtr (i);
 
-		// we have limited room for fullscreen modes, so don't allow
+		// we only have room for 15 fullscreen modes, so don't allow
 		// 360-wide modes, because if there are 5 320-wide modes and
 		// 5 360-wide modes, we'll run out of space
 		if (ptr) //qbism...but now don't care... && ((pv->width != 360) || 1)) //qbism debug was COM_CheckParm("-allow360")))
 		{
 			dup = 0;
 
-			for (j = VID_WINDOWED_MODES; j < vid_wmodes; j++)
+			for (j = 3; j < vid_wmodes; j++)
 			{
 				if (!strcmp (modedescs[j].desc, ptr))
 				{
@@ -1684,7 +2137,7 @@ void VID_MenuDraw (void)
 
 	// sort the modes on width (to handle picking up oddball dibonly modes
 	// after all the others)
-	for (i = VID_WINDOWED_MODES; i < (vid_wmodes - 1); i++)
+	for (i = 3; i < (vid_wmodes - 1); i++)
 	{
 		for (j = (i + 1); j < vid_wmodes; j++)
 		{
@@ -1697,11 +2150,11 @@ void VID_MenuDraw (void)
 		}
 	}
 
-	M_Print (13 * 8, 36, "Windowed Modes");
+	M_Print (7 * 8, 36, "Windowed Modes       custom:");
 	column = 16;
 	row = 36 + 2 * 8;
 
-	for (i = 0; i < VID_WINDOWED_MODES; i++)
+	for (i = 0; i < 3; i++)
 	{
 		if (modedescs[i].iscur)
 			M_PrintWhite (column, row, modedescs[i].desc);
@@ -1711,13 +2164,13 @@ void VID_MenuDraw (void)
 		column += 13 * 8;
 	}
 
-	if (vid_wmodes > VID_WINDOWED_MODES)
+	if (vid_wmodes > 3)
 	{
 		M_Print (12 * 8, 36 + 4 * 8, "Fullscreen Modes");
 		column = 16;
 		row = 36 + 6 * 8;
 
-		for (i = VID_WINDOWED_MODES; i < vid_wmodes; i++)
+		for (i = 3; i < vid_wmodes; i++)
 		{
 			if (modedescs[i].iscur)
 				M_PrintWhite (column, row, modedescs[i].desc);
@@ -1757,7 +2210,7 @@ void VID_MenuDraw (void)
 			M_Print (2 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 5, temp);
 		}
 
-		ptr = VID_GetModeDescription2 ((int) _vid_default_mode_win.value);
+		ptr = VID_GetModeDescription2 ((int) vid_default_mode_win.value);
 
 		if (ptr)
 		{
@@ -1770,7 +2223,7 @@ void VID_MenuDraw (void)
 		row = 36 + 2 * 8 + (vid_line / VID_ROW_SIZE) * 8;
 		column = 8 + (vid_line % VID_ROW_SIZE) * 13 * 8;
 
-		if (vid_line >= VID_ROW_SIZE)  //qbism - use VID_ROW_SIZE
+		if (vid_line >= 3)
 			row += 3 * 8;
 
 		M_DrawCharacter (column, row, 12 + ((int) (realtime * 4) & 1));
@@ -1864,7 +2317,7 @@ void VID_MenuKey (int key)
 	case 'd':
 		S_LocalSound ("misc/menu1.wav");
 		firstupdate = 0;
-		Cvar_SetValue ("_vid_default_mode_win", vid_modenum);
+		Cvar_SetValue ("vid_default_mode_win", vid_modenum);
 		break;
 	default:
 		break;
@@ -1906,6 +2359,7 @@ void VID_CheckModedescFixup (int mode)
 {
 	int		x, y;
 
+//qbism - restore custom window mode #if 0
 	if (mode == MODE_SETTABLE_WINDOW)
 	{
 		x = (int) vid_config_x.value;
@@ -1914,6 +2368,7 @@ void VID_CheckModedescFixup (int mode)
 		modelist[mode].width = x;
 		modelist[mode].height = y;
 	}
+//#endif
 }
 
 
@@ -2161,7 +2616,7 @@ void VID_Minimize_f (void)
 	// we only support minimizing windows; if you're fullscreen,
 	// switch to windowed first
 	if (modestate == MS_WINDOWED)
-		ShowWindow (mainwindow, SW_MINIMIZE);
+		ShowWindow (hWndWinQuake, SW_MINIMIZE);
 }
 
 

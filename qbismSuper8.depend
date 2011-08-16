@@ -147,7 +147,7 @@
 1311732661 source:c:\qbismsuper8\qbs8src\cl_tent.c
 	"quakedef.h"
 
-1310962349 source:c:\qbismsuper8\qbs8src\cmd.c
+1313344174 source:c:\qbismsuper8\qbs8src\cmd.c
 	"quakedef.h"
 	"s_win32/winquake.h"
 
@@ -239,7 +239,7 @@
 	"r_local.h"
 	"s_win32/movie.h"
 
-1313122299 source:c:\qbismsuper8\qbs8src\host_cmd.c
+1313343832 source:c:\qbismsuper8\qbs8src\host_cmd.c
 	"quakedef.h"
 
 1307488338 source:c:\qbismsuper8\qbs8src\keys.c
@@ -415,7 +415,7 @@
 
 945806060 c:\qbismsuper8\qbs8src\conproc.h
 
-1313293217 source:c:\qbismsuper8\qbs8src\s_win32\vid_win.c
+1313297610 source:c:\qbismsuper8\qbs8src\s_win32\vid_win.c
 	"../quakedef.h"
 	"winquake.h"
 	"../d_local.h"
@@ -451,7 +451,7 @@
 1307501315 source:c:\qbismsuper8\qbs8src\sv_phys.c
 	"quakedef.h"
 
-1307300589 source:c:\qbismsuper8\qbs8src\sv_user.c
+1313344091 source:c:\qbismsuper8\qbs8src\sv_user.c
 	"quakedef.h"
 
 1312429348 source:c:\qbismsuper8\qbs8src\view.c
