@@ -487,9 +487,9 @@ void GrabColormap (void)  //qbism - fixed, was a little screwy
         frac = 1.0 - (frac * frac * frac);  //qbism- preemptive gamma
         for (c=0 ; c<256-brights ; c++)
         {
-            red = (int)((float)host_basepal[c*3]*frac+0.5 + ((float)r_colmapred.value * frac * frac));  //qbism - boost
-            green = (int)((float)host_basepal[c*3+1]*frac+0.5 + ((float)r_colmapgreen.value * frac * frac));
-            blue = (int)((float)host_basepal[c*3+2]*frac+0.5 + ((float)r_colmapblue.value * frac * frac));
+            red = bound (0, (int)((float)host_basepal[c*3]*frac+0.5 + ((float)r_colmapred.value * frac * frac)),255);  //qbism - boost
+            green = bound (0, (int)((float)host_basepal[c*3+1]*frac+0.5 + ((float)r_colmapgreen.value * frac * frac)),255);
+            blue = bound (0, (int)((float)host_basepal[c*3+2]*frac+0.5 + ((float)r_colmapblue.value * frac * frac)),255);
 //
 // note: 254 instead of 255 because 255 is the transparent color, and we
 // don't want anything remapping to that
@@ -498,9 +498,9 @@ void GrabColormap (void)  //qbism - fixed, was a little screwy
         }
         for ( ; c<256 ; c++)
         {
-            red = (int)((float)host_basepal[c*3] + (float)r_colmapred.value);  //qbism - boost
-            green = (int)((float)host_basepal[c*3+1] + (float)r_colmapgreen.value);
-            blue = (int)((float)host_basepal[c*3+2] + (float)r_colmapblue.value);
+            red = bound (0, (int)((float)host_basepal[c*3] + (float)r_colmapred.value),255);  //qbism - boost
+            green = bound (0, (int)((float)host_basepal[c*3+1] + (float)r_colmapgreen.value),255);
+            blue = bound (0, (int)((float)host_basepal[c*3+2] + (float)r_colmapblue.value),255);
 
             *colmap++ = BestColor(red,green,blue, 0, 254);
         }

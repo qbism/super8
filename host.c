@@ -910,6 +910,7 @@ void Palette_Init (void) //qbism - idea from Engoo
    // additivemap = fileinfo->data;
 
     // Manoel Kasimier - transparencies - end
+    BuildGammaTable (v_gamma.value); //qbism- rebuild gamma
 }
 
 

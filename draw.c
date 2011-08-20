@@ -108,6 +108,7 @@ qpic_t	*Draw_CachePic (char *path)
 Draw_Init
 ===============
 */
+
 void Draw_Init (void)
 {
 //	int		i; // removed
@@ -121,7 +122,6 @@ void Draw_Init (void)
     r_rectdesc.ptexbytes = draw_backtile->data;
     r_rectdesc.rowbytes = draw_backtile->width;
 }
-
 
 
 /*
@@ -1089,32 +1089,22 @@ void Draw_FadeScreen (void)
     S_ExtraUpdate ();
 }
 // BlackAura - Draw_FadeScreen2 - begin
-void Draw_FadeScreen2 (int level)
+void Draw_FadeScreen2 (int tintcolor)
 {
     int			x,y;
     byte		*pbuf;
 
     S_ExtraUpdate ();
+    tintcolor = bound (0, tintcolor, 254); //qbism
 
     // Manoel Kasimier - begin
     // use alphamap instead of vid.colormap, to ensure the fullbright colors will be darkened
-    if (alphamap)
-        for (y=0 ; y<vid.height ; y++)
+         for (y=0 ; y<vid.height ; y++)
         {
             pbuf = (byte *)(vid.buffer + vid.rowbytes*y);
             for (x=0 ; x<vid.width ; x++, pbuf++)
-                *pbuf = alphamap[*pbuf];
+                *pbuf = alphamap[*pbuf+ tintcolor*256];
         }
-    else
-        // Manoel Kasimier - end
-        for (y=0 ; y<vid.height ; y++)
-        {
-            pbuf = (byte *)(vid.buffer + vid.rowbytes*y);
-
-            for (x=0 ; x<vid.width ; x++, pbuf++)
-                *pbuf = (byte)vid.colormap[*pbuf + ((32 + level) * 256)]; // edited
-        }
-
     S_ExtraUpdate ();
 }
 // BlackAura - Draw_FadeScreen2 - end

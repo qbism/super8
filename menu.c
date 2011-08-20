@@ -83,6 +83,7 @@ extern	cvar_t	d_mipscale;
 extern	cvar_t	r_polyblend;
 extern	cvar_t	sw_stipplealpha;
 extern	cvar_t	r_sprite_addblend;
+extern	cvar_t	scr_fadecolor; //qbism
 
 
 
@@ -4664,7 +4665,7 @@ void M_FadeBackground()
 //	if(fade_level > 20)
     fade_level = 20;
 
-    Draw_FadeScreen ();
+    Draw_FadeScreen2 (scr_fadecolor.value);  //qbism - switch to fadescreen2
 }
 
 void M_Draw (void)
@@ -4681,7 +4682,7 @@ void M_Draw (void)
             //	if(fade_level < 0)
             fade_level = 0;
             scr_fullupdate = 1;
-            Draw_FadeScreen ();
+            Draw_FadeScreen2 (scr_fadecolor.value);   //qbism - switch to fadescreen2
         }
 
         return;

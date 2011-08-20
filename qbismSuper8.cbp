@@ -43,7 +43,6 @@
 				<Option object_output="s_win32\Debug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
-				<Option parameters=" -game arwop +map start" />
 				<Compiler>
 					<Add option="-O2" />
 					<Add option="-Wextra" />

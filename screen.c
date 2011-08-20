@@ -43,6 +43,7 @@ cvar_t		scr_conspeed = {"scr_conspeed","300"};
 cvar_t		scr_showpause = {"showpause","1"};
 cvar_t		scr_centertime = {"scr_centertime","2"};
 cvar_t		scr_printspeed = {"scr_printspeed","16"}; // 8 // Manoel Kasimier - edited
+cvar_t      scr_fadecolor = {"scr_fadecolor","194", true};  //qbism - background color for fadescreen2
 
 qboolean	scr_initialized;		// ready to draw
 
@@ -388,6 +389,7 @@ void SCR_Init (void)
     Cvar_RegisterVariable (&scr_conspeed);
     Cvar_RegisterVariable (&scr_centertime);
     Cvar_RegisterVariable (&scr_printspeed);
+    Cvar_RegisterVariable (&scr_fadecolor); //qbism
 
 //
 // register our commands
@@ -1172,7 +1174,7 @@ void SCR_UpdateScreen (void)
     if (scr_drawdialog)
     {
         Sbar_Draw ();
-        Draw_FadeScreen ();
+        Draw_FadeScreen2 (scr_fadecolor.value); //qbism - switch to fadescreen2
         SCR_DrawNotifyString ();
         scr_copyeverything = true;
     }
