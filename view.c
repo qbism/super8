@@ -943,8 +943,6 @@ void V_RenderView (void)
             V_CalcRefdef ();
     }
 
-	R_PushDlights ();
-
 	if (r_fisheye.value)
         R_RenderView_Fisheye ();//qbism Aardappel fisheye
     else
@@ -1250,7 +1248,6 @@ void rendercopy(int *dest, int side) //qbism- added 'side'
 {
     int *p = (int*)vid.buffer;
     int x, y;
-    R_PushDlights();
     R_RenderView();
     for(y = 0; y<vid.height; y++)
     {

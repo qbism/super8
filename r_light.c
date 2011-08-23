@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "r_local.h"
 
-int	r_dlightframecount;
+//qbism - silly!  int	r_dlightframecount;
 
 
 /*
@@ -66,44 +66,47 @@ DYNAMIC LIGHTS
 R_MarkLights
 =============
 */
-void R_MarkLights (dlight_t *light, int bit, mnode_t *node)
+void R_MarkLights (dlight_t *light, int num, mnode_t *node)  //qbism- adapted from MH tute - increased dlights
 {
-	mplane_t	*splitplane;
-	float		dist;
-	msurface_t	*surf;
-	int			i;
+   mplane_t   *splitplane;
+   float      dist;
+   msurface_t   *surf;
+   int         i;
 
-	if (node->contents < 0)
-		return;
+   if (node->contents < 0)
+      return;
 
-	splitplane = node->plane;
-	dist = DotProduct (light->origin, splitplane->normal) - splitplane->dist;
+   splitplane = node->plane;
+   dist = DotProduct (light->origin, splitplane->normal) - splitplane->dist;
 
-	if (dist > light->radius)
-	{
-		R_MarkLights (light, bit, node->children[0]);
-		return;
-	}
-	if (dist < -light->radius)
-	{
-		R_MarkLights (light, bit, node->children[1]);
-		return;
-	}
+   if (dist > light->radius)
+   {
+      R_MarkLights (light, num, node->children[0]);
+      return;
+   }
 
-// mark the polygons
-	surf = cl.worldmodel->surfaces + node->firstsurface;
-	for (i=0 ; i<node->numsurfaces ; i++, surf++)
-	{
-		if (surf->dlightframe != r_dlightframecount)
-		{
-			surf->dlightbits = 0;
-			surf->dlightframe = r_dlightframecount;
-		}
-		surf->dlightbits |= bit;
-	}
+   if (dist < -light->radius)
+   {
+      R_MarkLights (light, num, node->children[1]);
+      return;
+   }
 
-	R_MarkLights (light, bit, node->children[0]);
-	R_MarkLights (light, bit, node->children[1]);
+   // mark the polygons
+   surf = cl.worldmodel->surfaces + node->firstsurface;
+
+   for (i = 0; i < node->numsurfaces; i++, surf++)
+   {
+      if (surf->dlightframe != r_framecount)
+      {
+         memset (surf->dlightbits, 0, sizeof (surf->dlightbits));
+         surf->dlightframe = r_framecount;
+      }
+
+      surf->dlightbits[num >> 5] |= 1 << (num & 31);
+   }
+
+   R_MarkLights (light, num, node->children[0]);
+   R_MarkLights (light, num, node->children[1]);
 }
 
 
@@ -112,21 +115,18 @@ void R_MarkLights (dlight_t *light, int bit, mnode_t *node)
 R_PushDlights
 =============
 */
-void R_PushDlights (void)
+void R_PushDlights (mnode_t *headnode)  //qbism- from MH tute - increased dlights
 {
-	int		i;
-	dlight_t	*l;
+   int i;
+   dlight_t *l = cl_dlights;
 
-	r_dlightframecount = r_framecount + 1;	// because the count hasn't
-											//  advanced yet for this frame
-	l = cl_dlights;
+   for (i = 0; i < MAX_DLIGHTS; i++, l++)
+   {
+      if (l->die < cl.time || (l->radius <= 0))
+         continue;
 
-	for (i=0 ; i<MAX_DLIGHTS ; i++, l++)
-	{
-		if (l->die < cl.time || !l->radius)
-			continue;
-		R_MarkLights ( l, 1<<i, cl.worldmodel->nodes );
-	}
+      R_MarkLights (l, i, headnode);
+   }
 }
 
 

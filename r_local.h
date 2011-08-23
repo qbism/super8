@@ -242,6 +242,8 @@ void R_InitParticles (void);
 void R_ClearParticles (void);
 void R_ReadPointFile_f (void);
 
+void R_PushDlights (struct mnode_s *headnode); //qbism - moved from render.h
+
 extern int		r_amodels_drawn;
 extern edge_t	*auxedges;
 extern int		r_numallocatededges;
@@ -283,7 +285,7 @@ extern mleaf_t	*r_viewleaf, *r_oldviewleaf;
 extern vec3_t	r_emins, r_emaxs;
 extern mnode_t	*r_pefragtopnode;
 extern int		r_clipflags;
-extern int		r_dlightframecount;
+//qbism - silly!  extern int		r_dlightframecount;
 extern qboolean	r_fov_greater_than_90;
 
 void R_BuildLightmaps(void); //qbism ftestain

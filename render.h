@@ -72,7 +72,7 @@ typedef struct entity_s
 											//  found in an active leaf
 
 	int						dlightframe;	// dynamic lighting
-	int						dlightbits;
+	//qbism - not used here...  int						dlightbits;
 
 // FIXME: could turn these into a union
 	int						trivial_accept;
@@ -185,9 +185,6 @@ void R_ParticleExplosion (vec3_t org);
 void R_ParticleExplosion2 (vec3_t org, int colorStart, int colorLength);
 void R_LavaSplash (vec3_t org);
 void R_TeleportSplash (vec3_t org);
-
-void R_PushDlights (void);
-
 
 //
 // surface cache related

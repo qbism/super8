@@ -113,7 +113,7 @@ typedef struct msurface_s
 	int			visframe;		// should be drawn when node is crossed
 
 	int			dlightframe;
-	int			dlightbits;
+	int			dlightbits[(MAX_DLIGHTS + 31) >> 5];  //qbism from MH - increase max_dlights
 	int			lightmaptexturenum;  //qbism ftestain
 	int			light_s, light_t;	//qbism ftestain lightmap coordinates
 	qboolean    stained; //qbism ftestain

@@ -69,7 +69,7 @@
 
 1308178542 c:\qbismsuper8\qbs8src\sound.h
 
-1312940964 c:\qbismsuper8\qbs8src\render.h
+1314062390 c:\qbismsuper8\qbs8src\render.h
 
 1312334080 c:\qbismsuper8\qbs8src\client.h
 
@@ -86,7 +86,7 @@
 
 1293756676 c:\qbismsuper8\qbs8src\server.h
 
-1313639888 c:\qbismsuper8\qbs8src\model.h
+1314056578 c:\qbismsuper8\qbs8src\model.h
 	"modelgen.h"
 	"spritegn.h"
 
@@ -200,7 +200,7 @@
 	"d_local.h"
 	"adivtab.h"
 
-1313639888 c:\qbismsuper8\qbs8src\r_local.h
+1314063097 c:\qbismsuper8\qbs8src\r_local.h
 	"r_shared.h"
 
 945816200 c:\qbismsuper8\qbs8src\adivtab.h
@@ -252,7 +252,7 @@
 1313729580 source:c:\qbismsuper8\qbs8src\menu.c
 	"quakedef.h"
 
-1312940964 source:c:\qbismsuper8\qbs8src\model.c
+1313980964 source:c:\qbismsuper8\qbs8src\model.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -305,11 +305,11 @@
 	"quakedef.h"
 	"r_local.h"
 
-1313642414 source:c:\qbismsuper8\qbs8src\r_light.c
+1314063743 source:c:\qbismsuper8\qbs8src\r_light.c
 	"quakedef.h"
 	"r_local.h"
 
-1313858614 source:c:\qbismsuper8\qbs8src\r_main.c
+1314064222 source:c:\qbismsuper8\qbs8src\r_main.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -330,7 +330,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1313639888 source:c:\qbismsuper8\qbs8src\r_surf.c
+1314057291 source:c:\qbismsuper8\qbs8src\r_surf.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
@@ -455,7 +455,7 @@
 1313344091 source:c:\qbismsuper8\qbs8src\sv_user.c
 	"quakedef.h"
 
-1312429348 source:c:\qbismsuper8\qbs8src\view.c
+1314061759 source:c:\qbismsuper8\qbs8src\view.c
 	"quakedef.h"
 	"r_local.h"
 

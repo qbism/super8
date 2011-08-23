@@ -1429,7 +1429,7 @@ void R_DrawBEntitiesOnList (void)
 
     VectorCopy (modelorg, oldorigin);
     insubmodel = true;
-    r_dlightframecount = r_framecount;
+//    r_dlightframecount = r_framecount;
 
     for (i=0 ; i<cl_numvisedicts ; i++)
     {
@@ -1468,19 +1468,7 @@ void R_DrawBEntitiesOnList (void)
                 // calculate dynamic lighting for bmodel if it's not an
                 // instanced model
                 if (clmodel->firstmodelsurface != 0)
-                {
-                    for (k=0 ; k<MAX_DLIGHTS ; k++)
-                    {
-                        if ((cl_dlights[k].die < cl.time) ||
-                                (!cl_dlights[k].radius))
-                        {
-                            continue;
-                        }
-
-                        R_MarkLights (&cl_dlights[k], 1<<k,
-                                      clmodel->nodes + clmodel->hulls[0].firstclipnode);
-                    }
-                }
+                    R_PushDlights (clmodel->nodes + clmodel->hulls[0].firstclipnode);  //qbism - from MH
 
 
                 r_pefragtopnode = NULL;
@@ -1641,6 +1629,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
         r_time1 = Sys_DoubleTime ();
 
     R_SetupFrame ();
+    R_PushDlights (cl.worldmodel->nodes);  //qbism - moved here from view.c
 
 #ifdef PASSAGES
     SetVisibilityByPassages ();
