@@ -43,15 +43,15 @@
 		private var EmbeddedPak:Class;
 		
 		//qbism- add more paks
-		[Embed(source="../../../id1/pak10.pak", mimeType="application/octet-stream")]
-		private var EmbeddedPak11:Class;
-		[Embed(source="../../../id1/pak11.pak", mimeType="application/octet-stream")]
-		private var EmbeddedPak10:Class;
+		[Embed(source="../../../id1/pak1.pak", mimeType="application/octet-stream")]
+		private var EmbeddedPakA:Class;
+		[Embed(source="../../../id1/pak8.pak", mimeType="application/octet-stream")]
+		private var EmbeddedPakB:Class;
 
-		[Embed(source="../../../id1/super8flash.cfg", mimeType="application/octet-stream")]
+		[Embed(source="../../../id1/super8.cfg", mimeType="application/octet-stream")]
 		private var EmbeddedDefaultConfig:Class;
-		[Embed(source="../../../id1/quake.rc", mimeType="application/octet-stream")]
-		private var EmbeddedDefaultRC:Class;
+		//[Embed(source="../../../id1/quake.rc", mimeType="application/octet-stream")]
+		//private var EmbeddedDefaultRC:Class;
 		[Embed(source="../../../id1/progs.dat", mimeType="application/octet-stream")]
 		private var EmbeddedProgsDat:Class;
 		
@@ -75,17 +75,17 @@
 			
 
 			fileSupplyDefaultEmbedded("./id1/super8.cfg", EmbeddedDefaultConfig);
-			fileSupplyDefaultEmbedded("./id1/quake.rc", EmbeddedDefaultRC);
+			//fileSupplyDefaultEmbedded("./id1/quake.rc", EmbeddedDefaultRC);
 			fileSupplyDefaultEmbedded("./id1/progs.dat", EmbeddedProgsDat);
 				
 			var pakFile:ByteArray = new EmbeddedPak;
 			_loader.supplyFile("./id1/pak0.pak", pakFile);
 
 			//qbism- add more paks
-			var pakFile11:ByteArray = new EmbeddedPak11;
-			_loader.supplyFile("./id1/pak11.pak", pakFile11);
-			var pakFile10:ByteArray = new EmbeddedPak10;
-			_loader.supplyFile("./id1/pak10.pak", pakFile10);
+			var pakFileA:ByteArray = new EmbeddedPakA;
+			_loader.supplyFile("./id1/pak1.pak", pakFileA);
+			var pakFileB:ByteArray = new EmbeddedPakB;
+			_loader.supplyFile("./id1/pak8.pak", pakFileB);
 
 			_swcRam = _swc.swcInit(this);
 

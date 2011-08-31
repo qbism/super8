@@ -87,18 +87,22 @@ Hunk_Check
 Run consistancy and sentinel trashing checks
 ==============
 */
-void Hunk_Check (void)
-{
-	hunk_t	*h;
 
-	for (h = (hunk_t *)hunk_base ; (byte *)h != hunk_base + hunk_low_used ; )
-	{
-		if (h->sentinel != HUNK_SENTINEL)
-			Sys_Error ("Hunk_Check: trashed sentinel");
-		if (h->size < 16 || h->size + (byte *)h - hunk_base > hunk_size)
-			Sys_Error ("Hunk_Check: bad size: %i", h->size);
-		h = (hunk_t *)((byte *)h+h->size);
-	}
+void Hunk_Check (void) //qbism - from mh
+{
+   hunk_t   *h;
+   hunk_t   *hprev = NULL;
+
+   for (h = (hunk_t *)hunk_base ; (byte *)h != hunk_base + hunk_low_used ; )
+   {
+      if (h->sentinel != HUNK_SENTINEL)
+         Sys_Error ("Hunk_Check: trahsed sentinal after %s", hprev ? hprev->name : "hunk base");
+      if (h->size < 16 || h->size + (byte *)h - hunk_base > hunk_size)
+         Sys_Error ("Hunk_Check: bad size after %s", hprev ? hprev->name : "hunk base");
+
+      hprev = h;
+      h = (hunk_t *)((byte *)h+h->size);
+   }
 }
 
 /*
@@ -227,7 +231,7 @@ void *Hunk_AllocName (int size, char *name)
 	size = sizeof(hunk_t) + ((size+15)&~15);
 
 	if (hunk_size - hunk_low_used - hunk_high_used < size)
-		Sys_Error ("Hunk_Alloc: failed on %i bytes",size);
+		Sys_Error ("Hunk_Alloc: failed on %i bytes \nname:  %s",size, name); //qbism might as well report name, too
 
 	h = (hunk_t *)(hunk_base + hunk_low_used);
 	hunk_low_used += size;

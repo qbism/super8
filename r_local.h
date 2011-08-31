@@ -292,6 +292,7 @@ void R_BuildLightmaps(void); //qbism ftestain
 void GrabAlphamap (void); //qbism
 void GrabAdditivemap (void); //qbism
 void GrabColormap (void); //qbism
+void V_BonusFlash_f (void);  //qbism - add prototype to appease Cygwin (swc compiling)
 
 void R_StoreEfrags (efrag_t **ppefrag);
 void R_TimeRefresh_f (void);

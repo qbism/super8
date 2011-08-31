@@ -226,7 +226,7 @@ typedef struct
 	struct model_s	*worldmodel;	// cl_entitites[0].model
 	struct efrag_s	*free_efrags;
 	int			num_entities;	// held in cl_entities array
-	int			num_statics;	// held in cl_staticentities array
+	//int			num_statics;	//qbism - now dynamically allocated
 	entity_t	viewent;			// the gun model
 
 	int			cdtrack, looptrack;	// cd audio
@@ -275,7 +275,7 @@ extern	cvar_t	m_side;
 
 
 
-#define	MAX_EFRAGS		4096//qbism was 640
+#define	MAX_EFRAGS		256//qbism was 640, but now will allocate more as needed.
 #define	MAX_TEMP_ENTITIES	512 //qbism 1024 per qsb - was 64			// lightning bolts, etc
 #define	MAX_STATIC_ENTITIES	512 //qbism 1024 per qsb - was 128	// torches, etc
 #define	MAX_VISEDICTS	MAX_EDICTS  //qbism was 256

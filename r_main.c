@@ -265,8 +265,8 @@ void R_Init (void)
     Cvar_RegisterVariable(&r_stainfadetime);
     Cvar_RegisterVariable(&r_stainfadeamount);
 
-    Cvar_SetValue ("r_maxedges", (float) 100000); //NUMSTACKEDGES //qbism was 60000
-    Cvar_SetValue ("r_maxsurfs", (float) 100000); //NUMSTACKSURFACES //qbism was 60000
+    Cvar_SetValue ("r_maxedges", (float) 63000); //NUMSTACKEDGES //qbism 100000 in bjp quake
+    Cvar_SetValue ("r_maxsurfs", (float) 63000); //NUMSTACKSURFACES //qbism100000 in bjp quake
 
     view_clipplanes[0].leftedge = true;
     view_clipplanes[1].rightedge = true;

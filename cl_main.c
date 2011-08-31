@@ -199,12 +199,11 @@ An svc_signonnum has been received, perform a client side setup
 */
 void CL_SignonReply (void)
 {
-    char 	str[100 + MAX_MAPSTRING];
+    char 	str[8192]; //qbism-  another source of overflow?  was [100 + MAX_MAPSTRING];
 
     Con_DPrintf ("CL_SignonReply: %i\n", cls.signon);
 
-    switch (cls.signon)
-    {
+    switch (cls.signon)    {
     case 1:
         MSG_WriteChar (&cls.message, clc_stringcmd);
         MSG_WriteString (&cls.message, "prespawn");
@@ -865,16 +864,6 @@ void CL_Mapname_f (void)
 }
 
 /*
-=============
-CL_StaticEnts_f
-=============
-*/
-void CL_StaticEnts_f (void)
-{
-    Con_Printf ("%d static entities\n", cl.num_statics);
-}
-
-/*
 =================
 CL_Init
 =================
@@ -924,6 +913,6 @@ void CL_Init (void)
     Cmd_AddCommand ("timedemo", CL_TimeDemo_f);
     Cmd_AddCommand ("viewpos", CL_Viewpos_f);
     Cmd_AddCommand ("mapname", CL_Mapname_f);
-    Cmd_AddCommand ("staticents", CL_StaticEnts_f);
+//qbism- not capped now.    Cmd_AddCommand ("staticents", CL_StaticEnts_f);
 }
 

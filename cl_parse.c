@@ -374,7 +374,8 @@ void CL_ParseServerInfo (void)
 
     R_NewMap ();
 
-    Hunk_Check ();		// make sure nothing is hurt
+
+    Hunk_Check ();
 
     noclip_anglehack = false;		// noclip is turned off at start
 }
@@ -831,14 +832,11 @@ CL_ParseStatic
 void CL_ParseStatic (int version) //qbism- from johnfitz -- added a parameter
 {
     entity_t *ent;
-    int		i;
 
-    i = cl.num_statics;
-    if (i >= MAX_STATIC_ENTITIES)
-        Host_Error ("Too many static entities");
-    ent = &cl_static_entities[i];
-    cl.num_statics++;
-    CL_ParseBaseline (ent, version); //qbism- from johnfitz -- added second parameter
+   // mh - extended static entities begin
+   ent = (entity_t *) Hunk_Alloc (sizeof (entity_t));
+   CL_ParseBaseline (ent, version); //qbism- from johnfitz -- added second parameter
+   // mh - extended static entities end
 
 // copy it to the current state
     ent->model = cl.model_precache[ent->baseline.modelindex];
@@ -865,6 +863,7 @@ void CL_ParseStatic (int version) //qbism- from johnfitz -- added a parameter
     VectorCopy (ent->baseline.angles, ent->angles);
     R_AddEfrags (ent);
 }
+
 
 /*
 ===================
@@ -1105,12 +1104,6 @@ void CL_ParseServerMessage (void)
             if (i <= cls.signon)
                 Host_Error ("Received signon %i when at %i", i, cls.signon);
             cls.signon = i;
-            //qbism:  similar to johnfitz
-            if (i == 2)
-            {
-                if (cl.num_statics > 128)
-                    Con_DPrintf ("%i static entities exceeds standard limit of 128.\n", cl.num_statics);
-            }
 
             CL_SignonReply ();
             break;

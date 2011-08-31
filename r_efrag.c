@@ -41,6 +41,21 @@ vec3_t		r_emins, r_emaxs;
 
 entity_t	*r_addent;
 
+//qbism-  mh - extended efrags - begin
+#define EXTRA_EFRAGS   32
+
+void R_GetMoreEfrags (void)
+{
+   int i;
+
+   cl.free_efrags = (efrag_t *) Hunk_Alloc (EXTRA_EFRAGS * sizeof (efrag_t));
+
+   for (i = 0; i < EXTRA_EFRAGS - 1; i++)
+      cl.free_efrags[i].entnext = &cl.free_efrags[i + 1];
+
+   cl.free_efrags[i].entnext = NULL;
+}
+// mh - extended efrags - end
 
 /*
 ================
@@ -111,11 +126,13 @@ void R_SplitEntityOnNode (mnode_t *node)
 
 // grab an efrag off the free list
 		ef = cl.free_efrags;
-		if (!ef)
-		{
-			Con_Printf ("Too many efrags!\n");
-			return;		// no free fragments...
-		}
+      if (!ef)
+      {
+         //qbism - mh - extended efrags - begin
+         R_GetMoreEfrags ();
+         ef = cl.free_efrags;
+         // mh - extended efrags - end
+      }
 		cl.free_efrags = cl.free_efrags->entnext;
 
 		ef->entity = r_addent;

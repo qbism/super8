@@ -36,6 +36,9 @@ Memory is cleared / released when a server or client begins, not when they end.
 
 */
 
+void Palette_Init (void);
+void BuildGammaTable (float g);
+
 // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
 double	host_cpu_frametime;
 double	host_org_frametime;
@@ -896,18 +899,18 @@ void Palette_Init (void) //qbism - idea from Engoo
     alphamap = Q_malloc(256*256);
     GrabAlphamap();
 
- //   fileinfo = COM_LoadHunkFile ("gfx/alphamap.lmp");
+//   fileinfo = COM_LoadHunkFile ("gfx/alphamap.lmp");
 //    if (!fileinfo)
- //       Sys_Error ("Couldn't load gfx/alphamap.lmp");
- //   alphamap = fileinfo->data;
+//       Sys_Error ("Couldn't load gfx/alphamap.lmp");
+//   alphamap = fileinfo->data;
 
     additivemap = Q_malloc(256*256);
     GrabAdditivemap();
 
     //    fileinfo = COM_LoadHunkFile ("gfx/addmap.lmp");
     //if (!fileinfo)
-   //     Sys_Error ("Couldn't load gfx/addmap.lmp");
-   // additivemap = fileinfo->data;
+    //     Sys_Error ("Couldn't load gfx/addmap.lmp");
+    // additivemap = fileinfo->data;
 
     // Manoel Kasimier - transparencies - end
     BuildGammaTable (v_gamma.value); //qbism- rebuild gamma
@@ -1027,6 +1030,10 @@ void Host_Shutdown(void)
     // keep Con_Printf from trying to update the screen
     scr_disabled_for_loading = true;
     Host_WriteConfiguration ();
+
+    if (con_initialized)
+        History_Shutdown (); //qbism- Baker- command history
+
     CDAudio_Shutdown ();
     NET_Shutdown ();
     S_Shutdown();

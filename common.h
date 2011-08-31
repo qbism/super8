@@ -97,6 +97,7 @@ extern	float	(*LittleFloat) (float l);
 
 void MSG_WriteChar (sizebuf_t *sb, int c);
 void MSG_WriteByte (sizebuf_t *sb, int c);
+void MSG_WriteByteCaller (char *caller, sizebuf_t *sb, int c);
 void MSG_WriteShort (sizebuf_t *sb, int c);
 void MSG_WriteLong (sizebuf_t *sb, int c);
 void MSG_WriteFloat (sizebuf_t *sb, float f);
@@ -120,9 +121,6 @@ float MSG_ReadAngle (void);
 
 //============================================================================
 
-//void Q_memset (void *dest, int fill, int count);
-//void Q_memcpy (void *dest, void *src, int count);
-//int Q_memcmp (void *m1, void *m2, int count);
 void Q_strcpy (char *dest, char *src);
 void Q_strncpy (char *dest, char *src, int count);
 int Q_strlen (char *str);

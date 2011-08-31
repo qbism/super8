@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	WINQUAKE_VERSION	7
 #define	LINUX_VERSION		0
 
-//define	PARANOID			// speed sapping error checking
+//#define	PARANOID			// speed sapping error checking
 
 #define	GAMENAME	"id1"
 
@@ -193,7 +193,7 @@ void as3ReadFileSharedObject(const char* filename);
 #define FADE_SLIMETRAIL 3
 
 
-#define	MAX_SCOREBOARD		64 //qbism - per bjp, was 16
+#define	MAX_SCOREBOARD		64 //qbism - 64 per bjp, was original 16
 #define	MAX_SCOREBOARDNAME	32
 
 #include "common.h"
@@ -299,8 +299,15 @@ void Host_Frame (float time);
 void Host_Quit_f (void);
 void Host_ClientCommands (char *fmt, ...);
 void Host_ShutdownServer (qboolean crash);
-void    COM_CreatePath (char *path); //qbism add declaration
-void Sys_InitDoubleTime (void); //qbism add declaration
+
+//qbism add declarations
+void    COM_CreatePath (char *path);
+void Sys_InitDoubleTime (void);
+void History_Shutdown (void);
+void Draw_FadeScreen2 (int tintcolor);
+void CRC_Init(unsigned short *crcvalue);
+void CRC_ProcessByte(unsigned short *crcvalue, byte data);
+unsigned short CRC_Value(unsigned short crcvalue);
 
 extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output
 										//  an fullscreen DIB focus gain/loss
