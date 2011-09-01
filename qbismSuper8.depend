@@ -141,7 +141,7 @@
 1314588212 source:c:\qbismsuper8\qbs8src\cl_main.c
 	"quakedef.h"
 
-1314666199 source:c:\qbismsuper8\qbs8src\cl_parse.c
+1314830484 source:c:\qbismsuper8\qbs8src\cl_parse.c
 	"quakedef.h"
 
 1311732661 source:c:\qbismsuper8\qbs8src\cl_tent.c
@@ -238,7 +238,7 @@
 	"r_local.h"
 	"s_win32/movie.h"
 
-1314590437 source:c:\qbismsuper8\qbs8src\host_cmd.c
+1314833565 source:c:\qbismsuper8\qbs8src\host_cmd.c
 	"quakedef.h"
 
 1314566436 source:c:\qbismsuper8\qbs8src\keys.c
@@ -251,11 +251,11 @@
 1314589825 source:c:\qbismsuper8\qbs8src\menu.c
 	"quakedef.h"
 
-1314759956 source:c:\qbismsuper8\qbs8src\model.c
+1314762627 source:c:\qbismsuper8\qbs8src\model.c
 	"quakedef.h"
 	"r_local.h"
 
-1307300588 source:c:\qbismsuper8\qbs8src\net_dgrm.c
+1314831468 source:c:\qbismsuper8\qbs8src\net_dgrm.c
 	<windows.h>
 	<sys/socket.h>
 	<arpa/inet.h>
@@ -348,11 +348,10 @@
 
 945806060 c:\qbismsuper8\qbs8src\s_win32\conproc.h
 
-1288499928 source:c:\qbismsuper8\qbs8src\s_win32\in_win.c
+1314760437 source:c:\qbismsuper8\qbs8src\s_win32\in_win.c
 	<dinput.h>
 	"../quakedef.h"
 	"winquake.h"
-	"../dosisms.h"
 
 945806060 c:\qbismsuper8\qbs8src\dosisms.h
 

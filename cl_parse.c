@@ -242,22 +242,59 @@ void CL_KeepaliveMessage (void)
     SZ_Clear (&cls.message);
 }
 
+
+#ifdef HTTP_DOWNLOAD
+/*
+   =====================
+   CL_WebDownloadProgress
+   Callback function for webdownloads.
+   Since Web_Get only returns once it's done, we have to do various things here:
+   Update download percent, handle input, redraw UI and send net packets.
+   =====================
+*/
+static int CL_WebDownloadProgress( double percent )
+{
+	static double time, oldtime, newtime;
+
+	cls.download.percent = percent;
+		CL_KeepaliveMessage();
+
+	newtime = Sys_DoubleTime ();
+	time = newtime - oldtime;
+
+	Host_Frame (time);
+
+	oldtime = newtime;
+
+	return cls.download.disconnect; // abort if disconnect received
+}
+#endif
+
+
+
 /*
 ==================
 CL_ParseServerInfo
 ==================
 */
-void CL_ParseServerInfo (void)
+static void CL_ParseServerInfo (void) //qbism - w/ bjp modifications
 {
-    char	*str;
-    int		i;
-    int		nummodels, numsounds;
+	char	*str, tempname[MAX_QPATH];
+	int		i, nummodels, numsounds;
     char	model_precache[MAX_MODELS][MAX_QPATH];
     char	sound_precache[MAX_SOUNDS][MAX_QPATH];
-
     byte	tmp[256]; //qbism- for Dan East pocketquake
 
+
+#ifdef HTTP_DOWNLOAD //qbism - from Baker's proquake
+	extern cvar_t cl_web_download;
+	extern cvar_t cl_web_download_url;
+	extern int Web_Get( const char *url, const char *referer, const char *name, int resume, int max_downloading_time, int timeout, int ( *_progress )(double) );
+#endif
+
     Con_DPrintf ("Serverinfo packet received.\n");
+    if (cls.signon > 0)
+        Host_Error("Repeat serverinfo packet at signon %i", cls.signon);
 //
 // wipe the client_state_t struct
 //
@@ -347,18 +384,91 @@ void CL_ParseServerInfo (void)
         S_TouchSound (str);
     }
 
-//
-// now we try to load everything else until a cache allocation fails
-//
+	{
+		char	mapname[MAX_QPATH];
+		COM_StripExtension (COM_SkipPath(model_precache[1]), mapname);
+	}
 
+// now we try to load everything else until a cache allocation fails
     for (i=1 ; i<nummodels ; i++)
     {
         cl.model_precache[i] = Mod_ForName (model_precache[i], false);
         if (cl.model_precache[i] == NULL)
         {
+#ifdef HTTP_DOWNLOAD
+			if (!cls.demoplayback && cl_web_download.value && cl_web_download_url.string)
+			{
+				char url[1024];
+				qboolean success = false;
+				char download_tempname[MAX_OSPATH],download_finalname[MAX_OSPATH];
+				char folder[MAX_QPATH];
+				char name[MAX_QPATH];
+				extern char server_name[MAX_QPATH];
+				extern int net_hostport;
+
+				//Create the FULL path where the file should be written
+				snprintf (download_tempname, sizeof(download_tempname), "%s/%s.tmp", com_gamedir, model_precache[i]);
+
+				//determine the proper folder and create it, the OS will ignore if already exsists
+				COM_GetFolder(model_precache[i],folder);// "progs/","maps/"
+				snprintf (name, sizeof(name), "%s/%s", com_gamedir, folder);
+				Sys_mkdir (name);
+
+				Con_Printf( "Web downloading: %s from %s%s\n", model_precache[i], cl_web_download_url.string, model_precache[i]);
+
+				//assign the url + path + file + extension we want
+				snprintf( url, sizeof( url ), "%s%s", cl_web_download_url.string, model_precache[i]);
+
+				cls.download.web = true;
+				cls.download.disconnect = false;
+				cls.download.percent = 0.0;
+
+				SCR_EndLoadingPlaque ();
+
+				//let libCURL do it's magic!!
+				success = Web_Get(url, NULL, download_tempname, false, 600, 30, CL_WebDownloadProgress);
+
+				cls.download.web = false;
+
+				free(url);
+				free(name);
+				free(folder);
+
+				if (success)
+				{
+					Con_Printf("Web download successful: %s\n", download_tempname);
+					//Rename the .tmp file to the final precache filename
+					snprintf (download_finalname, sizeof(download_finalname), "%s/%s", com_gamedir, model_precache[i]);
+					rename (download_tempname, download_finalname);
+
+					free(download_tempname);
+					free(download_finalname);
+
+						Cbuf_AddText (va("connect %s:%u\n",server_name,net_hostport));//reconnect after each success
+						return;
+					}
+				else
+				{
+					remove (download_tempname);
+					Con_Printf( "Web download of %s failed\n", download_tempname );
+					return;
+				}
+
+				free(download_tempname);
+
+				if( cls.download.disconnect )//if the user type disconnect in the middle of the download
+				{
+					cls.download.disconnect = false;
+					CL_Disconnect_f();
+					return;
+				}
+			} else
+#endif
+			{
             Con_Printf("Model %s not found\n", model_precache[i]);
             return;
         }
+		}
         CL_KeepaliveMessage ();
     }
 
@@ -374,8 +484,7 @@ void CL_ParseServerInfo (void)
 
     R_NewMap ();
 
-
-    Hunk_Check ();
+	Hunk_Check ();		// make sure nothing is hurt
 
     noclip_anglehack = false;		// noclip is turned off at start
 }

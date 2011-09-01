@@ -453,8 +453,9 @@ void Host_Changelevel_f (void)
 			fclose (f);
 		}
 	}
-	allowcheats = sv_cheats.value;
+
 	// Manoel Kasimier - map transition lists - end
+	allowcheats = sv_cheats.value;
 	SV_SpawnServer (level);
 }
 

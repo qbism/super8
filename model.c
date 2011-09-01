@@ -640,7 +640,6 @@ void Mod_LoadTextures (lump_t *l)
 		loadmodel->textures[i] = tx;
 
 		strcpy (tx->name, texname);
-		_strlwr (tx->name);
 		tx->width = mt->width;
 		tx->height = mt->height;
 		for (j=0 ; j<MIPLEVELS ; j++)
@@ -1251,7 +1250,7 @@ void Mod_LoadFaces (lump_t *l, int lightdatasize)
 		if (out->texinfo->texture->name[0] == '*')		// turbulent
 		{
 			// Manoel Kasimier - translucent water - begin
-			if (out->texinfo->texture->name[5] == "*lava") // lava should be opaque
+			if (Q_strncmp(out->texinfo->texture->name,"*lava",5)) //lava should be opaque
 				out->flags |= SURF_DRAWTRANSLUCENT;
 			// Manoel Kasimier - translucent water - end
 			out->flags |= (SURF_DRAWTURB | SURF_DRAWTILED);
@@ -1684,6 +1683,7 @@ void Mod_LoadExternalVisibility (int fhandle)
 		return;
 	}
 	loadmodel->visdata = Hunk_AllocName ( filelen, "EXT_VIS");
+	loadmodel->visdata = Mod_Alloc ("Mod_LoadVisibility", filelen);
 	Sys_FileRead (fhandle, loadmodel->visdata, filelen);
 }
 
