@@ -529,7 +529,7 @@ nextmsg:
 
 			case clc_stringcmd:
 				s = MSG_ReadString ();
-				Con_DPrintf("stringcmd: %s\n", s);  //qbism debug
+				Con_DPrintf("stringcmd: %s\n", s);  //qbism
 
 				if (host_client->privileged)
 					ret = 2;

@@ -99,7 +99,7 @@ void Host_Status_f (void)
 		print = SV_ClientPrintf;
 
 	print ("host:    %s\n", Cvar_VariableString ("hostname"));
-	print ("version: %4.2f\n", VERSION);
+	print ("build: %i\n", VERSION);
 	if (tcpipAvailable)
 		print ("tcp/ip:  %s\n", my_tcpip_address);
 	if (ipxAvailable)
@@ -1422,13 +1422,14 @@ void Host_PreSpawn_f (void)
 
 	if (host_client->spawned)
 	{
-		Con_Printf ("prespawn not valid -- allready spawned\n");
+		Con_Printf ("prespawn not valid -- already spawned\n");
 		return;
 	}
 
 	SZ_Write (&host_client->message, sv.signon.data, sv.signon.cursize);
 	MSG_WriteByte (&host_client->message, svc_signonnum);
 	MSG_WriteByte (&host_client->message, 2);
+	Con_DPrintf ("Host prespawn message 2 sent\n");
 	host_client->sendsignon = true;
 }
 
@@ -1559,6 +1560,7 @@ void Host_Spawn_f (void)
 
 	MSG_WriteByte (&host_client->message, svc_signonnum);
 	MSG_WriteByte (&host_client->message, 3);
+	Con_DPrintf ("Host prespawn message 3 sent\n");
 	host_client->sendsignon = true;
 }
 

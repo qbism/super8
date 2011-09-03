@@ -2,7 +2,7 @@
 1309137754 source:c:\qbismsuper8\qbs8src\chase.c
 	"quakedef.h"
 
-1314760040 c:\qbismsuper8\qbs8src\quakedef.h
+1314933055 c:\qbismsuper8\qbs8src\quakedef.h
 	<math.h>
 	<string.h>
 	<stdarg.h>
@@ -138,10 +138,11 @@
 1314543669 source:c:\qbismsuper8\qbs8src\cl_input.c
 	"quakedef.h"
 
-1314588212 source:c:\qbismsuper8\qbs8src\cl_main.c
+1314920136 source:c:\qbismsuper8\qbs8src\cl_main.c
 	"quakedef.h"
+	"curl.h"
 
-1314830484 source:c:\qbismsuper8\qbs8src\cl_parse.c
+1314920004 source:c:\qbismsuper8\qbs8src\cl_parse.c
 	"quakedef.h"
 
 1311732661 source:c:\qbismsuper8\qbs8src\cl_tent.c
@@ -156,7 +157,7 @@
 	<ddraw.h>
 	<dsound.h>
 
-1314754630 source:c:\qbismsuper8\qbs8src\common.c
+1314847068 source:c:\qbismsuper8\qbs8src\common.c
 	"quakedef.h"
 
 1314330334 source:c:\qbismsuper8\qbs8src\console.c
@@ -238,7 +239,7 @@
 	"r_local.h"
 	"s_win32/movie.h"
 
-1314833565 source:c:\qbismsuper8\qbs8src\host_cmd.c
+1315013037 source:c:\qbismsuper8\qbs8src\host_cmd.c
 	"quakedef.h"
 
 1314566436 source:c:\qbismsuper8\qbs8src\keys.c
@@ -423,7 +424,7 @@
 1311821615 source:c:\qbismsuper8\qbs8src\sbar.c
 	"quakedef.h"
 
-1313729649 source:c:\qbismsuper8\qbs8src\screen.c
+1314847068 source:c:\qbismsuper8\qbs8src\screen.c
 	"quakedef.h"
 	"r_local.h"
 	"s_win32/movie.h"
@@ -441,7 +442,7 @@
 	"s_win32/winquake.h"
 	"s_win32/movie.h"
 
-1314330455 source:c:\qbismsuper8\qbs8src\sv_main.c
+1315020305 source:c:\qbismsuper8\qbs8src\sv_main.c
 	"quakedef.h"
 
 1293419840 source:c:\qbismsuper8\qbs8src\sv_move.c
@@ -450,7 +451,7 @@
 1307501315 source:c:\qbismsuper8\qbs8src\sv_phys.c
 	"quakedef.h"
 
-1313344091 source:c:\qbismsuper8\qbs8src\sv_user.c
+1315011779 source:c:\qbismsuper8\qbs8src\sv_user.c
 	"quakedef.h"
 
 1314061759 source:c:\qbismsuper8\qbs8src\view.c

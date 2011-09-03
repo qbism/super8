@@ -109,15 +109,6 @@ void SV_Init (void)
         sprintf (localmodels[i], "*%i", i);
 }
 
-/*
-===============
-SV_IsPaused
-===============
-*/
-qboolean SV_IsPaused (void) //qbism from bjp
-{
-    return sv.paused || (svs.maxclients == 1 && key_dest != key_game);
-}
 
 /*
 =============================================================================
@@ -177,13 +168,22 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, int volume, floa
     int         sound_num, field_mask, i, ent;
 
     if (volume < 0 || volume > 255)
-        Sys_Error ("SV_StartSound: volume = %i", volume);
+	{
+		Con_Printf ("SV_StartSound: volume = %d, max = %d\n", volume, 255);
+		return;  //qbism - return instead of error - bjp
+	}
 
     if (attenuation < 0 || attenuation > 4)
-        Sys_Error ("SV_StartSound: attenuation = %f", attenuation);
+	{
+		Con_Printf ("SV_StartSound: attenuation = %g, max = %d\n", attenuation, 4);
+		return;  //qbism - return instead of error - bjp
+	}
 
     if (channel < 0 || channel > 7)
-        Sys_Error ("SV_StartSound: channel = %i", channel);
+{
+ 		Con_Printf ("SV_StartSound: channel = %i, max = %d\n", channel, 7);
+		return;  //qbism - return instead of error - bjp
+}
 
     if (sv.datagram.cursize > MAX_DATAGRAM-16)
         return;
@@ -269,10 +269,20 @@ void SV_SendServerinfo (client_t *client)
 {
     char			**s;
     char			message[2048];
+    int     i;
+
+    if (client->sendsignon == true)  //qbism - don't send serverinfo twice.
+    {
+        Con_DPrintf ("Warning, attempted to send duplicate serverinfo.\n");
+        return;
+    }
+
+	MSG_WriteByte (&client->message, svc_print);
+	sprintf (message, "%QBISM SERVER BUILD %i\n", VERSION); //johnfitz -- include fitzquake version
+	MSG_WriteString (&client->message,message);
 
     MSG_WriteByte (&client->message, svc_serverinfo);
-
-    MSG_WriteLong (&client->message, current_protocol);
+    MSG_WriteLong (&client->message, current_protocol); //qbism
 
     MSG_WriteByte (&client->message, svs.maxclients);
 
@@ -285,13 +295,19 @@ void SV_SendServerinfo (client_t *client)
 
     MSG_WriteString (&client->message,message);
 
-    for (s = sv.model_precache+1 ; *s ; s++)
-        MSG_WriteString (&client->message, *s);
-    MSG_WriteByte (&client->message, 0);
 
-    for (s = sv.sound_precache+1 ; *s ; s++)
-        MSG_WriteString (&client->message, *s);
-    MSG_WriteByte (&client->message, 0);
+	//qbism - johnfitz -- only send the first 256 model and sound precaches if protocol is 15
+	for (i=0,s = sv.model_precache+1 ; *s; s++,i++)
+		if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
+			MSG_WriteString (&client->message, *s);
+	MSG_WriteByte (&client->message, 0);
+
+	for (i=0,s = sv.sound_precache+1 ; *s ; s++,i++)
+		if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
+			MSG_WriteString (&client->message, *s);
+	MSG_WriteByte (&client->message, 0);
+	//johnfitz
+
 
 // send music
     MSG_WriteByte (&client->message, svc_cdtrack);
@@ -349,12 +365,7 @@ void SV_ConnectClient (int clientnum)
     client->message.data = client->msgbuf;
     client->message.maxsize = sizeof(client->msgbuf);
     client->message.allowoverflow = true;		// we can catch it
-
-#ifdef IDGODS
-    client->privileged = IsID(&client->netconnection->addr);
-#else
     client->privileged = false;
-#endif
 
     if (sv.loadgame)
         memcpy (client->spawn_parms, spawn_parms, sizeof(spawn_parms));
@@ -367,6 +378,8 @@ void SV_ConnectClient (int clientnum)
     }
 
     SV_SendServerinfo (client);
+
+     Con_DPrintf ("client server spawned.\n");
 }
 
 
@@ -401,6 +414,7 @@ void SV_CheckForNewClients (void)
 
         svs.clients[i].netconnection = ret;
         SV_ConnectClient (i);
+            Con_DPrintf ("\nSV_ConnectClient %i\n", i);
 
         net_activeconnections++;
     }
@@ -582,7 +596,12 @@ loc1:
     }
 }
 
+/*
+=============
+SV_WriteEntitiesToClient
 
+=============
+*/
 void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 {
     unsigned int	i;  //qbism
@@ -620,6 +639,8 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             if (ent->v.effects == EF_NODRAW)
                 continue;
 
+		if (ent != clent)	// clent is ALLWAYS sent
+		{
             // ignore ents without visible models
             if (!ent->v.modelindex || !pr_strings[ent->v.model])
                 continue;
@@ -660,6 +681,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             Con_Printf ("Packet overflow!\n");
         }
         //johnfitz
+		}
 
 // send an update
         bits = 0;
@@ -717,7 +739,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
         if (ent->baseline.modelindex != ent->v.modelindex)
             bits |= U_MODEL;
 
-        //johnfitz -- alpha
+        //qbism - johnfitz -- alpha
         if (pr_alpha_supported)
         {
             // TODO: find a cleaner place to put this code
@@ -732,18 +754,18 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             continue;
         //johnfitz
 
-        //johnfitz -- PROTOCOL_FITZQUAKE
+
 //        if (current_protocol != PROTOCOL_NETQUAKE)
  //       {
 
             if (ent->baseline.alpha != ent->alpha) bits |= U_ALPHA;
             if (bits & U_FRAME && (int)ent->v.frame & 0xFF00) bits |= U_FRAME2;
             if (bits & U_MODEL && (int)ent->v.modelindex & 0xFF00) bits |= U_MODEL2;
-//qbism- not implemented yet			if (ent->sendinterval) bits |= U_LERPFINISH;
+//qbism- from PROTOCOL_FITZQUAKE - not implemented			if (ent->sendinterval) bits |= U_LERPFINISH;
             if (bits >= 65536) bits |= U_EXTEND1;
             if (bits >= 16777216) bits |= U_EXTEND2;
  //       }
-        //johnfitz
+
 
         // Tomaz - QC Alpha Scale Glow Begin
         if (current_protocol == PROTOCOL_QBS8)
@@ -986,8 +1008,8 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
     bits |= SU_WEAPON;
 
     //qbism- from johnfitz -- PROTOCOL_FITZQUAKE
-//    if (current_protocol != PROTOCOL_NETQUAKE)
- //   {
+    if (current_protocol != PROTOCOL_NETQUAKE)
+    {
         if (bits & SU_WEAPON && SV_ModelIndex(pr_strings+ent->v.weaponmodel) & 0xFF00) bits |= SU_WEAPON2;
         if ((int)ent->v.armorvalue & 0xFF00) bits |= SU_ARMOR2;
         if ((int)ent->v.currentammo & 0xFF00) bits |= SU_AMMO2;
@@ -999,7 +1021,7 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
         if (bits & SU_WEAPON && ent->alpha != ENTALPHA_DEFAULT) bits |= SU_WEAPONALPHA; //for now, weaponalpha = client entity alpha
         if (bits >= 65536) bits |= SU_EXTEND1;
         if (bits >= 16777216) bits |= SU_EXTEND2;
-  //  }
+    }
     //johnfitz
 
 // send the data
@@ -1099,12 +1121,12 @@ qboolean SV_SendClientDatagram (client_t *client)
     sizebuf_t	msg;
 
     msg.data = buf;
+	msg.maxsize = sizeof(buf);
     msg.cursize = 0;
 
     //qbism:  from johnfitz -- if client is nonlocal, use smaller max size so packets aren't fragmented
     if (Q_strcmp (client->netconnection->address, "LOCAL") != 0)
         msg.maxsize = DATAGRAM_MTU;
-    else msg.maxsize = sizeof(buf);
 
     MSG_WriteByte (&msg, svc_time);
     MSG_WriteFloat (&msg, sv.time);
@@ -1606,7 +1628,6 @@ void SV_SpawnServer (char *server)
         if (host_client->active)
             SV_SendServerinfo (host_client);
 
-    Con_DPrintf ("Server spawned.\n");
-    Con_Printf("Size of entity: %i\n", sizeof(edict_t));
+    Con_DPrintf ("host_client server spawned.\n");
 }
 
