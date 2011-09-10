@@ -545,6 +545,7 @@ void MSG_WriteChar (sizebuf_t *sb, int c)
 }
 
 
+
 void MSG_WriteByte (sizebuf_t *sb, int c)
 {
     byte    *buf;
@@ -1809,13 +1810,11 @@ pack_t *COM_LoadPackFile (char *packfile)
     Sys_FileRead (packhandle, (void *)info, header.dirlen);
 
 // crc the directory to check for modifications
-/*qbism -remove, for now
     CRC_Init (&crc);
     for (i=0 ; i<header.dirlen ; i++)
         CRC_ProcessByte (&crc, ((byte *)info)[i]);
     if (crc != PAK0_CRC)
         com_modified = true;
-*/
 
 // parse the directory
     for (i=0 ; i<numpackfiles ; i++)
@@ -1850,7 +1849,7 @@ int COM_AddGameDirectory (char *dir)
     searchpath_t    *search;
     pack_t                  *pak;
     char                    pakfile[MAX_OSPATH];
-    int success =0; //qbism pocketquake- to appease embedded vc++
+	int success =0; //qbism pocketquake- to appease embedded vc++
 
     strcpy (com_gamedir, dir);
 
@@ -1871,7 +1870,7 @@ int COM_AddGameDirectory (char *dir)
         pak = COM_LoadPackFile (pakfile);
         if (!pak)
             continue;//break; // Manoel Kasimier - edited
-        success = 1;
+		success = 1;
         search = Hunk_Alloc (sizeof(searchpath_t));
         strcpy (search->filename, dir);	// 2001-09-12 Finding the last searchpath of a directory by Maddes
         search->pack = pak;
@@ -1881,7 +1880,7 @@ int COM_AddGameDirectory (char *dir)
 //
 // add the contents of the parms.txt file to the end of the command line
 //
-    return success;
+	return success;
 }
 
 // BlackAura (09/08/2004) - Return the full path to a file
@@ -1918,8 +1917,8 @@ int COM_FindFilePath(char *filename, char *path)
 //qbism AddDir from bjp
 static void AddDir (qboolean Cond, char *basedir, char *gamedir, char *Dir)
 {
-    if (Cond && Q_strcmp(gamedir, Dir))
-        COM_AddGameDirectory (va("%s/%s", basedir, Dir));
+	if (Cond && Q_strcmp(gamedir, Dir))
+		COM_AddGameDirectory (va("%s/%s", basedir, Dir));
 }
 
 /*
@@ -1930,104 +1929,104 @@ COM_InitFilesystem  //qbism from bjp
 
 void COM_InitFilesystem (void)
 {
-    int             i, j;
-    char		basedir[MAX_OSPATH], gamedir[MAX_OSPATH];
-    searchpath_t    *search;
+	int             i, j;
+	char		basedir[MAX_OSPATH], gamedir[MAX_OSPATH];
+	searchpath_t    *search;
 
 //
 // -basedir <path>
 // Overrides the system supplied base directory (under GAMENAME)
 //
-    i = COM_CheckParm ("-basedir");
-    if (i && i < com_argc-1)
-        strcpy (basedir, com_argv[i+1]);
-    else
-        strcpy (basedir, host_parms.basedir);
+	i = COM_CheckParm ("-basedir");
+	if (i && i < com_argc-1)
+		strcpy (basedir, com_argv[i+1]);
+	else
+		strcpy (basedir, host_parms.basedir);
 
-    j = strlen (basedir);
+	j = strlen (basedir);
 
-    if (j > 0)
-    {
-        if ((basedir[j-1] == '\\') || (basedir[j-1] == '/'))
-            basedir[j-1] = 0;
-    }
+	if (j > 0)
+	{
+		if ((basedir[j-1] == '\\') || (basedir[j-1] == '/'))
+			basedir[j-1] = 0;
+	}
 
 //
 // -cachedir <path>
 // Overrides the system supplied cache directory (NULL or /qcache)
 // -cachedir - will disable caching.
 //
-    i = COM_CheckParm ("-cachedir");
-    if (i && i < com_argc-1)
-    {
-        if (com_argv[i+1][0] == '-')
-            com_cachedir[0] = 0;
-        else
-            strcpy (com_cachedir, com_argv[i+1]);
-    }
-    else if (host_parms.cachedir)
-        strcpy (com_cachedir, host_parms.cachedir);
-    else
-        com_cachedir[0] = 0;
+	i = COM_CheckParm ("-cachedir");
+	if (i && i < com_argc-1)
+	{
+		if (com_argv[i+1][0] == '-')
+			com_cachedir[0] = 0;
+		else
+			strcpy (com_cachedir, com_argv[i+1]);
+	}
+	else if (host_parms.cachedir)
+		strcpy (com_cachedir, host_parms.cachedir);
+	else
+		com_cachedir[0] = 0;
 
-    // Don't add unnecessary dirs if already specified in "-game"
-    memset (gamedir, 0, sizeof(gamedir));
+	// Don't add unnecessary dirs if already specified in "-game"
+	memset (gamedir, 0, sizeof(gamedir));
 
-    i = COM_CheckParm ("-game");
-    if (i && i < com_argc-1)
-        strncpy (gamedir, com_argv[i+1], sizeof(gamedir) - 1);
+	i = COM_CheckParm ("-game");
+	if (i && i < com_argc-1)
+		strncpy (gamedir, com_argv[i+1], sizeof(gamedir) - 1);
 
-    i = COM_CheckParm ("-sndspeed");  //qbism- from Darkplaces
-    if (i && i < com_argc-1)
-        snd_speed.value = Q_atoi (com_argv[i+1]);
+	i = COM_CheckParm ("-sndspeed");  //qbism- from Darkplaces
+	if (i && i < com_argc-1)
+			snd_speed.value = Q_atoi (com_argv[i+1]);
 
 //
 // start up with GAMENAME by default (id1)
 //
-    AddDir (true, basedir, gamedir, GAMENAME);
+	AddDir (true, basedir, gamedir, GAMENAME);
 //qbism- not supported	AddDir (nehahra, basedir, gamedir, "nehahra"); // Add Nehahra
-    AddDir (COM_CheckParm ("-rogue"), basedir, gamedir, "rogue");
-    AddDir (COM_CheckParm ("-hipnotic"), basedir, gamedir, "hipnotic");
-    AddDir (COM_CheckParm ("-quoth"), basedir, gamedir, "quoth");
+	AddDir (COM_CheckParm ("-rogue"), basedir, gamedir, "rogue");
+	AddDir (COM_CheckParm ("-hipnotic"), basedir, gamedir, "hipnotic");
+	AddDir (COM_CheckParm ("-quoth"), basedir, gamedir, "quoth");
     AddDir (COM_CheckParm ("-drake"), basedir, gamedir, "drake"); //qbism added
 
 //
 // -game <gamedir>
 // Adds basedir/gamedir as an override game
 //
-    if (gamedir[0])
-    {
-        com_modified = true;
-        COM_AddGameDirectory (va("%s/%s", basedir, gamedir));
-    }
+	if (gamedir[0])
+	{
+		com_modified = true;
+		COM_AddGameDirectory (va("%s/%s", basedir, gamedir));
+	}
 
 //
 // -path <dir or packfile> [<dir or packfile>] ...
 // Fully specifies the exact serach path, overriding the generated one
 //
-    i = COM_CheckParm ("-path");
-    if (i)
-    {
-        com_modified = true;
-        com_searchpaths = NULL;
-        while (++i < com_argc)
-        {
-            if (!com_argv[i] || com_argv[i][0] == '+' || com_argv[i][0] == '-')
-                break;
+	i = COM_CheckParm ("-path");
+	if (i)
+	{
+		com_modified = true;
+		com_searchpaths = NULL;
+		while (++i < com_argc)
+		{
+			if (!com_argv[i] || com_argv[i][0] == '+' || com_argv[i][0] == '-')
+				break;
 
-            search = Hunk_Alloc (sizeof(searchpath_t));
-            if ( !strcmp(COM_FileExtension(com_argv[i]), "pak") )
-            {
-                search->pack = COM_LoadPackFile (com_argv[i]);
-                if (!search->pack)
-                    Sys_Error ("Couldn't load packfile: %s", com_argv[i]);
-            }
-            else
-                strcpy (search->filename, com_argv[i]);
-            search->next = com_searchpaths;
-            com_searchpaths = search;
-        }
-    }
+			search = Hunk_Alloc (sizeof(searchpath_t));
+			if ( !strcmp(COM_FileExtension(com_argv[i]), "pak") )
+			{
+				search->pack = COM_LoadPackFile (com_argv[i]);
+				if (!search->pack)
+					Sys_Error ("Couldn't load packfile: %s", com_argv[i]);
+			}
+			else
+				strcpy (search->filename, com_argv[i]);
+			search->next = com_searchpaths;
+			com_searchpaths = search;
+		}
+	}
 }
 
 // 2001-09-12 Finding the last searchpath of a directory  start

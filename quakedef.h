@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	WINQUAKE_VERSION	7
 #define	LINUX_VERSION		0
 
-//#define	PARANOID			// speed sapping error checking
+//define	PARANOID			// speed sapping error checking
 
 #define	GAMENAME	"id1"
 
@@ -82,8 +82,8 @@ void as3ReadFileSharedObject(const char* filename);
 
 #define	ON_EPSILON		0.1			// point on plane side epsilon
 
-#define	MAX_MSGLEN		32000 //qbism- 32767 Super8 max, 65535 per qsb - was 8000		// max length of a reliable message
-#define	MAX_DATAGRAM	32000 //qbism 32767 Super8 max, 32767 per qsb - was 1024		// max length of unreliable message
+#define	MAX_MSGLEN		30000 //qbism- 32767 Super8 max, 65535 per qsb - was 8000		// max length of a reliable message
+#define	MAX_DATAGRAM	30000 //qbism 32767 Super8 max, 32767 per qsb - was 1024		// max length of unreliable message
 #define	DATAGRAM_MTU	1400 //qbismfrom johnfitz- reduced value if connected to server
 //
 // per-level limits
@@ -193,7 +193,7 @@ void as3ReadFileSharedObject(const char* filename);
 #define FADE_SLIMETRAIL 3
 
 
-#define	MAX_SCOREBOARD		64 //qbism - 64 per bjp, was original 16
+#define	MAX_SCOREBOARD		64 //qbism - per bjp, was 16
 #define	MAX_SCOREBOARDNAME	32
 
 #include "common.h"
@@ -299,6 +299,8 @@ void Host_Frame (float time);
 void Host_Quit_f (void);
 void Host_ClientCommands (char *fmt, ...);
 void Host_ShutdownServer (qboolean crash);
+void COM_CreatePath (char *path); //qbism add declaration
+void Sys_InitDoubleTime (void); //qbism add declaration
 
 //qbism add declarations
 void    COM_CreatePath (char *path);

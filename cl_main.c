@@ -219,7 +219,8 @@ void CL_SignonReply (void)
 
     Con_DPrintf ("CL_SignonReply: %i\n", cls.signon);
 
-    switch (cls.signon)    {
+    switch (cls.signon)
+    {
     case 1:
         MSG_WriteChar (&cls.message, clc_stringcmd);
         MSG_WriteString (&cls.message, "prespawn");
@@ -934,6 +935,6 @@ void CL_Init (void)
     Cmd_AddCommand ("timedemo", CL_TimeDemo_f);
     Cmd_AddCommand ("viewpos", CL_Viewpos_f);
     Cmd_AddCommand ("mapname", CL_Mapname_f);
-//qbism- not capped now.    Cmd_AddCommand ("staticents", CL_StaticEnts_f);
+//qbism- no longer capped.    Cmd_AddCommand ("staticents", CL_StaticEnts_f);
 }
 

@@ -277,24 +277,17 @@ static int CL_WebDownloadProgress( double percent )
 CL_ParseServerInfo
 ==================
 */
-static void CL_ParseServerInfo (void) //qbism - w/ bjp modifications
+void CL_ParseServerInfo (void)
 {
-	char	*str, tempname[MAX_QPATH];
-	int		i, nummodels, numsounds;
+    char	*str;
+    int		i;
+    int		nummodels, numsounds;
     char	model_precache[MAX_MODELS][MAX_QPATH];
     char	sound_precache[MAX_SOUNDS][MAX_QPATH];
+
     byte	tmp[256]; //qbism- for Dan East pocketquake
 
-
-#ifdef HTTP_DOWNLOAD //qbism - from Baker's proquake
-	extern cvar_t cl_web_download;
-	extern cvar_t cl_web_download_url;
-	extern int Web_Get( const char *url, const char *referer, const char *name, int resume, int max_downloading_time, int timeout, int ( *_progress )(double) );
-#endif
-
     Con_DPrintf ("Serverinfo packet received.\n");
-    if (cls.signon > 0)
-        Host_Error("Repeat serverinfo packet at signon %i", cls.signon);
 //
 // wipe the client_state_t struct
 //
@@ -384,12 +377,10 @@ static void CL_ParseServerInfo (void) //qbism - w/ bjp modifications
         S_TouchSound (str);
     }
 
-	{
-		char	mapname[MAX_QPATH];
-		COM_StripExtension (COM_SkipPath(model_precache[1]), mapname);
-	}
-
+//
 // now we try to load everything else until a cache allocation fails
+//
+
     for (i=1 ; i<nummodels ; i++)
     {
         cl.model_precache[i] = Mod_ForName (model_precache[i], false);
@@ -467,7 +458,7 @@ static void CL_ParseServerInfo (void) //qbism - w/ bjp modifications
 			{
             Con_Printf("Model %s not found\n", model_precache[i]);
             return;
-        }
+        	}
 		}
         CL_KeepaliveMessage ();
     }
@@ -484,7 +475,7 @@ static void CL_ParseServerInfo (void) //qbism - w/ bjp modifications
 
     R_NewMap ();
 
-	Hunk_Check ();		// make sure nothing is hurt
+    Hunk_Check ();		// make sure nothing is hurt
 
     noclip_anglehack = false;		// noclip is turned off at start
 }
@@ -941,10 +932,11 @@ CL_ParseStatic
 void CL_ParseStatic (int version) //qbism- from johnfitz -- added a parameter
 {
     entity_t *ent;
+    int		i;
 
    // mh - extended static entities begin
    ent = (entity_t *) Hunk_Alloc (sizeof (entity_t));
-   CL_ParseBaseline (ent, version); //qbism- from johnfitz -- added second parameter
+    CL_ParseBaseline (ent, version); //qbism- from johnfitz -- added second parameter
    // mh - extended static entities end
 
 // copy it to the current state
@@ -972,7 +964,6 @@ void CL_ParseStatic (int version) //qbism- from johnfitz -- added a parameter
     VectorCopy (ent->baseline.angles, ent->angles);
     R_AddEfrags (ent);
 }
-
 
 /*
 ===================

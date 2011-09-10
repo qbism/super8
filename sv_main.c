@@ -639,7 +639,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             if (ent->v.effects == EF_NODRAW)
                 continue;
 
-		if (ent != clent)	// clent is ALLWAYS sent
+		if (ent != clent)	// clent is ALWAYS sent
 		{
             // ignore ents without visible models
             if (!ent->v.modelindex || !pr_strings[ent->v.model])
@@ -1121,12 +1121,12 @@ qboolean SV_SendClientDatagram (client_t *client)
     sizebuf_t	msg;
 
     msg.data = buf;
-	msg.maxsize = sizeof(buf);
     msg.cursize = 0;
 
     //qbism:  from johnfitz -- if client is nonlocal, use smaller max size so packets aren't fragmented
     if (Q_strcmp (client->netconnection->address, "LOCAL") != 0)
         msg.maxsize = DATAGRAM_MTU;
+    else msg.maxsize = sizeof(buf);
 
     MSG_WriteByte (&msg, svc_time);
     MSG_WriteFloat (&msg, sv.time);

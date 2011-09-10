@@ -90,19 +90,19 @@ Run consistancy and sentinel trashing checks
 
 void Hunk_Check (void) //qbism - from mh
 {
-   hunk_t   *h;
+	hunk_t	*h;
    hunk_t   *hprev = NULL;
 
-   for (h = (hunk_t *)hunk_base ; (byte *)h != hunk_base + hunk_low_used ; )
-   {
-      if (h->sentinel != HUNK_SENTINEL)
+	for (h = (hunk_t *)hunk_base ; (byte *)h != hunk_base + hunk_low_used ; )
+	{
+		if (h->sentinel != HUNK_SENTINEL)
          Sys_Error ("Hunk_Check: trahsed sentinal after %s", hprev ? hprev->name : "hunk base");
-      if (h->size < 16 || h->size + (byte *)h - hunk_base > hunk_size)
+		if (h->size < 16 || h->size + (byte *)h - hunk_base > hunk_size)
          Sys_Error ("Hunk_Check: bad size after %s", hprev ? hprev->name : "hunk base");
 
       hprev = h;
-      h = (hunk_t *)((byte *)h+h->size);
-   }
+		h = (hunk_t *)((byte *)h+h->size);
+	}
 }
 
 /*
