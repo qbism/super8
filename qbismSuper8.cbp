@@ -25,7 +25,7 @@
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_WIN32" />
-					<Add directory=".\s_win32\dxsdk\SDK\INC" />
+					<Add option="-DCURL_STATICLIB" />
 					<Add directory="." />
 					<Add directory="..\..\Program Files\CodeBlocks\MinGW\include" />
 				</Compiler>
@@ -36,6 +36,7 @@
 					<Add library="wsock32" />
 					<Add library="dinput" />
 					<Add library="dxguid" />
+					<Add library="curl" />
 				</Linker>
 			</Target>
 			<Target title="Debug Win32">
@@ -351,6 +352,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="wad.h" />
+		<Unit filename="webdownload.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="world.c">
 			<Option compilerVar="CC" />
 		</Unit>

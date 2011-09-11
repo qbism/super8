@@ -888,32 +888,6 @@ char *COM_FileExtension (char *in)
 }
 
 
-#ifdef HTTP_DOWNLOAD
-
-/*
-============
-COM_GetFolder
-============
-*/
-void COM_GetFolder (char *in, char *out)
-{
-	char *last = NULL;
-
-	while (*in)
-	{
-		if (*in == '/')
-			last = out;
-		*out++ = *in++;
-	}
-	if (last)
-		*last = 0;
-	else
-		*out = 0;
-}
-#endif
-
-
-
 /*
 ============
 COM_FileBase

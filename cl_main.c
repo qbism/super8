@@ -20,9 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cl_main.c  -- client main loop
 
 #include "quakedef.h"
-#ifdef HTTP_DOWNLOAD //qbism from Baker's proquake
-#include "curl.h"
-#endif
 
 // we need to declare some mouse variables here, because the menu system
 // references them even when on a unix system.
@@ -50,11 +47,6 @@ cvar_t	m_forward = {"m_forward","1", true};
 cvar_t	m_side = {"m_side","0.8", true};
 cvar_t	m_look = {"m_look","1", true}; // Manoel Kasimier - m_look
 cvar_t	cutscene = {"cutscene", "1"}; // Nehahra
-
-#ifdef HTTP_DOWNLOAD
-cvar_t	cl_web_download		= {"cl_web_download", "1", true};
-cvar_t	cl_web_download_url	= {"cl_web_download_url", "http://downloads.quake-1.com/", true};
-#endif
 
 client_static_t	cls;
 client_state_t	cl;
@@ -131,15 +123,6 @@ void CL_Disconnect (void)
 
 // This makes sure ambient sounds remain silent
     cl.worldmodel = NULL;
-
-#ifdef HTTP_DOWNLOAD
-	// We have to shut down webdownloading first
-	if( cls.download.web )
-	{
-		cls.download.disconnect = true;
-		return;
-	}
-#endif
 
     if (cls.demoplayback)
         CL_StopPlayback ();
@@ -921,11 +904,6 @@ void CL_Init (void)
     Cvar_RegisterVariable (&m_look); // Manoel Kasimier - m_look
     Cvar_RegisterVariable (&cutscene); // Nehahra
 //	Cvar_RegisterVariable (&cl_autofire);
-
-#ifdef HTTP_DOWNLOAD
-	Cvar_RegisterVariable (&cl_web_download, NULL);
-	Cvar_RegisterVariable (&cl_web_download_url, NULL);
-#endif
 
     Cmd_AddCommand ("entities", CL_PrintEntities_f);
     Cmd_AddCommand ("disconnect", CL_Disconnect_f);

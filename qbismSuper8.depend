@@ -1,8 +1,8 @@
 # depslib dependency file v1.0
-1315447433 source:c:\qbismsuper8\qbs8src\chase.c
+1315599003 source:c:\qbismsuper8\qbs8src\chase.c
 	"quakedef.h"
 
-1314933055 c:\qbismsuper8\qbs8src\quakedef.h
+1315599291 c:\qbismsuper8\qbs8src\quakedef.h
 	<math.h>
 	<string.h>
 	<stdarg.h>
@@ -39,7 +39,7 @@
 	"menu.h"
 	"cdaudio.h"
 
-1314754631 c:\qbismsuper8\qbs8src\common.h
+1315600400 c:\qbismsuper8\qbs8src\common.h
 
 1314669826 c:\qbismsuper8\qbs8src\bspfile.h
 
@@ -138,11 +138,10 @@
 1314543669 source:c:\qbismsuper8\qbs8src\cl_input.c
 	"quakedef.h"
 
-1314920136 source:c:\qbismsuper8\qbs8src\cl_main.c
+1315696399 source:c:\qbismsuper8\qbs8src\cl_main.c
 	"quakedef.h"
-	"curl.h"
 
-1314920004 source:c:\qbismsuper8\qbs8src\cl_parse.c
+1315696334 source:c:\qbismsuper8\qbs8src\cl_parse.c
 	"quakedef.h"
 
 1311732661 source:c:\qbismsuper8\qbs8src\cl_tent.c
@@ -157,7 +156,7 @@
 	<ddraw.h>
 	<dsound.h>
 
-1314847068 source:c:\qbismsuper8\qbs8src\common.c
+1315696334 source:c:\qbismsuper8\qbs8src\common.c
 	"quakedef.h"
 
 1314330334 source:c:\qbismsuper8\qbs8src\console.c
@@ -200,7 +199,7 @@
 	"d_local.h"
 	"adivtab.h"
 
-1314580208 c:\qbismsuper8\qbs8src\r_local.h
+1315538846 c:\qbismsuper8\qbs8src\r_local.h
 	"r_shared.h"
 
 945816200 c:\qbismsuper8\qbs8src\adivtab.h
@@ -234,7 +233,7 @@
 1313811073 source:c:\qbismsuper8\qbs8src\draw.c
 	"quakedef.h"
 
-1314570991 source:c:\qbismsuper8\qbs8src\host.c
+1315536608 source:c:\qbismsuper8\qbs8src\host.c
 	"quakedef.h"
 	"r_local.h"
 	"s_win32/movie.h"
@@ -252,7 +251,7 @@
 1314589825 source:c:\qbismsuper8\qbs8src\menu.c
 	"quakedef.h"
 
-1314762627 source:c:\qbismsuper8\qbs8src\model.c
+1312498372 source:c:\qbismsuper8\qbs8src\model.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -424,7 +423,7 @@
 1311821615 source:c:\qbismsuper8\qbs8src\sbar.c
 	"quakedef.h"
 
-1314847068 source:c:\qbismsuper8\qbs8src\screen.c
+1315696334 source:c:\qbismsuper8\qbs8src\screen.c
 	"quakedef.h"
 	"r_local.h"
 	"s_win32/movie.h"
@@ -442,7 +441,7 @@
 	"s_win32/winquake.h"
 	"s_win32/movie.h"
 
-1315020305 source:c:\qbismsuper8\qbs8src\sv_main.c
+1315598933 source:c:\qbismsuper8\qbs8src\sv_main.c
 	"quakedef.h"
 
 1293419840 source:c:\qbismsuper8\qbs8src\sv_move.c
@@ -451,7 +450,7 @@
 1307501315 source:c:\qbismsuper8\qbs8src\sv_phys.c
 	"quakedef.h"
 
-1315011779 source:c:\qbismsuper8\qbs8src\sv_user.c
+1315599188 source:c:\qbismsuper8\qbs8src\sv_user.c
 	"quakedef.h"
 
 1314061759 source:c:\qbismsuper8\qbs8src\view.c
@@ -464,7 +463,7 @@
 1314449181 source:c:\qbismsuper8\qbs8src\world.c
 	"quakedef.h"
 
-1314671380 source:c:\qbismsuper8\qbs8src\zone.c
+1315600479 source:c:\qbismsuper8\qbs8src\zone.c
 	"quakedef.h"
 
 1313207693 source:c:\qbismsuper8\qbs8src\r_alias.c
@@ -473,4 +472,287 @@
 	"anorms.h"
 
 1108298958 c:\qbismsuper8\qbs8src\anorms.h
+
+1315364691 c:\qbismsuper8\qbs8src\curl.h
+	"curlver.h"
+	<stdio.h>
+	<limits.h>
+	<types.h>
+	<time.h>
+	<sys/types.h>
+	<time.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<sys/select.h>
+	<sys/socket.h>
+	<sys/time.h>
+	<sys/types.h>
+	<support/SupportDefs.h>
+	"easy.h"
+	"multi.h"
+
+1315364691 c:\qbismsuper8\qbs8src\curlver.h
+
+1315364692 c:\qbismsuper8\qbs8src\easy.h
+
+1315364694 c:\qbismsuper8\qbs8src\multi.h
+	"curl.h"
+
+1315686735 source:c:\qbismsuper8\qbs8src\webdownload.c
+	"webdownload.h"
+	"Winsock2.h"
+	"quakedef.h"
+	<curl/curl.h>
+	<stdio.h>
+
+1315364698 c:\qbismsuper8\qbs8src\webdownload.h
+
+1313092376 c:\codeblocks\include\math.h
+	<sys/reent.h>
+	<machine/ieeefp.h>
+	"_ansi.h"
+	<machine/fastmath.h>
+
+1313092376 c:\codeblocks\include\sys\reent.h
+	<_ansi.h>
+	<sys/_types.h>
+
+1313092374 c:\codeblocks\include\_ansi.h
+	<sys/config.h>
+
+1313092376 c:\codeblocks\include\sys\config.h
+
+1313092376 c:\codeblocks\include\sys\_types.h
+
+1313092376 c:\codeblocks\include\machine\ieeefp.h
+
+1313092376 c:\codeblocks\include\machine\fastmath.h
+
+1313092376 c:\codeblocks\include\string.h
+	"_ansi.h"
+	<sys/reent.h>
+	<stddef.h>
+
+1313092376 c:\codeblocks\include\stdio.h
+	"_ansi.h"
+	<stddef.h>
+	<stdarg.h>
+	<sys/reent.h>
+
+1313092376 c:\codeblocks\include\stdlib.h
+	"_ansi.h"
+	<stddef.h>
+	<sys/reent.h>
+
+1313092376 c:\codeblocks\include\setjmp.h
+	"_ansi.h"
+	<machine/setjmp.h>
+
+1313092376 c:\codeblocks\include\machine\setjmp.h
+	"setjmp-dj.h"
+	<signal.h>
+
+1313092376 c:\codeblocks\include\machine\setjmp-dj.h
+
+1313092376 c:\codeblocks\include\signal.h
+	"_ansi.h"
+	<sys/signal.h>
+
+1313092376 c:\codeblocks\include\sys\signal.h
+	"_ansi.h"
+	<sys/features.h>
+	<sys/types.h>
+
+1313092376 c:\codeblocks\include\sys\features.h
+
+1313092378 c:\codeblocks\include\sys\types.h
+	<stddef.h>
+	<machine/types.h>
+	<sys/features.h>
+	<sys/sched.h>
+	<cygwin/types.h>
+
+1313092376 c:\codeblocks\include\machine\types.h
+
+1313092376 c:\codeblocks\include\sys\sched.h
+	<sys/unistd.h>
+	<sys/types.h>
+	<sys/time.h>
+
+1313092378 c:\codeblocks\include\sys\unistd.h
+	<_ansi.h>
+	<sys/types.h>
+	<sys/_types.h>
+	<stddef.h>
+	<sys/features.h>
+
+1313092378 c:\codeblocks\include\sys\time.h
+	<_ansi.h>
+	<sys/types.h>
+	<sys/select.h>
+
+1313092390 c:\codeblocks\include\sys\select.h
+	<sys/cdefs.h>
+	<sys/types.h>
+	<sys/time.h>
+	<time.h>
+
+1313092388 c:\codeblocks\include\sys\cdefs.h
+
+1313092376 c:\codeblocks\include\time.h
+	"_ansi.h"
+	<machine/time.h>
+	<stddef.h>
+	<sys/types.h>
+	<sys/features.h>
+	<signal.h>
+
+1313092376 c:\codeblocks\include\machine\time.h
+
+1313092386 c:\codeblocks\include\cygwin\types.h
+
+1295694336 c:\codeblocks\include\curl\curl.h
+	"curlver.h"
+	"curl/curlbuild.h"
+	"curlrules.h"
+	<stdio.h>
+	<limits.h>
+	<sys/types.h>
+	<time.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<sys/select.h>
+	<sys/socket.h>
+	<sys/time.h>
+	<sys/types.h>
+	<support/SupportDefs.h>
+	"easy.h"
+	"multi.h"
+	"typecheck-gcc.h"
+
+1295694336 c:\codeblocks\include\curl\curlver.h
+
+1295694338 c:\codeblocks\include\curl\curlbuild.h
+	<windows.h>
+	<winsock2.h>
+	<ws2tcpip.h>
+	<sys/types.h>
+	<stdint.h>
+	<inttypes.h>
+	<sys/socket.h>
+
+1311499542 c:\codeblocks\include\windows.h
+	<w32api/windows.h>
+
+1263542584 c:\codeblocks\include\w32api\windows.h
+	<winresrc.h>
+	<stdarg.h>
+	<windef.h>
+	<wincon.h>
+	<winbase.h>
+	<wingdi.h>
+	<winuser.h>
+	<winnls.h>
+	<winver.h>
+	<winnetwk.h>
+	<winreg.h>
+	<winsvc.h>
+	<cderr.h>
+	<dde.h>
+	<ddeml.h>
+	<dlgs.h>
+	<imm.h>
+	<lzexpand.h>
+	<mmsystem.h>
+	<nb30.h>
+	<rpc.h>
+	<shellapi.h>
+	<winperf.h>
+	<commdlg.h>
+	<winspool.h>
+	<winsock2.h>
+	<winsock.h>
+	<ole2.h>
+
+1313092376 c:\codeblocks\include\stdint.h
+
+1311562808 c:\codeblocks\include\inttypes.h
+	<stdint.h>
+	<_ansi.h>
+
+1313092390 c:\codeblocks\include\sys\socket.h
+	<features.h>
+	<cygwin/socket.h>
+	<sys/time.h>
+
+1313092380 c:\codeblocks\include\features.h
+	<sys/features.h>
+
+1313092386 c:\codeblocks\include\cygwin\socket.h
+	<asm/socket.h>
+	<cygwin/sockios.h>
+	<cygwin/uio.h>
+	<sys/types.h>
+
+1313092384 c:\codeblocks\include\asm\socket.h
+	<cygwin/if.h>
+
+1313092386 c:\codeblocks\include\cygwin\if.h
+	<sys/types.h>
+	<sys/socket.h>
+
+1313092386 c:\codeblocks\include\cygwin\sockios.h
+
+1313092386 c:\codeblocks\include\cygwin\uio.h
+
+1295694338 c:\codeblocks\include\curl\curlrules.h
+
+1313092380 c:\codeblocks\include\limits.h
+
+1295694336 c:\codeblocks\include\curl\easy.h
+
+1295694336 c:\codeblocks\include\curl\multi.h
+	"curl.h"
+
+1295694336 c:\codeblocks\include\curl\typecheck-gcc.h
+
+1313092378 c:\codeblocks\include\unistd.h
+	<sys/unistd.h>
+	<getopt.h>
+
+1313393612 c:\codeblocks\include\getopt.h
+
+1313092380 c:\codeblocks\include\fcntl.h
+	<sys/fcntl.h>
+
+1313092376 c:\codeblocks\include\sys\fcntl.h
+	<_ansi.h>
+	<sys/types.h>
+	<sys/stat.h>
+
+1313092378 c:\codeblocks\include\sys\stat.h
+	<_ansi.h>
+	<time.h>
+	<sys/types.h>
+	"stat-dj.h"
+
+1313092376 c:\codeblocks\include\sys\stat-dj.h
+
+1313092384 c:\codeblocks\include\arpa\inet.h
+	<netinet/in.h>
+
+1313092388 c:\codeblocks\include\netinet\in.h
+	<cygwin/in.h>
+
+1313092386 c:\codeblocks\include\cygwin\in.h
+	<cygwin/types.h>
+	<asm/byteorder.h>
+
+1313092384 c:\codeblocks\include\asm\byteorder.h
+
+1313092376 c:\codeblocks\include\errno.h
+	<sys/errno.h>
+
+1313397314 c:\codeblocks\include\sys\errno.h
+	<sys/reent.h>
 
