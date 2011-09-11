@@ -752,7 +752,7 @@ void R_LoadPalette (char *name) //qbism - load an alternate palette
     fileinfo = COM_LoadHunkFile (pathname);
     if (!fileinfo)
     {
-        Con_Printf("Palette not found.\n");
+        Con_Printf("Palette %s not found.\n", name);
         return;
     }
     memcpy (host_basepal, fileinfo->data, 768);
@@ -760,6 +760,7 @@ void R_LoadPalette (char *name) //qbism - load an alternate palette
     GrabAlphamap();
     GrabAdditivemap();
     VID_SetPalette (host_basepal);
+    Con_Printf("Palette %s loaded.\n", name);
 }
 
 /*

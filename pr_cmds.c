@@ -774,6 +774,29 @@ void PF_sound (void)
     SV_StartSound (entity, channel, sample, volume, attenuation);
 }
 
+
+//qbism - plays sound to an individual client... I hear voices...
+void PF_localsound (void)
+{
+	char		*sample;
+	char 		volume;
+	client_t	*client;
+	int			entnum;
+
+	entnum = G_EDICTNUM(OFS_PARM0);
+	if (entnum < 1 || entnum > svs.maxclients)
+	{
+		Con_Printf ("tried to send local sound to a non-client\n");
+		return;
+	}
+
+	client = &svs.clients[entnum-1];
+	sample = G_STRING(OFS_PARM1);
+	volume = (char)(G_FLOAT(OFS_PARM2) * 255);
+
+	SV_LocalSound (client, sample, volume);
+}
+
 /*
 =================
 PF_break
@@ -2681,9 +2704,9 @@ ebfs_builtin_t pr_ebfs_builtins[] =
     {  30, "traceoff", PF_traceoff },
     {  31, "eprint", PF_eprint },			// void(entity e) debug print an entire entity
     {  32, "walkmove", PF_walkmove },		// float(float yaw, float dist) walkmove
-//	{  33, "fixme", PF_Fixme },				// float(float yaw, float dist) walkmove
+	{  33, "localsound", PF_localsound }, //qbism//jf 02-10-25 void(entity e, string samp, float volume) sound
     {  34, "droptofloor", PF_droptofloor },
-    {  35, "lightstyle", PF_lightstyle },
+    {  35   , "lightstyle", PF_lightstyle },
     {  36, "rint", PF_rint },
     {  37, "floor", PF_floor },
     {  38, "ceil", PF_ceil },

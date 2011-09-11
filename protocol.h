@@ -196,6 +196,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	svc_spawnstaticsound2	44	// [coord3] [short] samp [byte] vol [byte] aten
 //johnfitz
 
+#define svc_localsound      48  //qbism play sound to a single client
 #define	svc_say				49	//qbism TTS [string] null terminated string
 #define svc_letterbox		50	// Manoel Kasimier - svc_letterbox
 #define svc_vibrate			51	// Manoel Kasimier

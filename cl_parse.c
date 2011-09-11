@@ -84,8 +84,8 @@ char *svc_strings[] =
     "", // 45
     "", // 46
     "", // 47
-    "", // 48
-    "svc_say", // 49
+    "svc_localsound", // 48 qbism- plays sound to single client
+    "svc_say", // 49 qbism future TTS - espeak
 //johnfitz
     /*50*/"svc_letterbox",
     /*51*/"svc_vibrate",
@@ -179,6 +179,32 @@ void CL_ParseStartSoundPacket(void)
 
     S_StartSound (ent, channel, cl.sound_precache[sound_num], pos, volume/255.0, attenuation);
 }
+
+/*
+//qbism//jf 02-10-05
+==================
+CL_ParseLocalSoundPacket
+==================
+*/
+void CL_ParseLocalSoundPacket(void)
+{
+	int 	volume;
+	int 	field_mask;
+	int 	sound_num;
+
+
+     if (field_mask & SND_LARGESOUND)
+        sound_num = (unsigned short) MSG_ReadShort ();
+    else
+        sound_num = MSG_ReadByte ();
+
+    if (sound_num >= MAX_SOUNDS)
+        Host_Error ("CL_ParseStartSoundPacket: %i > MAX_SOUNDS", sound_num);
+
+	S_LocalSound (cl.sound_precache[sound_num]->name);
+}
+
+
 
 /*
 ==================
@@ -1028,6 +1054,10 @@ void CL_ParseServerMessage (void)
             CL_ParseStartSoundPacket();
             break;
 
+			//qbism//jf 02-10-05 localsound
+		case svc_localsound:
+			CL_ParseLocalSoundPacket();
+			break;
 
         case svc_stopsound:
             i = MSG_ReadShort();

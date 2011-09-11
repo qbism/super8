@@ -152,7 +152,7 @@ void SV_StartParticle (vec3_t org, vec3_t dir, int color, int count)
 ==================
 SV_StartSound
 
-Each entity can have eight independant sound sources, like voice,
+Each entity can have eight independent sound sources, like voice,
 weapon, feet, etc.
 
 Channel 0 is an auto-allocate channel, the others override anything
@@ -163,15 +163,16 @@ Larger attenuations will drop off.  (max 4 attenuation)
 
 ==================
 */
-void SV_StartSound (edict_t *entity, int channel, char *sample, int volume, float attenuation)
+void SV_StartSound (edict_t *entity, int channel, char *sample, char volume, float attenuation)
 {
     int         sound_num, field_mask, i, ent;
 
-    if (volume < 0 || volume > 255)
-	{
-		Con_Printf ("SV_StartSound: volume = %d, max = %d\n", volume, 255);
-		return;  //qbism - return instead of error - bjp
-	}
+//qbism - don't check volume range anymore, it's a char
+//   if (volume < 0 || volume > 255)
+//	{
+//		Con_Printf ("SV_StartSound: volume = %d, max = %d\n", volume, 255);
+//		return;  //qbism - return instead of error - bjp
+//	}
 
     if (attenuation < 0 || attenuation > 4)
 	{
@@ -249,6 +250,54 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, int volume, floa
     for (i=0 ; i<3 ; i++)
         MSG_WriteCoord (&sv.datagram, entity->v.origin[i]+0.5*(entity->v.mins[i]+entity->v.maxs[i]));
 }
+
+/*  //qbism//jf 02-10-25 added SV_StartLocalSound
+==================
+SV_LocalSound
+Plays a local sound to a specific client, others can't hear it.
+==================
+*/
+
+void SV_LocalSound (client_t *client, char *sample, char volume)
+{
+	int sound_num;
+	int field_mask;
+
+// find precache number for sound
+    for (sound_num=1 ; sound_num<MAX_SOUNDS && sv.sound_precache[sound_num] ; sound_num++)
+        if (!strcmp(sample, sv.sound_precache[sound_num]))
+            break;
+
+    if ( sound_num == MAX_SOUNDS || !sv.sound_precache[sound_num] )
+    {
+        Con_Printf ("SV_StartSound: %s not precacheed\n", sample);
+        return;
+    }
+
+    field_mask = 0;
+    if (volume != DEFAULT_SOUND_PACKET_VOLUME)
+        field_mask |= SND_VOLUME;
+
+    if (sound_num >= 256)  //qbism channel >7 is sys_error above
+    {
+        if (current_protocol == PROTOCOL_NETQUAKE)
+            return; //don't send any info protocol can't support
+        else
+            field_mask |= SND_LARGESOUND;
+    }
+
+// directed messages go only to the entity the are targeted on
+	MSG_WriteByte (&client->message, svc_localsound);
+	MSG_WriteByte (&client->message, field_mask);
+	if (field_mask & SND_VOLUME)
+		MSG_WriteByte (&client->message, volume);
+
+    if (field_mask & SND_LARGESOUND)
+        MSG_WriteShort (&client->message, sound_num);
+    else
+        MSG_WriteByte (&client->message, sound_num);
+}
+
 /*
 ==============================================================================
 
@@ -1566,7 +1615,9 @@ void SV_SpawnServer (char *server)
         Host_Error/*Con_Printf*/ ("Couldn't spawn server %s\n", sv.modelname); // Manoel Kasimier - edited
         return;
     }
+    R_LoadPalette(server); //qbism - load palette matching the map name, if there is one.
     sv.models[1] = sv.worldmodel;
+
 //
 // clear world interaction links
 //

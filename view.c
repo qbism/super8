@@ -301,11 +301,12 @@ V_CheckGamma
 */
 qboolean V_CheckGamma (void)
 {
-    static float oldgammavalue;
+ //qbism- just do it.
+ //   static float oldgammavalue;
 
-    if (v_gamma.value == oldgammavalue)
-        return false;
-    oldgammavalue = v_gamma.value;
+ //   if (v_gamma.value == oldgammavalue)
+ //       return false;
+ //   oldgammavalue = v_gamma.value;
 
     BuildGammaTable (v_gamma.value);
     vid.recalc_refdef = 1;				// force a surface cache flush
@@ -997,7 +998,8 @@ void V_Init (void)
     Cvar_RegisterVariable (&v_kickpitch);
 
     BuildGammaTable (1.0);	// no gamma yet
-    Cvar_RegisterVariable (&v_gamma);
+
+     Cvar_RegisterVariable (&v_gamma);
 
 //qbism Aardappel fisheye begin
     Cvar_RegisterVariable (&ffov);

@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	QUAKE_GAME			// as opposed to utilities
 
-#define	VERSION				26 //qbism build number
+#define	VERSION				32 //qbism build number
 #define	D3DQUAKE_VERSION	0
 #define	WINQUAKE_VERSION	7
 #define	LINUX_VERSION		0
@@ -299,17 +299,19 @@ void Host_Frame (float time);
 void Host_Quit_f (void);
 void Host_ClientCommands (char *fmt, ...);
 void Host_ShutdownServer (qboolean crash);
-void COM_CreatePath (char *path); //qbism add declaration
-void Sys_InitDoubleTime (void); //qbism add declaration
 
 //qbism add declarations
-void    COM_CreatePath (char *path);
+void COM_CreatePath (char *path);
+void Sys_InitDoubleTime (void);
+void COM_CreatePath (char *path);
 void Sys_InitDoubleTime (void);
 void History_Shutdown (void);
 void Draw_FadeScreen2 (int tintcolor);
 void CRC_Init(unsigned short *crcvalue);
 void CRC_ProcessByte(unsigned short *crcvalue, byte data);
 unsigned short CRC_Value(unsigned short crcvalue);
+void SV_LocalSound (client_t *client, char *sample, char volume);
+void R_LoadPalette (char *name);
 
 extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output
 										//  an fullscreen DIB focus gain/loss

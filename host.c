@@ -913,7 +913,6 @@ void Palette_Init (void) //qbism - idea from Engoo
    // additivemap = fileinfo->data;
 
     // Manoel Kasimier - transparencies - end
-    BuildGammaTable (v_gamma.value); //qbism- rebuild gamma
 }
 
 
@@ -992,7 +991,6 @@ void Host_Init (quakeparms_t *parms)
         IN_Init ();
 #endif
     }
-
     Con_DPrintf ("\n"); // Manoel Kasimier
 
     //SCR_Adjust(); // Manoel Kasimier - screen positioning
