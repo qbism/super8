@@ -361,8 +361,72 @@ model_t *Mod_ForName (char *name, qboolean crash)
 ===============================================================================
 */
 
-byte	*mod_base;
+//qbism - from bjp begin
+static int  MissFrameNo;
+static char MissFrameName[16 +1];
+static int MissTex;
 
+
+/*
+=================
+WithinBounds
+=================
+*/
+static qboolean WithinBounds (int SItem, int Items, int Limit, int *ErrItem)
+{
+	int EItem = 0;
+
+	if (SItem < 0)
+		EItem = SItem;
+	else if (Items < 0)
+		EItem = Items;
+	else if (SItem + Items < 0 || SItem + Items > Limit)
+		EItem = SItem + Items;
+
+	if (ErrItem)
+		*ErrItem = EItem;
+
+	return EItem == 0;
+}
+
+/*
+=================
+Mod_ChkBounds
+=================
+*/
+static void Mod_ChkBounds (char *Function, char *Object, int SItem, int Items, int Limit)
+{
+	int ErrItem;
+
+	if (!WithinBounds (SItem, Items, Limit, &ErrItem))
+		Sys_Error ("%s: %s is out of bounds (%d, max = %d) in %s", Function, Object, ErrItem, Limit, loadmodel->name);
+}
+
+static qboolean AllFrames (texture_t *tx, texture_t *anims[], int max, qboolean Alternate)
+{
+	int i, frames = 0;
+
+	for (i=0 ; i<max ; i++)
+	{
+		if (anims[i])
+		    ++frames;
+		else
+		{
+			// Avoid unnecessary warnings
+			if (i != MissFrameNo || strcmp(tx->name, MissFrameName))
+			{
+				MissFrameNo = i;
+				strcpy (MissFrameName, tx->name);
+				Con_Printf ("\002Mod_LoadTextures: ");
+				Con_Printf ("missing %sframe %i of '%s'\n", Alternate ? "alternate" : "", i, tx->name);
+			}
+		}
+	}
+
+	return frames == max;
+}
+
+byte	   *mod_base;
 
 /*
 =================
@@ -376,52 +440,109 @@ void Mod_LoadTextures (lump_t *l)
 	texture_t	*tx, *tx2;
 	texture_t	*anims[10];
 	texture_t	*altanims[10];
-	dmiptexlump_t *m;
+	dmiptexlump_t	*m;
+	char		texname[16 + 1];
 
 	if (!l->filelen)
 	{
 		loadmodel->textures = NULL;
+		Con_Printf ("\x02Mod_LoadTextures: ");
+		Con_Printf ("no textures in %s\n", loadmodel->name);
 		return;
 	}
-	m = (dmiptexlump_t *)(mod_base + l->fileofs);
 
+	// Check bounds for nummiptex var
+	Mod_ChkBounds ("Mod_LoadTextures", "nummiptex", 0, sizeof(int), l->filelen);
+
+	m = (dmiptexlump_t *)(mod_base + l->fileofs);
 	m->nummiptex = LittleLong (m->nummiptex);
 
+	// Check bounds for dataofs array
+	if (m->nummiptex > 0)
+		Mod_ChkBounds ("Mod_LoadTextures", "miptex lump", sizeof(int), m->nummiptex * sizeof(int), l->filelen);
+
 	loadmodel->numtextures = m->nummiptex;
-	loadmodel->textures = Hunk_AllocName (m->nummiptex * sizeof(*loadmodel->textures) , "modtex1"); //qbism per bjp, was loadname
+	loadmodel->textures = Hunk_AllocName (m->nummiptex * sizeof(*loadmodel->textures) , "modtex1");
+
+	MissTex = 0;
 
 	for (i=0 ; i<m->nummiptex ; i++)
 	{
-		m->dataofs[i] = LittleLong(m->dataofs[i]);
+		int size, copypixels;
+
+		m->dataofs[i] = LittleLong (m->dataofs[i]);
 		if (m->dataofs[i] == -1)
+		{
+			++MissTex;
 			continue;
+		}
 		mt = (miptex_t *)((byte *)m + m->dataofs[i]);
+
+		// Check bounds for miptex entry
+		Mod_ChkBounds ("Mod_LoadTextures", "miptex entry", (byte *)mt - (mod_base + l->fileofs), sizeof(miptex_t), l->filelen);
+
 		mt->width = LittleLong (mt->width);
 		mt->height = LittleLong (mt->height);
 		for (j=0 ; j<MIPLEVELS ; j++)
 			mt->offsets[j] = LittleLong (mt->offsets[j]);
 
-		if ( (mt->width & 15) || (mt->height & 15) )
-			Sys_Error ("Texture %s is not 16 aligned", mt->name);
-		pixels = mt->width*mt->height/64*85;
-		tx = Hunk_AllocName (sizeof(texture_t) +pixels, "modtex1"); //qbism per bjp, was loadname
+		// Make sure tex name is terminated
+		memset (texname, 0, sizeof(texname));
+		memcpy (texname, mt->name, sizeof(texname) - 1);
+
+		if (mt->width <= 0 || mt->height <= 0 || (mt->width & 15) || (mt->height & 15))
+			Sys_Error ("Mod_LoadTextures: texture '%s' is not 16 aligned (%dx%d) in %s", texname, mt->width, mt->height, loadmodel->name);
+
+		// Check bounds for miptex objects
+		for (j=0 ; j<MIPLEVELS ; j++)
+		{
+			int ErrItem, Offset = (byte *)mt - (mod_base + l->fileofs) + mt->offsets[j];
+			int MipSize = mt->width * mt->height / (1 << j * 2);
+
+			if (!WithinBounds(Offset, MipSize, l->filelen, &ErrItem))
+			{
+				Con_Printf ("\x02Mod_LoadTextures: ");
+				Con_Printf ("miptex object %d for '%s' is outside texture lump (%d, max = %d) in %s\n", j, texname, ErrItem, l->filelen, loadmodel->name);
+				mt->offsets[j] = sizeof (miptex_t); // OK?
+			}
+		}
+
+		pixels = copypixels = mt->width*mt->height/64*85;
+
+		size = (byte *)(mt + 1) + pixels - (mod_base + l->fileofs);
+
+		// Check bounds for pixels
+		if (size > l->filelen)
+		{
+			Con_Printf ("\x02Mod_LoadTextures: ");
+			Con_Printf ("pixels for '%s' is outside texture lump (%d, max = %d) in %s\n", texname, size, l->filelen, loadmodel->name);
+			copypixels -= size - l->filelen; // Prevent access violation
+		}
+
+		tx = Hunk_AllocName (sizeof(texture_t) +pixels, "modtex2");
 		loadmodel->textures[i] = tx;
 
-		memcpy (tx->name, mt->name, sizeof(tx->name));
+		strcpy (tx->name, texname);
 		tx->width = mt->width;
 		tx->height = mt->height;
 		for (j=0 ; j<MIPLEVELS ; j++)
 			tx->offsets[j] = mt->offsets[j] + sizeof(texture_t) - sizeof(miptex_t);
 		// the pixels immediately follow the structures
-		memcpy ( tx+1, mt+1, pixels);
+		memcpy ( tx+1, mt+1, copypixels);
 
-		if (!Q_strncmp(mt->name,"sky",3))
-			R_InitSky (tx);
+		if (!isDedicated) //no texture uploading for dedicated server
+		{
+			if (!Q_strncmp(tx->name,"sky",3))
+				R_InitSky (tx);
+		}
 	}
 
 //
 // sequence the animations
 //
+	MissFrameNo = 0;
+	memset (MissFrameName, 0, sizeof(MissFrameName));
+
 	for (i=0 ; i<m->nummiptex ; i++)
 	{
 		tx = loadmodel->textures[i];
@@ -453,14 +574,14 @@ void Mod_LoadTextures (lump_t *l)
 			altmax++;
 		}
 		else
-			Sys_Error ("Bad animating texture %s", tx->name);
+			Sys_Error ("Bad animating texture '%s'", tx->name);
 
 		for (j=i+1 ; j<m->nummiptex ; j++)
 		{
 			tx2 = loadmodel->textures[j];
 			if (!tx2 || tx2->name[0] != '+')
 				continue;
-			if (Q_strcmp (tx2->name+2, tx->name+2))
+			if (strcmp (tx2->name+2, tx->name+2))
 				continue;
 
 			num = tx2->name[1];
@@ -481,16 +602,18 @@ void Mod_LoadTextures (lump_t *l)
 					altmax = num+1;
 			}
 			else
-				Sys_Error ("Bad animating texture %s", tx->name);
+				Sys_Error ("Bad animating texture '%s'", tx->name);
 		}
+
+		// Check if all frames are present
+		if (!AllFrames (tx, anims, max, false) || !AllFrames (tx, altanims, altmax, true))
+			continue; // Disable animation sequence
 
 #define	ANIM_CYCLE	2
 	// link them all together
 		for (j=0 ; j<max ; j++)
 		{
 			tx2 = anims[j];
-			if (!tx2)
-				Sys_Error ("Missing frame %i of %s",j, tx->name);
 			tx2->anim_total = max * ANIM_CYCLE;
 			tx2->anim_min = j * ANIM_CYCLE;
 			tx2->anim_max = (j+1) * ANIM_CYCLE;
@@ -501,8 +624,6 @@ void Mod_LoadTextures (lump_t *l)
 		for (j=0 ; j<altmax ; j++)
 		{
 			tx2 = altanims[j];
-			if (!tx2)
-				Sys_Error ("Missing frame %i of %s",j, tx->name);
 			tx2->anim_total = altmax * ANIM_CYCLE;
 			tx2->anim_min = j * ANIM_CYCLE;
 			tx2->anim_max = (j+1) * ANIM_CYCLE;
@@ -512,6 +633,8 @@ void Mod_LoadTextures (lump_t *l)
 		}
 	}
 }
+//qbism - from bjp end
+
 
 /*
 =================

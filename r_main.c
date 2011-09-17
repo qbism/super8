@@ -756,6 +756,13 @@ void R_LoadPalette (char *name) //qbism - load an alternate palette
         return;
     }
     memcpy (host_basepal, fileinfo->data, 768);
+    //qbism - if color 255 (transparent) isn't the default color, use it for lighting tint.
+    if ((host_basepal[765] != 159) && (host_basepal[766] != 91) && (host_basepal[767] != 83))
+    {
+            r_colmapred.value = host_basepal[765];
+            r_colmapgreen.value = host_basepal[766];
+            r_colmapblue.value = host_basepal[767];
+    }
     GrabColormap();
     GrabAlphamap();
     GrabAdditivemap();

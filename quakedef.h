@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	QUAKE_GAME			// as opposed to utilities
 
-#define	VERSION				32 //qbism build number
+#define	VERSION				34 //qbism build number.  Should be easy to automate w/ SVN, right...?
 #define	D3DQUAKE_VERSION	0
 #define	WINQUAKE_VERSION	7
 #define	LINUX_VERSION		0
@@ -82,14 +82,14 @@ void as3ReadFileSharedObject(const char* filename);
 
 #define	ON_EPSILON		0.1			// point on plane side epsilon
 
-#define	MAX_MSGLEN		30000 //qbism- 32767 Super8 max, 65535 per qsb - was 8000		// max length of a reliable message
-#define	MAX_DATAGRAM	30000 //qbism 32767 Super8 max, 32767 per qsb - was 1024		// max length of unreliable message
+#define	MAX_MSGLEN		32000 //qbism- 32767 Super8 max, 65535 per qsb - was 8000		// max length of a reliable message
+#define	MAX_DATAGRAM	32000 //qbism 32767 Super8 max, 32767 per qsb - was 1024		// max length of unreliable message
 #define	DATAGRAM_MTU	1400 //qbismfrom johnfitz- reduced value if connected to server
 //
 // per-level limits
 //
 
-#define	MAX_EDICTS		8192			// qbism 8192 per qsb - was 600
+#define	MAX_EDICTS		20000			// qbism 8192 per qsb - was 600
 #define	MAX_LIGHTSTYLES	64
 #define	MAX_MODELS		2048	//qbism 4096 per qsb, protocol was changed.
 #define	MAX_SOUNDS		2048	//qbism 4096 per qsb, was 256, protocol has been changed.

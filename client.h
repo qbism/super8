@@ -76,8 +76,8 @@ typedef struct
 
 #define	SIGNONS		4			// signon messages to receive before connected
 
-#define	MAX_DLIGHTS		128 //qbism 128 per qsb, was 32
-#define	MAX_SHADOWS		64
+#define	MAX_DLIGHTS		64 //qbism 128 per qsb, was 32
+#define	MAX_SHADOWS		64 //qbism - Engoo shadowhack
 
 
 typedef struct
@@ -91,7 +91,7 @@ typedef struct
 	qboolean	dark;			// subtracts light instead of adding
 } dlight_t;
 
-#define	MAX_BEAMS	128 //qbism 256 per qsb - was 24
+#define	MAX_BEAMS	64 //qbism 256 per qsb - was 24
 typedef struct
 {
 	int		entity;
@@ -278,7 +278,7 @@ extern	cvar_t	m_side;
 #define	MAX_EFRAGS		256//qbism was 640, but now will allocate more as needed.
 #define	MAX_TEMP_ENTITIES	512 //qbism 1024 per qsb - was 64			// lightning bolts, etc
 #define	MAX_STATIC_ENTITIES	512 //qbism 1024 per qsb - was 128	// torches, etc
-#define	MAX_VISEDICTS	MAX_EDICTS  //qbism was 256
+#define	MAX_VISEDICTS	2048  //1024 per Fitzquake, qbism was 256
 
 extern	client_state_t	cl;
 

@@ -86,9 +86,8 @@ char *svc_strings[] =
     "", // 47
     "svc_localsound", // 48 qbism- plays sound to single client
     "svc_say", // 49 qbism future TTS - espeak
-//johnfitz
-    /*50*/"svc_letterbox",
-    /*51*/"svc_vibrate",
+    /*50*/"svc_letterbox", //makaqu
+    /*51*/"svc_vibrate", //makaqu
 };
 
 //=============================================================================
@@ -188,12 +187,12 @@ CL_ParseLocalSoundPacket
 */
 void CL_ParseLocalSoundPacket(void)
 {
-	int 	volume;
-	int 	field_mask;
-	int 	sound_num;
+    int 	volume;
+    int 	field_mask;
+    int 	sound_num;
 
 
-     if (field_mask & SND_LARGESOUND)
+    if (field_mask & SND_LARGESOUND)
         sound_num = (unsigned short) MSG_ReadShort ();
     else
         sound_num = MSG_ReadByte ();
@@ -201,7 +200,7 @@ void CL_ParseLocalSoundPacket(void)
     if (sound_num >= MAX_SOUNDS)
         Host_Error ("CL_ParseStartSoundPacket: %i > MAX_SOUNDS", sound_num);
 
-	S_LocalSound (cl.sound_precache[sound_num]->name);
+    S_LocalSound (cl.sound_precache[sound_num]->name);
 }
 
 
@@ -383,11 +382,9 @@ void CL_ParseServerInfo (void)
         cl.model_precache[i] = Mod_ForName (model_precache[i], false);
         if (cl.model_precache[i] == NULL)
         {
-			{
             Con_Printf("Model %s not found\n", model_precache[i]);
             return;
-        	}
-		}
+        }
         CL_KeepaliveMessage ();
     }
 
@@ -442,11 +439,14 @@ void CL_ParseUpdate (int bits)
         bits |= (i<<8);
     }
 
-//qbism - FITZQUAKE and QBS8 protocols
-    if (bits & U_EXTEND1)
-        bits |= MSG_ReadByte() << 16;
-    if (bits & U_EXTEND2)
-        bits |= MSG_ReadByte() << 24;
+//qbism - QBS8 protocol
+    if (current_protocol != PROTOCOL_NETQUAKE)
+    {
+        if (bits & U_EXTEND1)
+            bits |= MSG_ReadByte() << 16;
+        if (bits & U_EXTEND2)
+            bits |= MSG_ReadByte() << 24;
+    }
 
     if (bits & U_LONGENTITY)
         num = MSG_ReadShort ();
@@ -488,10 +488,14 @@ void CL_ParseUpdate (int bits)
         ent->colormap = vid.colormap;
     else
     {
-        if (i > cl.maxclients)
-            Sys_Error ("i >= cl.maxclients");
-        ent->colormap = cl.scores[i-1].translations;
+        if (i < 0 || i > cl.maxclients)
+        {
+             Con_Printf("model %s\n", ent->model->name);
+            Host_Error ("CL_ParseUpdate: invalid colormap (%d, max = %d, ent num %d)", i, cl.maxclients, num);
+        }
+         ent->colormap = cl.scores[i-1].translations;
     }
+
     if (bits & U_SKIN)
         ent->skinnum = MSG_ReadByte();
     else
@@ -563,34 +567,34 @@ void CL_ParseUpdate (int bits)
 //   }
 //   else ent->alpha = ent->baseline.alpha;
 
-//       if (current_protocol == PROTOCOL_QBS8)  //qbism
-//       {
-    // Tomaz - QC Scale Glow Begin
-    if (bits & U_SCALE)
-        ent->scale2 = MSG_ReadFloat();
-    else ent->scale2 = 1.0f;
-
-    if (bits & U_SCALEV)
+    if (current_protocol == PROTOCOL_QBS8)  //qbism
     {
-        for (i=0 ; i<3 ; i++)
-            ent->scalev[i] = MSG_ReadFloat();
+        // Tomaz - QC Scale Glow Begin
+        if (bits & U_SCALE)
+            ent->scale2 = MSG_ReadFloat();
+        else ent->scale2 = 1.0f;
+
+        if (bits & U_SCALEV)
+        {
+            for (i=0 ; i<3 ; i++)
+                ent->scalev[i] = MSG_ReadFloat();
+        }
+        else
+            ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
+
+        if (bits & U_GLOW_SIZE)
+            ent->glow_size = MSG_ReadFloat();
+        else
+            ent->glow_size = 0;
+        // Tomaz - QC Scale Glow End
+
+        // Manoel Kasimier - QC frame_interval - begin
+        if (bits & U_FRAMEINTERVAL)
+            ent->frame_interval = MSG_ReadFloat();
+        else
+            ent->frame_interval = 0.1f;
+        // Manoel Kasimier - QC frame_interval - end
     }
-    else
-        ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
-
-    if (bits & U_GLOW_SIZE)
-        ent->glow_size = MSG_ReadFloat();
-    else
-        ent->glow_size = 0;
-    // Tomaz - QC Scale Glow End
-
-    // Manoel Kasimier - QC frame_interval - begin
-    if (bits & U_FRAMEINTERVAL)
-        ent->frame_interval = MSG_ReadFloat();
-    else
-        ent->frame_interval = 0.1f;
-    // Manoel Kasimier - QC frame_interval - end
-//       }
 
     model = cl.model_precache[modnum];
     if (model != ent->model)
@@ -639,6 +643,7 @@ void CL_ParseBaseline (entity_t *ent, int version) //johnfitz -- added argument
 
     ent->baseline.colormap = MSG_ReadByte();
     ent->baseline.skin = MSG_ReadByte();
+
     for (i=0 ; i<3 ; i++)
     {
         ent->baseline.origin[i] = MSG_ReadCoord ();
@@ -663,10 +668,13 @@ void CL_ParseClientdata (void ) //qbism read bits in function similar to johnfit
     bits = (unsigned short)MSG_ReadShort (); //qbism:  johnfitz -- read bits here instead of in CL_ParseServerMessage()
 
     //qbism- from johnfitz -- PROTOCOL_FITZQUAKE
-    if (bits & SU_EXTEND1)
-        bits |= (MSG_ReadByte() << 16);
-    if (bits & SU_EXTEND2)
-        bits |= (MSG_ReadByte() << 24);
+    if (current_protocol != PROTOCOL_NETQUAKE)
+    {
+        if (bits & U_EXTEND1)
+            bits |= MSG_ReadByte() << 16;
+        if (bits & U_EXTEND2)
+            bits |= MSG_ReadByte() << 24;
+    }
     //johnfitz
 
     if (bits & SU_VIEWHEIGHT)
@@ -862,10 +870,10 @@ void CL_ParseStatic (int version) //qbism- from johnfitz -- added a parameter
     entity_t *ent;
     int		i;
 
-   // mh - extended static entities begin
-   ent = (entity_t *) Hunk_Alloc (sizeof (entity_t));
+    // mh - extended static entities begin
+    ent = (entity_t *) Hunk_Alloc (sizeof (entity_t));
     CL_ParseBaseline (ent, version); //qbism- from johnfitz -- added second parameter
-   // mh - extended static entities end
+    // mh - extended static entities end
 
 // copy it to the current state
     ent->model = cl.model_precache[ent->baseline.modelindex];
@@ -963,7 +971,7 @@ void CL_ParseServerMessage (void)
         }
 
         // if the high bit of the command byte is set, it is a fast update
-        if (cmd & 128) //U_SIGNAL
+        if (cmd & U_SIGNAL)
         {
             SHOWNET("fast update");
             CL_ParseUpdate (cmd&127);
@@ -1054,10 +1062,10 @@ void CL_ParseServerMessage (void)
             CL_ParseStartSoundPacket();
             break;
 
-			//qbism//jf 02-10-05 localsound
-		case svc_localsound:
-			CL_ParseLocalSoundPacket();
-			break;
+            //qbism//jf 02-10-05 localsound
+        case svc_localsound:
+            CL_ParseLocalSoundPacket();
+            break;
 
         case svc_stopsound:
             i = MSG_ReadShort();

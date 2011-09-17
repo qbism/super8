@@ -49,7 +49,7 @@ char *pr_extensions[] =
     //qbism added extensions begin
     "DP_MOVETYPEBOUNCEMISSILE",
     "DP_MOVETYPEFOLLOW",
-    "DP_SV_MODELFLAGS_AS_EFFECTS ",
+    "DP_SV_MODELFLAGS_AS_EFFECTS",
     "DP_ENT_EXTERIORMODELTOCLIENT",
     "DP_SV_NODRAWTOCLIENT",  //based on Team Xlink
     "DP_SV_DRAWONLYTOCLIENT",  //based on Team Xlink

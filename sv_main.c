@@ -103,7 +103,7 @@ void SV_Init (void)
     Cvar_RegisterVariable (&sv_enable_use_button); // Manoel Kasimier - +USE fix
     Cvar_RegisterVariable (&sv_qcexec); // Manoel Kasimier - qcexec
 
-    Cmd_AddCommand ("sv_protocol", SV_Protocol_f); //qbism: johnfitz
+    Cmd_AddCommand ("sv_protocol", &SV_Protocol_f); //qbism: johnfitz
 
     for (i=0 ; i<MAX_MODELS ; i++)
         sprintf (localmodels[i], "*%i", i);
@@ -210,19 +210,15 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, char volume, flo
 
     //qbism:  johnfitz begin
     if (ent >= 8192)
-    {
-        if (current_protocol == PROTOCOL_NETQUAKE)
+		if (current_protocol == PROTOCOL_NETQUAKE)
             return; //don't send any info protocol can't support
         else
             field_mask |= SND_LARGEENTITY;
-    }
-    if (sound_num >= 256 || channel >= 8)  //qbism channel >7 is sys_error above
-    {
-        if (current_protocol == PROTOCOL_NETQUAKE)
+	if (sound_num >= 256 || channel >= 8)
+		if (current_protocol == PROTOCOL_NETQUAKE)
             return; //don't send any info protocol can't support
         else
             field_mask |= SND_LARGESOUND;
-    }
     //qbism:  johnfitz end
 
 // directed messages go only to the entity the are targeted on
@@ -327,7 +323,7 @@ void SV_SendServerinfo (client_t *client)
     }
 
 	MSG_WriteByte (&client->message, svc_print);
-	sprintf (message, "%QBISM SERVER BUILD %i\n", VERSION); //johnfitz -- include fitzquake version
+	sprintf (message, "QBISM SERVER BUILD %i\n", VERSION); //johnfitz -- include fitzquake version
 	MSG_WriteString (&client->message,message);
 
     MSG_WriteByte (&client->message, svc_serverinfo);
@@ -414,7 +410,11 @@ void SV_ConnectClient (int clientnum)
     client->message.data = client->msgbuf;
     client->message.maxsize = sizeof(client->msgbuf);
     client->message.allowoverflow = true;		// we can catch it
-    client->privileged = false;
+#ifdef IDGODS
+	client->privileged = IsID(&client->netconnection->addr);
+#else
+	client->privileged = false;
+#endif
 
     if (sv.loadgame)
         memcpy (client->spawn_parms, spawn_parms, sizeof(spawn_parms));
@@ -559,12 +559,9 @@ byte *SV_FatPVS (vec3_t org)
 //=============================================================================
 
 
-/*
-=============
-SV_WriteEntitiesToClient
 
-=============
-*/
+
+
 
 
 /*
@@ -653,8 +650,7 @@ SV_WriteEntitiesToClient
 */
 void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 {
-    unsigned int	i;  //qbism
-    int		e;
+    int		e,i;
     int		bits;
     byte	*pvs;
     vec3_t	org;
@@ -891,8 +887,8 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
         if (bits & U_FRAME)
             MSG_WriteByte (msg, ent->v.frame);
         if (bits & U_COLORMAP)
-            MSG_WriteByte (msg, ent->v.colormap);
-        if (bits & U_SKIN)
+             MSG_WriteByte (msg, ent->v.colormap);
+         if (bits & U_SKIN)
             MSG_WriteByte (msg, ent->v.skin);
         if (bits & U_EFFECTS)
         {
@@ -1170,12 +1166,13 @@ qboolean SV_SendClientDatagram (client_t *client)
     sizebuf_t	msg;
 
     msg.data = buf;
+    msg.maxsize = sizeof(buf);
     msg.cursize = 0;
 
     //qbism:  from johnfitz -- if client is nonlocal, use smaller max size so packets aren't fragmented
     if (Q_strcmp (client->netconnection->address, "LOCAL") != 0)
-        msg.maxsize = DATAGRAM_MTU;
-    else msg.maxsize = sizeof(buf);
+       msg.maxsize = DATAGRAM_MTU;
+
 
     MSG_WriteByte (&msg, svc_time);
     MSG_WriteFloat (&msg, sv.time);

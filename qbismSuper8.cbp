@@ -36,7 +36,6 @@
 					<Add library="wsock32" />
 					<Add library="dinput" />
 					<Add library="dxguid" />
-					<Add library="curl" />
 				</Linker>
 			</Target>
 			<Target title="Debug Win32">
@@ -352,9 +351,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="wad.h" />
-		<Unit filename="webdownload.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="world.c">
 			<Option compilerVar="CC" />
 		</Unit>
