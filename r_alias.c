@@ -1029,6 +1029,88 @@ void R_AliasSetupLighting (/*alight_t *plighting*/) // Manoel Kasimier - edited
 
     // Manoel Kasimier - Model interpolation - end
 }
+
+
+void R_AliasSetupLighting_new () //qbism - a hybrid of MK's version.
+{
+    // Manoel Kasimier - Model interpolation - begin
+
+    float		lightvec[3];
+    vec3_t		dist;
+    float		add;
+    int			lnum;
+    dlight_t	*dl;
+    vec3_t		t;
+    int			shadelight;
+
+    lightvec[0] = r_light_vec_x.value;
+    lightvec[1] = r_light_vec_y.value;
+    lightvec[2] = r_light_vec_z.value;
+
+    VectorCopy(currententity->origin, t);
+    r_ambientlight = R_LightPoint (t) >>1;
+    if (currententity == &cl.viewent)
+        if (r_ambientlight < 12)
+            r_ambientlight = 12;		// always give some light on gun
+    shadelight = r_ambientlight;
+
+    // add dynamic lights
+    for (lnum=0 ; lnum<MAX_DLIGHTS ; lnum++)
+    {
+        dl = &cl_dlights[lnum];
+        if (!dl->radius)
+            continue;
+        if (dl->die < cl.time)
+            continue;
+
+        VectorSubtract (t, dl->origin, dist);
+        add = dl->radius - Length(dist);
+        // dl->radius: 200 normal, 350 explosion
+        if (add > 0)
+        {
+            float scale = 1.0-(Length(dist)/dl->radius);
+            scale *= scale; // scale ^ 2
+
+            r_shadelight += add*(scale);
+
+            VectorScale (dist, scale, dist);
+            if (dl->dark)
+            {
+                VectorSubtract(lightvec, dist, lightvec);
+            }
+            else
+                VectorAdd(lightvec, dist, lightvec);
+        }
+    }
+    // clamp lighting so it doesn't overbright as much, and
+    // guarantee that no vertex will ever be lit below LIGHT_MIN,
+    // so we don't have to clamp off the bottom
+    if (r_ambientlight > 128)
+        r_ambientlight = 128;
+    if (r_ambientlight + shadelight > 192)
+        shadelight = 192 - r_ambientlight;
+    else if (r_ambientlight < LIGHT_MIN)
+        r_ambientlight = LIGHT_MIN;
+
+    r_ambientlight = (255 - r_ambientlight) << VID_CBITS;
+//	if (r_ambientlight < LIGHT_MIN)
+//		r_ambientlight = LIGHT_MIN;
+
+    if (shadelight < 0)
+        r_shadelight = 0;
+    else
+        r_shadelight = (float)shadelight * VID_GRADES;
+
+    // rotate the lighting vector into the model's frame of reference
+    r_plightvec[0] = DotProduct (lightvec, alias_forward);
+    r_plightvec[1] = -DotProduct (lightvec, alias_right);
+    r_plightvec[2] = DotProduct (lightvec, alias_up);
+
+    // Manoel Kasimier - Model interpolation - end
+}
+
+
+/*
 // Manoel Kasimier - begin
 void R_AliasSetupLighting_new ()
 {
@@ -1069,14 +1151,6 @@ void R_AliasSetupLighting_new ()
             r_shadelight += add*(scale);
 
             VectorScale (dist, scale, dist);
-            // limitar o lightvec
-            /*
-            	{
-            	float teste = Length(lightvec);
-            	if (teste > scale)
-            		VectorScale (lightvec, scale/teste, lightvec);
-            	}
-            //*/
 
             if (dl->dark)
             {
@@ -1098,6 +1172,8 @@ void R_AliasSetupLighting_new ()
     r_plightvec[1] = -DotProduct (lightvec, alias_right);
     r_plightvec[2] = DotProduct (lightvec, alias_up);
 }
+*/
+
 void R_AliasSetupLighting_fullbright (void)
 {
     r_ambientlight = 128;

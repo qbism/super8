@@ -22,8 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "r_local.h"
 
-//qbism - silly!  int	r_dlightframecount;
-
 
 /*
 ==================
@@ -257,7 +255,7 @@ int R_LightPoint (vec3_t p)
 	if (r < r_refdef.ambientlight)
 		r = r_refdef.ambientlight;
 
-    blendedlightpoint = (blendedlightpoint*3 + r) /4; //qbism - quicky soften of bright/dark transitions
+    blendedlightpoint = (blendedlightpoint*7 + r) /8; //qbism - quicky soften of bright/dark transitions
 
 	return blendedlightpoint;
 }

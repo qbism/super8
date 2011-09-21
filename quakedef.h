@@ -89,7 +89,7 @@ void as3ReadFileSharedObject(const char* filename);
 // per-level limits
 //
 
-#define	MAX_EDICTS		20000			// qbism 8192 per qsb - was 600
+#define	MAX_EDICTS		8192			// qbism 8192 per qsb - was 600.    More than 8192 requires protocol change.
 #define	MAX_LIGHTSTYLES	64
 #define	MAX_MODELS		2048	//qbism 4096 per qsb, protocol was changed.
 #define	MAX_SOUNDS		2048	//qbism 4096 per qsb, was 256, protocol has been changed.

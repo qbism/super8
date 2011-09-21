@@ -33,7 +33,7 @@ void Cmd_ForwardToServer (void);
 
 #define	MAX_ALIAS_NAME	32
 
-//qbism qrack complete command end
+//qbism qrack complete command begin
 extern	char	key_lines[64][MAXCMDLINE];
 extern	int	edit_line;
 extern	int	key_linepos;

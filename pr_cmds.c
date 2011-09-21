@@ -49,7 +49,7 @@ char *pr_extensions[] =
     //qbism added extensions begin
     "DP_MOVETYPEBOUNCEMISSILE",
     "DP_MOVETYPEFOLLOW",
-    "DP_SV_MODELFLAGS_AS_EFFECTS",
+    "DP_SV_MODELFLAGS_AS_EFFECTS ",
     "DP_ENT_EXTERIORMODELTOCLIENT",
     "DP_SV_NODRAWTOCLIENT",  //based on Team Xlink
     "DP_SV_DRAWONLYTOCLIENT",  //based on Team Xlink
@@ -684,7 +684,7 @@ void PF_ambientsound (void)
     float		*pos;
     float 		vol, attenuation;
     int			i, soundnum;
-    qboolean    large;  //qbism - from Fitzquake
+
     pos = G_VECTOR (OFS_PARM0);
     samp = G_STRING(OFS_PARM1);
     vol = G_FLOAT(OFS_PARM2);
@@ -700,37 +700,34 @@ void PF_ambientsound (void)
         Con_Printf ("ambient sound:  no precache: %s\n", samp);
         return;
     }
-
-	//johnfitz -- PROTOCOL_FITZQUAKE
-	if (soundnum > 255)
-		if (current_protocol == PROTOCOL_NETQUAKE)
-			return; //don't send any info protocol can't support
-		else
-			large = true;
-	//johnfitz
+    if (current_protocol == PROTOCOL_QBS8)
+    {
+          if (soundnum >MAX_SOUNDS)
+        {
+            Con_Printf ("ambient sound: soundnum > MAX_SOUNDS.\n");
+            return;
+        }
+    }
+    else if (soundnum >256)
+        {
+            Con_Printf ("ambient sound: soundnum >256.\n");
+            return;
+        }
 
 
 // add an svc_spawnambient command to the level signon packet
 
-	//johnfitz -- PROTOCOL_FITZQUAKE
-	if (large)
-		MSG_WriteByte (&sv.signon,svc_spawnstaticsound2);
-	else
-		MSG_WriteByte (&sv.signon,svc_spawnstaticsound);
-	//johnfitz
 
-	for (i=0 ; i<3 ; i++)
-		MSG_WriteCoord(&sv.signon, pos[i]);
+    MSG_WriteByte (&sv.signon,svc_spawnstaticsound);
 
-	//johnfitz -- PROTOCOL_FITZQUAKE
-	if (large)
-		MSG_WriteShort (&sv.signon, soundnum);
-	else
-		MSG_WriteByte (&sv.signon, soundnum);
-	//johnfitz
+    for (i=0 ; i<3 ; i++)
+        MSG_WriteCoord(&sv.signon, pos[i]);
 
-	MSG_WriteByte (&sv.signon, vol*255);
-	MSG_WriteByte (&sv.signon, attenuation*64);
+    if (current_protocol == PROTOCOL_QBS8)
+        MSG_WriteShort (&sv.signon, soundnum); //qbism- more ambient sounds
+    else MSG_WriteByte (&sv.signon, soundnum);
+    MSG_WriteByte (&sv.signon, vol*255);
+    MSG_WriteByte (&sv.signon, attenuation*64);
 }
 
 /*
@@ -1799,75 +1796,80 @@ void PF_WriteEntity (void)
 
 int SV_ModelIndex (char *name);
 
-void PF_makestatic (void)  //qbism- from Fitzquake
+void PF_makestatic (void)
 {
-	edict_t		*ent;
-	int			i;
-	int			bits=0; //johnfitz -- PROTOCOL_FITZQUAKE
+    edict_t	*ent;
+    int		i;
 
-	ent = G_EDICT(OFS_PARM0);
+    ent = G_EDICT(OFS_PARM0);
 
-	//johnfitz -- don't send invisible static entities
+    //qbism:  johnfitz -- don't send invisible static entities
 	if (ent->alpha == ENTALPHA_ZERO) {
 		ED_Free (ent);
 		return;
 	}
 	//johnfitz
 
-	//johnfitz -- PROTOCOL_FITZQUAKE
-	if (current_protocol == PROTOCOL_NETQUAKE)
-	{
-		if (SV_ModelIndex(pr_strings + ent->v.model) & 0xFF00 || (int)(ent->v.frame) & 0xFF00)
+    MSG_WriteByte (&sv.signon,svc_spawnstatic);
+
+    if (current_protocol == PROTOCOL_QBS8)
+    {
+        MSG_WriteShort (&sv.signon, SV_ModelIndex(pr_strings + ent->v.model));
+        MSG_WriteByte (&sv.signon, ent->alpha); //qbism
+    }
+    else MSG_WriteByte (&sv.signon, SV_ModelIndex(pr_strings + ent->v.model));
+
+    MSG_WriteByte (&sv.signon, ent->v.frame);
+    MSG_WriteByte (&sv.signon, ent->v.colormap);
+    MSG_WriteByte (&sv.signon, ent->v.skin);
+
+    for (i=0 ; i<3 ; i++)
+    {
+        MSG_WriteCoord(&sv.signon, ent->v.origin[i]);
+        MSG_WriteAngle(&sv.signon, ent->v.angles[i]);
+    }
+    // Manoel Kasimier - QC Alpha Scale Glow - begin
+    if (current_protocol == PROTOCOL_QBS8)
+    {
+        float	scale=1;
+        vec3_t	scalev= {0,0,0};
+        float	glow_size=0;
+        int		bits=0;
+        eval_t *val;
+
+		if ((val = GetEdictFieldValue(ent, "scale")))
 		{
-			ED_Free (ent);
-			return; //can't display the correct model & frame, so don't show it at all
+			scale = val->_float;
+			bits |= U_SCALE;
 		}
-	}
-	else
-	{
-		if (SV_ModelIndex(pr_strings + ent->v.model) & 0xFF00)
-			bits |= B_LARGEMODEL;
-		if ((int)(ent->v.frame) & 0xFF00)
-			bits |= B_LARGEFRAME;
-		if (ent->alpha != ENTALPHA_DEFAULT)
-			bits |= B_ALPHA;
-	}
-
-	if (bits)
-	{
-		MSG_WriteByte (&sv.signon, svc_spawnstatic2);
-		MSG_WriteByte (&sv.signon, bits);
-	}
-	else
-		MSG_WriteByte (&sv.signon, svc_spawnstatic);
-
-	if (bits & B_LARGEMODEL)
-		MSG_WriteShort (&sv.signon, SV_ModelIndex(pr_strings + ent->v.model));
-	else
-		MSG_WriteByte (&sv.signon, SV_ModelIndex(pr_strings + ent->v.model));
-
-	if (bits & B_LARGEFRAME)
-		MSG_WriteShort (&sv.signon, ent->v.frame);
-	else
-		MSG_WriteByte (&sv.signon, ent->v.frame);
-	//johnfitz
-
-	MSG_WriteByte (&sv.signon, ent->v.colormap);
-	MSG_WriteByte (&sv.signon, ent->v.skin);
-	for (i=0 ; i<3 ; i++)
-	{
-		MSG_WriteCoord(&sv.signon, ent->v.origin[i]);
-		MSG_WriteAngle(&sv.signon, ent->v.angles[i]);
-	}
-
-	//johnfitz -- PROTOCOL_FITZQUAKE
-	if (bits & B_ALPHA)
-		MSG_WriteByte (&sv.signon, ent->alpha);
-	//johnfitz
+        if ((val = GetEdictFieldValue(ent, "scalev")))
+        {
+            for (i=0 ; i<3 ; i++)
+                scalev[i] = val->vector[i];
+            bits |= U_SCALEV;
+        }
+        if ((val = GetEdictFieldValue(ent, "glow_size")))
+        {
+            glow_size = val->_float;
+            bits |= U_GLOW_SIZE;
+        }
+        // write the message
+        MSG_WriteLong(&sv.signon, bits);
+        if (bits & U_SCALE)
+            MSG_WriteFloat (&sv.signon, scale);
+        if (bits & U_SCALEV)
+            for (i=0 ; i<3 ; i++)
+                MSG_WriteFloat (&sv.signon, scalev[i]);
+        if (bits & U_GLOW_SIZE)
+            MSG_WriteFloat (&sv.signon, glow_size);
+        MSG_WriteShort(&sv.signon, ent->v.effects);
+    }
+    // Manoel Kasimier - QC Alpha Scale Glow - end
 
 // throw the entity away now
-	ED_Free (ent);
+    ED_Free (ent);
 }
+
 //=============================================================================
 
 /*
@@ -2706,7 +2708,7 @@ ebfs_builtin_t pr_ebfs_builtins[] =
     {  32, "walkmove", PF_walkmove },		// float(float yaw, float dist) walkmove
 	{  33, "localsound", PF_localsound }, //qbism//jf 02-10-25 void(entity e, string samp, float volume) sound
     {  34, "droptofloor", PF_droptofloor },
-    {  35   , "lightstyle", PF_lightstyle },
+    {  35, "lightstyle", PF_lightstyle },
     {  36, "rint", PF_rint },
     {  37, "floor", PF_floor },
     {  38, "ceil", PF_ceil },

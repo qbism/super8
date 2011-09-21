@@ -1205,7 +1205,6 @@ void SCR_UpdateScreen (void)
         SCR_CheckDrawCenterString ();
         Sbar_Draw ();
         SCR_DrawConsole ();
-
         M_Draw ();
         if (cl_showfps.value) SCR_DrawFPS ();	// 2001-11-31 FPS display by QuakeForge/Muff
     }

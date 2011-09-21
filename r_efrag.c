@@ -126,13 +126,13 @@ void R_SplitEntityOnNode (mnode_t *node)
 
 // grab an efrag off the free list
 		ef = cl.free_efrags;
-      if (!ef)
-      {
+		if (!ef)
+		{
          //qbism - mh - extended efrags - begin
          R_GetMoreEfrags ();
          ef = cl.free_efrags;
          // mh - extended efrags - end
-      }
+		}
 		cl.free_efrags = cl.free_efrags->entnext;
 
 		ef->entity = r_addent;

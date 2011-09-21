@@ -76,8 +76,17 @@ typedef struct
 
 #define	SIGNONS		4			// signon messages to receive before connected
 
+//qbism- put all these defines in one spot
 #define	MAX_DLIGHTS		64 //qbism 128 per qsb, was 32
 #define	MAX_SHADOWS		64 //qbism - Engoo shadowhack
+#define	MAX_BEAMS	256 //qbism 256 per qsb - was 24
+#define	MAX_MAPSTRING	2048
+#define	MAX_DEMOS		8
+#define	MAX_DEMONAME	16
+#define	MAX_EFRAGS		2048//qbism was 640
+#define	MAX_TEMP_ENTITIES	512 //qbism 1024 per qsb - was 64			// lightning bolts, etc
+#define	MAX_STATIC_ENTITIES	512 //qbism 1024 per qsb - was 128	// torches, etc
+#define	MAX_VISEDICTS	2048  //1024 per Fitzquake, qbism was 256
 
 
 typedef struct
@@ -91,7 +100,6 @@ typedef struct
 	qboolean	dark;			// subtracts light instead of adding
 } dlight_t;
 
-#define	MAX_BEAMS	64 //qbism 256 per qsb - was 24
 typedef struct
 {
 	int		entity;
@@ -99,10 +107,6 @@ typedef struct
 	float	endtime;
 	vec3_t	start, end;
 } beam_t;
-
-#define	MAX_MAPSTRING	2048
-#define	MAX_DEMOS		8
-#define	MAX_DEMONAME	16
 
 typedef enum {
 ca_dedicated, 		// a dedicated server with no ability to start a client
@@ -226,7 +230,7 @@ typedef struct
 	struct model_s	*worldmodel;	// cl_entitites[0].model
 	struct efrag_s	*free_efrags;
 	int			num_entities;	// held in cl_entities array
-	//int			num_statics;	//qbism - now dynamically allocated
+	int			num_statics;
 	entity_t	viewent;			// the gun model
 
 	int			cdtrack, looptrack;	// cd audio
@@ -272,14 +276,6 @@ extern	cvar_t	m_pitch;
 extern	cvar_t	m_yaw;
 extern	cvar_t	m_forward;
 extern	cvar_t	m_side;
-
-
-
-#define	MAX_EFRAGS		256//qbism was 640, but now will allocate more as needed.
-#define	MAX_TEMP_ENTITIES	512 //qbism 1024 per qsb - was 64			// lightning bolts, etc
-#define	MAX_STATIC_ENTITIES	512 //qbism 1024 per qsb - was 128	// torches, etc
-#define	MAX_VISEDICTS	2048  //1024 per Fitzquake, qbism was 256
-
 extern	client_state_t	cl;
 
 // FIXME, allocate dynamically
@@ -364,6 +360,7 @@ void CL_NewTranslation (int slot);
 void V_StartPitchDrift (void);
 void V_StopPitchDrift (void);
 
+void V_RenderView (void);
 void V_UpdatePalette (void);
 void V_Register (void);
 void V_ParseDamage (void);

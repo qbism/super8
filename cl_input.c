@@ -351,7 +351,7 @@ void CL_SendMove (usercmd_t *cmd)
 //
 // send the movement message
 //
-    MSG_WriteByte(&buf, clc_move);
+    MSG_WriteByte (&buf, clc_move);
 
 	MSG_WriteFloat (&buf, cl.mtime[0]);	// so server can get ping times
 

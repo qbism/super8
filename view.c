@@ -301,7 +301,7 @@ V_CheckGamma
 */
 qboolean V_CheckGamma (void)
 {
- //qbism- just do it.
+ //qbism- just always do it.
  //   static float oldgammavalue;
 
  //   if (v_gamma.value == oldgammavalue)
@@ -998,8 +998,7 @@ void V_Init (void)
     Cvar_RegisterVariable (&v_kickpitch);
 
     BuildGammaTable (1.0);	// no gamma yet
-
-     Cvar_RegisterVariable (&v_gamma);
+    Cvar_RegisterVariable (&v_gamma);
 
 //qbism Aardappel fisheye begin
     Cvar_RegisterVariable (&ffov);

@@ -265,8 +265,8 @@ void R_Init (void)
     Cvar_RegisterVariable(&r_stainfadetime);
     Cvar_RegisterVariable(&r_stainfadeamount);
 
-    Cvar_SetValue ("r_maxedges", (float) 63000); //NUMSTACKEDGES //qbism 100000 in bjp quake
-    Cvar_SetValue ("r_maxsurfs", (float) 63000); //NUMSTACKSURFACES //qbism100000 in bjp quake
+    Cvar_SetValue ("r_maxedges", (float) 100000); //NUMSTACKEDGES //qbism was 60000
+    Cvar_SetValue ("r_maxsurfs", (float) 100000); //NUMSTACKSURFACES //qbism was 60000
 
     view_clipplanes[0].leftedge = true;
     view_clipplanes[1].rightedge = true;
@@ -759,10 +759,17 @@ void R_LoadPalette (char *name) //qbism - load an alternate palette
     //qbism - if color 255 (transparent) isn't the default color, use it for lighting tint.
     if ((host_basepal[765] != 159) && (host_basepal[766] != 91) && (host_basepal[767] != 83))
     {
-            r_colmapred.value = host_basepal[765];
-            r_colmapgreen.value = host_basepal[766];
-            r_colmapblue.value = host_basepal[767];
+        r_colmapred.value = host_basepal[765];
+        r_colmapgreen.value = host_basepal[766];
+        r_colmapblue.value = host_basepal[767];
     }
+    else
+    {
+        r_colmapred.value = 0;
+        r_colmapgreen.value = 0;
+        r_colmapblue.value = 0;
+    }
+
     GrabColormap();
     GrabAlphamap();
     GrabAdditivemap();
@@ -936,7 +943,7 @@ void R_SetVrect (vrect_t *pvrectin, vrect_t *pvrect, int lineadj)
         // Manoel Kasimier - svc_letterbox - end
     }
     // Manoel Kasimier - stereo 3D - begin
-  }
+}
 
 
 /*
@@ -1478,7 +1485,6 @@ void R_DrawBEntitiesOnList (void)
                 if (clmodel->firstmodelsurface != 0)
                     R_PushDlights (clmodel->nodes + clmodel->hulls[0].firstclipnode);  //qbism - from MH
 
-
                 r_pefragtopnode = NULL;
 
                 for (j=0 ; j<3 ; j++)
@@ -1675,12 +1681,12 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     {
         S_ExtraUpdate ();	// don't let sound get messed up if going slow
     }
-    else
+
+    if (r_dspeeds.value)
     {
         se_time2 = Sys_DoubleTime (); // scan edges time
 //		de_time1 = se_time2; // draw entities time
     }
-
     R_DrawViewModel (true);
 
     if (r_dspeeds.value) // Manoel Kasimier
@@ -1749,7 +1755,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
 
     // Manoel Kasimier - buffered video (bloody hack) - begin
 #ifdef _WIN32
-if (r_dowarp)
+    if (r_dowarp)
         D_WarpScreen ();
     else // copy buffer to video
     {
@@ -1760,9 +1766,9 @@ if (r_dowarp)
             memcpy(dest, src, scr_vrect.width);
     }
 #else
-        // Manoel Kasimier - buffered video (bloody hack) - end
-        if (r_dowarp)
-            D_WarpScreen ();
+    // Manoel Kasimier - buffered video (bloody hack) - end
+    if (r_dowarp)
+        D_WarpScreen ();
 #endif // Manoel Kasimier - buffered video (bloody hack)
 
     V_SetContentsColor (r_viewleaf->contents);

@@ -991,6 +991,7 @@ void Host_Init (quakeparms_t *parms)
         IN_Init ();
 #endif
     }
+
     Con_DPrintf ("\n"); // Manoel Kasimier
 
     //SCR_Adjust(); // Manoel Kasimier - screen positioning

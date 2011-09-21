@@ -596,7 +596,6 @@ char *MK_cleanftos (float f); // Manoel Kasimier - reduced savegames
 Host_SmallSavegame_f
 ====================
 */
-
 void Host_SmallSavegame_f (void)
 {
 	char	name[256];
@@ -682,7 +681,6 @@ void Host_SmallSavegame_f (void)
 Host_SmallLoadgame_f
 ====================
 */
-
 float	smallsave_parms[NUM_SPAWN_PARMS];
 void Host_SmallLoadgame_f (void)
 {
@@ -739,8 +737,6 @@ void Host_SmallLoadgame_f (void)
 		Host_Reconnect_f ();
 	}
 }
-
-
 //====================================
 //
 // Manoel Kasimier - small saves - end
@@ -1475,7 +1471,7 @@ void Host_Spawn_f (void)
 
 		for (i=0 ; i< NUM_SPAWN_PARMS ; i++)
 			// Manoel Kasimier - small saves - begin
-		if (smallsave_parms[i])
+			if (smallsave_parms[i])
 			{
 				(&pr_global_struct->parm1)[i] = host_client->spawn_parms[i] = smallsave_parms[i];
 				smallsave_parms[i] = 0;

@@ -45,10 +45,10 @@
 		//qbism- add more paks
 		[Embed(source="../../../id1/pak1.pak", mimeType="application/octet-stream")]
 		private var EmbeddedPakA:Class;
-		[Embed(source="../../../id1/pak8.pak", mimeType="application/octet-stream")]
-		private var EmbeddedPakB:Class;
+		//[Embed(source="../../../id1/pak8.pak", mimeType="application/octet-stream")]
+		//private var EmbeddedPakB:Class;
 
-		[Embed(source="../../../id1/super8.cfg", mimeType="application/octet-stream")]
+		[Embed(source="../../../id1/config.cfg", mimeType="application/octet-stream")]
 		private var EmbeddedDefaultConfig:Class;
 		//[Embed(source="../../../id1/quake.rc", mimeType="application/octet-stream")]
 		//private var EmbeddedDefaultRC:Class;
@@ -84,8 +84,8 @@
 			//qbism- add more paks
 			var pakFileA:ByteArray = new EmbeddedPakA;
 			_loader.supplyFile("./id1/pak1.pak", pakFileA);
-			var pakFileB:ByteArray = new EmbeddedPakB;
-			_loader.supplyFile("./id1/pak8.pak", pakFileB);
+		//	var pakFileB:ByteArray = new EmbeddedPakB;
+		//	_loader.supplyFile("./id1/pak8.pak", pakFileB);
 
 			_swcRam = _swc.swcInit(this);
 

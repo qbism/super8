@@ -69,25 +69,35 @@ char *svc_strings[] =
     "svc_cdtrack",			// [byte] track [byte] looptrack
     "svc_sellscreen",
     "svc_cutscene",
-//qbism - from johnfitz -- new server messages
-    "",	// 35
-    "",	// 36
-    "svc_skybox", // 37					// [string] skyname
+    // DarkPlaces - begin
+    "",//svc_showlmp",	// [string] iconlabel [string] lmpfile [short] x [short] y
+    "",//svc_hidelmp",	// [string] iconlabel
+    "",//svc_skybox", // [string] skyname
     "", // 38
     "", // 39
-    "svc_bf", // 40						// no data
-    "svc_fog", // 41					// [byte] density [byte] red [byte] green [byte] blue [float] time
-    "svc_spawnbaseline2", //42			// support for large modelindex, large framenum, alpha, using flags
-    "svc_spawnstatic2", // 43			// support for large modelindex, large framenum, alpha, using flags
-    "svc_spawnstaticsound2", //	44		// [coord3] [short] samp [byte] vol [byte] aten
+    "", // 40
+    "", // 41
+    "", // 42
+    "", // 43
     "", // 44
     "", // 45
     "", // 46
     "", // 47
-    "svc_localsound", // 48 qbism- plays sound to single client
-    "svc_say", // 49 qbism future TTS - espeak
-    /*50*/"svc_letterbox", //makaqu
-    /*51*/"svc_vibrate", //makaqu
+    "", // 48
+    "", // 49
+    "",//svc_cgame", //				50		// [short] length [bytes] data
+    "",//svc_unusedlh1", //			51		// unused
+    "",//svc_effect", //			52		// [vector] org [byte] modelindex [byte] startframe [byte] framecount [byte] framerate
+    "",//svc_effect2", //			53		// [vector] org [short] modelindex [short] startframe [byte] framecount [byte] framerate
+    "",//svc_sound2", //			54		// short soundindex instead of byte
+    "",//svc_spawnbaseline2", //	55		// short modelindex instead of byte
+    "",//svc_spawnstatic2", //		56		// short modelindex instead of byte
+    "",//svc_entities", //			57		// [int] deltaframe [int] thisframe [float vector] eye [variable length] entitydata
+    "",//svc_unusedlh3", //			58
+    "",//svc_spawnstaticsound2", //	59		// [coord3] [short] samp [byte] vol [byte] aten
+    // DarkPlaces - end
+    /*60*/"svc_letterbox",
+    /*61*/"svc_vibrate",
 };
 
 //=============================================================================
@@ -101,15 +111,11 @@ This error checks and tracks the total number of entities
 */
 entity_t	*CL_EntityNum (int num)
 {
-    //johnfitz -- check minimum number too
-    if (num < 0)
-        Host_Error ("CL_EntityNum: %i is an invalid number",num);
-    //john
-
-    if (num >= cl.num_entities)
+    if (num < 0 || num >= cl.num_entities)
     {
-        if (num >= MAX_EDICTS) //johnfitz -- no more MAX_EDICTS
-            Host_Error ("CL_EntityNum: %i is an invalid number",num);
+        if (num < 0 || num >= MAX_EDICTS)
+            Host_Error ("CL_EntityNum: invalid edict (%d, max = %d)", num, MAX_EDICTS);
+
         while (cl.num_entities<=num)
         {
             cl_entities[cl.num_entities].colormap = vid.colormap;
@@ -180,32 +186,6 @@ void CL_ParseStartSoundPacket(void)
 }
 
 /*
-//qbism//jf 02-10-05
-==================
-CL_ParseLocalSoundPacket
-==================
-*/
-void CL_ParseLocalSoundPacket(void)
-{
-    int 	volume;
-    int 	field_mask;
-    int 	sound_num;
-
-
-    if (field_mask & SND_LARGESOUND)
-        sound_num = (unsigned short) MSG_ReadShort ();
-    else
-        sound_num = MSG_ReadByte ();
-
-    if (sound_num >= MAX_SOUNDS)
-        Host_Error ("CL_ParseStartSoundPacket: %i > MAX_SOUNDS", sound_num);
-
-    S_LocalSound (cl.sound_precache[sound_num]->name);
-}
-
-
-
-/*
 ==================
 CL_KeepaliveMessage
 
@@ -267,7 +247,6 @@ void CL_KeepaliveMessage (void)
     SZ_Clear (&cls.message);
 }
 
-
 /*
 ==================
 CL_ParseServerInfo
@@ -281,7 +260,7 @@ void CL_ParseServerInfo (void)
     char	model_precache[MAX_MODELS][MAX_QPATH];
     char	sound_precache[MAX_SOUNDS][MAX_QPATH];
 
-    byte	tmp[256]; //qbism- for Dan East pocketquake
+  	byte	tmp[256]; //qbism- for Dan East pocketquake
 
     Con_DPrintf ("Serverinfo packet received.\n");
 //
@@ -290,13 +269,13 @@ void CL_ParseServerInfo (void)
     CL_ClearState ();
 
 // parse protocol version number
-
+    // Manoel Kasimier - 16-bit angles - edited - begin
     current_protocol = MSG_ReadLong ("ReadLong CL_ParseServerInfo");
-    if((current_protocol != PROTOCOL_NETQUAKE) && (current_protocol != PROTOCOL_QBS8)) // qbism added
+    if((current_protocol != PROTOCOL_NETQUAKE) && (current_protocol != PROTOCOL_QBS8)) // added
     {
         Con_Printf ("\n"); //becuase there's no newline after serverinfo print
-        Host_Error/*Con_Printf*/ ("Server returned version %i, not %i, %i, or %i.\n",
-                                  current_protocol, PROTOCOL_NETQUAKE, PROTOCOL_QBS8);
+        Host_Error/*Con_Printf*/ ("Server returned version %i, not %i\n", current_protocol, PROTOCOL_NETQUAKE);
+        // Manoel Kasimier - 16-bit angles - edited - end
         return;
     }
     else Con_Printf("Protocol version: %i", current_protocol);
@@ -317,20 +296,20 @@ void CL_ParseServerInfo (void)
     str = MSG_ReadString ();
     Q_strncpy (cl.levelname, str, sizeof(cl.levelname)-1);
 
-    //Dan East: The original code hardcoded a console char width of 38 characters.  I've
-    //modified this to dynamically match the console width.
-    if (con_linewidth>=sizeof(tmp)) i=sizeof(tmp)-1;
-    else i=con_linewidth;
-    tmp[i--]='\0';
-    tmp[i--]='\37';
-    while (i) tmp[i--]='\36';
-    tmp[i]='\35';
+	//Dan East: The original code hardcoded a console char width of 38 characters.  I've
+	//modified this to dynamically match the console width.
+	if (con_linewidth>=sizeof(tmp)) i=sizeof(tmp)-1;
+	else i=con_linewidth;
+	tmp[i--]='\0';
+	tmp[i--]='\37';
+	while (i) tmp[i--]='\36';
+	tmp[i]='\35';
 
-    Con_Printf("\n\n");
-    Con_Printf(tmp);
+	Con_Printf("\n\n");
+	Con_Printf(tmp);
 
-    //Con_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
-    Con_Printf ("%c%s\n", 2, str);
+	//Con_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
+	Con_Printf ("%c%s\n", 2, str);
 
 //qbism:  johnfitz -- tell user which protocol this is
     Con_Printf ("Using protocol %i\n", current_protocol);
@@ -425,6 +404,9 @@ void CL_ParseUpdate (int bits)
     qboolean	forcelink;
     entity_t	*ent;
     int			num;
+#ifdef GLQUAKE  //qbism - TODO can use this?  SKIN
+    int			skin;
+#endif
 
     if (cls.signon == SIGNONS - 1)
     {
@@ -439,14 +421,16 @@ void CL_ParseUpdate (int bits)
         bits |= (i<<8);
     }
 
-//qbism - QBS8 protocol
-    if (current_protocol != PROTOCOL_NETQUAKE)
+    // Tomaz - QC Control Begin
+    if (bits & U_EXTEND1)
     {
-        if (bits & U_EXTEND1)
-            bits |= MSG_ReadByte() << 16;
-        if (bits & U_EXTEND2)
-            bits |= MSG_ReadByte() << 24;
+        bits |= MSG_ReadByte() << 16;
     }
+    // Tomaz - QC Control End
+    // Manoel Kasimier - begin
+    if (bits & U_EXTEND2)
+        bits |= MSG_ReadByte() << 24;
+    // Manoel Kasimier - end
 
     if (bits & U_LONGENTITY)
         num = MSG_ReadShort ();
@@ -468,12 +452,35 @@ void CL_ParseUpdate (int bits)
 
     if (bits & U_MODEL)
     {
-        modnum = MSG_ReadByte ();
+        if (current_protocol == PROTOCOL_QBS8)
+            modnum = MSG_ReadShort ();
+        else modnum = MSG_ReadByte ();
         if (modnum >= MAX_MODELS)
             Host_Error ("CL_ParseModel: bad modnum");
     }
     else
         modnum = ent->baseline.modelindex;
+
+    model = cl.model_precache[modnum];
+    if (model != ent->model)
+    {
+        ent->model = model;
+        // automatic animation (torches, etc) can be either all together
+        // or randomized
+        if (model)
+        {
+            if (model->synctype == ST_RAND)
+                ent->syncbase = (float)(rand()&0x7fff) / 0x7fff;
+            else
+                ent->syncbase = 0.0;
+        }
+        else
+            forcelink = true;	// hack to make null model players work
+#ifdef GLQUAKE  //qbism - TODO can use this?  SKIN
+        if (num > 0 && num <= cl.maxclients)
+            R_TranslatePlayerSkin (num - 1);
+#endif
+    }
 
     if (bits & U_FRAME)
         ent->frame = MSG_ReadByte ();
@@ -488,32 +495,46 @@ void CL_ParseUpdate (int bits)
         ent->colormap = vid.colormap;
     else
     {
-        if (i < 0 || i > cl.maxclients)
-        {
-             Con_Printf("model %s\n", ent->model->name);
-            Host_Error ("CL_ParseUpdate: invalid colormap (%d, max = %d, ent num %d)", i, cl.maxclients, num);
-        }
-         ent->colormap = cl.scores[i-1].translations;
+        if (i > cl.maxclients)
+            Sys_Error ("i >= cl.maxclients");
+        ent->colormap = cl.scores[i-1].translations;
     }
+
+#ifdef GLQUAKE  //qbism - TODO can use this?  SKIN
+    if (bits & U_SKIN)
+        skin = MSG_ReadByte();
+    else
+        skin = ent->baseline.skin;
+    if (skin != ent->skinnum)
+    {
+        ent->skinnum = skin;
+        if (num > 0 && num <= cl.maxclients)
+            R_TranslatePlayerSkin (num - 1);
+    }
+
+#else
 
     if (bits & U_SKIN)
         ent->skinnum = MSG_ReadByte();
     else
         ent->skinnum = ent->baseline.skin;
+#endif
 
     if (bits & U_EFFECTS)
     {
-        if (current_protocol == PROTOCOL_QBS8)
+        if (bits & U_EFFECTS2)
         {
-            if (bits & U_EFFECTS2)
-                ent->effects = MSG_ReadLong("CL_ParseUpdate"); //qbism
-            else
-                ent->effects = MSG_ReadByte();
-            ent->baseline.effects = ent->effects;  //qbism - also on server side
+            ent->effects = MSG_ReadLong("CL_ParseUpdate"); //qbism
+            ent->baseline.effects = ent->effects;
         }
-        else ent->effects = MSG_ReadByte();
+        else
+        {
+            ent->effects = MSG_ReadByte();
+            if (current_protocol == PROTOCOL_QBS8) ent->baseline.effects = ent->effects;
+        }
     }
-    else  ent->effects = ent->baseline.effects;
+    else
+        ent->effects = ent->baseline.effects;
 
 // shift the known values for interpolation
     VectorCopy (ent->msg_origins[0], ent->msg_origins[1]);
@@ -545,73 +566,54 @@ void CL_ParseUpdate (int bits)
         ent->msg_angles[0][2] = MSG_ReadAngle();
     else
         ent->msg_angles[0][2] = ent->baseline.angles[2];
+    // Tomaz - QC Alpha Scale Glow Begin
+    if (bits & U_ALPHA)
+        ent->alpha = MSG_ReadByte(); //qbism- converted to byte
+    else
+        ent->alpha = ent->baseline.alpha; //qbism was ent->alpha = 1.0f;
+
+    if (bits & U_SCALE)
+        ent->scale2 = MSG_ReadFloat();
+        else ent->scale2 = 1.0f;
+
+    if (bits & U_SCALEV)
+    {
+        for (i=0 ; i<3 ; i++)
+            ent->scalev[i] = MSG_ReadFloat();
+    }
+    else
+        ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
+
+    if (bits & U_GLOW_SIZE)
+        ent->glow_size = MSG_ReadFloat();
+    else
+        ent->glow_size = 0;
+    /*
+    if (bits & U_GLOW_RED)
+    	ent->glow_red = MSG_ReadFloat();
+    else
+    	ent->glow_red = 0;
+
+    if (bits & U_GLOW_GREEN)
+    	ent->glow_green = MSG_ReadFloat();
+    else
+    	ent->glow_green = 0;
+
+    if (bits & U_GLOW_BLUE)
+    	ent->glow_blue = MSG_ReadFloat();
+    else
+    	ent->glow_blue = 0;
+    */
+    // Tomaz - QC Alpha Scale Glow End
+    // Manoel Kasimier - QC frame_interval - begin
+    if (bits & U_FRAMEINTERVAL)
+        ent->frame_interval = MSG_ReadFloat();
+    else
+        ent->frame_interval = 0.1f;
+    // Manoel Kasimier - QC frame_interval - end
 
     if ( bits & U_NOLERP )
         ent->forcelink = true;
-
-//    if (current_protocol != PROTOCOL_NETQUAKE)  //qbism - from Fitzquake
-//   {
-    if (bits & U_ALPHA)
-        ent->alpha = MSG_ReadByte();
-    else
-        ent->alpha = ent->baseline.alpha;
-    if (bits & U_FRAME2)
-        ent->frame = (ent->frame & 0x00FF) | (MSG_ReadByte() << 8);
-    if (bits & U_MODEL2)
-        modnum = (modnum & 0x00FF) | (MSG_ReadByte() << 8);
-    if (bits & U_LERPFINISH)  //qbism- for potential PROTOCOL_FITZQUAKE support, not implemented yet, so dump.
-    {
-        MSG_ReadByte(); //ent->lerpfinish = ent->msgtime + ((float)(MSG_ReadByte()) / 255);
-        //ent->lerpflags |= LERP_FINISH;
-    }
-//   }
-//   else ent->alpha = ent->baseline.alpha;
-
-    if (current_protocol == PROTOCOL_QBS8)  //qbism
-    {
-        // Tomaz - QC Scale Glow Begin
-        if (bits & U_SCALE)
-            ent->scale2 = MSG_ReadFloat();
-        else ent->scale2 = 1.0f;
-
-        if (bits & U_SCALEV)
-        {
-            for (i=0 ; i<3 ; i++)
-                ent->scalev[i] = MSG_ReadFloat();
-        }
-        else
-            ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
-
-        if (bits & U_GLOW_SIZE)
-            ent->glow_size = MSG_ReadFloat();
-        else
-            ent->glow_size = 0;
-        // Tomaz - QC Scale Glow End
-
-        // Manoel Kasimier - QC frame_interval - begin
-        if (bits & U_FRAMEINTERVAL)
-            ent->frame_interval = MSG_ReadFloat();
-        else
-            ent->frame_interval = 0.1f;
-        // Manoel Kasimier - QC frame_interval - end
-    }
-
-    model = cl.model_precache[modnum];
-    if (model != ent->model)
-    {
-        ent->model = model;
-        // automatic animation (torches, etc) can be either all together
-        // or randomized
-        if (model)
-        {
-            if (model->synctype == ST_RAND)
-                ent->syncbase = (float)(rand()&0x7fff) / 0x7fff;
-            else
-                ent->syncbase = 0.0;
-        }
-        else
-            forcelink = true;	// hack to make null model players work
-    }
 
     if ( forcelink )
     {
@@ -626,32 +628,31 @@ void CL_ParseUpdate (int bits)
 
 /*
 ==================
-CL_ParseBaseline  //qbism-  from Fitzquake
+CL_ParseBaseline
 ==================
 */
-
-void CL_ParseBaseline (entity_t *ent, int version) //johnfitz -- added argument
+void CL_ParseBaseline (entity_t *ent)
 {
-    int	i;
-    int bits; //johnfitz
+    int			i;
 
-    //johnfitz -- PROTOCOL_FITZQUAKE
-    bits = (version == 2) ? MSG_ReadByte() : 0;
-    ent->baseline.modelindex = (bits & B_LARGEMODEL) ? MSG_ReadShort() : MSG_ReadByte();
-    ent->baseline.frame = (bits & B_LARGEFRAME) ? MSG_ReadShort() : MSG_ReadByte();
-    //johnfitz
+    if (current_protocol == PROTOCOL_QBS8)
+    {
+        ent->baseline.modelindex = MSG_ReadShort ();
+        ent->baseline.alpha = MSG_ReadByte(); //qbism: johnfitz -- PROTOCOL_FITZQUAKE
+    }
+    else ent->baseline.modelindex = MSG_ReadByte ();
 
+    ent->baseline.frame = MSG_ReadByte ();
     ent->baseline.colormap = MSG_ReadByte();
     ent->baseline.skin = MSG_ReadByte();
-
-    for (i=0 ; i<3 ; i++)
+     for (i=0 ; i<3 ; i++)
     {
         ent->baseline.origin[i] = MSG_ReadCoord ();
         ent->baseline.angles[i] = MSG_ReadAngle ();
     }
 
-    ent->baseline.alpha = (bits & B_ALPHA) ? MSG_ReadByte() : ENTALPHA_DEFAULT; //johnfitz -- PROTOCOL_FITZQUAKE
 }
+
 
 /*
 ==================
@@ -666,16 +667,6 @@ void CL_ParseClientdata (void ) //qbism read bits in function similar to johnfit
     float newpunchangle, oldpunchangle = Length(cl.punchangle); // Manoel Kasimier
 
     bits = (unsigned short)MSG_ReadShort (); //qbism:  johnfitz -- read bits here instead of in CL_ParseServerMessage()
-
-    //qbism- from johnfitz -- PROTOCOL_FITZQUAKE
-    if (current_protocol != PROTOCOL_NETQUAKE)
-    {
-        if (bits & U_EXTEND1)
-            bits |= MSG_ReadByte() << 16;
-        if (bits & U_EXTEND2)
-            bits |= MSG_ReadByte() << 24;
-    }
-    //johnfitz
 
     if (bits & SU_VIEWHEIGHT)
         cl.viewheight = MSG_ReadChar ();
@@ -706,7 +697,6 @@ void CL_ParseClientdata (void ) //qbism read bits in function similar to johnfit
         else
             cl.mvelocity[0][i] = 0;
     }
-
     // Manoel Kasimier - begin
     newpunchangle = Length(cl.punchangle);
     if (newpunchangle && !cl.intermission)
@@ -750,7 +740,13 @@ void CL_ParseClientdata (void ) //qbism read bits in function similar to johnfit
     }
 
     if (bits & SU_WEAPON)
-        i = MSG_ReadByte ();
+    {
+        if (current_protocol == PROTOCOL_QBS8)
+        {
+            i = MSG_ReadShort ();
+        }
+        else i = MSG_ReadByte ();
+    }
     else
         i = 0;
     if (cl.stats[STAT_WEAPON] != i)
@@ -766,7 +762,12 @@ void CL_ParseClientdata (void ) //qbism read bits in function similar to johnfit
         Sbar_Changed ();
     }
 
-    i = MSG_ReadByte ();
+    // Manoel Kasimier - high values in the status bar - begin
+    if(current_protocol == PROTOCOL_QBS8)
+        i = MSG_ReadShort ();
+    else
+        // Manoel Kasimier - high values in the status bar - end
+        i = MSG_ReadByte ();
     if (cl.stats[STAT_AMMO] != i)
     {
         cl.stats[STAT_AMMO] = i;
@@ -775,7 +776,12 @@ void CL_ParseClientdata (void ) //qbism read bits in function similar to johnfit
 
     for (i=0 ; i<4 ; i++)
     {
-        j = MSG_ReadByte ();
+        // Manoel Kasimier - high values in the status bar - begin
+        if(current_protocol == PROTOCOL_QBS8)
+            j = MSG_ReadShort ();
+        else
+            // Manoel Kasimier - high values in the status bar - end
+            j = MSG_ReadByte ();
         if (cl.stats[STAT_SHELLS+i] != j)
         {
             cl.stats[STAT_SHELLS+i] = j;
@@ -801,28 +807,6 @@ void CL_ParseClientdata (void ) //qbism read bits in function similar to johnfit
             Sbar_Changed ();
         }
     }
-    //johnfitz -- PROTOCOL_FITZQUAKE
-    if (bits & SU_WEAPON2)
-        cl.stats[STAT_WEAPON] |= (MSG_ReadByte() << 8);
-    if (bits & SU_ARMOR2)
-        cl.stats[STAT_ARMOR] |= (MSG_ReadByte() << 8);
-    if (bits & SU_AMMO2)
-        cl.stats[STAT_AMMO] |= (MSG_ReadByte() << 8);
-    if (bits & SU_SHELLS2)
-        cl.stats[STAT_SHELLS] |= (MSG_ReadByte() << 8);
-    if (bits & SU_NAILS2)
-        cl.stats[STAT_NAILS] |= (MSG_ReadByte() << 8);
-    if (bits & SU_ROCKETS2)
-        cl.stats[STAT_ROCKETS] |= (MSG_ReadByte() << 8);
-    if (bits & SU_CELLS2)
-        cl.stats[STAT_CELLS] |= (MSG_ReadByte() << 8);
-    if (bits & SU_WEAPONFRAME2)
-        cl.stats[STAT_WEAPONFRAME] |= (MSG_ReadByte() << 8);
-    if (bits & SU_WEAPONALPHA)
-        cl.viewent.alpha = MSG_ReadByte();
-    else
-        cl.viewent.alpha = ENTALPHA_DEFAULT;
-    //johnfitz
 }
 
 /*
@@ -843,6 +827,9 @@ void CL_NewTranslation (int slot)
     memcpy (dest, vid.colormap, sizeof(cl.scores[slot].translations));
     top = cl.scores[slot].colors & 0xf0;
     bottom = (cl.scores[slot].colors &15)<<4;
+#ifdef GLQUAKE  //qbism - TODO can use this?  SKIN
+    R_TranslatePlayerSkin (slot);
+#endif
 
     for (i=0 ; i<VID_GRADES ; i++, dest += 256, source+=256)
     {
@@ -865,15 +852,17 @@ void CL_NewTranslation (int slot)
 CL_ParseStatic
 =====================
 */
-void CL_ParseStatic (int version) //qbism- from johnfitz -- added a parameter
+void CL_ParseStatic (void)
 {
     entity_t *ent;
     int		i;
 
-    // mh - extended static entities begin
-    ent = (entity_t *) Hunk_Alloc (sizeof (entity_t));
-    CL_ParseBaseline (ent, version); //qbism- from johnfitz -- added second parameter
-    // mh - extended static entities end
+    i = cl.num_statics;
+    if (i >= MAX_STATIC_ENTITIES)
+        Host_Error ("Too many static entities");
+    ent = &cl_static_entities[i];
+    cl.num_statics++;
+    CL_ParseBaseline (ent);
 
 // copy it to the current state
     ent->model = cl.model_precache[ent->baseline.modelindex];
@@ -881,20 +870,47 @@ void CL_ParseStatic (int version) //qbism- from johnfitz -- added a parameter
     ent->colormap = vid.colormap;
     ent->skinnum = ent->baseline.skin;
     ent->effects = ent->baseline.effects;
-    ent->alpha = ent->baseline.alpha; //johnfitz -- alpha
     // Manoel Kasimier - model interpolation - begin
     ent->pose1 = ent->pose2 = ent->frame;
     ent->frame_start_time = cl.time;
     ent->translate_start_time = 0;
     ent->rotate_start_time = 0;
     // Manoel Kasimier - model interpolation - end
+    // Manoel Kasimier - QC Alpha Scale - begin
+    if (current_protocol == PROTOCOL_QBS8)
+    {
+        int		bits;
+        bits = MSG_ReadLong("CL_ParseStatic");
 
-    // Manoel Kasimier - QC Glow Scale - begin
-    ent->glow_size = 0;
-    ent->scale2 = 1.0f;
-    ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
+        if (bits & U_SCALE)
+            ent->scale2 = MSG_ReadFloat ();
 
-    // Manoel Kasimier - QC Glow Scale - end
+        if (bits & U_SCALEV)
+            for (i=0 ; i<3 ; i++)
+                ent->scalev[i] = MSG_ReadFloat ();
+
+        if (bits & U_GLOW_SIZE)
+            ent->glow_size = MSG_ReadFloat ();
+        ent->effects = MSG_ReadShort();
+
+        if (ent->scale2 <= 0)
+            ent->scale2 = 1.0f;
+        if (!ent->scalev[0] && !ent->scalev[1] && !ent->scalev[2])
+            ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
+
+        if (ent->glow_size > 250)
+            ent->glow_size = 250;
+        else if (ent->glow_size < -250)
+            ent->glow_size = -250;
+    }
+    else
+    {
+        ent->glow_size = 0;
+        ent->alpha = ENTALPHA_DEFAULT;
+        ent->scale2 = 1.0f;
+        ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
+    }
+    // Manoel Kasimier - QC Alpha Scale - end
 
     VectorCopy (ent->baseline.origin, ent->origin);
     VectorCopy (ent->baseline.angles, ent->angles);
@@ -906,7 +922,7 @@ void CL_ParseStatic (int version) //qbism- from johnfitz -- added a parameter
 CL_ParseStaticSound
 ===================
 */
-void CL_ParseStaticSound (int version) //qbism- from johnfitz -- added argument
+void CL_ParseStaticSound (void)
 {
     vec3_t		org;
     int			sound_num, vol, atten;
@@ -914,14 +930,9 @@ void CL_ParseStaticSound (int version) //qbism- from johnfitz -- added argument
 
     for (i=0 ; i<3 ; i++)
         org[i] = MSG_ReadCoord ();
-
-    //qbism- from johnfitz -- PROTOCOL_FITZQUAKE
-    if (version == 2)
-        sound_num = MSG_ReadShort ();
-    else
-        sound_num = MSG_ReadByte ();
-    //johnfitz
-
+        if (current_protocol == PROTOCOL_QBS8)
+            sound_num = MSG_ReadShort ();  //qbism- some maps have lots of ambients.
+        else sound_num = MSG_ReadByte ();
     vol = MSG_ReadByte ();
     atten = MSG_ReadByte ();
 
@@ -941,7 +952,7 @@ void CL_ParseServerMessage (void)
     int			cmd;
     int			i;
     char		*str; //qbism:  johnfitz
-    int			lastcmd=0; //qbism:  johnfitz
+	int			lastcmd=0; //qbism:  johnfitz
 
 //
 // if recording demos, copy the message out
@@ -971,7 +982,7 @@ void CL_ParseServerMessage (void)
         }
 
         // if the high bit of the command byte is set, it is a fast update
-        if (cmd & U_SIGNAL)
+        if (cmd & 128)
         {
             SHOWNET("fast update");
             CL_ParseUpdate (cmd&127);
@@ -984,7 +995,7 @@ void CL_ParseServerMessage (void)
         switch (cmd)
         {
         default:
-            Host_Error ("CL_ParseServerMessage: Illegible server message, previous was %s\n", svc_strings[lastcmd]); //qbism:  johnfitz -- added svc_strings[lastcmd]
+ 			Host_Error ("CL_ParseServerMessage: Illegible server message, previous was %s\n", svc_strings[lastcmd]); //qbism:  johnfitz -- added svc_strings[lastcmd]
             break;
 
         case svc_nop:
@@ -997,13 +1008,14 @@ void CL_ParseServerMessage (void)
             break;
 
         case svc_clientdata:
-            CL_ParseClientdata ();  //qbism- removed bits per johnfitz
+            CL_ParseClientdata ();
             break;
 
         case svc_version:
             // Manoel Kasimier - 16-bit angles - edited - begin
             current_protocol = MSG_ReadLong ("ReadLong CL_ParseServerMessage1");
-            if((current_protocol != PROTOCOL_NETQUAKE) && (current_protocol != PROTOCOL_QBS8)) // added
+            if((current_protocol != PROTOCOL_NETQUAKE)
+                    && (current_protocol != PROTOCOL_QBS8)) // added
                 Host_Error ("CL_ParseServerMessage: Server is unknown protocol %i", current_protocol); //qbism
             // Manoel Kasimier - 16-bit angles - edited - end
             break;
@@ -1062,10 +1074,6 @@ void CL_ParseServerMessage (void)
             CL_ParseStartSoundPacket();
             break;
 
-            //qbism//jf 02-10-05 localsound
-        case svc_localsound:
-            CL_ParseLocalSoundPacket();
-            break;
 
         case svc_stopsound:
             i = MSG_ReadShort();
@@ -1105,10 +1113,10 @@ void CL_ParseServerMessage (void)
         case svc_spawnbaseline:
             i = MSG_ReadShort ();
             // must use CL_EntityNum() to force cl.num_entities up
-            CL_ParseBaseline (CL_EntityNum(i), 1); //qbism- from johnfitz -- added second parameter
+            CL_ParseBaseline (CL_EntityNum(i));
             break;
         case svc_spawnstatic:
-            CL_ParseStatic (1);
+            CL_ParseStatic ();
             break;
         case svc_temp_entity:
             CL_ParseTEnt ();
@@ -1144,6 +1152,12 @@ void CL_ParseServerMessage (void)
             if (i <= cls.signon)
                 Host_Error ("Received signon %i when at %i", i, cls.signon);
             cls.signon = i;
+            //qbism:  similar to johnfitz
+            if (i == 2)
+            {
+                if (cl.num_statics > 128)
+                    Con_DPrintf ("%i static entities exceeds standard limit of 128.\n", cl.num_statics);
+            }
 
             CL_SignonReply ();
             break;
@@ -1164,7 +1178,7 @@ void CL_ParseServerMessage (void)
             break;
 
         case svc_spawnstaticsound:
-            CL_ParseStaticSound (1);
+            CL_ParseStaticSound ();
             break;
 
         case svc_cdtrack:
@@ -1211,40 +1225,6 @@ void CL_ParseServerMessage (void)
         case svc_sellscreen:
             Cmd_ExecuteString ("help", src_command);
             break;
-
-            //qbism- from johnfitz -- new svc types
-        case svc_skybox:
-            R_LoadSky (MSG_ReadString());
-            break;
-
-        case svc_bf:
-            Cmd_ExecuteString ("bf", src_command);
-            break;
-
-        case svc_fog:
-            //qbism- not implemented yet, so dump
-            MSG_ReadByte(); //density = MSG_ReadByte() / 255.0;
-            MSG_ReadByte(); //red = MSG_ReadByte() / 255.0;
-            MSG_ReadByte(); //green = MSG_ReadByte() / 255.0;
-            MSG_ReadByte(); //blue = MSG_ReadByte() / 255.0;
-            MSG_ReadShort(); //time = max(0.0, MSG_ReadShort() / 100.0);
-            break;
-
-        case svc_spawnbaseline2: //PROTOCOL_FITZQUAKE
-            i = MSG_ReadShort ();
-            // must use CL_EntityNum() to force cl.num_entities up
-            CL_ParseBaseline (CL_EntityNum(i), 2);
-            break;
-
-        case svc_spawnstatic2: //PROTOCOL_FITZQUAKE
-            CL_ParseStatic (2);
-            break;
-
-        case svc_spawnstaticsound2: //PROTOCOL_FITZQUAKE
-            CL_ParseStaticSound (2);
-            break;
-            //johnfitz
-
 
             // Manoel Kasimier - svc_letterbox - begin
         case svc_letterbox:

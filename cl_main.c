@@ -48,6 +48,7 @@ cvar_t	m_side = {"m_side","0.8", true};
 cvar_t	m_look = {"m_look","1", true}; // Manoel Kasimier - m_look
 cvar_t	cutscene = {"cutscene", "1"}; // Nehahra
 
+
 client_static_t	cls;
 client_state_t	cl;
 
@@ -285,7 +286,7 @@ void CL_PrintEntities_f (void)
             continue;
         }
        Con_Printf ("%3i:",i);
-       Con_Printf ("%s:%2i  (%5.1f,%5.1f,%5.1f) [%5.1f %5.1f %5.1f]\n"
+        Con_Printf ("%s:%2i  (%5.1f,%5.1f,%5.1f) [%5.1f %5.1f %5.1f]\n"
                     ,ent->model->name,ent->frame, ent->origin[0], ent->origin[1], ent->origin[2], ent->angles[0], ent->angles[1], ent->angles[2]);
     }
 }
@@ -864,6 +865,16 @@ void CL_Mapname_f (void)
 }
 
 /*
+=============
+CL_StaticEnts_f
+=============
+*/
+void CL_StaticEnts_f (void)
+{
+    Con_Printf ("%d static entities\n", cl.num_statics);
+}
+
+/*
 =================
 CL_Init
 =================
@@ -913,6 +924,6 @@ void CL_Init (void)
     Cmd_AddCommand ("timedemo", CL_TimeDemo_f);
     Cmd_AddCommand ("viewpos", CL_Viewpos_f);
     Cmd_AddCommand ("mapname", CL_Mapname_f);
-//qbism- no longer capped.    Cmd_AddCommand ("staticents", CL_StaticEnts_f);
+    Cmd_AddCommand ("staticents", CL_StaticEnts_f);
 }
 

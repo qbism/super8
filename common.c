@@ -887,7 +887,6 @@ char *COM_FileExtension (char *in)
     return exten;
 }
 
-
 /*
 ============
 COM_FileBase
