@@ -151,7 +151,7 @@ cvar_t	r_colmapgreen = {"r_colmapgreen", "0"};  //qbism - boost overall light ti
 cvar_t	r_light_vec_x = {"r_light_vec_x", "-1"};
 cvar_t	r_light_vec_y = {"r_light_vec_y", "0"};
 cvar_t	r_light_vec_z = {"r_light_vec_z", "-1"};
-cvar_t	r_light_style = {"r_light_style", "0", true};
+cvar_t	r_light_style = {"r_light_style", "1", true};
 // Manoel Kasimier - changed alias models lighting - end
 cvar_t	r_wateralpha = {"r_wateralpha","0.5", true}; // Manoel Kasimier - translucent water
 cvar_t	r_shadowhack = {"r_shadowhack", "0", false};

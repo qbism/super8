@@ -71,8 +71,8 @@ cvar_t	sbar_show_powerups	= {"sbar_show_powerups","1", true};
 cvar_t	sbar_show_armor		= {"sbar_show_armor","1", true};
 cvar_t	sbar_show_health	= {"sbar_show_health","1", true};
 cvar_t	sbar_show_ammo		= {"sbar_show_ammo","1", true};
-cvar_t	sbar_show_bg		= {"sbar_show_bg","1", true};
-cvar_t	sbar = {"sbar","4", true};
+cvar_t	sbar_show_bg		= {"sbar_show_bg","0", true};
+cvar_t	sbar = {"sbar","2", true};
 
 cvar_t	crosshair_color		= {"crosshair_color","1", true};
 // Manoel Kasimier - end
@@ -1344,8 +1344,8 @@ void Sbar_Draw (void)
 		else
 			Sbar_SoloScoreboard (x, -33, 1);
 
-		Sbar_DrawAmmoList	(vid.width - 28 - x2, -9, 1);
-		Sbar_DrawWeaponList	(vid.width - 24 - x2, -48, 1);
+		Sbar_DrawAmmoList	(vid.width - 56 - x2, -9, 1);
+		Sbar_DrawWeaponList	(vid.width - 52 - x2, -48, 1);
 
 		if (rogue)
 			Sbar_DrawKeys (vid.width - 56 - x2, -16);

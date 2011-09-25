@@ -323,6 +323,13 @@ void SV_SendServerinfo (client_t *client)
 {
     char			**s;
     char			message[2048];
+
+    if (client->sendsignon == true)  //qbism - don't send serverinfo twice.
+    {
+        Con_DPrintf ("Warning, attempted to send duplicate serverinfo.\n");
+        return;
+    }
+
 	MSG_WriteByte (&client->message, svc_print);
 	sprintf (message, "QBISM SERVER BUILD %i\n", VERSION); //johnfitz -- include fitzquake version
 	MSG_WriteString (&client->message,message);
