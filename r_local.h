@@ -312,4 +312,4 @@ void R_MarkLights (dlight_t *light, int bit, mnode_t *node);
 void R_InitSkyBox (void); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 qboolean R_LoadSkybox (char *name); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 
-byte BestColor (int r, int g, int b, int start, int stop); //qbism
+int BestColor (int r, int g, int b, int start, int stop); //qbism

@@ -992,11 +992,11 @@ void M_SinglePlayer_Draw (void)
 
     M_DrawPlaque ("gfx/ttl_sgl.lmp", true);
 
-    M_Print (16, y += 8, "              New game");
-    M_Print (16, y += 8, "             Load game    ...");
-    M_Print (16, y += 8, "             Save game    ...");
-    M_Print (16, y += 8, "            Load state    ...");
-    M_Print (16, y += 8, "            Save state    ...");
+    M_Print (16, y += 8, "             New game");
+    M_Print (16, y += 8, "             Load ...");
+    M_Print (16, y += 8, "             Save ...");
+//qbism    M_Print (16, y += 8, "            Load state    ...");
+//qbism    M_Print (16, y += 8, "            Save state    ...");
 
     M_DrawCursor (200, 28, m_cursor[m_state]);
     // Manoel Kasimier - end
@@ -1031,16 +1031,18 @@ void M_SinglePlayer_Key (int key)
                 Cbuf_AddText("disconnect\nmaxplayers 1\nmap start\n"); // Manoel Kasimier
             break;
             // Manoel Kasimier - small saves - begin
+ /*qbism - disable small saves in menu.  Leaving here in case someone backports to a console.
         case 1:
             M_LoadSmall_f ();
             break;
         case 2:
             M_SaveSmall_f ();
             break;
-        case 3:
+            */
+        case 1:
             M_Load_f ();
             break;
-        case 4:
+        case 2:
             M_Save_f ();
             break;
 

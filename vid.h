@@ -31,7 +31,7 @@ typedef struct vrect_s
 	struct vrect_s	*pnext;
 } vrect_t;
 
-extern	pixel_t colormap_cel[256*64]; // Manoel Kasimier - EF_CELSHADING
+extern	pixel_t colormap_cel[256*COLORLEVELS]; // Manoel Kasimier - EF_CELSHADING
 typedef struct
 {
 	pixel_t			*buffer;		// invisible buffer

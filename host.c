@@ -889,11 +889,11 @@ void Palette_Init (void) //qbism - idea from Engoo
     host_basepal = fileinfo->data;
 
 //qbism - don't need colormap.lmp, alphamap.lmp, or addivemap.lmp now
-    host_colormap = Q_malloc(256*64);
+    host_colormap = Q_malloc(256*COLORLEVELS);
     GrabColormap();
     {
         int i;
-        for (i=0; i<64; i++)
+        for (i=0; i<COLORLEVELS; i++)
             memcpy(colormap_cel+i*256, host_colormap+(i-(i%16))*256, 256); // 4 shades
     }
     alphamap = Q_malloc(256*256);
@@ -921,7 +921,7 @@ void Palette_Init (void) //qbism - idea from Engoo
 Host_Init
 ====================
 */
-pixel_t colormap_cel[256*64]; // Manoel Kasimier - EF_CELSHADING
+pixel_t colormap_cel[256*COLORLEVELS]; // Manoel Kasimier - EF_CELSHADING
 void M_Credits_f (void); // Manoel Kasimier
 void SCR_Adjust (void); // Manoel Kasimier - screen positioning
 void Host_Init (quakeparms_t *parms)

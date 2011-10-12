@@ -1837,7 +1837,7 @@ int COM_AddGameDirectory (char *dir)
 //
 // add any pak files in the format pak0.pak pak1.pak, ...
 //
-    for (i=0 ; i<64 ; i++) // Manoel Kasimier - edited
+    for (i=0 ; i<99 ; i++) // Manoel Kasimier - edited  //qbism - go up to 99, was 64
     {
         sprintf (pakfile, "%s/pak%i.pak", dir, i);
         pak = COM_LoadPackFile (pakfile);

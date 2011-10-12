@@ -360,7 +360,7 @@ COLORMAP GRABBING
 BestColor - qbism- from qlumpy
 ===============
 */
-byte BestColor (int r, int g, int b, int start, int stop)
+int BestColor (int r, int g, int b, int start, int stop)
 {
     int	i;
     int	dr, dg, db;
@@ -368,6 +368,9 @@ byte BestColor (int r, int g, int b, int start, int stop)
     int	bestcolor;
     byte	*pal;
 
+    r = bound (0,r,254);
+    g = bound (0,g,254);
+    b = bound (0,b,254);
 //
 // let any color go to 0 as a last resort
 //
@@ -413,12 +416,7 @@ void GrabAlphamap (void) //qbism- based on Engoo
             red = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
             green = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
             blue = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
-
-            red= bound(0, red, 255);
-            blue= bound(0, blue, 255);
-            green= bound(0, green, 255);
-
-            *colmap++ = BestColor(red,green,blue, 0, 254); // High quality color tables get best color
+           *colmap++ = BestColor(red,green,blue, 0, 254); // High quality color tables get best color
         }
     }
 }
@@ -441,11 +439,6 @@ void GrabAdditivemap (void) //qbism- based on Engoo
             red = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
             green = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
             blue = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
-
-            red= bound(0, red, 255);
-            blue= bound(0, blue, 255);
-            green= bound(0, green, 255);
-
             *colmap++ = BestColor(red,green,blue, 0, 254); // High quality color tables get best color
         }
     }
@@ -466,41 +459,47 @@ fullbright colors start at the top of the palette.
 */
 void GrabColormap (void)  //qbism - fixed, was a little screwy
 {
-    int		levels, brights;
     int		l, c, red, green, blue;
-    float	frac;
+    float	frac, cscale, fracscaled;
+    float   rscaled, gscaled, bscaled;
     byte *colmap;
 
     colmap = host_colormap;
 
-    levels = 64;
-    brights = 32;
-
 // identity lump
-    for (l=0 ; l<256 ; l++)
-        *colmap++ = l;
+ //   for (l=0 ; l<256 ; l++)
+ //       *colmap++ = l;
+
+    cscale = (float)(255 - max(max(r_colmapred.value, r_colmapgreen.value),  r_colmapblue.value))
+    / 255.0;
 
 // shaded levels
-    for (l=1; l<levels; l++)
+    for (l=0; l<COLORLEVELS; l++)
     {
-        frac = (float)l/(levels-1);  //qbism- preemptive gamma boost - Quake is too dark!
-        frac = 1.0 - (frac * frac * frac);  //qbism- preemptive gamma
-        for (c=0 ; c<256-brights ; c++)
+        frac = (float)l/(COLORLEVELS-1);
+        frac = 1.0 - (frac * frac);
+        fracscaled= frac*cscale;
+        rscaled = r_colmapred.value * frac * frac;
+        gscaled = r_colmapgreen.value * frac * frac;
+        bscaled = r_colmapblue.value * frac * frac;
+
+        for (c=0 ; c<256-PALBRIGHTS ; c++)
         {
-            red = bound (0, (int)((float)host_basepal[c*3]*frac+0.5 + ((float)r_colmapred.value * frac * frac)),255);  //qbism - boost
-            green = bound (0, (int)((float)host_basepal[c*3+1]*frac+0.5 + ((float)r_colmapgreen.value * frac * frac)),255);
-            blue = bound (0, (int)((float)host_basepal[c*3+2]*frac+0.5 + ((float)r_colmapblue.value * frac * frac)),255);
+            red = (int)((float)host_basepal[c*3]*fracscaled + rscaled);
+            green = (int)((float)host_basepal[c*3+1]*fracscaled + gscaled);
+            blue = (int)((float)host_basepal[c*3+2]*fracscaled + bscaled);
+
 //
 // note: 254 instead of 255 because 255 is the transparent color, and we
 // don't want anything remapping to that
 //
-            *colmap++ = BestColor(red,green,blue, 0, 254);
+            *colmap++ = BestColor(red,green,blue, 0, 254);  //qbism - clamp, was 254
         }
         for ( ; c<256 ; c++)
         {
-            red = bound (0, (int)((float)host_basepal[c*3] + (float)r_colmapred.value),255);  //qbism - boost
-            green = bound (0, (int)((float)host_basepal[c*3+1] + (float)r_colmapgreen.value),255);
-            blue = bound (0, (int)((float)host_basepal[c*3+2] + (float)r_colmapblue.value),255);
+            red = (int)host_basepal[c*3];
+            green = (int)host_basepal[c*3+1];
+            blue = (int)host_basepal[c*3+2];
 
             *colmap++ = BestColor(red,green,blue, 0, 254);
         }

@@ -43,7 +43,7 @@ cvar_t		scr_conspeed = {"scr_conspeed","300"};
 cvar_t		scr_showpause = {"showpause","1"};
 cvar_t		scr_centertime = {"scr_centertime","2"};
 cvar_t		scr_printspeed = {"scr_printspeed","16"}; // 8 // Manoel Kasimier - edited
-cvar_t      scr_fadecolor = {"scr_fadecolor","194", true};  //qbism - background color for fadescreen2
+cvar_t      scr_fadecolor = {"scr_fadecolor","51", true};  //qbism - background color for fadescreen2
 
 qboolean	scr_initialized;		// ready to draw
 

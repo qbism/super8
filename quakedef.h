@@ -98,6 +98,9 @@ void as3ReadFileSharedObject(const char* filename);
 
 #define	MAX_STYLESTRING	64
 
+#define COLORLEVELS 64 //qbism - number of color map levels. 64.
+#define PALBRIGHTS 32 //qbism - number of fullbrights at end of palette. 32.
+
 //
 // stats are integers communicated to the client by the server
 //
