@@ -973,83 +973,119 @@ void M_Main_Key (int key)
 }
 
 //=============================================================================
-/* SINGLE PLAYER MENU */
+/* SINGLE PLAYER MENU */  //qbism- switched back to original menu
 
-#define	SINGLEPLAYER_ITEMS	5 // Manoel Kasimier - edited
+#define	SINGLEPLAYER_ITEMS	3
+
+int		m_singleplayer_cursor;
+qboolean	m_singleplayer_confirm;
 
 void M_SinglePlayer_f (void)
 {
-    key_dest = key_menu;
-    m_state = m_singleplayer;
-    m_entersound = true;
+	key_dest = key_menu;
+	m_state = m_singleplayer;
+	m_entersound = true;
+	m_singleplayer_confirm = false;
 }
-
 
 void M_SinglePlayer_Draw (void)
 {
-    // Manoel Kasimier - begin
-    int y = 20;
+	int	f;
+	qpic_t	*p;
 
-    M_DrawPlaque ("gfx/ttl_sgl.lmp", true);
+	if (m_singleplayer_confirm)
+	{
+		M_PrintWhite (64, 11*8, "Are you sure you want to");
+		M_PrintWhite (64, 12*8, "    start a new game?");
+		return;
+	}
 
-    M_Print (16, y += 8, "             New game");
-    M_Print (16, y += 8, "             Load ...");
-    M_Print (16, y += 8, "             Save ...");
-//qbism    M_Print (16, y += 8, "            Load state    ...");
-//qbism    M_Print (16, y += 8, "            Save state    ...");
+	M_DrawTransPic (16, 0 /*4*/, Draw_CachePic("gfx/qplaque.lmp"));
+	p = Draw_CachePic ("gfx/ttl_sgl.lmp");
+	M_DrawTransPic ((320 - p->width) >> 1, 0 /*4*/, p);
+	M_DrawTransPic (72, 28 /*32*/, Draw_CachePic("gfx/sp_menu.lmp"));
 
-    M_DrawCursor (200, 28, m_cursor[m_state]);
-    // Manoel Kasimier - end
+	f = (int)(host_time*10) % 6;
+	M_DrawTransPic (54, 28 /*32*/ + m_singleplayer_cursor * 20, Draw_CachePic(va("gfx/menudot%i.lmp", f+1)));
 }
 
+static void StartNewGame (void)
+{
+	key_dest = key_game;
+	if (sv.active)
+		Cbuf_AddText ("disconnect\n");
+	Cbuf_AddText ("maxplayers 1\n");
+	Cvar_SetValue (&teamplay, 0);
+	Cvar_SetValue (&coop, 0);
+	Cbuf_AddText ("map start\n");
+}
 
 void M_SinglePlayer_Key (int key)
 {
-    if (m_inp_cancel)
-        M_Main_f ();
-    else if (m_inp_up)
-    {
-        S_LocalSound ("misc/menu1.wav");
-        if (--m_cursor[m_state] < 0)
-            m_cursor[m_state] = SINGLEPLAYER_ITEMS - 1;
-    }
-    else if (m_inp_down)
-    {
-        S_LocalSound ("misc/menu1.wav");
-        if (++m_cursor[m_state] >= SINGLEPLAYER_ITEMS)
-            m_cursor[m_state] = 0;
-    }
-    else if (m_inp_ok)
-    {
-        m_entersound = true;
-        switch (m_cursor[m_state]) // Manoel Kasimier - replaced cursor variables
-        {
-        case 0:
-            if (sv.active)
-                M_PopUp_f("Are you sure you want to\nstart a new game?", "disconnect\nmaxplayers 1\nmap start\n"); // Manoel Kasimier
-            else
-                Cbuf_AddText("disconnect\nmaxplayers 1\nmap start\n"); // Manoel Kasimier
-            break;
-            // Manoel Kasimier - small saves - begin
- /*qbism - disable small saves in menu.  Leaving here in case someone backports to a console.
-        case 1:
-            M_LoadSmall_f ();
-            break;
-        case 2:
-            M_SaveSmall_f ();
-            break;
-            */
-        case 1:
-            M_Load_f ();
-            break;
-        case 2:
-            M_Save_f ();
-            break;
+	if (m_singleplayer_confirm)
+	{
+		if (key == 'n' || key == K_ESCAPE)
+		{
+			m_singleplayer_confirm = false;
+			m_entersound = true;
+		}
+		else if (key == 'y' || key == K_ENTER)
+		{
+			StartNewGame ();
+		}
+		return;
+	}
 
-        default:
-            break;
-        }
-    }
+	switch (key)
+	{
+	case K_ESCAPE:
+		M_Main_f ();
+		break;
+
+	case K_DOWNARROW:
+		S_LocalSound ("misc/menu1.wav");
+		if (++m_singleplayer_cursor >= SINGLEPLAYER_ITEMS)
+			m_singleplayer_cursor = 0;
+		break;
+
+	case K_UPARROW:
+		S_LocalSound ("misc/menu1.wav");
+		if (--m_singleplayer_cursor < 0)
+			m_singleplayer_cursor = SINGLEPLAYER_ITEMS - 1;
+		break;
+
+	case K_HOME:
+	case K_PGUP:
+		S_LocalSound ("misc/menu1.wav");
+		m_singleplayer_cursor = 0;
+		break;
+
+	case K_END:
+	case K_PGDN:
+		S_LocalSound ("misc/menu1.wav");
+		m_singleplayer_cursor = SINGLEPLAYER_ITEMS - 1;
+		break;
+
+	case K_ENTER:
+		m_entersound = true;
+		switch (m_singleplayer_cursor)
+		{
+		case 0:
+			if (sv.active)
+				m_singleplayer_confirm = true;
+			else
+				StartNewGame ();
+			break;
+
+		case 1:
+			M_Load_f ();
+			break;
+
+		case 2:
+			M_Save_f ();
+			break;
+		}
+	}
 }
 
 //=============================================================================

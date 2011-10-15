@@ -26,10 +26,10 @@
 		<Cursor1 position="9877" topLine="338" />
 	</File>
 	<File name="cl_main.c" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="15889" topLine="625" />
+		<Cursor1 position="5841" topLine="188" />
 	</File>
 	<File name="cl_parse.c" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="6102" topLine="191" />
+		<Cursor1 position="1463" topLine="39" />
 	</File>
 	<File name="cl_tent.c" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="848" topLine="15" />
@@ -110,10 +110,10 @@
 		<Cursor1 position="852" topLine="4" />
 	</File>
 	<File name="host.c" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="24309" topLine="910" />
+		<Cursor1 position="26388" topLine="988" />
 	</File>
 	<File name="host_cmd.c" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="20243" topLine="918" />
+		<Cursor1 position="30078" topLine="1418" />
 	</File>
 	<File name="keys.c" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="757" topLine="12" />
@@ -158,7 +158,7 @@
 		<Cursor1 position="2342" topLine="64" />
 	</File>
 	<File name="pr_cmds.c" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="20304" topLine="840" />
+		<Cursor1 position="64027" topLine="2699" />
 	</File>
 	<File name="pr_comp.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="1337" topLine="27" />
@@ -248,10 +248,10 @@
 		<Cursor1 position="15955" topLine="705" />
 	</File>
 	<File name="s_win32\movie.c" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="981" topLine="23" />
+		<Cursor1 position="3963" topLine="151" />
 	</File>
-	<File name="s_win32\movie_avi.c" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="11158" topLine="330" />
+	<File name="s_win32\movie_avi.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="807" topLine="39" />
 	</File>
 	<File name="s_win32\net_win.c" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="749" topLine="6" />
@@ -284,7 +284,7 @@
 		<Cursor1 position="36755" topLine="1336" />
 	</File>
 	<File name="screen.c" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="1663" topLine="0" />
+		<Cursor1 position="26656" topLine="963" />
 	</File>
 	<File name="screen.h" open="0" top="0" tabpos="13" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="792" topLine="15" />
@@ -308,7 +308,7 @@
 		<Cursor1 position="1892" topLine="46" />
 	</File>
 	<File name="sv_main.c" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="9748" topLine="314" />
+		<Cursor1 position="9529" topLine="317" />
 	</File>
 	<File name="sv_move.c" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="783" topLine="347" />
@@ -317,7 +317,7 @@
 		<Cursor1 position="41780" topLine="1496" />
 	</File>
 	<File name="sv_user.c" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="12442" topLine="555" />
+		<Cursor1 position="11436" topLine="522" />
 	</File>
 	<File name="sys.h" open="0" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="933" topLine="18" />
