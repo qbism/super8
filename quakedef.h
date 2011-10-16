@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define	QUAKE_GAME			// as opposed to utilities
 
-#define	VERSION				36 //qbism build number.  Should be easy to automate w/ SVN, right...?
 #define	D3DQUAKE_VERSION	0
 #define	WINQUAKE_VERSION	7
 #define	LINUX_VERSION		0

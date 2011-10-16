@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // sv_main.c -- server main program
 
 #include "quakedef.h"
+#include "version.h" //qbism - generated from bat
+
 int current_protocol = PROTOCOL_QBS8; //qbism
 extern qboolean		pr_alpha_supported; //johnfitz
 
@@ -331,7 +333,7 @@ void SV_SendServerinfo (client_t *client)
     }
 
 	MSG_WriteByte (&client->message, svc_print);
-	sprintf (message, "QBISM SERVER BUILD %i\n", VERSION); //johnfitz -- include fitzquake version
+	sprintf (message, "QBISM SERVER BUILD %s\n", BUILDVERSION); //johnfitz -- include fitzquake version
 	MSG_WriteString (&client->message,message);
 
     MSG_WriteByte (&client->message, svc_serverinfo);

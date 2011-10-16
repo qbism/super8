@@ -2,7 +2,7 @@
 1309137754 source:c:\qbismsuper8\qbs8src\chase.c
 	"quakedef.h"
 
-1318119358 c:\qbismsuper8\qbs8src\quakedef.h
+1318699545 c:\qbismsuper8\qbs8src\quakedef.h
 	<math.h>
 	<string.h>
 	<stdarg.h>
@@ -238,7 +238,7 @@
 	"r_local.h"
 	"s_win32/movie.h"
 
-1316495596 source:c:\qbismsuper8\qbs8src\host_cmd.c
+1318698620 source:c:\qbismsuper8\qbs8src\host_cmd.c
 	"quakedef.h"
 
 1316563626 source:c:\qbismsuper8\qbs8src\keys.c
@@ -248,7 +248,7 @@
 	<math.h>
 	"quakedef.h"
 
-1317780425 source:c:\qbismsuper8\qbs8src\menu.c
+1318695555 source:c:\qbismsuper8\qbs8src\menu.c
 	"quakedef.h"
 
 1309128071 source:c:\qbismsuper8\qbs8src\model.c
@@ -441,7 +441,7 @@
 	"s_win32/winquake.h"
 	"s_win32/movie.h"
 
-1316660552 source:c:\qbismsuper8\qbs8src\sv_main.c
+1318698669 source:c:\qbismsuper8\qbs8src\sv_main.c
 	"quakedef.h"
 
 1293419840 source:c:\qbismsuper8\qbs8src\sv_move.c
@@ -755,4 +755,6 @@
 
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
+
+1318699383 c:\qbismsuper8\qbs8src\version.h
 

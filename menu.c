@@ -1406,8 +1406,12 @@ void M_Save_Key (int k)
                     {
                         // the "menu_main;menu_save" part is a hack to refresh the list of saves
                         if (loadable[i] == false)
+                        {
                             Cbuf_AddText (va ("save%s %s.%c%i%i\nmenu_main;menu_save%s\n", (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10, (m_state==m_savesmall)?"small":""));
-                        else
+                            m_state = m_none; //qbism - exit this menu
+                            key_dest = key_game; //qbism
+                        }
+                              else
                             M_PopUp_f ((m_state==m_savesmall)?"Overwrite saved game?":"Overwrite saved state?", va ("save%s %s.%c%i%i\nmenu_main;menu_save%s\n",
                                        (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10, (m_state==m_savesmall)?"small":""));
                         return;

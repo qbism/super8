@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 
+#include "version.h" //qbism - generate from bat
+
 
 extern cvar_t	pausable;
 
@@ -99,7 +101,7 @@ void Host_Status_f (void)
 		print = SV_ClientPrintf;
 
 	print ("host:    %s\n", Cvar_VariableString ("hostname"));
-	print ("build: %i\n", VERSION);
+	print ("build: %s\n", BUILDVERSION);
 	if (tcpipAvailable)
 		print ("tcp/ip:  %s\n", my_tcpip_address);
 	if (ipxAvailable)
@@ -1064,7 +1066,7 @@ void Host_Name_f (void)
 
 void Host_Version_f (void)
 {
-	Con_Printf ("Version %i\n", VERSION);  //qbism - changed to integer to match build #
+	Con_Printf ("Version %s\n", BUILDVERSION);  //qbism - changed to integer to match build #
 	Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
 }
 
