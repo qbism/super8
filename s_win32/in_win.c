@@ -715,10 +715,7 @@ void IN_MouseMove (usercmd_t *cmd)
 	if ( m_look.value && !(in_strafe.state & 1)) // Manoel Kasimier - m_look - edited
 	{
 		cl.viewangles[PITCH] += m_pitch.value * mouse_y/fovscale; // Manoel Kasimier - FOV-based scaling - edited
-		if (cl.viewangles[PITCH] > 88) //qbism was 80
-			cl.viewangles[PITCH] = 88;
-		if (cl.viewangles[PITCH] < -88) //qbism was 80
-			cl.viewangles[PITCH] = -88;
+        cl.viewangles[PITCH] = bound(-89, cl.viewangles[PITCH], 89); //qbism
 	}
 	else
 	{
@@ -1240,8 +1237,5 @@ void IN_JoyMove (usercmd_t *cmd)
 	}
 
 	// bounds check pitch
-	if (cl.viewangles[PITCH] > 88.0) //qbism was 80
-		cl.viewangles[PITCH] = 88.0;
-	if (cl.viewangles[PITCH] < -88.0) //qbism was -70
-		cl.viewangles[PITCH] = -88.0;
+    cl.viewangles[PITCH] = bound(-89, cl.viewangles[PITCH], 89); //qbism
 }

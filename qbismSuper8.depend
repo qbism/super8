@@ -135,7 +135,7 @@
 
 1098642356 c:\qbismsuper8\qbs8src\s_win32\movie.h
 
-1307315840 source:c:\qbismsuper8\qbs8src\cl_input.c
+1318987065 source:c:\qbismsuper8\qbs8src\cl_input.c
 	"quakedef.h"
 
 1316564617 source:c:\qbismsuper8\qbs8src\cl_main.c
@@ -238,10 +238,11 @@
 	"r_local.h"
 	"s_win32/movie.h"
 
-1318698620 source:c:\qbismsuper8\qbs8src\host_cmd.c
+1318806872 source:c:\qbismsuper8\qbs8src\host_cmd.c
 	"quakedef.h"
+	"version.h"
 
-1316563626 source:c:\qbismsuper8\qbs8src\keys.c
+1318987237 source:c:\qbismsuper8\qbs8src\keys.c
 	"quakedef.h"
 
 1307300588 source:c:\qbismsuper8\qbs8src\mathlib.c
@@ -441,8 +442,9 @@
 	"s_win32/winquake.h"
 	"s_win32/movie.h"
 
-1318698669 source:c:\qbismsuper8\qbs8src\sv_main.c
+1318806806 source:c:\qbismsuper8\qbs8src\sv_main.c
 	"quakedef.h"
+	"version.h"
 
 1293419840 source:c:\qbismsuper8\qbs8src\sv_move.c
 	"quakedef.h"
@@ -756,5 +758,5 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1318699383 c:\qbismsuper8\qbs8src\version.h
+1319071598 c:\qbismsuper8\qbs8src\version.h
 
