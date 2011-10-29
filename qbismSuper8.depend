@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1309137754 source:c:\qbismsuper8\qbs8src\chase.c
+1319689101 source:c:\qbismsuper8\qbs8src\chase.c
 	"quakedef.h"
 
 1318699545 c:\qbismsuper8\qbs8src\quakedef.h
@@ -135,7 +135,7 @@
 
 1098642356 c:\qbismsuper8\qbs8src\s_win32\movie.h
 
-1318987065 source:c:\qbismsuper8\qbs8src\cl_input.c
+1319071598 source:c:\qbismsuper8\qbs8src\cl_input.c
 	"quakedef.h"
 
 1316564617 source:c:\qbismsuper8\qbs8src\cl_main.c
@@ -349,7 +349,7 @@
 
 945806060 c:\qbismsuper8\qbs8src\s_win32\conproc.h
 
-1316913502 source:c:\qbismsuper8\qbs8src\s_win32\in_win.c
+1319071598 source:c:\qbismsuper8\qbs8src\s_win32\in_win.c
 	<dinput.h>
 	"../quakedef.h"
 	"winquake.h"
@@ -758,5 +758,5 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1319071598 c:\qbismsuper8\qbs8src\version.h
+1319914555 c:\qbismsuper8\qbs8src\version.h
 

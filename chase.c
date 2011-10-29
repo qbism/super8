@@ -25,12 +25,12 @@ extern qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p
 
 cvar_t	chase_back = {"chase_back", "100", true}; // Manoel Kasimier - edited
 cvar_t	chase_up = {"chase_up", "16", true}; // Manoel Kasimier - edited
-cvar_t	chase_right = {"chase_right", "0"};
+cvar_t	chase_right = {"chase_right", "0", true};
 cvar_t	chase_active = {"chase_active", "0", true}; // Manoel Kasimier - edited
 
-cvar_t  chase_roll = {"chase_roll", "0"};  //qbism:  custom chase by frag.machine
-cvar_t  chase_yaw = {"chase_yaw", "180"};
-cvar_t  chase_pitch = {"chase_pitch", "45"};
+cvar_t  chase_roll = {"chase_roll", "0", true};  //qbism:  custom chase by frag.machine
+cvar_t  chase_yaw = {"chase_yaw", "180", true};
+cvar_t  chase_pitch = {"chase_pitch", "45", true};
 
 vec3_t	chase_pos;
 vec3_t	chase_angles;
