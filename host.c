@@ -1029,6 +1029,7 @@ void Host_Shutdown(void)
     // keep Con_Printf from trying to update the screen
     scr_disabled_for_loading = true;
     Host_WriteConfiguration ();
+    if (con_initialized) History_Shutdown (); //qbism- Baker/ezQuake- command history
     CDAudio_Shutdown ();
     NET_Shutdown ();
     S_Shutdown();

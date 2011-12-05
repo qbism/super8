@@ -258,7 +258,7 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, byte volume, flo
         MSG_WriteCoord (&sv.datagram, entity->v.origin[i]+0.5*(entity->v.mins[i]+entity->v.maxs[i]));
 }
 
-/*  //qbism//jf 02-10-25 added SV_StartLocalSound
+/*  //qbism added SV_StartLocalSound
 ==================
 SV_LocalSound
 Plays a local sound to a specific client, others can't hear it.

@@ -2706,7 +2706,7 @@ ebfs_builtin_t pr_ebfs_builtins[] =
     {  30, "traceoff", PF_traceoff },
     {  31, "eprint", PF_eprint },			// void(entity e) debug print an entire entity
     {  32, "walkmove", PF_walkmove },		// float(float yaw, float dist) walkmove
-	{  33, "localsound", PF_localsound }, //qbism//jf 02-10-25 void(entity e, string samp, float volume) sound
+	{  33, "localsound", PF_localsound }, //qbism
     {  34, "droptofloor", PF_droptofloor },
     {  35, "lightstyle", PF_lightstyle },
     {  36, "rint", PF_rint },

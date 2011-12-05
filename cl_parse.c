@@ -73,7 +73,7 @@ char *svc_strings[] =
     "",//svc_showlmp",	// [string] iconlabel [string] lmpfile [short] x [short] y
     "",//svc_hidelmp",	// [string] iconlabel
     "",//svc_skybox", // [string] skyname
-    "", // 38
+    "svc_localsound", // 38
     "", // 39
     "", // 40
     "", // 41
@@ -184,6 +184,34 @@ void CL_ParseStartSoundPacket(void)
 
     S_StartSound (ent, channel, cl.sound_precache[sound_num], pos, volume/255.0, attenuation);
 }
+
+
+/*
+//qbism//jf 02-10-05
+==================
+CL_ParseLocalSoundPacket
+==================
+*/
+void CL_ParseLocalSoundPacket(void)
+{
+	int 	volume;
+	int 	field_mask;
+	int 	sound_num;
+
+	field_mask = MSG_ReadByte();
+
+	if (field_mask & SND_VOLUME)
+		volume = MSG_ReadByte ();
+	else
+	    volume = DEFAULT_SOUND_PACKET_VOLUME;
+
+	if (field_mask & SND_LARGESOUND)
+        sound_num = MSG_ReadShort();
+	else sound_num = MSG_ReadByte();
+
+	S_LocalSound (cl.sound_precache[sound_num]->name);
+}
+
 
 /*
 ==================
@@ -1074,12 +1102,15 @@ void CL_ParseServerMessage (void)
             CL_ParseStartSoundPacket();
             break;
 
-
         case svc_stopsound:
             i = MSG_ReadShort();
             S_StopSound(i>>3, i&7);
             break;
 
+			//qbism//jf 02-10-05 localsound
+		case svc_localsound:
+			CL_ParseLocalSoundPacket();
+			break;
 
         case svc_updatename:
             Sbar_Changed ();
