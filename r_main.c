@@ -1633,7 +1633,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     // Manoel Kasimier - hi-res waterwarp & buffered video - begin
     if (warpbuffer)
         Q_free(warpbuffer);
-    warpbuffer = Q_malloc(abs(vid.rowbytes)*vid.height); //qbism added abs for possibly negative rowbytes.
+    warpbuffer = Q_malloc(vid.rowbytes*vid.height);
     // Manoel Kasimier - hi-res waterwarp & buffered video - end
 
     r_warpbuffer = warpbuffer;

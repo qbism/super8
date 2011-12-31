@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "resource.h"
 #include "../conproc.h"
 
-#define MINIMUM_WIN_MEMORY		0x2000000  // qbism - was 0x0880000
+#define MINIMUM_WIN_MEMORY		0x0880000
 #define MAXIMUM_WIN_MEMORY		0x4000000  // qbism - was 0x1000000 (16MB)
 
 #define CONSOLE_ERROR_TIMEOUT	60.0	// # of seconds to wait on Sys_Error running
@@ -52,7 +52,7 @@ static HANDLE	hFile;
 static HANDLE	heventParent;
 static HANDLE	heventChild;
 
-void Sys_InitFloatTime (void);
+void Sys_InitDoubleTime (void);
 
 volatile int					sys_checksum;
 

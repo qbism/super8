@@ -250,6 +250,92 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="render.h" />
+		<Unit filename="s_dos\cd_null.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\dos_v2.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\in_dos.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\mplib.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\mplpc.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\net_bw.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\net_bw.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\net_dos.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\net_ipx.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\net_ipx.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\net_mp.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\net_mp.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\net_ser.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\net_ser.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\snd_dos.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\snd_gus.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\sys_dos.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\vid_dos.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\vid_dos.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\vid_ext.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\vid_vga.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\vregset.c">
+			<Option compilerVar="CC" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\vregset.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="s_flash\cd_flash.c">
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />

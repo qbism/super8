@@ -2,7 +2,9 @@
 1319685501 source:c:\qbismsuper8\qbs8src\chase.c
 	"quakedef.h"
 
-1318695945 c:\qbismsuper8\qbs8src\quakedef.h
+1316563144 h"
+
+1325029804 c:\qbismsuper8\qbs8src\quakedef.h
 	<math.h>
 	<string.h>
 	<stdarg.h>
@@ -39,13 +41,15 @@
 	"menu.h"
 	"cdaudio.h"
 
-1316559542 c:\qbismsuper8\qbs8src\common.h
+1316496217 "
+
+1325024707 c:\qbismsuper8\qbs8src\common.h
 
 1307841535 c:\qbismsuper8\qbs8src\bspfile.h
 
 1318115489 c:\qbismsuper8\qbs8src\vid.h
 
-1295307823 c:\qbismsuper8\qbs8src\sys.h
+1324858825 c:\qbismsuper8\qbs8src\sys.h
 
 1307486139 c:\qbismsuper8\qbs8src\zone.h
 
@@ -81,6 +85,8 @@
 
 1293418415 c:\qbismsuper8\qbs8src\progdefs.h
 	"progdefs.q1"
+
+1293418415 q1"
 
 856523606 c:\qbismsuper8\qbs8src\progdefs.q1
 
@@ -133,6 +139,8 @@
 	"quakedef.h"
 	"s_win32/movie.h"
 
+1307300589 ovie.h"
+
 1098638756 c:\qbismsuper8\qbs8src\s_win32\movie.h
 
 1319067998 source:c:\qbismsuper8\qbs8src\cl_input.c
@@ -141,22 +149,27 @@
 1316561017 source:c:\qbismsuper8\qbs8src\cl_main.c
 	"quakedef.h"
 
-1323050329 source:c:\qbismsuper8\qbs8src\cl_parse.c
+1323050935 source:c:\qbismsuper8\qbs8src\cl_parse.c
 	"quakedef.h"
 
 1311729061 source:c:\qbismsuper8\qbs8src\cl_tent.c
 	"quakedef.h"
 
-1316490582 source:c:\qbismsuper8\qbs8src\cmd.c
+1325019139 source:c:\qbismsuper8\qbs8src\cmd.c
 	"quakedef.h"
+	"stdio.h"
 	"s_win32/winquake.h"
+
+1316494182 inquake.h"
 
 1304898224 c:\qbismsuper8\qbs8src\s_win32\winquake.h
 	<windows.h>
 	<ddraw.h>
 	<dsound.h>
 
-1317171113 source:c:\qbismsuper8\qbs8src\common.c
+1295694336 
+
+1325024687 source:c:\qbismsuper8\qbs8src\common.c
 	"quakedef.h"
 
 1311817974 source:c:\qbismsuper8\qbs8src\console.c
@@ -167,7 +180,7 @@
 1316560675 source:c:\qbismsuper8\qbs8src\crc.c
 	"quakedef.h"
 
-945806060 c:\qbismsuper8\qbs8src\crc.h
+945802460 c:\qbismsuper8\qbs8src\crc.h
 
 1307484738 source:c:\qbismsuper8\qbs8src\cvar.c
 	"quakedef.h"
@@ -181,11 +194,11 @@
 
 1309300560 c:\qbismsuper8\qbs8src\r_shared.h
 
-1288493025 source:c:\qbismsuper8\qbs8src\d_init.c
+1323668629 source:c:\qbismsuper8\qbs8src\d_init.c
 	"quakedef.h"
 	"d_local.h"
 
-1304993560 source:c:\qbismsuper8\qbs8src\d_modech.c
+1323668679 source:c:\qbismsuper8\qbs8src\d_modech.c
 	"quakedef.h"
 	"d_local.h"
 
@@ -233,7 +246,7 @@
 1316658928 source:c:\qbismsuper8\qbs8src\draw.c
 	"quakedef.h"
 
-1322868837 source:c:\qbismsuper8\qbs8src\host.c
+1325029804 source:c:\qbismsuper8\qbs8src\host.c
 	"quakedef.h"
 	"r_local.h"
 	"s_win32/movie.h"
@@ -274,7 +287,7 @@
 1311042042 source:c:\qbismsuper8\qbs8src\net_main.c
 	"quakedef.h"
 
-1316490908 source:c:\qbismsuper8\qbs8src\pr_cmds.c
+1323050555 source:c:\qbismsuper8\qbs8src\pr_cmds.c
 	"quakedef.h"
 
 1316564332 source:c:\qbismsuper8\qbs8src\pr_edict.c
@@ -309,7 +322,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1318205773 source:c:\qbismsuper8\qbs8src\r_main.c
+1323668679 source:c:\qbismsuper8\qbs8src\r_main.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -321,7 +334,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1307296989 source:c:\qbismsuper8\qbs8src\r_sky.c
+1325019141 source:c:\qbismsuper8\qbs8src\r_sky.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
@@ -342,6 +355,8 @@
 	<windows.h>
 	"..\quakedef.h"
 
+1323652685 ef.h"
+
 1288496902 source:c:\qbismsuper8\qbs8src\s_win32\conproc.c
 	<windows.h>
 	"conproc.h"
@@ -360,6 +375,8 @@
 	"../quakedef.h"
 	"movie.h"
 	"movie_avi.h"
+
+1308243369 .h"
 
 1126108192 c:\qbismsuper8\qbs8src\s_win32\movie_avi.h
 
@@ -403,18 +420,20 @@
 	"../quakedef.h"
 	"winquake.h"
 
-1308109190 source:c:\qbismsuper8\qbs8src\s_win32\sys_win.c
+1325029745 source:c:\qbismsuper8\qbs8src\s_win32\sys_win.c
 	"../quakedef.h"
 	"winquake.h"
 	"errno.h"
 	"resource.h"
 	"../conproc.h"
 
+1308109190 c.h"
+
 1136250138 c:\qbismsuper8\qbs8src\s_win32\resource.h
 
 945802460 c:\qbismsuper8\qbs8src\conproc.h
 
-1317776825 source:c:\qbismsuper8\qbs8src\s_win32\vid_win.c
+1324874230 source:c:\qbismsuper8\qbs8src\s_win32\vid_win.c
 	"../quakedef.h"
 	"winquake.h"
 	"../d_local.h"
@@ -442,7 +461,7 @@
 	"s_win32/winquake.h"
 	"s_win32/movie.h"
 
-1323050329 source:c:\qbismsuper8\qbs8src\sv_main.c
+1323667075 source:c:\qbismsuper8\qbs8src\sv_main.c
 	"quakedef.h"
 	"version.h"
 
@@ -515,12 +534,18 @@
 	"_ansi.h"
 	<machine/fastmath.h>
 
+1313092376 astmath.h>
+
 1313092376 c:\codeblocks\include\sys\reent.h
 	<_ansi.h>
 	<sys/_types.h>
 
+1313092376 s.h>
+
 1313092374 c:\codeblocks\include\_ansi.h
 	<sys/config.h>
+
+1313092374 g.h>
 
 1313092376 c:\codeblocks\include\sys\config.h
 
@@ -541,6 +566,8 @@
 	<stdarg.h>
 	<sys/reent.h>
 
+1313397314 .h>
+
 1313092376 c:\codeblocks\include\stdlib.h
 	"_ansi.h"
 	<stddef.h>
@@ -549,6 +576,8 @@
 1313092376 c:\codeblocks\include\setjmp.h
 	"_ansi.h"
 	<machine/setjmp.h>
+
+1313092376 etjmp.h>
 
 1313092376 c:\codeblocks\include\machine\setjmp.h
 	"setjmp-dj.h"
@@ -559,6 +588,8 @@
 1313092376 c:\codeblocks\include\signal.h
 	"_ansi.h"
 	<sys/signal.h>
+
+1313092376 l.h>
 
 1313092376 c:\codeblocks\include\sys\signal.h
 	"_ansi.h"
@@ -574,12 +605,16 @@
 	<sys/sched.h>
 	<cygwin/types.h>
 
+1313092378 pes.h>
+
 1313092376 c:\codeblocks\include\machine\types.h
 
 1313092376 c:\codeblocks\include\sys\sched.h
 	<sys/unistd.h>
 	<sys/types.h>
 	<sys/time.h>
+
+1313092376 h>
 
 1313092378 c:\codeblocks\include\sys\unistd.h
 	<_ansi.h>
@@ -588,10 +623,14 @@
 	<stddef.h>
 	<sys/features.h>
 
+1313092380 res.h>
+
 1313092378 c:\codeblocks\include\sys\time.h
 	<_ansi.h>
 	<sys/types.h>
 	<sys/select.h>
+
+1313092386 t.h>
 
 1313092390 c:\codeblocks\include\sys\select.h
 	<sys/cdefs.h>
@@ -632,6 +671,8 @@
 	"multi.h"
 	"typecheck-gcc.h"
 
+1295694336 -gcc.h"
+
 1295694336 c:\codeblocks\include\curl\curlver.h
 
 1295694338 c:\codeblocks\include\curl\curlbuild.h
@@ -645,6 +686,8 @@
 
 1311499542 c:\codeblocks\include\windows.h
 	<w32api/windows.h>
+
+1311499542 ndows.h>
 
 1263542584 c:\codeblocks\include\w32api\windows.h
 	<winresrc.h>
@@ -743,12 +786,16 @@
 1313092384 c:\codeblocks\include\arpa\inet.h
 	<netinet/in.h>
 
+1313092384 n.h>
+
 1313092388 c:\codeblocks\include\netinet\in.h
 	<cygwin/in.h>
 
 1313092386 c:\codeblocks\include\cygwin\in.h
 	<cygwin/types.h>
 	<asm/byteorder.h>
+
+1313092386 rder.h>
 
 1313092384 c:\codeblocks\include\asm\byteorder.h
 
@@ -758,5 +805,907 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1323050456 c:\qbismsuper8\qbs8src\version.h
+1325290418 c:\qbismsuper8\qbs8src\version.h
+
+1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
+	"quakedef.h"
+	"quakedef.h"
+
+1323651274 /media/4E66813166811ABB/qbismSuper8/qbS8src/quakedef.h
+	<math.h>
+	<string.h>
+	<stdarg.h>
+	<stdio.h>
+	<stdlib.h>
+	<setjmp.h>
+	"AS3.h"
+	"common.h"
+	"bspfile.h"
+	"vid.h"
+	"sys.h"
+	"zone.h"
+	"mathlib.h"
+	"wad.h"
+	"draw.h"
+	"cvar.h"
+	"screen.h"
+	"net.h"
+	"protocol.h"
+	"cmd.h"
+	"sbar.h"
+	"sound.h"
+	"render.h"
+	"client.h"
+	"progs.h"
+	"server.h"
+	"model.h"
+	"d_iface.h"
+	"input.h"
+	"world.h"
+	"keys.h"
+	"console.h"
+	"view.h"
+	"menu.h"
+	"cdaudio.h"
+	<math.h>
+	<string.h>
+	<stdarg.h>
+	<stdio.h>
+	<stdlib.h>
+	<setjmp.h>
+	"AS3.h"
+	"common.h"
+	"bspfile.h"
+	"vid.h"
+	"sys.h"
+	"zone.h"
+	"mathlib.h"
+	"wad.h"
+	"draw.h"
+	"cvar.h"
+	"screen.h"
+	"net.h"
+	"protocol.h"
+	"cmd.h"
+	"sbar.h"
+	"sound.h"
+	"render.h"
+	"client.h"
+	"progs.h"
+	"server.h"
+	"model.h"
+	"d_iface.h"
+	"input.h"
+	"world.h"
+	"keys.h"
+	"console.h"
+	"view.h"
+	"menu.h"
+	"cdaudio.h"
+
+1316563142 /media/4E66813166811ABB/qbismSuper8/qbS8src/common.h
+
+1307845135 /media/4E66813166811ABB/qbismSuper8/qbS8src/bspfile.h
+
+1318119089 /media/4E66813166811ABB/qbismSuper8/qbS8src/vid.h
+
+1295307823 /media/4E66813166811ABB/qbismSuper8/qbS8src/sys.h
+
+1307489739 /media/4E66813166811ABB/qbismSuper8/qbS8src/zone.h
+
+1288591625 /media/4E66813166811ABB/qbismSuper8/qbS8src/mathlib.h
+
+1307751276 /media/4E66813166811ABB/qbismSuper8/qbS8src/wad.h
+
+1276302356 /media/4E66813166811ABB/qbismSuper8/qbS8src/draw.h
+
+1265415370 /media/4E66813166811ABB/qbismSuper8/qbS8src/cvar.h
+
+1287953602 /media/4E66813166811ABB/qbismSuper8/qbS8src/screen.h
+
+1287367068 /media/4E66813166811ABB/qbismSuper8/qbS8src/net.h
+
+1316490507 /media/4E66813166811ABB/qbismSuper8/qbS8src/protocol.h
+
+1265341588 /media/4E66813166811ABB/qbismSuper8/qbS8src/cmd.h
+
+945802460 /media/4E66813166811ABB/qbismSuper8/qbS8src/sbar.h
+
+1308178542 /media/4E66813166811ABB/qbismSuper8/qbS8src/sound.h
+
+1316494585 /media/4E66813166811ABB/qbismSuper8/qbS8src/render.h
+
+1316564617 /media/4E66813166811ABB/qbismSuper8/qbS8src/client.h
+
+1311736586 /media/4E66813166811ABB/qbismSuper8/qbS8src/progs.h
+	"pr_comp.h"
+	"progdefs.h"
+	"pr_comp.h"
+	"progdefs.h"
+
+945802460 /media/4E66813166811ABB/qbismSuper8/qbS8src/pr_comp.h
+
+1293418415 /media/4E66813166811ABB/qbismSuper8/qbS8src/progdefs.h
+	"progdefs.q1"
+	"progdefs.q1"
+
+856523606 /media/4E66813166811ABB/qbismSuper8/qbS8src/progdefs.q1
+
+1316494649 /media/4E66813166811ABB/qbismSuper8/qbS8src/server.h
+
+1316494428 /media/4E66813166811ABB/qbismSuper8/qbS8src/model.h
+	"modelgen.h"
+	"spritegn.h"
+	"modelgen.h"
+	"spritegn.h"
+
+945802460 /media/4E66813166811ABB/qbismSuper8/qbS8src/modelgen.h
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+	<string.h>
+	"cmdlib.h"
+	"scriplib.h"
+	"trilib.h"
+	"lbmlib.h"
+	"mathlib.h"
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+	<string.h>
+	"cmdlib.h"
+	"scriplib.h"
+	"trilib.h"
+	"lbmlib.h"
+	"mathlib.h"
+
+1125861254 /media/4E66813166811ABB/qbismSuper8/qbS8src/spritegn.h
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+	<string.h>
+	"cmdlib.h"
+	"scriplib.h"
+	"dictlib.h"
+	"trilib.h"
+	"lbmlib.h"
+	"mathlib.h"
+	<stdlib.h>
+	<stdio.h>
+	<math.h>
+	<string.h>
+	"cmdlib.h"
+	"scriplib.h"
+	"dictlib.h"
+	"trilib.h"
+	"lbmlib.h"
+	"mathlib.h"
+
+1316492478 /media/4E66813166811ABB/qbismSuper8/qbS8src/d_iface.h
+
+945802460 /media/4E66813166811ABB/qbismSuper8/qbS8src/input.h
+
+945802460 /media/4E66813166811ABB/qbismSuper8/qbS8src/world.h
+
+1276898117 /media/4E66813166811ABB/qbismSuper8/qbS8src/keys.h
+
+1265338548 /media/4E66813166811ABB/qbismSuper8/qbS8src/console.h
+
+1316564437 /media/4E66813166811ABB/qbismSuper8/qbS8src/view.h
+
+945802460 /media/4E66813166811ABB/qbismSuper8/qbS8src/menu.h
+
+1304811304 /media/4E66813166811ABB/qbismSuper8/qbS8src/cdaudio.h
+
+1310344275 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/cl_demo.c
+	"quakedef.h"
+	"s_win32/movie.h"
+	"quakedef.h"
+	"s_win32/movie.h"
+
+1098642356 /media/4E66813166811ABB/qbismSuper8/qbS8src/s_win32/movie.h
+
+1319071598 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/cl_input.c
+	"quakedef.h"
+	"quakedef.h"
+
+1316564617 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/cl_main.c
+	"quakedef.h"
+	"quakedef.h"
+
+1323050935 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/cl_parse.c
+	"quakedef.h"
+	"quakedef.h"
+
+1311732661 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/cl_tent.c
+	"quakedef.h"
+	"quakedef.h"
+
+1316494182 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/cmd.c
+	"quakedef.h"
+	"s_win32/winquake.h"
+	"quakedef.h"
+	"s_win32/winquake.h"
+
+1304901824 /media/4E66813166811ABB/qbismSuper8/qbS8src/s_win32/winquake.h
+	<windows.h>
+	<ddraw.h>
+	<dsound.h>
+	<windows.h>
+	<ddraw.h>
+	<dsound.h>
+
+1317174713 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/common.c
+	"quakedef.h"
+	"quakedef.h"
+
+1311821574 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/console.c
+	<unistd.h>
+	<fcntl.h>
+	"quakedef.h"
+	<unistd.h>
+	<fcntl.h>
+	"quakedef.h"
+
+1316564275 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/crc.c
+	"quakedef.h"
+	"quakedef.h"
+
+1307488338 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/cvar.c
+	"quakedef.h"
+	"quakedef.h"
+
+1309486195 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/d_edge.c
+	"quakedef.h"
+	"d_local.h"
+	"quakedef.h"
+	"d_local.h"
+
+1309486275 /media/4E66813166811ABB/qbismSuper8/qbS8src/d_local.h
+	"r_shared.h"
+	"r_shared.h"
+
+1309304160 /media/4E66813166811ABB/qbismSuper8/qbS8src/r_shared.h
+
+1323668629 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/d_init.c
+	"quakedef.h"
+	"d_local.h"
+	"quakedef.h"
+	"d_local.h"
+
+1323668679 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/d_modech.c
+	"quakedef.h"
+	"d_local.h"
+	"quakedef.h"
+	"d_local.h"
+
+1312035335 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/d_part.c
+	"quakedef.h"
+	"d_local.h"
+	"quakedef.h"
+	"d_local.h"
+
+1312035809 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/d_polyse.c
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+	"adivtab.h"
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+	"adivtab.h"
+
+1318119180 /media/4E66813166811ABB/qbismSuper8/qbS8src/r_local.h
+	"r_shared.h"
+	"r_shared.h"
+
+945812600 /media/4E66813166811ABB/qbismSuper8/qbS8src/adivtab.h
+
+1306095963 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/d_scan.c
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+
+1311821574 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/d_sky.c
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+
+1312004880 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/d_sprite.c
+	"quakedef.h"
+	"d_local.h"
+	"quakedef.h"
+	"d_local.h"
+
+1318116063 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/d_surf.c
+	"quakedef.h"
+	"d_local.h"
+	"r_local.h"
+	"quakedef.h"
+	"d_local.h"
+	"r_local.h"
+
+1265155664 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/d_vars.c
+	"quakedef.h"
+	"quakedef.h"
+
+945802404 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/d_zpoint.c
+	"quakedef.h"
+	"d_local.h"
+	"quakedef.h"
+	"d_local.h"
+
+1316662528 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/draw.c
+	"quakedef.h"
+	"quakedef.h"
+
+1322868837 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/host.c
+	"quakedef.h"
+	"r_local.h"
+	"s_win32/movie.h"
+	"quakedef.h"
+	"r_local.h"
+	"s_win32/movie.h"
+
+1318806872 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/host_cmd.c
+	"quakedef.h"
+	"version.h"
+	"quakedef.h"
+	"version.h"
+
+1323668680 /media/4E66813166811ABB/qbismSuper8/qbS8src/version.h
+
+1318987237 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/keys.c
+	"quakedef.h"
+	"quakedef.h"
+
+1307300588 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/mathlib.c
+	<math.h>
+	"quakedef.h"
+	<math.h>
+	"quakedef.h"
+
+1318695555 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/menu.c
+	"quakedef.h"
+	"quakedef.h"
+
+1309128071 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/model.c
+	"quakedef.h"
+	"r_local.h"
+	"quakedef.h"
+	"r_local.h"
+
+1307300588 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/net_dgrm.c
+	<windows.h>
+	<sys/socket.h>
+	<arpa/inet.h>
+	"quakedef.h"
+	"net_dgrm.h"
+	<windows.h>
+	<sys/socket.h>
+	<arpa/inet.h>
+	"quakedef.h"
+	"net_dgrm.h"
+
+945802460 /media/4E66813166811ABB/qbismSuper8/qbS8src/net_dgrm.h
+
+1307300588 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/net_loop.c
+	"quakedef.h"
+	"net_loop.h"
+	"quakedef.h"
+	"net_loop.h"
+
+945802460 /media/4E66813166811ABB/qbismSuper8/qbS8src/net_loop.h
+
+1311045642 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/net_main.c
+	"quakedef.h"
+	"quakedef.h"
+
+1323050555 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/pr_cmds.c
+	"quakedef.h"
+	"quakedef.h"
+
+1316567932 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/pr_edict.c
+	"quakedef.h"
+	"quakedef.h"
+
+1316564240 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/pr_exec.c
+	"quakedef.h"
+	"quakedef.h"
+
+1265155664 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_aclip.c
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+
+1316577138 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_alias.c
+	"quakedef.h"
+	"r_local.h"
+	"anorms.h"
+	"quakedef.h"
+	"r_local.h"
+	"anorms.h"
+
+1108295358 /media/4E66813166811ABB/qbismSuper8/qbS8src/anorms.h
+
+1309492157 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_bsp.c
+	"quakedef.h"
+	"r_local.h"
+	"quakedef.h"
+	"r_local.h"
+
+1310348162 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_draw.c
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+
+1307844390 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_edge.c
+	"quakedef.h"
+	"r_local.h"
+	"quakedef.h"
+	"r_local.h"
+
+1316494079 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_efrag.c
+	"quakedef.h"
+	"r_local.h"
+	"quakedef.h"
+	"r_local.h"
+
+1318170526 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_light.c
+	"quakedef.h"
+	"r_local.h"
+	"quakedef.h"
+	"r_local.h"
+
+1323668679 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_main.c
+	"quakedef.h"
+	"r_local.h"
+	"quakedef.h"
+	"r_local.h"
+
+1316564391 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_misc.c
+	"quakedef.h"
+	"r_local.h"
+	"quakedef.h"
+	"r_local.h"
+
+1293749019 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_part.c
+	"quakedef.h"
+	"r_local.h"
+	"quakedef.h"
+	"r_local.h"
+
+1323920040 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_sky.c
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+
+1307300589 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_sprite.c
+	"quakedef.h"
+	"r_local.h"
+	"quakedef.h"
+	"r_local.h"
+
+1316564246 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_surf.c
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+	"quakedef.h"
+	"r_local.h"
+	"d_local.h"
+
+1265155664 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/r_vars.c
+	"quakedef.h"
+	"quakedef.h"
+
+1316663283 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/sbar.c
+	"quakedef.h"
+	"quakedef.h"
+
+1318183762 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/screen.c
+	"quakedef.h"
+	"r_local.h"
+	"s_win32/movie.h"
+	"quakedef.h"
+	"r_local.h"
+	"s_win32/movie.h"
+
+1316564346 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/snd_dma.c
+	"quakedef.h"
+	"s_win32/winquake.h"
+	"s_win32/movie.h"
+	"quakedef.h"
+	"s_win32/winquake.h"
+	"s_win32/movie.h"
+
+1307316764 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/snd_mem.c
+	"quakedef.h"
+	"quakedef.h"
+
+1307300589 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/snd_mix.c
+	"quakedef.h"
+	"s_win32/winquake.h"
+	"s_win32/movie.h"
+	"quakedef.h"
+	"s_win32/winquake.h"
+	"s_win32/movie.h"
+
+1323667075 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/sv_main.c
+	"quakedef.h"
+	"version.h"
+	"quakedef.h"
+	"version.h"
+
+1293416240 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/sv_move.c
+	"quakedef.h"
+	"quakedef.h"
+
+1307501315 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/sv_phys.c
+	"quakedef.h"
+	"quakedef.h"
+
+1316563137 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/sv_user.c
+	"quakedef.h"
+	"quakedef.h"
+
+1316496217 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/view.c
+	"quakedef.h"
+	"r_local.h"
+	"quakedef.h"
+	"r_local.h"
+
+1307751257 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/wad.c
+	"quakedef.h"
+	"quakedef.h"
+
+1316563708 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/world.c
+	"quakedef.h"
+	"quakedef.h"
+
+1316563144 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/zone.c
+	"quakedef.h"
+	"quakedef.h"
+
+1323908990 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/s_linux32/cd_linux.c
+	<stdio.h>
+	<unistd.h>
+	<stdlib.h>
+	<sys/ioctl.h>
+	<sys/file.h>
+	<sys/types.h>
+	<fcntl.h>
+	<string.h>
+	<errno.h>
+	<linux/cdrom.h>
+	<paths.h>
+	"../quakedef.h"
+	<stdio.h>
+	<unistd.h>
+	<stdlib.h>
+	<sys/ioctl.h>
+	<sys/file.h>
+	<sys/types.h>
+	<fcntl.h>
+	<string.h>
+	<errno.h>
+	<linux/cdrom.h>
+	<paths.h>
+	"../quakedef.h"
+	"client.h"
+
+1323906580 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/s_sdl/sys_sdl.c
+	<stdlib.h>
+	<limits.h>
+	<sys/types.h>
+	<unistd.h>
+	<stdarg.h>
+	<stdio.h>
+	<string.h>
+	<errno.h>
+	<../s_win32/windows.h>
+	<signal.h>
+	<unistd.h>
+	"../quakedef.h"
+
+1323906953 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/s_sdl/vid_sdl.c
+	<SDL/SDL.h>
+	"../quakedef.h"
+	"../d_local.h"
+
+1323908596 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/s_linux32/net_udp.c
+	<sys/types.h>
+	<sys/socket.h>
+	<netinet/in.h>
+	<arpa/inet.h>
+	<netdb.h>
+	<sys/param.h>
+	<sys/ioctl.h>
+	<errno.h>
+	<unistd.h>
+	<net/if.h>
+	"../quakedef.h"
+	"../net_loop.h"
+	"../net_dgrm.h"
+	"../net_ser.h"
+	"net_udp.h"
+
+945802460 /media/4E66813166811ABB/qbismSuper8/qbS8src/net_ser.h
+
+1323908709 /media/4E66813166811ABB/qbismSuper8/qbS8src/s_linux32/net_udp.h
+
+1323908890 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/s_linux32/net_bsd.c
+	"../quakedef.h"
+	"../net_dgrm.h"
+	"../net_loop.h"
+	"net_udp.h"
+
+1323909492 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/s_linux32/snd_linux.c
+	<unistd.h>
+	<fcntl.h>
+	<stdlib.h>
+	<sys/types.h>
+	<sys/ioctl.h>
+	<sys/mman.h>
+	<sys/shm.h>
+	<sys/wait.h>
+	<sys/soundcard.h>
+	<stdio.h>
+	"../quakedef.h"
+
+1324156493 source:c:\qbismsuper8\qbs8src\s_dos\cd_null.c
+	"../quakedef.h"
+
+933796500 c:\djgpp\include\math.h
+	<libm/math.h>
+
+931099028 c:\djgpp\include\libm\math.h
+	<sys/cdefs.h>
+
+901393754 c:\djgpp\include\sys\cdefs.h
+
+1023761440 c:\djgpp\include\string.h
+	<sys/djtypes.h>
+	<sys/movedata.h>
+
+1023761454 c:\djgpp\include\sys\djtypes.h
+
+883697928 c:\djgpp\include\sys\movedata.h
+	<sys/djtypes.h>
+
+838338582 c:\djgpp\include\stdarg.h
+	<sys/djtypes.h>
+
+911137048 c:\djgpp\include\stdio.h
+	<sys/version.h>
+	<sys/djtypes.h>
+
+928430550 c:\djgpp\include\sys\version.h
+
+928430548 c:\djgpp\include\stdlib.h
+	<sys/djtypes.h>
+
+928430548 c:\djgpp\include\setjmp.h
+
+1292981677 source:c:\qbismsuper8\qbs8src\s_dos\dos_v2.c
+	<sys/segments.h>
+	<go32.h>
+	<unistd.h>
+	<sys/nearptr.h>
+	<dos.h>
+	<string.h>
+	<dpmi.h>
+	<bios.h>
+	"dosisms.h"
+
+928430550 c:\djgpp\include\sys\segments.h
+
+911139282 c:\djgpp\include\go32.h
+	<sys/version.h>
+	<sys/djtypes.h>
+	<sys/movedata.h>
+	<sys/segments.h>
+
+946071172 c:\djgpp\include\unistd.h
+	<sys/types.h>
+	<sys/djtypes.h>
+
+928430550 c:\djgpp\include\sys\types.h
+	<sys/djtypes.h>
+
+805347022 c:\djgpp\include\sys\nearptr.h
+
+928430548 c:\djgpp\include\dos.h
+	<pc.h>
+
+946071172 c:\djgpp\include\pc.h
+	<inlines/pc.h>
+
+899071248 c:\djgpp\include\inlines\pc.h
+
+933796498 c:\djgpp\include\dpmi.h
+
+822435974 c:\djgpp\include\bios.h
+	<dos.h>
+
+945809660 c:\qbismsuper8\qbs8src\s_dos\dosisms.h
+
+1324158277 source:c:\qbismsuper8\qbs8src\s_dos\in_dos.c
+	"../quakedef.h"
+	"dosisms.h"
+
+1292981677 source:c:\qbismsuper8\qbs8src\s_dos\mplib.c
+	<dpmi.h>
+
+1292981678 source:c:\qbismsuper8\qbs8src\s_dos\mplpc.c
+	<go32.h>
+	"mpdosock.h"
+	<stdio.h>
+	<sys/farptr.h>
+
+945819790 c:\qbismsuper8\qbs8src\s_dos\mpdosock.h
+
+839889482 c:\djgpp\include\sys\farptr.h
+
+1324156827 source:c:\qbismsuper8\qbs8src\s_dos\net_bw.c
+	<stdio.h>
+	<stdlib.h>
+	<dpmi.h>
+	"../quakedef.h"
+	"dosisms.h"
+	"net_bw.h"
+
+1292981677 c:\qbismsuper8\qbs8src\s_dos\net_bw.h
+
+1324156841 source:c:\qbismsuper8\qbs8src\s_dos\net_dos.c
+	"../quakedef.h"
+	"../net_loop.h"
+	"../net_dgrm.h"
+	"../net_ser.h"
+	"net_bw.h"
+	"net_ipx.h"
+	"net_mp.h"
+
+945819776 c:\qbismsuper8\qbs8src\s_dos\net_ipx.h
+
+1292981678 c:\qbismsuper8\qbs8src\s_dos\net_mp.h
+
+1324156914 source:c:\qbismsuper8\qbs8src\s_dos\net_ipx.c
+	<stdio.h>
+	<stdlib.h>
+	<dpmi.h>
+	"../quakedef.h"
+	"dosisms.h"
+	"net_ipx.h"
+
+1324156992 source:c:\qbismsuper8\qbs8src\s_dos\net_mp.c
+	<dpmi.h>
+	"../quakedef.h"
+	"mpdosock.h"
+	"net_mp.h"
+
+1324157089 source:c:\qbismsuper8\qbs8src\s_dos\net_ser.c
+	"../quakedef.h"
+	"net_ser.h"
+	"dosisms.h"
+	"../crc.h"
+	"net_comx.c"
+
+1292981678 c:\qbismsuper8\qbs8src\s_dos\net_ser.h
+
+945819856 c:\qbismsuper8\qbs8src\s_dos\net_comx.c
+	<dos.h>
+	<dpmi.h>
+
+1324157115 source:c:\qbismsuper8\qbs8src\s_dos\snd_dos.c
+	"../quakedef.h"
+	"dosisms.h"
+
+1324157121 source:c:\qbismsuper8\qbs8src\s_dos\snd_gus.c
+	"../quakedef.h"
+	"dosisms.h"
+
+1324157197 source:c:\qbismsuper8\qbs8src\s_dos\vid_dos.c
+	<unistd.h>
+	<stdlib.h>
+	<stdio.h>
+	<string.h>
+	<dos.h>
+	<dpmi.h>
+	<go32.h>
+	"../quakedef.h"
+	"../d_local.h"
+	"dosisms.h"
+	"vid_dos.h"
+
+945819770 c:\qbismsuper8\qbs8src\s_dos\vid_dos.h
+
+1324157509 source:c:\qbismsuper8\qbs8src\s_dos\vid_ext.c
+	<stdlib.h>
+	<dos.h>
+	"../quakedef.h"
+	"../d_local.h"
+	"dosisms.h"
+	"vid_dos.h"
+	<dpmi.h>
+
+1324157820 source:c:\qbismsuper8\qbs8src\s_dos\vid_vga.c
+	<dos.h>
+	"../quakedef.h"
+	"../d_local.h"
+	"dosisms.h"
+	"vid_dos.h"
+	<dpmi.h>
+	"vgamodes.h"
+
+945819764 c:\qbismsuper8\qbs8src\s_dos\vgamodes.h
+	"vregset.h"
+
+1292981677 c:\qbismsuper8\qbs8src\s_dos\vregset.h
+
+1324157827 source:c:\qbismsuper8\qbs8src\s_dos\vregset.c
+	<dos.h>
+	<conio.h>
+	"../quakedef.h"
+	"vregset.h"
+
+900260184 c:\djgpp\include\conio.h
+
+899072830 c:\djgpp\include\fcntl.h
+	<sys/types.h>
+
+1324180753 source:c:\qbismsuper8\qbs8src\s_dos\sys_dos.c
+	<errno.h>
+	<unistd.h>
+	<signal.h>
+	<stdlib.h>
+	<limits.h>
+	<sys/time.h>
+	<sys/types.h>
+	<dir.h>
+	<unistd.h>
+	<fcntl.h>
+	<stdarg.h>
+	<stdio.h>
+	<sys/stat.h>
+	<string.h>
+	<dpmi.h>
+	<sys/nearptr.h>
+	<conio.h>
+	"../quakedef.h"
+	"dosisms.h"
+
+899076838 c:\djgpp\include\errno.h
+
+900317524 c:\djgpp\include\signal.h
+	<sys/djtypes.h>
+
+905364892 c:\djgpp\include\limits.h
+
+933796500 c:\djgpp\include\sys\time.h
+	<time.h>
+
+928430548 c:\djgpp\include\time.h
+	<sys/djtypes.h>
+	<sys/types.h>
+
+899077034 c:\djgpp\include\dir.h
+
+808031186 c:\djgpp\include\sys\stat.h
+	<sys/types.h>
+	<sys/djtypes.h>
 

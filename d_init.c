@@ -97,7 +97,7 @@ void D_SetupFrame (void)
 		d_viewbuffer = (void *)(byte *)vid.buffer;
 
 	if (r_dowarp)
-		screenwidth = vid.width;//WARP_WIDTH; // Manoel Kasimier - hi-res waterwarp & buffered video - edited
+		screenwidth = vid.width/2;//WARP_WIDTH; //qbism- half // Manoel Kasimier - hi-res waterwarp & buffered video - edited
 	else
 		screenwidth = vid.rowbytes;
 #endif // Manoel Kasimier - buffered video (bloody hack)

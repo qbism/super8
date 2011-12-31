@@ -187,9 +187,8 @@ void CL_ParseStartSoundPacket(void)
 
 
 /*
-//qbism//jf 02-10-05
 ==================
-CL_ParseLocalSoundPacket
+CL_ParseLocalSoundPacket  //qbism
 ==================
 */
 void CL_ParseLocalSoundPacket(void)
@@ -1107,8 +1106,7 @@ void CL_ParseServerMessage (void)
             S_StopSound(i>>3, i&7);
             break;
 
-			//qbism//jf 02-10-05 localsound
-		case svc_localsound:
+		case svc_localsound:  //qbism
 			CL_ParseLocalSoundPacket();
 			break;
 

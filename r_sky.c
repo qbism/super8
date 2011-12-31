@@ -104,7 +104,7 @@ qboolean R_LoadSkybox (char *name)
     {
 
 #ifdef __linux__
-        sprintf (pathname, sizeof(pathname), "gfx/env/%s%s.pcx\0", skyname, suf[r_skysideimage[i]]); // Manoel Kasimier - edited
+        snprintf (pathname, sizeof(pathname), "gfx/env/%s%s.pcx\0", skyname, suf[r_skysideimage[i]]); // Manoel Kasimier - edited
 #else
         Q_snprintfz (pathname, sizeof(pathname), "gfx/env/%s%s.pcx\0", skyname, suf[r_skysideimage[i]]); //qbism- Q_snprintfz
 #endif
@@ -113,7 +113,7 @@ qboolean R_LoadSkybox (char *name)
         if (!pic)
         {
 #ifdef __linux__
-            sprintf (pathname, sizeof(pathname), "gfx/env/%s%s.tga\0", skyname, suf[r_skysideimage[i]]); //qbism- MK 1.4a
+            snprintf (pathname, sizeof(pathname), "gfx/env/%s%s.tga\0", skyname, suf[r_skysideimage[i]]); //qbism- MK 1.4a
 #else
             Q_snprintfz (pathname, sizeof(pathname), "gfx/env/%s%s.tga\0", skyname, suf[r_skysideimage[i]]); //qbism- MK 1.4a
 #endif
@@ -122,7 +122,7 @@ qboolean R_LoadSkybox (char *name)
             {
                 Con_Printf ("Couldn't load %s\n", pathname);
 #ifdef __linux__
-                sprintf (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); // Manoel Kasimier - edited
+                snprintf (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); // Manoel Kasimier - edited
 #else
                 Q_snprintfz (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); //qbism- Q_snprintfz
 
@@ -143,7 +143,7 @@ qboolean R_LoadSkybox (char *name)
             Con_Printf ("width for %s must be 256, 512, or 1024\n", pathname);
             Con_Printf ("Couldn't load %s\n", pathname);
 #ifdef __linux__
-            sprintf (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); // Manoel Kasimier - edited
+            snprintf (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); // Manoel Kasimier - edited
 #else
             Q_snprintfz (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); //qbism- Q_snprintfz
 

@@ -61,8 +61,8 @@ void as3ReadFileSharedObject(const char* filename);
 
 #define UNUSED(x)	(x = x)	// for pesky compiler / lint warnings
 
-#define	MINIMUM_MEMORY	0x2000000	// qbism- was 0x550000
-//#define	MINIMUM_MEMORY_LEVELPAK	(MINIMUM_MEMORY + 0x100000)
+#define	MINIMUM_MEMORY	0x800000	// qbism- was 0x550000
+#define	MINIMUM_MEMORY_LEVELPAK	(MINIMUM_MEMORY + 0x100000)
 
 #define MAX_NUM_ARGVS	50
 

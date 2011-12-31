@@ -928,10 +928,10 @@ void Host_Init (quakeparms_t *parms)
 {
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
 
-    //qbism	if (standard_quake)
-    minimum_memory = MINIMUM_MEMORY;
-    //	else
-    //		minimum_memory = MINIMUM_MEMORY_LEVELPAK;
+    if (standard_quake)
+        minimum_memory = MINIMUM_MEMORY;
+    else
+		minimum_memory = MINIMUM_MEMORY_LEVELPAK;
     if (COM_CheckParm ("-minmemory"))
         parms->memsize = minimum_memory;
 

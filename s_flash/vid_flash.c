@@ -84,8 +84,8 @@ void	VID_Init (unsigned char *palette)
 {
 	vid.width = vid.conwidth = BASEWIDTH;
 	vid.height = vid.conheight = BASEHEIGHT;
-	vid.maxwarpwidth = vid.width; // Manoel Kasimier - hi-res waterwarp
-	vid.maxwarpheight = vid.height; // Manoel Kasimier - hi-res waterwarp	vid.aspect = 1.0;
+	vid.maxwarpwidth = vid.width/2.0;  //qbism- half // Manoel Kasimier - hi-res waterwarp
+	vid.maxwarpheight = vid.height/2.0; //qbism- half // Manoel Kasimier - hi-res waterwarp	vid.aspect = 1.0;
 	vid.numpages = 1;
 	vid.colormap = host_colormap;
 	vid.fullbright = 256 - LittleLong (*((int *)vid.colormap + 2048));

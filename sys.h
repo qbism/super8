@@ -66,7 +66,6 @@ void Sys_Sleep (void);
 void Sys_SendKeyEvents (void);
 // Perform Key_Event () callbacks until the input que is empty
 
-void Sys_SetFPCW (void);
 // Manoel Kasimier - begin
 int  vibration_update[2];
 void Vibration_Update (void);

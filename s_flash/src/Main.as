@@ -43,17 +43,17 @@
 		private var EmbeddedPak:Class;
 		
 		//qbism- add more paks
-		[Embed(source="../../../id1/pak1.pak", mimeType="application/octet-stream")]
+		[Embed(source="../../../id1/pak88.pak", mimeType="application/octet-stream")]
 		private var EmbeddedPakA:Class;
 		//[Embed(source="../../../id1/pak8.pak", mimeType="application/octet-stream")]
 		//private var EmbeddedPakB:Class;
 
-		[Embed(source="../../../id1/config.cfg", mimeType="application/octet-stream")]
+		[Embed(source="../../../id1/super8.cfg", mimeType="application/octet-stream")]
 		private var EmbeddedDefaultConfig:Class;
 		//[Embed(source="../../../id1/quake.rc", mimeType="application/octet-stream")]
 		//private var EmbeddedDefaultRC:Class;
-		[Embed(source="../../../id1/progs.dat", mimeType="application/octet-stream")]
-		private var EmbeddedProgsDat:Class;
+		//[Embed(source="../../../id1/progs.dat", mimeType="application/octet-stream")]
+		//private var EmbeddedProgsDat:Class;
 		
 		public function Main():void 
 		{
@@ -76,14 +76,14 @@
 
 			fileSupplyDefaultEmbedded("./id1/super8.cfg", EmbeddedDefaultConfig);
 			//fileSupplyDefaultEmbedded("./id1/quake.rc", EmbeddedDefaultRC);
-			fileSupplyDefaultEmbedded("./id1/progs.dat", EmbeddedProgsDat);
+			//fileSupplyDefaultEmbedded("./id1/progs.dat", EmbeddedProgsDat);
 				
 			var pakFile:ByteArray = new EmbeddedPak;
 			_loader.supplyFile("./id1/pak0.pak", pakFile);
 
 			//qbism- add more paks
 			var pakFileA:ByteArray = new EmbeddedPakA;
-			_loader.supplyFile("./id1/pak1.pak", pakFileA);
+			_loader.supplyFile("./id1/pak88.pak", pakFileA);
 		//	var pakFileB:ByteArray = new EmbeddedPakB;
 		//	_loader.supplyFile("./id1/pak8.pak", pakFileB);
 
@@ -103,12 +103,12 @@
 		{
 			if (_buttonDown == false && _buttonDown_lost == true)
 			{
-				// Involuntary loss, check for inner 40% reattachment //qbism was 20%
-				var recapturex1:int = (stage.stageWidth / 100) * 30;
-				var recapturex2:int = (stage.stageWidth / 100) * 70;
+				// Involuntary loss, check for inner 20% reattachment //qbism was 20%
+				var recapturex1:int = (stage.stageWidth / 100) * 40;
+				var recapturex2:int = (stage.stageWidth / 100) * 60;
 				
-				var recapturey1:int =(stage.stageHeight / 100) * 30;
-				var recapturey2:int =(stage.stageHeight / 100) * 70;
+				var recapturey1:int =(stage.stageHeight / 100) * 40;
+				var recapturey2:int =(stage.stageHeight / 100) * 60;
 				
 				if ( (recapturex1 < mouseX && mouseX < recapturex2 ) && (recapturey1 < mouseY && mouseY < recapturey2) )
 				{

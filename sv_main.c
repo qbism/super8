@@ -29,7 +29,7 @@ server_t		sv;
 server_static_t	svs;
 
 cvar_t  sv_progs = {"sv_progs", "progs.dat" }; //qbism: enginex
-char	localmodels[MAX_MODELS][5];			// inline model names for precache
+char	localmodels[MAX_MODELS][6];			// inline model names for precache //qbism: was 5
 
 //============================================================================
 
