@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // d_iface.h: interface header file for rasterization driver modules
 
-//#define WARP_WIDTH		320 // Manoel Kasimier - hi-res waterwarp & buffered video - removed
-//#define WARP_HEIGHT		200 // Manoel Kasimier - hi-res waterwarp & buffered video - removed
+//#define WARP_WIDTH		320
+//#define WARP_HEIGHT		200
 
 #define MAX_LBM_HEIGHT	1024 //qbism- 1024 per bjp, infinite per qsb - was 480
 

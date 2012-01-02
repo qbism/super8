@@ -153,7 +153,7 @@ cvar_t	r_light_vec_y = {"r_light_vec_y", "0"};
 cvar_t	r_light_vec_z = {"r_light_vec_z", "-1"};
 cvar_t	r_light_style = {"r_light_style", "1", true};
 // Manoel Kasimier - changed alias models lighting - end
-cvar_t	r_wateralpha = {"r_wateralpha","0.5", true}; // Manoel Kasimier - translucent water
+cvar_t	r_wateralpha = {"r_wateralpha","0.3333", true}; // Manoel Kasimier - translucent water
 cvar_t	r_shadowhack = {"r_shadowhack", "0", false};
 cvar_t	r_shadowhacksize = {"r_shadowhacksize", "2.7", true};
 
@@ -1629,8 +1629,9 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     if ( (long)(&r_warpbuffer) & 3 )
         Sys_Error ("Globals are missaligned");
 
-//	byte	warpbuffer[WARP_WIDTH * WARP_HEIGHT]; // Manoel Kasimier - hi-res waterwarp & buffered video - removed
+	//byte	warpbuffer[WARP_WIDTH * WARP_HEIGHT]; // Manoel Kasimier - hi-res waterwarp & buffered video - removed
     // Manoel Kasimier - hi-res waterwarp & buffered video - begin
+
     if (warpbuffer)
         Q_free(warpbuffer);
     warpbuffer = Q_malloc(vid.rowbytes*vid.height);

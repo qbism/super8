@@ -39,7 +39,7 @@ vmode_t		*pcurrentmode = NULL;
 int			vid_testingmode, vid_realmode;
 double		vid_testendtime;
 
-cvar_t		vid_mode = {"vid_mode","0", false};
+cvar_t		vid_mode = {"vid_mode","0", true};  //qbism- was false
 cvar_t		vid_wait = {"vid_wait","0"};
 cvar_t		vid_nopageflip = {"vid_nopageflip","0", true};
 cvar_t		_vid_wait_override = {"_vid_wait_override", "0", true};

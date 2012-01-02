@@ -273,7 +273,7 @@ void D_DrawSurfaces (void)
 
 				D_CalcGradients (pface);
 
-				D_DrawSpans16_C(s->spans);
+				(*d_drawspans) (s->spans);
 
 				// set up a gradient for the background surface that places it
 				// effectively at infinity distance from the viewpoint
@@ -311,7 +311,7 @@ void D_DrawSurfaces (void)
 
 				D_CalcGradients (pface);
 
-				D_DrawSpans16_C(s->spans);
+				(*d_drawspans) (s->spans);
 
 				D_DrawZSpans (s->spans);
 

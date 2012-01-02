@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
+
+
 #include <errno.h>
 #include <unistd.h>
 #include <signal.h>
@@ -34,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <dpmi.h>
 #include <sys/nearptr.h>
 #include <conio.h>
+// 2000-07-16 DOSQuake/DJGPP mem detection fix by Norberto Alfredo Bensa  start
 #include <crt0.h>
 
 #include "../quakedef.h"
@@ -57,9 +60,13 @@ static int				keybuf_tail=0;
 
 static quakeparms_t	quakeparms;
 int					sys_checksum;
+// 2000-07-28 DOSQuake time running too fast fix by Norberto Alfredo Bensa  start
+/*
 static double		curtime = 0.0;
 static double		lastcurtime = 0.0;
 static double		oldtime = 0.0;
+*/
+// 2000-07-28 DOSQuake time running too fast fix by Norberto Alfredo Bensa  end
 
  qboolean		isDedicated;
 
@@ -189,10 +196,25 @@ void Sys_DetectWin95 (void)
 		lockmem = true;
 		lockunlockmem = false;
 		unlockmem = true;
+		printf ("Win9X is absent\n");
+	}
+	else	if(r.x.ax || r.h.bh > 5)	/* A stupid Windows NT based OS attempt*/
+	{
+		win95 = 1;
+		lockunlockmem = COM_CheckParm ("-winlockunlock");
+
+		if (lockunlockmem)
+			lockmem = true;
+		else
+			lockmem = COM_CheckParm ("-winlock");
+
+		unlockmem = lockmem && !lockunlockmem;
+		printf ("Windows NT, 2000, XP, Vista, 7 detected \n\nTHE GAME WILL NOT RUN IN XP!\n\nPlease use or compile the Win32 port, or use a DOS emulator\nsuch as DOSbox if you **really** want to play the DOS version.\n");
 	}
 	else
 	{
 		win95 = 1;
+		printf ("Win9X is present!\n");
 		lockunlockmem = COM_CheckParm ("-winlockunlock");
 
 		if (lockunlockmem)
@@ -452,11 +474,15 @@ char *Sys_ConsoleInput(void)
 
 void Sys_Init(void)
 {
+// 2000-07-28 DOSQuake time running too fast fix by Norberto Alfredo Bensa  start
+/*
     dos_outportb(0x43, 0x34); // set system timer to mode 2
     dos_outportb(0x40, 0);    // for the Sys_DoubleTime() function
     dos_outportb(0x40, 0);
 
 	Sys_InitDoubleTime ();
+*/
+// 2000-07-28 DOSQuake time running too fast fix by Norberto Alfredo Bensa  end
 
 	_go32_interrupt_stack_size = 4 * 1024;;
 	_go32_rmcb_stack_size = 4 * 1024;
@@ -546,7 +572,13 @@ void Sys_Printf (char *fmt, ...)
 	va_end (argptr);
 
 	if (cls.state == ca_dedicated)
+	{	// 2000-07-11 Piped output of a dedicated server not written immediately fix by Hendrik Lipka
 		fprintf(stderr, "%s", text);
+// 2000-07-11 Piped output of a dedicated server not written immediately fix by Hendrik Lipka  start
+		fflush(stderr);
+	}
+// 2000-07-11 Piped output of a dedicated server not written immediately fix by Hendrik Lipka  end
+
 }
 
 void Sys_AtExit (void)
@@ -562,29 +594,40 @@ void Sys_AtExit (void)
 void Sys_Quit (void)
 {
 	byte	screen[80*25*2];
-	byte	*d;
+//	byte	*d;	// 2001-09-12 Returning information about loaded file by Maddes
 	char			ver[6];
 	int			i;
+	loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
 
 
 // load the sell screen before shuting everything down
 	if (registered.value)
-		d = COM_LoadHunkFile ("end2.bin");
+// 2001-09-12 Returning information about loaded file by Maddes  start
+//		d = COM_LoadHunkFile ("end2.bin");
+		fileinfo = COM_LoadHunkFile ("end2.bin");
+// 2001-09-12 Returning information about loaded file by Maddes  end
 	else
-		d = COM_LoadHunkFile ("end1.bin");
+// 2001-09-12 Returning information about loaded file by Maddes  start
+//		d = COM_LoadHunkFile ("end1.bin");
+		fileinfo = COM_LoadHunkFile ("end1.bin");
+// 2001-09-12 Returning information about loaded file by Maddes  end
+
+// 2001-09-12 Returning information about loaded file by Maddes  start
+/*
 	if (d)
 		memcpy (screen, d, sizeof(screen));
-
-// write the version number directly to the end screen
-/*	sprintf (ver, " v%4.2f", VERSION);
-	for (i=0 ; i<6 ; i++)
-		screen[0*80*2 + 72*2 + i*2] = ver[i];
 */
+	if (fileinfo)
+		memcpy (screen, fileinfo->data, sizeof(screen));
+// 2001-09-12 Returning information about loaded file by Maddes  end
 
 	Host_Shutdown();
 
 // do the text mode sell screen
-	if (d)
+// 2001-09-12 Returning information about loaded file by Maddes  start
+//	if (d)
+	if (fileinfo)
+// 2001-09-12 Returning information about loaded file by Maddes  end
 	{
 		memcpy ((void *)real2ptr(0xb8000), screen,80*25*2);
 
@@ -686,6 +729,10 @@ Sys_DoubleTime
 */
 double Sys_DoubleTime (void)  //qbism- accurate, but pointless, rename to doubletime
 {
+// 2000-07-28 DOSQuake time running too fast fix by Norberto Alfredo Bensa  start
+	// Warning!!! uclock() is not an ANSI-C standard function
+	return (double) uclock() / (double) UCLOCKS_PER_SEC;
+/*
     int				r;
     unsigned		t, tick;
 	double			ft, time;
@@ -736,6 +783,8 @@ double Sys_DoubleTime (void)  //qbism- accurate, but pointless, rename to double
 	lastcurtime = curtime;
 
     return curtime;
+*/
+// 2000-07-28 DOSQuake time running too fast fix by Norberto Alfredo Bensa  end
 }
 
 
@@ -744,7 +793,9 @@ double Sys_DoubleTime (void)  //qbism- accurate, but pointless, rename to double
 Sys_InitDoubleTime
 ================
 */
-void Sys_InitDoubleTime (void)
+// 2000-07-28 DOSQuake time running too fast fix by Norberto Alfredo Bensa  start
+/*
+void Sys_InitFloatTime (void)
 {
 	int		j;
 
@@ -764,6 +815,8 @@ void Sys_InitDoubleTime (void)
 	}
 	lastcurtime = curtime;
 }
+*/
+// 2000-07-28 DOSQuake time running too fast fix by Norberto Alfredo Bensa  end
 
 
 /*
@@ -857,7 +910,7 @@ Sys_NoFPUExceptionHandler
 */
 void Sys_NoFPUExceptionHandler(int whatever)
 {
-	printf ("\nError: Quake requires a floating-point processor\n");
+	printf ("\nError: Floating-point processor required.\n");
 	exit (0);
 }
 

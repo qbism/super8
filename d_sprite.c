@@ -33,6 +33,8 @@ static sspan_t	*sprite_spans;
 D_SpriteDrawSpans
 =====================
 */
+
+#ifndef DOSQUAKE
 void D_SpriteDrawSpans (sspan_t *pspan)
 {
 	int			count, spancount, izistep;
@@ -187,7 +189,7 @@ NextSpan:
 
 	} while (pspan->count != DS_SPAN_LIST_END);
 }
-
+#endif
 
 void D_SpriteDrawSpans_66 (sspan_t *pspan) // Manoel Kasimier - transparencies
 {

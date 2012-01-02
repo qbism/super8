@@ -54,6 +54,8 @@ typedef struct sspan_s
 	int				u, v, count;
 } sspan_t;
 
+extern cvar_t	d_subdiv16;
+
 extern float	scale_for_mip;
 
 extern qboolean		d_roverwrapped;
@@ -67,7 +69,8 @@ extern float	d_sdivzorigin, d_tdivzorigin, d_ziorigin;
 fixed16_t	sadjust, tadjust;
 fixed16_t	bbextents, bbextentt;
 
-
+void D_DrawSpans8 (espan_t *pspans);
+void D_DrawSpans16 (espan_t *pspans);
 void D_DrawSpans16_C (espan_t *pspans);  //qbism - up it to 16
 void D_DrawZSpans (espan_t *pspans);
 void Turbulent8 (espan_t *pspan);
@@ -98,3 +101,5 @@ extern short	*zspantable[MAXHEIGHT];
 
 extern int		d_minmip;
 extern float	d_scalemip[3];
+
+extern void (*d_drawspans) (espan_t *pspan);

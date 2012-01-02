@@ -312,7 +312,7 @@ stipple:
 						r_turb_t += r_turb_tstep;
 					} while (--r_turb_spancount > 0);
 				}
-				else if (r_wateralpha.value < 0.66 || !alphamap) // 50%
+				else if (r_wateralpha.value < 0.61 || !alphamap) // 50%
 				{
 					teste = ((((int)r_turb_pdest-(int)d_viewbuffer) / screenwidth)+1) & 1;
 					goto stipple;
@@ -719,6 +719,7 @@ void D_DrawSpans16_C (espan_t *pspan) //qbism up it from 8 to 16.  This + unroll
 D_DrawZSpans
 =============
 */
+#ifndef DOSQUAKE
 void D_DrawZSpans (espan_t *pspan)
 {
 	int				count, doublecount, izistep;
@@ -771,5 +772,6 @@ void D_DrawZSpans (espan_t *pspan)
 
 	} while ((pspan = pspan->pnext) != NULL);
 }
+#endif
 
 

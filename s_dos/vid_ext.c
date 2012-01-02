@@ -696,9 +696,9 @@ int VID_ExtraInitMode (viddef_t *lvid, vmode_t *pcurrentmode)
 	lvid->conrowbytes = lvid->rowbytes;
 	lvid->conwidth = lvid->width;
 	lvid->conheight = lvid->height;
+	lvid->maxwarpwidth = lvid->width; //qbism from  Manoel Kasimier - hi-res waterwarp
+	lvid->maxwarpheight = lvid->height; //qbism from  Manoel Kasimier - hi-res waterwarp
 
-	lvid->maxwarpwidth  = vid.width; //qbism from  Manoel Kasimier - hi-res waterwarp
-	lvid->maxwarpheight = vid.height; //qbism from  Manoel Kasimier - hi-res waterwarp
 
 	VGA_pcurmode = pcurrentmode;
 
