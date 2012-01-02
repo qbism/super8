@@ -254,7 +254,7 @@ void Turbulent8 (espan_t *pspan)
 			if (r_drawwater)
 			{
 				// r_wateralpha*10: 1&2=25% 3&4=33% 5&6=50% 7&8&9=66%
-				if (r_wateralpha.value <= 0.25) // 25%
+				if (r_wateralpha.value <= 0.24) // <25%
 				{
 					teste = ((((int)r_turb_pdest-(int)d_viewbuffer) / screenwidth)+1) & 1;
 					if (teste) // 25% transparency

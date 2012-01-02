@@ -3205,7 +3205,7 @@ void M_Video_Change (int dir)
     if (c == i++) Cvar_SetValue ("sbar_show_ammo", !sbar_show_ammo.value);
     if (c == i++) Cvar_SetValue ("r_light_style", !r_light_style.value);
     if (c == i++) Cvar_SetValue ("sw_stipplealpha", !sw_stipplealpha.value);
-    if (c == i++) ChangeCVar("r_wateralpha", r_wateralpha.value, dir*0.2, 0, 1, true);
+    if (c == i++) ChangeCVar("r_wateralpha", r_wateralpha.value, dir*0.166667, 0, 1, true);
     if (c == i++) Cvar_SetValue ("r_particlealpha", !r_particlealpha.value);
     if (c == i++) Cvar_SetValue ("r_sprite_addblend", !r_sprite_addblend.value);
 }

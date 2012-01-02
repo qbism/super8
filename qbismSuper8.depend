@@ -119,7 +119,7 @@
 	"lbmlib.h"
 	"mathlib.h"
 
-1325442218 c:\qbismsuper8\qbs8src\d_iface.h
+1325466088 c:\qbismsuper8\qbs8src\d_iface.h
 
 945802460 c:\qbismsuper8\qbs8src\input.h
 
@@ -194,7 +194,7 @@
 
 1309300560 c:\qbismsuper8\qbs8src\r_shared.h
 
-1323668629 source:c:\qbismsuper8\qbs8src\d_init.c
+1325465885 source:c:\qbismsuper8\qbs8src\d_init.c
 	"quakedef.h"
 	"d_local.h"
 
@@ -217,7 +217,7 @@
 
 945812600 c:\qbismsuper8\qbs8src\adivtab.h
 
-1325461707 source:c:\qbismsuper8\qbs8src\d_scan.c
+1325531774 source:c:\qbismsuper8\qbs8src\d_scan.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
@@ -262,7 +262,7 @@
 	<math.h>
 	"quakedef.h"
 
-1318691955 source:c:\qbismsuper8\qbs8src\menu.c
+1325532010 source:c:\qbismsuper8\qbs8src\menu.c
 	"quakedef.h"
 
 1309124471 source:c:\qbismsuper8\qbs8src\model.c
@@ -322,7 +322,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1325359077 source:c:\qbismsuper8\qbs8src\r_main.c
+1325465914 source:c:\qbismsuper8\qbs8src\r_main.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -805,7 +805,7 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1325464246 c:\qbismsuper8\qbs8src\version.h
+1325532650 c:\qbismsuper8\qbs8src\version.h
 
 1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
 	"quakedef.h"
