@@ -79,7 +79,7 @@ static aedge_t	aedges[12] =
 cvar_t	r_interpolation = {"r_interpolation", "1"}; // Manoel Kasimier - model interpolation
 cvar_t	r_particlealpha = {"r_particlealpha","0.2", true};
 cvar_t	sw_stipplealpha = {"sw_stipplealpha","0", true}; // must be present in GLMakaqu because it's saved in the config file
-cvar_t	r_sprite_addblend = {"r_sprite_addblend","1", true}; //qbism was 0
+/* qbism - alias models show through completely- cvar_t	r_sprite_addblend = {"r_sprite_addblend","0", true}; */
 
 cvar_t		scr_left	= {"scr_left",	"1", true};
 cvar_t		scr_right	= {"scr_right",	"1", true};
@@ -329,6 +329,20 @@ qboolean R_AliasCheckBBox (void)
 
     if (allclip)
         return false;	// trivial reject off one side
+
+    if (!r_interpolation.value) // Manoel Kasimier - model interpolation
+    {
+        // Manoel Kasimier - model interpolation - the engine is crashing when both trivial_accept and interpolation are used
+        currententity->trivial_accept = !anyclip & !zclipped;
+
+        if (currententity->trivial_accept)
+        {
+            if (minz > (r_aliastransition + (pmdl->size * r_resfudge)))
+            {
+                currententity->trivial_accept |= 2;
+            }
+        }
+    } // Manoel Kasimier - model interpolation
 
     return true;
 }

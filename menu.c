@@ -82,7 +82,7 @@ extern	cvar_t	r_waterwarp;
 extern	cvar_t	d_mipscale;
 extern	cvar_t	r_polyblend;
 extern	cvar_t	sw_stipplealpha;
-extern	cvar_t	r_sprite_addblend;
+//extern	cvar_t	r_sprite_addblend;
 extern	cvar_t	scr_fadecolor; //qbism
 
 
@@ -3176,9 +3176,10 @@ void M_Video_Draw (void)
     M_DrawSlider (220, y, r_wateralpha.value);
     M_Print (16, y+=8, " Translucent particles");
     M_DrawCheckbox (220, y, r_particlealpha.value);
+/*qbism - remove
     M_Print (16, y+=8, " Additive sprite blend");
     M_DrawCheckbox (220, y, r_sprite_addblend.value);
-
+*/
     M_DrawCursor (200, 28, m_cursor[m_state]);
     // Manoel Kasimier - end
 }
@@ -3207,7 +3208,7 @@ void M_Video_Change (int dir)
     if (c == i++) Cvar_SetValue ("sw_stipplealpha", !sw_stipplealpha.value);
     if (c == i++) ChangeCVar("r_wateralpha", r_wateralpha.value, dir*0.166667, 0, 1, true);
     if (c == i++) Cvar_SetValue ("r_particlealpha", !r_particlealpha.value);
-    if (c == i++) Cvar_SetValue ("r_sprite_addblend", !r_sprite_addblend.value);
+//    if (c == i++) Cvar_SetValue ("r_sprite_addblend", !r_sprite_addblend.value);
 }
 // Manoel Kasimier - end
 void M_Video_Key (int k) // int key Edited by Manoel Kasimier

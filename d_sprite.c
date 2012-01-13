@@ -1166,7 +1166,7 @@ void D_SpriteCalculateGradients (void)
 D_DrawSprite
 =====================
 */
-extern cvar_t sw_stipplealpha, r_sprite_addblend; // Manoel Kasimier
+extern cvar_t sw_stipplealpha; /*qbism - remove r_sprite_addblend*/ // Manoel Kasimier
 void D_DrawSprite (void)
 {
 	int			i, nump;
@@ -1235,8 +1235,8 @@ void D_DrawSprite (void)
 			D_SpriteDrawSpans_33 (sprite_spans);
 		else D_SpriteDrawSpans_66 (sprite_spans);
 	}
-	else if (r_sprite_addblend.value && additivemap)
-		D_SpriteDrawSpans_Add (sprite_spans);
+//	else if (r_sprite_addblend.value && additivemap)
+//		D_SpriteDrawSpans_Add (sprite_spans);
 	else D_SpriteDrawSpans (sprite_spans);
 }
 

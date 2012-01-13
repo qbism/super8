@@ -73,7 +73,7 @@ extern cvar_t	r_numedges;
 extern cvar_t	r_skyname; // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 extern cvar_t	r_skyalpha; // Manoel Kasimier - translucent sky
 extern cvar_t	sw_stipplealpha; // Manoel Kasimier
-extern cvar_t	r_sprite_addblend; // Manoel Kasimier
+//extern cvar_t	r_sprite_addblend; // Manoel Kasimier
 
 #define XCENTERING	(1.0 / 2.0)
 #define YCENTERING	(1.0 / 2.0)
@@ -262,6 +262,7 @@ extern int		r_bmodelactive;
 extern vrect_t	*pconupdate;
 
 extern float		aliasxscale, aliasyscale, aliasxcenter, aliasycenter;
+extern float		r_aliastransition, r_resfudge;
 
 extern int		r_outofsurfaces;
 extern int		r_outofedges;

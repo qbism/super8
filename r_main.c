@@ -7,7 +7,7 @@ as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without eveMINEDGESn the implied warranty of
+but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
@@ -107,6 +107,8 @@ int		reinit_surfcache = 1;	// if 1, surface cache is currently empty and
 mleaf_t		*r_viewleaf, *r_oldviewleaf;
 
 texture_t	*r_notexture_mip;
+
+float		r_aliastransition, r_resfudge;
 
 int		d_lightstylevalue[256];	// 8.8 fraction of base light value
 
@@ -256,7 +258,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_wateralpha); // Manoel Kasimier - translucent water
     Cvar_RegisterVariable (&r_particlealpha); // Manoel Kasimier
     Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
-    Cvar_RegisterVariable (&r_sprite_addblend); // Manoel Kasimier
+//    Cvar_RegisterVariable (&r_sprite_addblend); // Manoel Kasimier
     Cvar_RegisterVariable (&r_shadowhack); //qbism- engoo shadowhack
     Cvar_RegisterVariable (&r_shadowhacksize); //qbism
 

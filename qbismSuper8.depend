@@ -212,12 +212,12 @@
 	"d_local.h"
 	"adivtab.h"
 
-1318115580 c:\qbismsuper8\qbs8src\r_local.h
+1326425487 c:\qbismsuper8\qbs8src\r_local.h
 	"r_shared.h"
 
 945812600 c:\qbismsuper8\qbs8src\adivtab.h
 
-1325531774 source:c:\qbismsuper8\qbs8src\d_scan.c
+1326421225 source:c:\qbismsuper8\qbs8src\d_scan.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
@@ -227,7 +227,7 @@
 	"r_local.h"
 	"d_local.h"
 
-1325461887 source:c:\qbismsuper8\qbs8src\d_sprite.c
+1326425487 source:c:\qbismsuper8\qbs8src\d_sprite.c
 	"quakedef.h"
 	"d_local.h"
 
@@ -314,7 +314,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1316490479 source:c:\qbismsuper8\qbs8src\r_efrag.c
+1326422581 source:c:\qbismsuper8\qbs8src\r_efrag.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -322,7 +322,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1325465914 source:c:\qbismsuper8\qbs8src\r_main.c
+1326421761 source:c:\qbismsuper8\qbs8src\r_main.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -408,7 +408,7 @@
 	"winquake.h"
 	"net_wins.h"
 
-1307296989 source:c:\qbismsuper8\qbs8src\s_win32\net_wipx.c
+1325914518 source:c:\qbismsuper8\qbs8src\s_win32\net_wipx.c
 	"../quakedef.h"
 	"winquake.h"
 	<wsipx.h>
@@ -487,7 +487,7 @@
 1316559544 source:c:\qbismsuper8\qbs8src\zone.c
 	"quakedef.h"
 
-1316573538 source:c:\qbismsuper8\qbs8src\r_alias.c
+1326422627 source:c:\qbismsuper8\qbs8src\r_alias.c
 	"quakedef.h"
 	"r_local.h"
 	"anorms.h"
@@ -805,7 +805,7 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1325532650 c:\qbismsuper8\qbs8src\version.h
+1326425510 c:\qbismsuper8\qbs8src\version.h
 
 1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
 	"quakedef.h"
