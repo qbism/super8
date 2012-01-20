@@ -28,7 +28,7 @@ extern int min_vid_width;  //qbism- Dan East
 #define	NET_MENUS 0
 #endif
 
-cvar_t	savename = {"savename","QUAKE___"}; // 8 uppercase characters
+cvar_t	savename = {"savename","QBS8____"}; // 8 uppercase characters
 void SetSavename ()
 {
     // savename must always be 8 uppercase alphanumeric characters
@@ -83,7 +83,7 @@ extern	cvar_t	d_mipscale;
 extern	cvar_t	r_polyblend;
 extern	cvar_t	sw_stipplealpha;
 //extern	cvar_t	r_sprite_addblend;
-extern	cvar_t	scr_fadecolor; //qbism
+extern	cvar_t	scr_fadecolor; //qbism -TODO- put this on menu
 
 
 
@@ -319,9 +319,6 @@ char		m_return_reason [32];
 
 void M_ConfigureNetSubsystem(void);
 #endif
-
-// BlackAura (28-12-2002) - Alternate menu background fading
-void Draw_FadeScreen2 (int level);
 static int fade_level = 0;
 
 
@@ -4704,11 +4701,7 @@ void M_ConfigureNetSubsystem(void)
 // BlackAura (28-12-2002) - Fade menu background
 void M_FadeBackground()
 {
-//	fade_level += 1; // Manoel Kasimier - edited
-//	if(fade_level > 20)
-    fade_level = 20;
-
-    Draw_FadeScreen2 (scr_fadecolor.value);  //qbism - switch to fadescreen2
+    Draw_FadeScreen ();
 }
 
 void M_Draw (void)
@@ -4725,7 +4718,7 @@ void M_Draw (void)
             //	if(fade_level < 0)
             fade_level = 0;
             scr_fullupdate = 1;
-            Draw_FadeScreen2 (scr_fadecolor.value);   //qbism - switch to fadescreen2
+            Draw_FadeScreen ();
         }
 
         return;

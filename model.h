@@ -139,6 +139,7 @@ typedef struct msurface_s
 // lighting info
 	byte		styles[MAXLIGHTMAPS];
 	byte		*samples;		// [numstyles*surfsize]
+	byte		*colorsamples;		//qbism [numstyles*surfsize]
 
 } msurface_t;
 
@@ -378,6 +379,7 @@ typedef struct model_s
 
 	byte		*visdata;
 	byte		*lightdata;
+	byte		*colordata; //qbism indexed colored
 	byte		*entities;
 
 //

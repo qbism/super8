@@ -308,7 +308,6 @@ void Sys_InitDoubleTime (void);
 void COM_CreatePath (char *path);
 void Sys_InitDoubleTime (void);
 void History_Shutdown (void);
-void Draw_FadeScreen2 (int tintcolor);
 void CRC_Init(unsigned short *crcvalue);
 void CRC_ProcessByte(unsigned short *crcvalue, byte data);
 unsigned short CRC_Value(unsigned short crcvalue);

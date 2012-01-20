@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "quakedef.h"
 
+extern	cvar_t	scr_fadecolor; //qbism
+
 typedef struct
 {
     vrect_t	rect;
@@ -108,9 +110,13 @@ qpic_t	*Draw_CachePic (char *path)
 Draw_Init
 ===============
 */
+
+byte menumap[256][16];	//qbism- from Engoo- Used for menu backgrounds and simple colormod
+
+
 void Draw_Init (void)
 {
-//	int		i; // removed
+	int		i, j, r;
 
     draw_chars = W_GetLumpName ("conchars");
     draw_disc = W_GetLumpName ("disc");
@@ -120,6 +126,21 @@ void Draw_Init (void)
     r_rectdesc.height = draw_backtile->height;
     r_rectdesc.ptexbytes = draw_backtile->data;
     r_rectdesc.rowbytes = draw_backtile->width;
+
+    // qbism- from Engoo- Make the menu background table
+	// This has been extended to allow 16 others via r_menucolors
+	for (i=0 ; i<256 ; i++)
+	{
+		r = (host_basepal[i*3] + host_basepal[i*3+1] + host_basepal[i*3+2])/(16*3);
+		for (j=0; j<9; j++)
+		menumap[i][j] = (j * 16) + r;
+		for (j=14; j>7; j--)
+		menumap[i][j] = (j * 16) + 15 - r;
+		menumap[i][14] = 14*16 + r; // forward hack for the muzzleflash fire colors
+
+		// and yes, color ramp #15 is left all black. any further is possibly reserved for slow
+		// hexen 2 style menus which use a translucency table
+	}
 }
 
 
@@ -1065,47 +1086,38 @@ Draw_FadeScreen
 
 ================
 */
-void Draw_FadeScreen (void)
+void Draw_FadeScreen (void)  //qbism- from engoo
 {
-    int			x,y;
-    byte		*pbuf;
+	int			x,y;
+	byte		*pbuf;
+	int		mycol;
 
-    S_ExtraUpdate ();
+	mycol = (int)scr_fadecolor.value;
+	S_ExtraUpdate ();
 
-    for (y=0 ; y<vid.height ; y++)
-    {
-        int	t;
+	for (y=0 ; y<vid.height ; y++)
+	{
+		int	t;
 
-        pbuf = (byte *)(vid.buffer + vid.rowbytes*y);
-        t = (y & 1) << 1;
+		pbuf = (byte *)(vid.buffer + vid.rowbytes*y);
+		t = (y & 1) << 1;
 
-        for (x=0 ; x<vid.width ; x++)
-        {
-            if ((x & 3) != t)
-                pbuf[x] = 0;
-        }
-    }
+		for (x=0 ; x<vid.width ; x++)
+		{
+			// Classic 0.8-1.06 look
+			if (mycol < 15){
+				pbuf[x] = menumap[pbuf[x]][mycol];	// new menu tint
+			}
+			else
+			{
+			// stupid v1.08 look:
+			if ((x & 3) != t)
+				pbuf[x] = 0;
+			}
+		}
+	}
 
-    S_ExtraUpdate ();
+	S_ExtraUpdate ();
 }
-// BlackAura - Draw_FadeScreen2 - begin
-void Draw_FadeScreen2 (int tintcolor)
-{
-    int			x,y;
-    byte		*pbuf;
 
-    S_ExtraUpdate ();
-    tintcolor = bound (0, tintcolor, 254); //qbism
-
-    // Manoel Kasimier - begin
-    // use alphamap instead of vid.colormap, to ensure the fullbright colors will be darkened
-        for (y=0 ; y<vid.height ; y++)
-        {
-            pbuf = (byte *)(vid.buffer + vid.rowbytes*y);
-            for (x=0 ; x<vid.width ; x++, pbuf++)
-                *pbuf = alphamap[*pbuf+ tintcolor*256];
-        }
-    S_ExtraUpdate ();
-}
-// BlackAura - Draw_FadeScreen2 - end
 

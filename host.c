@@ -67,6 +67,7 @@ jmp_buf 	host_abortserver;
 byte		*host_basepal;
 byte		*host_colormap;//qbism
 byte        *alphamap, *additivemap; //qbism moved here
+byte        *lightcolormap; //qbism
 
 cvar_t	r_skyalpha = {"r_skyalpha","0.5"}; //0.6 Manoel Kasimier - translucent sky
 
@@ -898,6 +899,8 @@ void Palette_Init (void) //qbism - idea from Engoo
     }
     alphamap = Q_malloc(256*256);
     GrabAlphamap();
+     lightcolormap = Q_malloc(256*256);
+    GrabLightcolormap();
 
  //   fileinfo = COM_LoadHunkFile ("gfx/alphamap.lmp");
 //    if (!fileinfo)

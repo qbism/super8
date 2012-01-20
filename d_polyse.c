@@ -172,7 +172,7 @@ void D_PolysetDrawFinalVerts (finalvert_t *fv, int numverts)
 
                 *zbuf = z;
                 pix = skintable[fv->v[3]>>16][fv->v[2]>>16];
-                pix = ((byte *)acolormap)[pix + (fv->v[4] & 0xFF00) ];
+                pix = ((byte *)acolormap)[pix + (fv->v[4] & 0xFF00)];
                 d_viewbuffer[d_scantable[fv->v[1]] + fv->v[0]] = pix;
             }
         }
@@ -640,7 +640,11 @@ void D_PolysetDrawSpans8 (spanpackage_t *pspanpackage)
                 if ((lzi >> 16) >= *lpz)
                     if (*lptex != 255) // Manoel Kasimier - transparent pixels in alias models
                     {
-                        *lpdest = ((byte *)acolormap)[*lptex + (llight & 0xFF00)];
+                        if (r_coloredlights.value)
+                            *lpdest = ((byte *)acolormap)[(llight & 0xFF00) + lightcolormap[*lptex*256 + *pointcolormap]];
+                        else
+                            *lpdest = ((byte *)acolormap)[*lptex + (llight & 0xFF00)];
+
                         //*lpdest = gelmap[*lpdest]; // gel mapping
                         *lpz = lzi >> 16;
                     }

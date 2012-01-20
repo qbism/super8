@@ -75,6 +75,8 @@ extern cvar_t	r_skyalpha; // Manoel Kasimier - translucent sky
 extern cvar_t	sw_stipplealpha; // Manoel Kasimier
 //extern cvar_t	r_sprite_addblend; // Manoel Kasimier
 
+extern cvar_t	r_coloredlights; //qbism - at last!
+
 #define XCENTERING	(1.0 / 2.0)
 #define YCENTERING	(1.0 / 2.0)
 
@@ -288,6 +290,7 @@ extern mnode_t	*r_pefragtopnode;
 extern int		r_clipflags;
 //qbism - silly!  extern int		r_dlightframecount;
 extern qboolean	r_fov_greater_than_90;
+byte *pointcolormap; //qbism palettized color
 
 void R_BuildLightmaps(void); //qbism ftestain
 void GrabAlphamap (void); //qbism

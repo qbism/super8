@@ -136,6 +136,8 @@ LIGHT SAMPLING
 =============================================================================
 */
 
+byte *pointcolormap;
+
 int RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end)
 {
 	int			r;
@@ -208,11 +210,13 @@ int RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end)
 		dt >>= 4;
 
 		lightmap = surf->samples;
+		pointcolormap = surf->colorsamples;
 		r = 0;
 		if (lightmap)
 		{
 
 			lightmap += dt * ((surf->extents[0]>>4)+1) + ds;
+			pointcolormap += dt * ((surf->extents[0]>>4)+1) + ds;
 
 			for (maps = 0 ; maps < MAXLIGHTMAPS && surf->styles[maps] != 255 ;
 					maps++)

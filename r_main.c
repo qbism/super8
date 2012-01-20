@@ -136,6 +136,7 @@ cvar_t	r_aliasstats = {"r_polymodelstats","0"};
 cvar_t	r_dspeeds = {"r_dspeeds","0"};
 cvar_t	r_drawflat = {"r_drawflat", "0"};
 cvar_t	r_ambient = {"r_ambient", "0"};
+cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qbism
 cvar_t	r_reportsurfout = {"r_reportsurfout", "0"};
 cvar_t	r_maxsurfs = {"r_maxsurfs", "0"};
 cvar_t	r_numsurfs = {"r_numsurfs", "0"};
@@ -229,6 +230,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_graphheight);
     Cvar_RegisterVariable (&r_drawflat);
     Cvar_RegisterVariable (&r_ambient);
+    Cvar_RegisterVariable (&r_coloredlights); //qbism
     Cvar_RegisterVariable (&r_clearcolor);
     Cvar_RegisterVariable (&r_waterwarp);
     Cvar_RegisterVariable (&r_fullbright);
@@ -418,10 +420,39 @@ void GrabAlphamap (void) //qbism- based on Engoo
             red = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
             green = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
             blue = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
-           *colmap++ = BestColor(red,green,blue, 0, 254); // High quality color tables get best color
+            *colmap++ = BestColor(red,green,blue, 0, 254); // High quality color tables get best color
         }
     }
 }
+
+
+void GrabLightcolormap (void) //qbism- for lighting, fullbrights show through
+{
+    int c,l, red, green, blue;
+    float ay, ae;
+    byte *colmap;
+
+    ay = 0.666667;
+    ae = 1.0 - ay;				// base pixels
+    colmap = lightcolormap;
+
+    for (l=0; l<256; l++)
+    {
+        for (c=0 ; c<256 ; c++)
+        {
+            if (l>223)
+                *colmap++ = l;
+            else
+            {
+                red = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
+                green = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
+                blue = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
+                *colmap++ = BestColor(red,green,blue, 0, 224); // High quality color tables get best color
+            }
+        }
+    }
+}
+
 
 
 void GrabAdditivemap (void) //qbism- based on Engoo
@@ -469,11 +500,11 @@ void GrabColormap (void)  //qbism - fixed, was a little screwy
     colmap = host_colormap;
 
 // identity lump
- //   for (l=0 ; l<256 ; l++)
- //       *colmap++ = l;
+//   for (l=0 ; l<256 ; l++)
+//       *colmap++ = l;
 
     cscale = (float)(255 - max(max(r_colmapred.value, r_colmapgreen.value),  r_colmapblue.value))
-    / 255.0;
+             / 255.0;
 
 // shaded levels
     for (l=0; l<COLORLEVELS; l++)
@@ -773,6 +804,7 @@ void R_LoadPalette (char *name) //qbism - load an alternate palette
 
     GrabColormap();
     GrabAlphamap();
+    GrabLightcolormap();
     GrabAdditivemap();
     VID_SetPalette (host_basepal);
     Con_Printf("Palette %s loaded.\n", name);
@@ -1631,7 +1663,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     if ( (long)(&r_warpbuffer) & 3 )
         Sys_Error ("Globals are missaligned");
 
-	//byte	warpbuffer[WARP_WIDTH * WARP_HEIGHT]; // Manoel Kasimier - hi-res waterwarp & buffered video - removed
+    //byte	warpbuffer[WARP_WIDTH * WARP_HEIGHT]; // Manoel Kasimier - hi-res waterwarp & buffered video - removed
     // Manoel Kasimier - hi-res waterwarp & buffered video - begin
 
     if (warpbuffer)

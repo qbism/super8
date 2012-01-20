@@ -35,6 +35,7 @@ void			*prowdestbase;
 unsigned char	*pbasesource;
 int				surfrowbytes;	// used by ASM files
 unsigned		*r_lightptr;
+unsigned		*r_colorptr; //qbism
 int				r_stepback;
 int				r_lightwidth;
 int				r_numhblocks, r_numvblocks;
@@ -54,6 +55,7 @@ static void	(*surfmiptable[4])(void) =
 };
 
 unsigned		blocklights[18*18];
+unsigned		blockcolors[18*18]; //qbism
 
 //qbism ftestain begin
 extern cvar_t r_stains;
@@ -366,7 +368,6 @@ void R_BuildLightmaps(void)
 //qbism ftestain end
 
 
-
 /*
 ===============
 R_AddDynamicLights
@@ -544,6 +545,7 @@ void R_BuildLightMap (void)
     int			t;
     int			i, size;
     byte		*lightmap;
+    byte		*colormap;  //qbism indexed colored
     unsigned	scale;
     int			maps;
     msurface_t	*surf;
@@ -554,6 +556,8 @@ void R_BuildLightMap (void)
     tmax = (surf->extents[1]>>4)+1;
     size = smax*tmax;
     lightmap = surf->samples;
+    if (r_coloredlights.value)
+        colormap = surf->colorsamples; //qbism
 
     if (r_fullbright.value || !cl.worldmodel->lightdata)
     {
@@ -574,8 +578,14 @@ void R_BuildLightMap (void)
         {
             scale = r_drawsurf.lightadj[maps];	// 8.8 fraction
             for (i=0 ; i<size ; i++)
+            {
                 blocklights[i] += lightmap[i] * scale;
+                if (r_coloredlights.value)
+                    blockcolors[i] = colormap[i]; //qbism
+            }
             lightmap += size;	// skip to next lightmap
+            if (r_coloredlights.value)
+                colormap += size;	//qbism skip to next colormap
         }
 
 // add all the dynamic lights
@@ -745,6 +755,7 @@ void R_DrawSurface (void)
     for (u=0 ; u<r_numhblocks; u++)
     {
         r_lightptr = blocklights + u;
+        r_colorptr = blockcolors + u; //qbism
 
         prowdestbase = pcolumndest;
 
@@ -772,6 +783,7 @@ R_DrawSurfaceBlock8_mip0
 void R_DrawSurfaceBlock8_mip0 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
+    int     colorstep, colortemp, color; //qbism indexed lit
     unsigned char	pix, *psource, *prowdest;
 
     psource = pbasesource;
@@ -787,18 +799,26 @@ void R_DrawSurfaceBlock8_mip0 (void)
         lightleftstep = (r_lightptr[0] - lightleft) >> 4;
         lightrightstep = (r_lightptr[1] - lightright) >> 4;
 
+        r_colorptr += r_lightwidth; //qbism indexed colored
+
         for (i=0 ; i<16 ; i++)
         {
             lighttemp = lightleft - lightright;
             lightstep = lighttemp >> 4;
-
             light = lightright;
+
+            if (r_coloredlights.value)
+                color = r_colorptr[i%2]; //qbism- can't blend indexed, just dither for now.  Could be better?
 
             for (b=15; b>=0; b--)
             {
                 pix = psource[b];
-                prowdest[b] = ((unsigned char *)vid.colormap)
-                              [(light & 0xFF00) + pix];
+                if (r_coloredlights.value)
+                {
+                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
+                    color = r_colorptr[(b+i)%2];
+                }
+                else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
                 light += lightstep;
             }
 
@@ -822,6 +842,7 @@ R_DrawSurfaceBlock8_mip1
 void R_DrawSurfaceBlock8_mip1 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
+    int     colorstep, colortemp, color; //qbism indexed lit
     unsigned char	pix, *psource, *prowdest;
 
     psource = pbasesource;
@@ -837,18 +858,26 @@ void R_DrawSurfaceBlock8_mip1 (void)
         lightleftstep = (r_lightptr[0] - lightleft) >> 3;
         lightrightstep = (r_lightptr[1] - lightright) >> 3;
 
+        r_colorptr += r_lightwidth; //qbism indexed colored
+
         for (i=0 ; i<8 ; i++)
         {
             lighttemp = lightleft - lightright;
             lightstep = lighttemp >> 3;
-
             light = lightright;
+
+            if (r_coloredlights.value)
+                color = r_colorptr[i%2]; //qbism- can't blend indexed, just dither for now.  Could be better?
 
             for (b=7; b>=0; b--)
             {
                 pix = psource[b];
-                prowdest[b] = ((unsigned char *)vid.colormap)
-                              [(light & 0xFF00) + pix];
+                if (r_coloredlights.value)
+                {
+                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
+                    color = r_colorptr[(b+i)%2];
+                }
+                else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
                 light += lightstep;
             }
 
@@ -872,6 +901,7 @@ R_DrawSurfaceBlock8_mip2
 void R_DrawSurfaceBlock8_mip2 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
+    int     colorstep, colortemp, color; //qbism indexed lit
     unsigned char	pix, *psource, *prowdest;
 
     psource = pbasesource;
@@ -887,18 +917,26 @@ void R_DrawSurfaceBlock8_mip2 (void)
         lightleftstep = (r_lightptr[0] - lightleft) >> 2;
         lightrightstep = (r_lightptr[1] - lightright) >> 2;
 
+        r_colorptr += r_lightwidth; //qbism indexed colored
+
         for (i=0 ; i<4 ; i++)
         {
             lighttemp = lightleft - lightright;
-            lightstep = lighttemp >> 2;
-
+            lightstep = lighttemp >> 3;
             light = lightright;
+
+            if (r_coloredlights.value)
+                color = r_colorptr[i%2]; //qbism- can't blend indexed, just dither for now.  Could be better?
 
             for (b=3; b>=0; b--)
             {
                 pix = psource[b];
-                prowdest[b] = ((unsigned char *)vid.colormap)
-                              [(light & 0xFF00) + pix];
+                if (r_coloredlights.value)
+                {
+                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
+                    color = r_colorptr[(b+i)%2];
+                }
+                else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
                 light += lightstep;
             }
 
@@ -922,6 +960,7 @@ R_DrawSurfaceBlock8_mip3
 void R_DrawSurfaceBlock8_mip3 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
+    int     colorstep, colortemp, color; //qbism indexed lit
     unsigned char	pix, *psource, *prowdest;
 
     psource = pbasesource;
@@ -937,18 +976,26 @@ void R_DrawSurfaceBlock8_mip3 (void)
         lightleftstep = (r_lightptr[0] - lightleft) >> 1;
         lightrightstep = (r_lightptr[1] - lightright) >> 1;
 
+        r_colorptr += r_lightwidth; //qbism indexed colored
+
         for (i=0 ; i<2 ; i++)
         {
             lighttemp = lightleft - lightright;
-            lightstep = lighttemp >> 1;
-
+            lightstep = lighttemp >> 3;
             light = lightright;
+
+            if (r_coloredlights.value)
+                color = r_colorptr[i%2]; //qbism- can't blend indexed, just dither for now.  Could be better?
 
             for (b=1; b>=0; b--)
             {
                 pix = psource[b];
-                prowdest[b] = ((unsigned char *)vid.colormap)
-                              [(light & 0xFF00) + pix];
+                if (r_coloredlights.value)
+                {
+                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
+                    color = r_colorptr[(b+i)%2];
+                }
+                else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
                 light += lightstep;
             }
 
@@ -979,7 +1026,6 @@ void R_DrawSurfaceBlock16 (void)
     unsigned short	*prowdest;
 
     prowdest = (unsigned short *)prowdestbase;
-
     for (k=0 ; k<blocksize ; k++)
     {
         unsigned short	*pdest;
