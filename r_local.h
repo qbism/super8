@@ -76,7 +76,7 @@ extern cvar_t	sw_stipplealpha; // Manoel Kasimier
 //extern cvar_t	r_sprite_addblend; // Manoel Kasimier
 
 extern cvar_t	r_coloredlights; //qbism - at last!
-
+extern cvar_t	r_clintensity;
 #define XCENTERING	(1.0 / 2.0)
 #define YCENTERING	(1.0 / 2.0)
 

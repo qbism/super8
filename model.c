@@ -561,8 +561,8 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
                     r = data[k++];
                     g = data[k++];
                     b = data[k++];
-                    weight= 128.0/(r*r+g*g+b*b);  //qbism- flatten out the color
-                    *out++ = BestColor((int)(r*r*weight), (int)(g*g*weight), (int)(b*b*weight), 0, 255); //qbism - could be cvar
+                    weight= r_clintensity.value/(r*r+g*g+b*b);  //qbism- flatten out the color
+                    *out++ = BestColor((int)(r*r*weight), (int)(g*g*weight), (int)(b*b*weight), 0, 254); //qbism - could be cvar
                  }
                 return;
             }

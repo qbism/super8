@@ -137,6 +137,7 @@ cvar_t	r_dspeeds = {"r_dspeeds","0"};
 cvar_t	r_drawflat = {"r_drawflat", "0"};
 cvar_t	r_ambient = {"r_ambient", "0"};
 cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qbism
+cvar_t	r_clintensity = {"r_clintensity", "400", true}; //qbism
 cvar_t	r_reportsurfout = {"r_reportsurfout", "0"};
 cvar_t	r_maxsurfs = {"r_maxsurfs", "0"};
 cvar_t	r_numsurfs = {"r_numsurfs", "0"};
@@ -231,6 +232,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_drawflat);
     Cvar_RegisterVariable (&r_ambient);
     Cvar_RegisterVariable (&r_coloredlights); //qbism
+    Cvar_RegisterVariable (&r_clintensity); //qbism
     Cvar_RegisterVariable (&r_clearcolor);
     Cvar_RegisterVariable (&r_waterwarp);
     Cvar_RegisterVariable (&r_fullbright);
@@ -429,6 +431,7 @@ void GrabAlphamap (void) //qbism- based on Engoo
 void GrabLightcolormap (void) //qbism- for lighting, fullbrights show through
 {
     int c,l, red, green, blue;
+    float bright;
     float ay, ae;
     byte *colmap;
 
@@ -444,9 +447,10 @@ void GrabLightcolormap (void) //qbism- for lighting, fullbrights show through
                 *colmap++ = l;
             else
             {
-                red = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
-                green = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
-                blue = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
+                bright = (host_basepal[c*3]+host_basepal[c*3+1]+host_basepal[c*3+2])/768.0;
+                red = (int)(((float)host_basepal[c*3]*ae*bright)  + ((float)host_basepal[l*3] *ay));
+                green = (int)(((float)host_basepal[c*3+1]*ae*bright) + ((float)host_basepal[l*3+1] *ay));
+                blue = (int)(((float)host_basepal[c*3+2]*ae*bright)  + ((float)host_basepal[l*3+2] *ay));
                 *colmap++ = BestColor(red,green,blue, 0, 224); // High quality color tables get best color
             }
         }

@@ -774,6 +774,25 @@ void R_DrawSurface (void)
 
 //=============================================================================
 
+int dithermap[] =
+{
+    {   1,   0,   0,   0,   0,  -1,   0,  -1,   0,   0,   0,  -1,   0,  -1,  -1,   1 },
+    {   0,   1,   0,  -1,   0,   0,   0,   0,   0,   0,   1,   0,  -1,   0,   1,   1 },
+    {   1,   0,   0,   0,   0,   0,  -1,   0,   0,   0,   0,   0,   0,  -1,   0,   1 },
+    {   0,   0,   0,  -1,   0,   0,   0,   0,   0,  -1,   0,   0,   0,   0,   1,   0 },
+    {   1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0,   0,   0 },
+    {   0,  -1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0 },
+    {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0,   1 },
+    {  -1,   0,  -1,   0,   0,   0,   0,   1,   0,  -1,   0,   0,   0,   0,   1,   0 },
+    {   0,  -1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0,   1 },
+    {  -1,   0,   0,   0,   0,   1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0 },
+    {   0,   0,  -1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0 },
+    {   0,  -1,   0,   0,   0,   0,   0,   0,   0,   1,   0,   0,   1,   0,   0,   1 },
+    {  -1,   0,   0,   1,   0,   0,   1,   0,   0,   0,   0,   1,   0,   1,   0,   0 },
+    {  -1,   0,  -1,   0,   0,   0,   0,   0,   1,   0,   0,   0,   0,   0,   1,   1 },
+    {   0,  -1,  -1,   0,  -1,   1,   0,   1,   1,   0,   1,   0,   0,   1,   0,   1 },
+    {  -1,   0,   0,   0,   1,   0,   1,   0,   0,   1,   0,   1,   0,   1,   0,   1 },
+};
 
 /*
 ================
@@ -807,16 +826,13 @@ void R_DrawSurfaceBlock8_mip0 (void)
             lightstep = lighttemp >> 4;
             light = lightright;
 
-            if (r_coloredlights.value)
-                color = r_colorptr[i%2]; //qbism- can't blend indexed, just dither for now.  Could be better?
-
             for (b=15; b>=0; b--)
             {
                 pix = psource[b];
                 if (r_coloredlights.value)
                 {
-                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                     color = r_colorptr[(b+i)%2];
+                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                 }
                 else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
                 light += lightstep;
