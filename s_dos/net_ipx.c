@@ -237,7 +237,7 @@ int IPX_Init(void)
 #ifdef WINDOWS31
 	return -1;
 #endif
-	if (COM_CheckParm ("-noipx"))
+	if (!COM_CheckParm ("-ipx")) //qbism - noipx by default
 		return -1;
 
 	// find the IPX far call entry point

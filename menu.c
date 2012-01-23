@@ -18,8 +18,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 #include "quakedef.h"
+#include<dirent.h>
+#include<stdlib.h>
+#include<sys/types.h>
 
-//Dan East:
 extern int min_vid_width;  //qbism- Dan East
 
 #ifdef _WIN32
@@ -29,6 +31,48 @@ extern int min_vid_width;  //qbism- Dan East
 #endif
 
 cvar_t	savename = {"savename","QBS8____"}; // 8 uppercase characters
+
+
+//qbism - needed for Rikku2000 maplist, but not included w/ mingw
+int scandir(const char *dir, struct dirent ***namelist,
+            int (*select)(const struct dirent *),
+            int (*compar)(const struct dirent **, const struct dirent **)) {
+  DIR *d;
+  struct dirent *entry;
+  register int i=0;
+  size_t entrysize;
+
+  if ((d=opendir(dir)) == NULL)
+     return(-1);
+
+  *namelist=NULL;
+  while ((entry=readdir(d)) != NULL)
+  {
+    if (select == NULL || (select != NULL && (*select)(entry)))
+    {
+      *namelist=(struct dirent **)realloc((void *)(*namelist),
+                 (size_t)((i+1)*sizeof(struct dirent *)));
+	if (*namelist == NULL) return(-1);
+	entrysize=sizeof(struct dirent)-sizeof(entry->d_name)+strlen(entry->d_name)+1;
+	(*namelist)[i]=(struct dirent *)malloc(entrysize);
+	if ((*namelist)[i] == NULL) return(-1);
+	memcpy((*namelist)[i], entry, entrysize);
+	i++;
+    }
+  }
+  if (closedir(d)) return(-1);
+  if (i == 0) return(-1);
+  if (compar != NULL)
+    qsort((void *)(*namelist), (size_t)i, sizeof(struct dirent *), compar);
+
+  return(i);
+}
+
+int alphasort(const struct dirent **a, const struct dirent **b) {
+  return(strcmp((*a)->d_name, (*b)->d_name));
+}
+
+
 void SetSavename ()
 {
     // savename must always be 8 uppercase alphanumeric characters
@@ -138,6 +182,7 @@ enum
     m_main,
     m_singleplayer, m_load, m_save, m_loadsmall, m_savesmall,
     m_gameoptions,
+    m_maplist,  //qbism - Rikku2000 maplist
     m_options,
     m_setup,
     m_keys,
@@ -176,6 +221,12 @@ void M_VideoModes_f (void); // Manoel Kasimier - for Windows version only
 void M_Developer_f (void);
 void M_Help_f (void);
 void M_Quit_f (void);
+
+  //qbism - Rikku2000 maplist
+void M_Menu_MapList_f (void);
+void M_MapList_Draw (void);
+void M_MapList_Key (int key);
+
 #if NET_MENUS // Manoel Kasimier - removed multiplayer menus
 void M_MultiPlayer_f (void);
 void M_Net_f (void);
@@ -1941,6 +1992,164 @@ void M_GameOptions_Key (int key)
         else if (!m_inp_left) // Manoel Kasimier
             M_GameOptions_Change (1);
     }
+}
+
+//=============================================================================
+/* MAPLIST MENU */   //qbism - Rikku2000 maplist
+
+#define MAX_FILE_LIST 15
+
+int initState = 1;
+int numFiles = 0;
+int minFile = 0;
+int maxFile = MAX_FILE_LIST;
+struct dirent **nombres;
+char listaFiles[MAX_FILE_LIST][256];
+char nombreFile[MAX_FILE_LIST];
+int arrowY = 35;
+int posArrow = 0;
+int numFileList = 0;
+int lastArrowY = 0;
+
+void DeleteArray (char listaFiles[MAX_FILE_LIST][256], int numFileList) {
+   int i;
+
+   for (i = 0; i < numFileList; i++)
+      strcpy(listaFiles[i], "0");
+}
+
+void FileNames (char listaFiles[MAX_FILE_LIST][256], int numFileList) {
+   int y = 35;
+   int i;
+
+   for(i = 0; i < numFileList; i++) {
+      M_Print (74, y, listaFiles[i]);
+
+      y += 8;
+   }
+}
+
+int isFile(const struct dirent *nombre) {
+   int isFile = 0;
+
+   char *extension = strrchr(nombre->d_name, '.');
+
+   if (strcmp(extension, ".bsp") == 0)
+      isFile = 1;
+
+   return isFile;
+}
+
+void M_Menu_MapList_f (void)
+{
+   key_dest = key_menu;
+   m_state = m_maplist;
+   m_entersound = true;
+
+   if(initState) {
+      numFiles = scandir(va("%s/maps", GAMENAME), &nombres, isFile, alphasort);
+
+      if (numFiles < MAX_FILE_LIST) {
+         maxFile = numFiles;
+         numFileList = numFiles;
+      } else
+         numFileList = MAX_FILE_LIST;
+
+      DeleteArray(listaFiles, numFileList);
+
+      int x = 0;
+      int i;
+
+      for (i = minFile; i < maxFile; i++){
+         strcpy(listaFiles[x], nombres[i]->d_name);
+         x++;
+      }
+
+      initState = 0;
+   }
+}
+
+void M_MapList_Draw (void)
+{
+   qpic_t   *p;
+   int      x;
+
+   M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
+   p = Draw_CachePic ("gfx/p_multi.lmp");
+   M_DrawTransPic ( (320-p->width)/2, 4, p);
+
+   M_DrawTextBox (56, 27, 23, 15);
+      FileNames(listaFiles, numFileList);
+
+   M_DrawCharacter (64, arrowY, 12 + ((int)(realtime * 4) & 1));
+}
+
+void M_MapList_Key (int key)
+{
+   switch (key)
+   {
+   case K_ESCAPE:
+      M_GameOptions_f ();
+      break;
+
+   case K_UPARROW:
+      S_LocalSound ("misc/menu1.wav");
+      arrowY -= 8;
+      posArrow--;
+
+      if (posArrow < 0) {
+         if (minFile != 0) {
+            minFile--;
+            maxFile--;
+
+            DeleteArray(listaFiles, numFileList);
+
+            int x = 0;
+            int i;
+
+            for (i = minFile; i < maxFile; i++) {
+               strcpy(listaFiles[x], nombres[i]->d_name);
+               x++;
+            }
+         }
+
+         arrowY = 35;
+         posArrow = 0;
+      }
+      break;
+
+   case K_DOWNARROW:
+      S_LocalSound ("misc/menu1.wav");
+      lastArrowY = arrowY;
+      arrowY += 8;
+
+      if (posArrow > numFileList-2) {
+         if(maxFile+1 <= numFiles) {
+            minFile++;
+            maxFile++;
+
+            DeleteArray(listaFiles, numFileList);
+
+            int x = 0;
+            int i;
+
+            for (i = minFile; i < maxFile; i++) {
+               strcpy(listaFiles[x], nombres[i]->d_name);
+               x++;
+            }
+         }
+
+         arrowY = lastArrowY;
+      } else
+         posArrow++;
+      break;
+
+   case K_ENTER:
+      S_LocalSound ("misc/menu2.wav");
+      strcpy(nombreFile, listaFiles[posArrow]);
+      Cbuf_AddText (va("map %s\n", strtok(nombreFile, ".bsp")));
+      break;
+   }
 }
 
 //=============================================================================
@@ -4819,6 +5028,11 @@ void M_Draw (void)
     case m_help:
         M_Help_Draw ();
         break;
+
+    case m_maplist:
+        M_MapList_Draw ();
+        break;
+
 #if NET_MENUS // Manoel Kasimier - removed multiplayer menus
     case m_multiplayer:
         M_MultiPlayer_Draw ();
@@ -4884,6 +5098,11 @@ void M_Keydown (int key)
     case m_keys:
         M_Keys_Key (key);
         return;
+
+   case m_maplist:
+        M_MapList_Key (key);
+        return;
+
 #if NET_MENUS // Manoel Kasimier - removed multiplayer menus
     case m_search:
         M_Search_Key (key);
@@ -5053,4 +5272,5 @@ void M_Init (void)
     Cmd_AddCommand ("menu_developer", M_Developer_f); // Manoel Kasimier
     Cmd_AddCommand ("help", M_Help_f);
     Cmd_AddCommand ("menu_quit", M_Quit_f);
+    Cmd_AddCommand ("menu_maplist", M_Menu_MapList_f);
 }

@@ -381,7 +381,7 @@ void R_AddDynamicLights (void)
     float		dist, rad, minlight;
     vec3_t		impact, local;
     int			s, t;
-    int			i;
+    int			i, tempcol;
     int			smax, tmax;
     mtexinfo_t	*tex;
 
@@ -442,6 +442,10 @@ void R_AddDynamicLights (void)
                             blocklights[i] -= temp;
                         else
                             blocklights[i] = 0;
+                    }
+                    if(r_coloredlights.value)
+                    {
+                        blockcolors[i]= cl_dlights[lnum].color;
                     }
                 }
             }
@@ -591,6 +595,7 @@ void R_BuildLightMap (void)
 // add all the dynamic lights
     if (surf->dlightframe == r_framecount)
         R_AddDynamicLights ();
+
     if (surf->shadowframe == r_framecount)
     {
         R_AddShadows ();
@@ -774,25 +779,6 @@ void R_DrawSurface (void)
 
 //=============================================================================
 
-int dithermap[] =
-{
-    {   1,   0,   0,   0,   0,  -1,   0,  -1,   0,   0,   0,  -1,   0,  -1,  -1,   1 },
-    {   0,   1,   0,  -1,   0,   0,   0,   0,   0,   0,   1,   0,  -1,   0,   1,   1 },
-    {   1,   0,   0,   0,   0,   0,  -1,   0,   0,   0,   0,   0,   0,  -1,   0,   1 },
-    {   0,   0,   0,  -1,   0,   0,   0,   0,   0,  -1,   0,   0,   0,   0,   1,   0 },
-    {   1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0,   0,   0 },
-    {   0,  -1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0 },
-    {   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0,   1 },
-    {  -1,   0,  -1,   0,   0,   0,   0,   1,   0,  -1,   0,   0,   0,   0,   1,   0 },
-    {   0,  -1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0,   1 },
-    {  -1,   0,   0,   0,   0,   1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0 },
-    {   0,   0,  -1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1,   0 },
-    {   0,  -1,   0,   0,   0,   0,   0,   0,   0,   1,   0,   0,   1,   0,   0,   1 },
-    {  -1,   0,   0,   1,   0,   0,   1,   0,   0,   0,   0,   1,   0,   1,   0,   0 },
-    {  -1,   0,  -1,   0,   0,   0,   0,   0,   1,   0,   0,   0,   0,   0,   1,   1 },
-    {   0,  -1,  -1,   0,  -1,   1,   0,   1,   1,   0,   1,   0,   0,   1,   0,   1 },
-    {  -1,   0,   0,   0,   1,   0,   1,   0,   0,   1,   0,   1,   0,   1,   0,   1 },
-};
 
 /*
 ================
@@ -802,7 +788,7 @@ R_DrawSurfaceBlock8_mip0
 void R_DrawSurfaceBlock8_mip0 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
-    int     colorstep, colortemp, color; //qbism indexed lit
+    int     color, staticolor, dynacolor; //qbism indexed lit
     unsigned char	pix, *psource, *prowdest;
 
     psource = pbasesource;
@@ -882,16 +868,13 @@ void R_DrawSurfaceBlock8_mip1 (void)
             lightstep = lighttemp >> 3;
             light = lightright;
 
-            if (r_coloredlights.value)
-                color = r_colorptr[i%2]; //qbism- can't blend indexed, just dither for now.  Could be better?
-
             for (b=7; b>=0; b--)
             {
                 pix = psource[b];
                 if (r_coloredlights.value)
                 {
-                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                     color = r_colorptr[(b+i)%2];
+                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                 }
                 else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
                 light += lightstep;
@@ -941,16 +924,13 @@ void R_DrawSurfaceBlock8_mip2 (void)
             lightstep = lighttemp >> 3;
             light = lightright;
 
-            if (r_coloredlights.value)
-                color = r_colorptr[i%2]; //qbism- can't blend indexed, just dither for now.  Could be better?
-
             for (b=3; b>=0; b--)
             {
                 pix = psource[b];
                 if (r_coloredlights.value)
                 {
-                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                     color = r_colorptr[(b+i)%2];
+                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                 }
                 else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
                 light += lightstep;
@@ -1000,16 +980,13 @@ void R_DrawSurfaceBlock8_mip3 (void)
             lightstep = lighttemp >> 3;
             light = lightright;
 
-            if (r_coloredlights.value)
-                color = r_colorptr[i%2]; //qbism- can't blend indexed, just dither for now.  Could be better?
-
             for (b=1; b>=0; b--)
             {
                 pix = psource[b];
                 if (r_coloredlights.value)
                 {
-                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                     color = r_colorptr[(b+i)%2];
+                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                 }
                 else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
                 light += lightstep;

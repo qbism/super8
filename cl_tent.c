@@ -201,8 +201,10 @@ void CL_ParseTEnt (void)
 		dl->radius = 350;
 		dl->die = cl.time + 0.5;
 		dl->decay = 300;
+		dl->color = (byte)BestColor(150, 130, 32, 0, 222); //qbism dyncol
 		S_StartSound (-1, 0, cl_sfx_r_exp3, pos, 1, 1);
 		R_AddStain(pos, -30, 45); //qbism ftestain
+
 		break;
 
 	case TE_TAREXPLOSION:			// tarbaby explosion
@@ -259,6 +261,7 @@ void CL_ParseTEnt (void)
 		dl->radius = 350;
 		dl->die = cl.time + 0.5;
 		dl->decay = 300;
+		dl->color = (byte)BestColor(140, 120, 42, 0, 222); //qbism dyncol
 		S_StartSound (-1, 0, cl_sfx_r_exp3, pos, 1, 1);
 		R_AddStain(pos, -30, 50); //qbism ftestain
 		break;

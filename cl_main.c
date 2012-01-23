@@ -346,7 +346,7 @@ dlight_t *CL_AllocDlight (int key)
     int		i;
     dlight_t	*dl;
 
-// first look for an exact key match
+ // first look for an exact key match
     if (key)
     {
         dl = cl_dlights;
@@ -356,6 +356,7 @@ dlight_t *CL_AllocDlight (int key)
             {
                 memset (dl, 0, sizeof(*dl));
                 dl->key = key;
+                dl->color = BestColor(130, 110, 32, 0, 222);  //qbism dyncol - default
                 return dl;
             }
         }
@@ -369,6 +370,7 @@ dlight_t *CL_AllocDlight (int key)
         {
             memset (dl, 0, sizeof(*dl));
             dl->key = key;
+                dl->color = BestColor(130, 110, 32, 0, 222);  //qbism dyncol - default
             return dl;
         }
     }
@@ -376,6 +378,7 @@ dlight_t *CL_AllocDlight (int key)
     dl = &cl_dlights[0];
     memset (dl, 0, sizeof(*dl));
     dl->key = key;
+                dl->color = BestColor(130, 110, 32, 0, 222);  //qbism dyncol - default
     return dl;
 }
 
@@ -640,6 +643,7 @@ void CL_RelinkEntities (void)
                 dl->radius = 200 + (rand()&31);
                 dl->minlight = 32;
                 dl->die = cl.time + 0.1;
+                dl->color = BestColor (96, 96, 140, 0, 222); //qbism dyncol
             }
             if (ent->effects & EF_BRIGHTLIGHT)
             {
@@ -648,6 +652,7 @@ void CL_RelinkEntities (void)
                 dl->origin[2] += 16;
                 dl->radius = 400 + (rand()&31);
                 dl->die = cl.time + 0.001;
+                dl->color = BestColor (110, 90, 40, 0, 222); //qbism dyncol
             }
             if (ent->effects & EF_DIMLIGHT)
             {
@@ -655,7 +660,9 @@ void CL_RelinkEntities (void)
                 VectorCopy (ent->origin,  dl->origin);
                 dl->radius = 200 + (rand()&31);
                 dl->die = cl.time + 0.001;
+                dl->color = BestColor (110, 50, 30, 0, 222); //qbism dyncol
             }
+
         } // Manoel Kasimier
         if (!(ent->effects & 0xFF800000))  //qbism based on DP model flags
             ent->effects |= ent->model->flags;
@@ -699,6 +706,7 @@ void CL_RelinkEntities (void)
                 dl->radius = abs(ent->glow_size); // Manoel Kasimier - edited
                 dl->dark = (ent->glow_size < 0); // Manoel Kasimier
                 dl->die = cl.time + 0.001;
+                dl->color = BestColor (160, 128, 32, 0, 222); //qbism dyncol
                 //	dl->color[0] = ent->glow_red;
                 //	dl->color[1] = ent->glow_green;
                 //	dl->color[2] = ent->glow_blue;

@@ -97,7 +97,8 @@ typedef struct
 	float	decay;				// drop this each second
 	float	minlight;			// don't add when contributing less
 	int		key;
-	qboolean	dark;			// subtracts light instead of adding
+	qboolean    dark;			// subtracts light instead of adding
+	byte     color;     //qbism- indexed colored dynamic light
 } dlight_t;
 
 typedef struct

@@ -526,7 +526,7 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
     int		i, j, k;
     int		r, g, b;
     float weight;
-    byte	*out, *data;
+    byte	*out, *lout, *data;
     char	litname[1024];
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
 
@@ -536,14 +536,13 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
         return;
     }
     loadmodel->lightdata = Hunk_AllocName ( l->filelen, "modlight");
-
-    loadmodel->colordata = Hunk_AllocName ( l->filelen, "modcolor");  //qbism indexed colored-
     memcpy (loadmodel->lightdata, mod_base + l->fileofs, l->filelen);
-    memset (loadmodel->colordata, 0, l->filelen);
+    loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
+    memset (loadmodel->colordata, 0, l->filelen+18);
 
     strcpy(litname, loadmodel->name);
     COM_StripExtension(loadmodel->name, litname);
-    COM_DefaultExtension(litname, ".lit");
+    COM_DefaultExtension(litname, ".lit");    //qbism- indexed colored
     fileinfo = COM_LoadHunkFile(litname);
     if (fileinfo)
     {
@@ -556,13 +555,15 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
             {
                 k=8;
                 out = loadmodel->colordata;
+                lout = loadmodel->lightdata;
                 while(k <= fileinfo->filelen)
                 {
                     r = data[k++];
                     g = data[k++];
                     b = data[k++];
                     weight= r_clintensity.value/(r*r+g*g+b*b);  //qbism- flatten out the color
-                    *out++ = BestColor((int)(r*r*weight), (int)(g*g*weight), (int)(b*b*weight), 0, 254); //qbism - could be cvar
+                    *out++ = BestColor((int)(r*r*weight), (int)(g*g*weight), (int)(b*b*weight), 0, 254);
+                    *lout++ = (r+g+b)/3;
                  }
                 return;
             }
