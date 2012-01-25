@@ -451,7 +451,7 @@ void GrabLightcolormap (void) //qbism- for lighting, fullbrights show through
                 red = (int)(((float)host_basepal[c*3]*ae*bright)  + ((float)host_basepal[l*3] *ay));
                 green = (int)(((float)host_basepal[c*3+1]*ae*bright) + ((float)host_basepal[l*3+1] *ay));
                 blue = (int)(((float)host_basepal[c*3+2]*ae*bright)  + ((float)host_basepal[l*3+2] *ay));
-                *colmap++ = BestColor(red,green,blue, 0, 224); // High quality color tables get best color
+                *colmap++ = BestColor(red,green,blue, 0, 222); // High quality color tables get best color
             }
         }
     }

@@ -189,12 +189,12 @@
 	"quakedef.h"
 	"d_local.h"
 
-1325450154 c:\qbismsuper8\qbs8src\d_local.h
+1327459941 c:\qbismsuper8\qbs8src\d_local.h
 	"r_shared.h"
 
 1309300560 c:\qbismsuper8\qbs8src\r_shared.h
 
-1325465885 source:c:\qbismsuper8\qbs8src\d_init.c
+1327457999 source:c:\qbismsuper8\qbs8src\d_init.c
 	"quakedef.h"
 	"d_local.h"
 
@@ -262,13 +262,13 @@
 	<math.h>
 	"quakedef.h"
 
-1327185114 source:c:\qbismsuper8\qbs8src\menu.c
+1327363814 source:c:\qbismsuper8\qbs8src\menu.c
 	"quakedef.h"
 	<dirent.h>
 	<stdlib.h>
 	<sys/types.h>
 
-1327283351 source:c:\qbismsuper8\qbs8src\model.c
+1327377680 source:c:\qbismsuper8\qbs8src\model.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -325,7 +325,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1327116841 source:c:\qbismsuper8\qbs8src\r_main.c
+1327377680 source:c:\qbismsuper8\qbs8src\r_main.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -346,7 +346,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1327264081 source:c:\qbismsuper8\qbs8src\r_surf.c
+1327375812 source:c:\qbismsuper8\qbs8src\r_surf.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
@@ -807,7 +807,7 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1327283361 c:\qbismsuper8\qbs8src\version.h
+1327461161 c:\qbismsuper8\qbs8src\version.h
 
 1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
 	"quakedef.h"
@@ -1710,4 +1710,69 @@
 808031186 c:\djgpp\include\sys\stat.h
 	<sys/types.h>
 	<sys/djtypes.h>
+
+1327379662 source:c:\qbismsuper8\qbs8src\s_dos\d_copy.s
+	"asm_i386.h"
+	"quakeasm.h"
+	"asm_draw.h"
+
+1292815702 c:\qbismsuper8\qbs8src\s_dos\asm_i386.h
+
+1327461051 c:\qbismsuper8\qbs8src\s_dos\quakeasm.h
+
+1292815702 c:\qbismsuper8\qbs8src\s_dos\asm_draw.h
+
+1327459998 source:c:\qbismsuper8\qbs8src\s_dos\d_draw.s
+	"asm_i386.h"
+	"quakeasm.h"
+	"asm_draw.h"
+	"d_ifacea.h"
+
+1292815702 c:\qbismsuper8\qbs8src\s_dos\d_ifacea.h
+
+1292815702 source:c:\qbismsuper8\qbs8src\s_dos\d_draw16.s
+	"asm_i386.h"
+	"quakeasm.h"
+	"asm_draw.h"
+	"d_ifacea.h"
+
+1292815702 source:c:\qbismsuper8\qbs8src\s_dos\d_polysa.s
+	"asm_i386.h"
+	"quakeasm.h"
+	"asm_draw.h"
+	"d_ifacea.h"
+
+1292815702 source:c:\qbismsuper8\qbs8src\s_dos\d_scana.s
+	"asm_i386.h"
+	"quakeasm.h"
+	"asm_draw.h"
+	"d_ifacea.h"
+
+1292815702 source:c:\qbismsuper8\qbs8src\s_dos\d_spr8.s
+	"asm_i386.h"
+	"quakeasm.h"
+	"asm_draw.h"
+
+1325461239 source:c:\qbismsuper8\qbs8src\s_dos\d_varsa.s
+	"asm_i386.h"
+	"quakeasm.h"
+	"asm_draw.h"
+	"d_ifacea.h"
+
+1292815702 source:c:\qbismsuper8\qbs8src\s_dos\r_aliasa.s
+	"asm_i386.h"
+	"quakeasm.h"
+	"asm_draw.h"
+	"d_ifacea.h"
+
+1292815702 source:c:\qbismsuper8\qbs8src\s_dos\r_edgea.s
+	"asm_i386.h"
+	"quakeasm.h"
+	"asm_draw.h"
+
+1292815702 source:c:\qbismsuper8\qbs8src\s_dos\r_varsa.s
+	"asm_i386.h"
+	"quakeasm.h"
+	"asm_draw.h"
+	"d_ifacea.h"
 

@@ -40,11 +40,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #endif
 
-#ifdef __i386__		//precompiler directive of DJGPP
-#define id386	0 //qbism
-#else
-#define id386	0
-#endif
+
+#define id386	1 //qbism
+
+
 
 
 // !!! must be kept the same as in d_iface.h !!!

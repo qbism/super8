@@ -69,7 +69,7 @@ int scandir(const char *dir, struct dirent ***namelist,
 }
 
 int alphasort(const struct dirent **a, const struct dirent **b) {
-  return(strcmp((*a)->d_name, (*b)->d_name));
+  return(strcmpi((*a)->d_name, (*b)->d_name));
 }
 
 

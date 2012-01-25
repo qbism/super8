@@ -3,6 +3,7 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="qbS8" />
+		<Option makefile="MAKEFILE" />
 		<Option execution_dir="C:\qbismSuper8\qbS8src\s_win32\" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
@@ -14,6 +15,7 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
+					<Add option="-march=i586" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O3" />
 					<Add option="-w" />
@@ -23,7 +25,6 @@
 					<Add option="-D_WIN32" />
 					<Add option="-DCURL_STATICLIB" />
 					<Add directory="." />
-					<Add directory="..\..\Program Files\CodeBlocks\MinGW\include" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -49,8 +50,10 @@
 					<Add option="-pg" />
 					<Add option="-g" />
 					<Add option="-DWIN32" />
-					<Add option="-D_DEBUG" />
+					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
+					<Add option="-D_WIN32" />
+					<Add option="-DCURL_STATICLIB" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory=".\scitech\include" />
@@ -64,6 +67,37 @@
 					<Add library="dinput" />
 					<Add library="dxguid" />
 				</Linker>
+			</Target>
+			<Target title="Win32 asm">
+				<Option output="..\..\quake\qbismS8" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\..\quake" />
+				<Option object_output="s_win32\Release" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-march=i586" />
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-O3" />
+					<Add option="-w" />
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_WINDOWS" />
+					<Add option="-D_WIN32" />
+					<Add option="-DCURL_STATICLIB" />
+					<Add option="-DDOSQUAKE" />
+					<Add directory="." />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-static-libgcc" />
+					<Add library="winmm" />
+					<Add library="wsock32" />
+					<Add library="dinput" />
+					<Add library="dxguid" />
+				</Linker>
+				<ExtraCommands>
+					<Add before="version.bat" />
+				</ExtraCommands>
 			</Target>
 		</Build>
 		<Unit filename="adivtab.h" />
@@ -254,6 +288,20 @@
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="s_dos\d_draw.S" />
+		<Unit filename="s_dos\d_draw16.S">
+			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+		</Unit>
+		<Unit filename="s_dos\d_polysa.S">
+			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+		</Unit>
+		<Unit filename="s_dos\d_scana.S" />
+		<Unit filename="s_dos\d_spr8.S">
+			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+		</Unit>
+		<Unit filename="s_dos\d_varsa.S">
+			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+		</Unit>
 		<Unit filename="s_dos\dos_v2.c">
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />
@@ -301,6 +349,15 @@
 		</Unit>
 		<Unit filename="s_dos\net_ser.h">
 			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="s_dos\r_aliasa.S">
+			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+		</Unit>
+		<Unit filename="s_dos\r_edgea.S">
+			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+		</Unit>
+		<Unit filename="s_dos\r_varsa.S">
+			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
 		</Unit>
 		<Unit filename="s_dos\snd_dos.c">
 			<Option compilerVar="CC" />
@@ -376,9 +433,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="s_win32\net_wins.h" />
-		<Unit filename="s_win32\net_wipx.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="s_win32\qbism-s8.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>

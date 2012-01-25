@@ -563,7 +563,7 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
                     b = data[k++];
                     weight= r_clintensity.value/(r*r+g*g+b*b);  //qbism- flatten out the color
                     *out++ = BestColor((int)(r*r*weight), (int)(g*g*weight), (int)(b*b*weight), 0, 254);
-                    *lout++ = (r+g+b)/3;
+                    *lout++ = max((r+g+b)/3, *lout);
                  }
                 return;
             }

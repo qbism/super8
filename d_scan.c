@@ -94,7 +94,7 @@ void D_WarpScreen (void)
 	}
 }
 
-
+#ifndef DOSQUAKE
 /*
 =============
 D_DrawTurbulent8Span
@@ -116,6 +116,7 @@ void D_DrawTurbulent8Span (void)  //qbism- was D_DrawTurbulent8Span
 #undef tturb
 }
 
+#endif
 
 /*
 =============

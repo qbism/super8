@@ -779,6 +779,8 @@ void R_DrawSurface (void)
 
 //=============================================================================
 
+byte dithercolor[] =  //qbism
+{ 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1,0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1};
 
 /*
 ================
@@ -790,6 +792,7 @@ void R_DrawSurfaceBlock8_mip0 (void)
     int				v, i, b, lightstep, lighttemp, light;
     int     color, staticolor, dynacolor; //qbism indexed lit
     unsigned char	pix, *psource, *prowdest;
+    int dither; //qbism - fake randomish dither
 
     psource = pbasesource;
     prowdest = prowdestbase;
@@ -817,7 +820,7 @@ void R_DrawSurfaceBlock8_mip0 (void)
                 pix = psource[b];
                 if (r_coloredlights.value)
                 {
-                    color = r_colorptr[(b+i)%2];
+                    color = r_colorptr[dithercolor[(dither++)%34]];
                     prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                 }
                 else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
