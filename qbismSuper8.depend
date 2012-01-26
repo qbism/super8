@@ -217,7 +217,7 @@
 
 945812600 c:\qbismsuper8\qbs8src\adivtab.h
 
-1326421225 source:c:\qbismsuper8\qbs8src\d_scan.c
+1327461160 source:c:\qbismsuper8\qbs8src\d_scan.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
@@ -458,7 +458,7 @@
 1307313164 source:c:\qbismsuper8\qbs8src\snd_mem.c
 	"quakedef.h"
 
-1307296989 source:c:\qbismsuper8\qbs8src\snd_mix.c
+1327545834 source:c:\qbismsuper8\qbs8src\snd_mix.c
 	"quakedef.h"
 	"s_win32/winquake.h"
 	"s_win32/movie.h"
@@ -807,7 +807,7 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1327461161 c:\qbismsuper8\qbs8src\version.h
+1327546283 c:\qbismsuper8\qbs8src\version.h
 
 1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
 	"quakedef.h"
@@ -1775,4 +1775,8 @@
 	"quakeasm.h"
 	"asm_draw.h"
 	"d_ifacea.h"
+
+1327545644 source:c:\qbismsuper8\qbs8src\s_dos\snd_mixa.s
+	"asm_i386.h"
+	"quakeasm.h"
 

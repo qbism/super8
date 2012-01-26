@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // x86 assembly-language sound code
 //
 
-#define GLQUAKE	1	// don't include unneeded client defs
+//qbism #define GLQUAKE	1	// don't include unneeded client defs
 #include "asm_i386.h"
 #include "quakeasm.h"
 

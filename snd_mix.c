@@ -37,6 +37,7 @@ short	*snd_out;
 
 void Snd_WriteLinearBlastStereo16 (void);
 
+#ifndef DOSQUAKE
 void Snd_WriteLinearBlastStereo16 (void)
 {
 	int		i;
@@ -62,6 +63,7 @@ void Snd_WriteLinearBlastStereo16 (void)
 	}
 }
 
+#endif
 
 void S_TransferStereo16 (int endtime)
 {
@@ -373,7 +375,7 @@ void SND_InitScaletable (void)
 			snd_scaletable[i][j] = ((signed char)j) * i * 8;
 }
 
-
+#ifndef DOSQUAKE
 void SND_PaintChannelFrom8 (channel_t *ch, sfxcache_t *sc, int count)
 {
 	int 	data;
@@ -401,6 +403,9 @@ void SND_PaintChannelFrom8 (channel_t *ch, sfxcache_t *sc, int count)
 }
 
 
+#endif
+
+
 void SND_PaintChannelFrom16 (channel_t *ch, sfxcache_t *sc, int count)
 {
 	int data;
@@ -424,4 +429,3 @@ void SND_PaintChannelFrom16 (channel_t *ch, sfxcache_t *sc, int count)
 
 	ch->pos += count;
 }
-
