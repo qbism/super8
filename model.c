@@ -537,22 +537,21 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
     }
     loadmodel->lightdata = Hunk_AllocName ( l->filelen, "modlight");
     memcpy (loadmodel->lightdata, mod_base + l->fileofs, l->filelen);
-    loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
-    memset (loadmodel->colordata, 0, l->filelen+18);
-
     strcpy(litname, loadmodel->name);
     COM_StripExtension(loadmodel->name, litname);
     COM_DefaultExtension(litname, ".lit");    //qbism- indexed colored
-    fileinfo = COM_LoadHunkFile(litname);
-    if (fileinfo)
+    fileinfo = COM_LoadFile(litname,0); //qbism- don't load into hunk
+    if (fileinfo && ((l->filelen*3 +8) == fileinfo->filelen))
     {
         Con_DPrintf("%s loaded from %s\n", litname, fileinfo->path->pack ? fileinfo->path->pack->filename : fileinfo->path->filename);
+
         data = fileinfo->data;
         if (data[0] == 'Q' && data[1] == 'L' && data[2] == 'I' && data[3] == 'T')
         {
             i = LittleLong(((int *)data)[1]);
             if (i == 1)
             {
+                loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
                 k=8;
                 out = loadmodel->colordata;
                 lout = loadmodel->lightdata;
@@ -564,7 +563,8 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
                     weight= r_clintensity.value/(r*r+g*g+b*b);  //qbism- flatten out the color
                     *out++ = BestColor((int)(r*r*weight), (int)(g*g*weight), (int)(b*b*weight), 0, 254);
                     *lout++ = max((r+g+b)/3, *lout);
-                 }
+                }
+                Q_free(fileinfo);
                 return;
             }
             else
@@ -573,6 +573,10 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
         else
             Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
     }
+    //qbism- no lit.  Still need to have something.
+    loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
+    memset (loadmodel->colordata, 1, l->filelen+18);  //qbism- fill w/ color index
+
 }
 
 

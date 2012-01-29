@@ -367,6 +367,9 @@
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="s_dos\snd_mixa.S">
+			<Option target="Win32 asm" />
+		</Unit>
 		<Unit filename="s_dos\sys_dos.c">
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />
