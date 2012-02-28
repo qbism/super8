@@ -589,6 +589,11 @@ void R_RenderFace (msurface_t *fa, int clipflags)
 	}
 	// Manoel Kasimier - skyboxes - end
 
+	if (currententity->alpha != ENTALPHA_DEFAULT) //qbism - translucent entities - doesn't work, FIXME
+        fa->flags |= SURF_DRAWTRANSLUCENT;
+        //qbism - FIXME- add flags based on ENTALPHA_DECODE(currententity->alpha);
+
+
 	// Manoel Kasimier - translucent water - begin
 	if (r_wateralpha.value < 1)
 	{

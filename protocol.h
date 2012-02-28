@@ -39,25 +39,27 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	U_COLORMAP	    (1<<11)
 #define	U_SKIN		    (1<<12)
 #define	U_EFFECTS	    (1<<13)
-#define	U_LONGENTITY	(1<<14)
-
-//qbism- changed bits 15-19 to match PROTOCOL_FITZQUAKE
+#define	U_LONGENTITY	(1<<14) //qbism - this is the last protocol 15 bit
 #define U_EXTEND1		(1<<15)
+
 #define U_ALPHA			(1<<16) // 1 byte, uses ENTALPHA_ENCODE, not sent if equal to baseline
 #define U_FRAME2		(1<<17) // 1 byte, this is .frame & 0xFF00 (second byte)
 #define U_MODEL2		(1<<18) // 1 byte, this is .modelindex & 0xFF00 (second byte)
-#define U_LERPFINISH	(1<<19) // 1 byte, 0.0-1.0 maps to 0-255, not sent if exactly 0.1, this is ent->v.nextthink - sv.time, used for lerping
-#define U_SCALE			(1<<20) //qbism - from Makaqu
-#define U_SCALEV		(1<<21) //qbism - from Makaqu
-#define U_GLOW_SIZE		(1<<22) //qbism - from Makaqu
+#define U_GLOW_SIZE 	(1<<19) // short, -250 to 250.  qbism - from Tomazquake
+#define U_GLOW_GREEN	(1<<21) //qbism - 1 byte, 0 to 1 maps to 0 to 255
+#define U_GLOW_RED		(1<<20) //qbism - 1 byte
+#define U_GLOW_GREEN	(1<<21) //qbism - 1 byte
+#define U_GLOW_BLUE 	(1<<22) //qbism - 1 byte
 #define U_EXTEND2		(1<<23) // another byte to follow
 
 #define U_EFFECTS2		(1<<24) // qbism- jump up to 4 bytes for DP effects
 #define U_FRAMEINTERVAL	(1<<25) // Manoel Kasimier - QC frame_interval
-//qbism- remove  #define U_COLORMOD		(1<<25) // 1 byte, 3 bit red, 3 bit green, 2 bit blue, this lets you tint an object artifically, so you could make a red rocket, or a blue fiend...
 #define U_VIEWMODEL		(1<<26) // attachs the model to the view (origin and angles become relative to it), only shown to owner, a more powerful alternative to .weaponmodel and such
 #define U_EXTERIORMODEL	(1<<27) // causes this model to not be drawn when using a first person view (third person will draw it, first person will not)
-#define U_EXTEND3		(1<<31) // another byte to follow, future expansion
+#define U_SCALE 		(1<<28) //qbism - from Tomazquake
+#define U_SCALEV       	(1<<29) //qbism - from Tomazquake
+//open              	(1<<30)
+//open              	(1<<31)
 
 #define	SU_VIEWHEIGHT	(1<<0)
 #define	SU_IDEALPITCH	(1<<1)

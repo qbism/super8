@@ -1,0 +1,33 @@
+Building the Flash version of qbism Super8 on Windows
+-----------------------------------------------------
+
+1.  Install Java Runtime Environment (JRE):  http://developers.sun.com/products/
+
+2.  To C:\alchemy-repack,  NOT the default install folder, ESPECIALLY not “Program Files (x86)”:   install http://www.covergraph.com/blog/archives/alchemy_0.5_setup.exe
+
+3.  Install FlashDevelop:  http://www.flashdevelop.org  The installer will download the Flex SDK.
+Config instructions:  http://www.flashdevelop.org/wikidocs/index.php?title=Configuration
+
+4.   (optional) Install Flash stand-alone debug player http://www.adobe.com/support/flashplayer/downloads.html
+It may be required to uninstall and reinstall the browser flash player, although I did not.
+
+5.  Copy "make.exe" to C:\alchemy-repack\bin from this:  make-3.81-2.zip
+
+6.   Compile the swc.  Type:  make -j3 -f makeswf
+A list of compiled .o files will scroll by.  The end should look similar to:
+
+WARNING: While resolving call to function 'main' arguments were dropped!
+2296.achacks.swf, 1972726 bytes written
+frame rate: 60
+frame count: 1
+.........more junk.....
+converting to DOS line endings
+catalog.xml: done.
+adding: catalog.xml (deflated 76%)
+adding: library.swf (deflated 76%)
+
+7. Start up FlashDevelop, open the project located in C:\qbismSuper8\qbismS8src\s_flash, and compile.
+
+Among many others: Thanks to Baker for his Flash quakePro port and his installation help and instructions on inside3d, Michael Rennie for the initial port, and to Manoel Kasimier for Makaqu quake.  Big thanks to Alama for the Alchemy Repack.
+
+Jeff Ford

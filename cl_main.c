@@ -282,10 +282,10 @@ void CL_PrintEntities_f (void)
     {
         if (!ent->model)
         {
-         //   Con_Printf ("EMPTY\n"); //don't print empties
+            //   Con_Printf ("EMPTY\n"); //don't print empties
             continue;
         }
-       Con_Printf ("%3i:",i);
+        Con_Printf ("%3i:",i);
         Con_Printf ("%s:%2i  (%5.1f,%5.1f,%5.1f) [%5.1f %5.1f %5.1f]\n"
                     ,ent->model->name,ent->frame, ent->origin[0], ent->origin[1], ent->origin[2], ent->angles[0], ent->angles[1], ent->angles[2]);
     }
@@ -346,7 +346,7 @@ dlight_t *CL_AllocDlight (int key)
     int		i;
     dlight_t	*dl;
 
- // first look for an exact key match
+// first look for an exact key match
     if (key)
     {
         dl = cl_dlights;
@@ -370,7 +370,7 @@ dlight_t *CL_AllocDlight (int key)
         {
             memset (dl, 0, sizeof(*dl));
             dl->key = key;
-                dl->color = BestColor(130, 110, 32, 0, 222);  //qbism dyncol - default
+            dl->color = BestColor(130, 110, 32, 0, 222);  //qbism dyncol - default
             return dl;
         }
     }
@@ -378,7 +378,7 @@ dlight_t *CL_AllocDlight (int key)
     dl = &cl_dlights[0];
     memset (dl, 0, sizeof(*dl));
     dl->key = key;
-                dl->color = BestColor(130, 110, 32, 0, 222);  //qbism dyncol - default
+    dl->color = BestColor(130, 110, 32, 0, 222);  //qbism dyncol - default
     return dl;
 }
 
@@ -408,17 +408,17 @@ void CL_DecayLights (void)
             dl->radius = 0;
     }
 
-/*    shd = cl_shadows;
-    for (i=0 ; i<MAX_SHADOWS ; i++, dl++)
-    {
-        if (shd->die < cl.time || !shd->radius)
-            continue;
+    /*    shd = cl_shadows;
+        for (i=0 ; i<MAX_SHADOWS ; i++, dl++)
+        {
+            if (shd->die < cl.time || !shd->radius)
+                continue;
 
-        shd->radius -= time*1;
-        if (shd->radius < 0)
-            shd->radius = 0;
-    }
-    */
+            shd->radius -= time*1;
+            if (shd->radius < 0)
+                shd->radius = 0;
+        }
+        */
 }
 
 
@@ -539,31 +539,32 @@ void CL_RelinkEntities (void)
         {
             // We find our shadow size here
 
-			//if (ent->model){
-			ent->shadowsize = (ent->model->maxs[0]);
-			if ((ent->shadowsize > 128) || (ent->shadowsize < 8) || ent->model->dontshadow) ent->shadowsize = 0;
-			//}
+            //if (ent->model){
+            ent->shadowsize = (ent->model->maxs[0]);
+            if ((ent->shadowsize > 128) || (ent->shadowsize < 8) || ent->model->dontshadow) ent->shadowsize = 0;
+            //}
 
-			// Ok we have a shadow ready. allocate it and do it!!!!!
-			else{
-            ent->shadowsize *= r_shadowhacksize.value; //qbism was 3.9
-			shadorigin = ent->model->maxs[2] - (ent->model->mins[2] *0.2); //qbism  was 1.25 - move darklight higher
-            //qbism- no better with bleed-through walls... R_AddStain(ent->origin, -60, ent->shadowsize, 3); //qbism a different way to shadowhack, needs it's own layer of stains.
+            // Ok we have a shadow ready. allocate it and do it!!!!!
+            else
+            {
+                ent->shadowsize *= r_shadowhacksize.value; //qbism was 3.9
+                shadorigin = ent->model->maxs[2] - (ent->model->mins[2] *0.2); //qbism  was 1.25 - move darklight higher
+                //qbism- no better with bleed-through walls... R_AddStain(ent->origin, -60, ent->shadowsize, 3); //qbism a different way to shadowhack, needs it's own layer of stains.
 
 
-		if (ent->alpha > 0)
-				shadpacity = 28 * ent->alpha; //qbism- made shadow darker, was 32
-				else
-				shadpacity = 28; //qbism was 32
+                if (ent->alpha > 0)
+                    shadpacity = 28 * ent->alpha; //qbism- made shadow darker, was 32
+                else
+                    shadpacity = 28; //qbism was 32
 
-			dl = CL_AllocDlight (i);
-			VectorCopy (ent->origin,  dl->origin);
-			dl->minlight = shadpacity;
-			dl->origin[2] -= shadorigin;
-			dl->radius = ent->shadowsize;
-			dl->die = cl.time + 0.001;
-			dl->dark = 1; //qbism- make it a light.... darklight.
-			}
+                dl = CL_AllocDlight (i);
+                VectorCopy (ent->origin,  dl->origin);
+                dl->minlight = shadpacity;
+                dl->origin[2] -= shadorigin;
+                dl->radius = ent->shadowsize;
+                dl->die = cl.time + 0.001;
+                dl->dark = 1; //qbism- make it a light.... darklight.
+            }
         }
 
 // if the object wasn't included in the last packet, remove it
@@ -697,21 +698,17 @@ void CL_RelinkEntities (void)
             else if (ent->effects & EF_TRACER3)
                 R_RocketTrail (oldorg, ent->origin, 6);
         } // Manoel Kasimier
-        // Tomaz - QC Glow Begin
+        // Tomaz - QC Glow
         if (ent->glow_size)
-            if (!(ent->effects & (EF_MUZZLEFLASH|EF_BRIGHTLIGHT|EF_DIMLIGHT))) // Manoel Kasimier
+            if (!(ent->effects & (EF_MUZZLEFLASH)))//qbism - |EF_BRIGHTLIGHT|EF_DIMLIGHT))) // Manoel Kasimier
             {
                 dl = CL_AllocDlight (i);
                 VectorCopy (ent->origin, dl->origin);
                 dl->radius = abs(ent->glow_size); // Manoel Kasimier - edited
                 dl->dark = (ent->glow_size < 0); // Manoel Kasimier
                 dl->die = cl.time + 0.001;
-                dl->color = BestColor (160, 128, 32, 0, 222); //qbism dyncol
-                //	dl->color[0] = ent->glow_red;
-                //	dl->color[1] = ent->glow_green;
-                //	dl->color[2] = ent->glow_blue;
+                dl->color = BestColor (ent->glow_red, ent->glow_green, ent->glow_blue, 0, 222); //qbism dyncol
             }
-        // Tomaz - QC Glow End
 
         ent->forcelink = false;
 

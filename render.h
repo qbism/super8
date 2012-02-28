@@ -104,10 +104,10 @@ typedef struct entity_s
 //	float					scale1;
 	float					scale2;
 	vec3_t                  scalev;
-	float		glow_size;
-//	float		glow_red;
-//	float		glow_green;
-//	float		glow_blue;
+	int	    	glow_size;  //qbism - changed to int (passed as short)
+	byte		glow_red;   //qbism - change to byte
+	byte		glow_green;
+	byte		glow_blue;
 	// Tomaz - QC Alpha Scale Glow End
 	float distance; //qbism from reckless, depth sorting
 } entity_t;

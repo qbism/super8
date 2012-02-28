@@ -612,26 +612,26 @@ void CL_ParseUpdate (int bits)
         ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
 
     if (bits & U_GLOW_SIZE)
-        ent->glow_size = MSG_ReadFloat();
+        ent->glow_size = MSG_ReadShort();  //qbism- was readfloat
     else
         ent->glow_size = 0;
-    /*
-    if (bits & U_GLOW_RED)
-    	ent->glow_red = MSG_ReadFloat();
+    // Tomaz - QC Alpha Scale Glow End
+
+    if (bits & U_GLOW_RED) //qbism
+      	ent->glow_red = MSG_ReadByte();
     else
-    	ent->glow_red = 0;
+		ent->glow_red = 0;
 
     if (bits & U_GLOW_GREEN)
-    	ent->glow_green = MSG_ReadFloat();
+      	ent->glow_green = MSG_ReadByte();
     else
-    	ent->glow_green = 0;
+		ent->glow_green = 0;
 
     if (bits & U_GLOW_BLUE)
-    	ent->glow_blue = MSG_ReadFloat();
+      	ent->glow_blue = MSG_ReadByte();
     else
-    	ent->glow_blue = 0;
-    */
-    // Tomaz - QC Alpha Scale Glow End
+		ent->glow_blue = 0;
+
     // Manoel Kasimier - QC frame_interval - begin
     if (bits & U_FRAMEINTERVAL)
         ent->frame_interval = MSG_ReadFloat();

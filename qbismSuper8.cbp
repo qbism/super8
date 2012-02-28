@@ -288,19 +288,27 @@
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="s_dos\d_draw.S" />
+		<Unit filename="s_dos\d_draw.S">
+			<Option target="Win32 asm" />
+		</Unit>
 		<Unit filename="s_dos\d_draw16.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+			<Option target="Win32 asm" />
 		</Unit>
 		<Unit filename="s_dos\d_polysa.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+			<Option target="Win32 asm" />
 		</Unit>
-		<Unit filename="s_dos\d_scana.S" />
+		<Unit filename="s_dos\d_scana.S">
+			<Option target="Win32 asm" />
+		</Unit>
 		<Unit filename="s_dos\d_spr8.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+			<Option target="Win32 asm" />
 		</Unit>
 		<Unit filename="s_dos\d_varsa.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+			<Option target="Win32 asm" />
 		</Unit>
 		<Unit filename="s_dos\dos_v2.c">
 			<Option compilerVar="CC" />
@@ -352,12 +360,15 @@
 		</Unit>
 		<Unit filename="s_dos\r_aliasa.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+			<Option target="Win32 asm" />
 		</Unit>
 		<Unit filename="s_dos\r_edgea.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+			<Option target="Win32 asm" />
 		</Unit>
 		<Unit filename="s_dos\r_varsa.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
+			<Option target="Win32 asm" />
 		</Unit>
 		<Unit filename="s_dos\snd_dos.c">
 			<Option compilerVar="CC" />
