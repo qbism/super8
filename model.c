@@ -575,8 +575,13 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
     }
     //qbism- no lit.  Still need to have something.
     loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
-    memset (loadmodel->colordata, 1, l->filelen+18);  //qbism- fill w/ color index
-
+    out = loadmodel->colordata;
+    lout = loadmodel->lightdata;
+    for(i=0 ; i < sizeof(loadmodel->lightdata); i++)
+    {
+        j= *lout++;
+        *out++ = BestColor(j,j,j,0,254);
+    }
 }
 
 

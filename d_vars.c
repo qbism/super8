@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -41,7 +41,7 @@ pixel_t			*cacheblock;
 int				cachewidth;
 pixel_t			*d_viewbuffer;
 short			*d_pzbuffer;
-unsigned int	d_zrowbytes;
-unsigned int	d_zwidth;
+int	             d_zrowbytes; //qbism - signed per szo
+int	             d_zwidth;
 
 

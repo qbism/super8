@@ -8,7 +8,7 @@ of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
@@ -23,10 +23,10 @@ typedef struct vmode_s {
 	struct vmode_s	*pnext;
 	char		*name;
 	char		*header;
-	unsigned	width;
-	unsigned	height;
+	int			width;
+	int			height;
 	float		aspect;
-	unsigned	rowbytes;
+	int			rowbytes;  //qbism - signed per szo
 	int			planar;
 	int			numpages;
 	void		*pextradata;
