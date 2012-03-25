@@ -820,7 +820,7 @@ void R_DrawSurfaceBlock8_mip0 (void)
                 pix = psource[b];
                 if (r_coloredlights.value)
                 {
-                    color = r_colorptr[dithercolor[(dither++)%34]];
+                    color = r_colorptr[dithercolor[(dither++)%41]];  //qbism - just to get a random-ish dither pattern
                     prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                 }
                 else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];

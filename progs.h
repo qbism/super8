@@ -43,7 +43,8 @@ typedef struct edict_s
 
 	entity_state_t	baseline;
 	byte	alpha;				//qbism:  johnfitz -- hack to support alpha since it's not part of entvars_t
-
+    float last_grav; //qbism - mh gravity fix from inside3d
+    int grav_frame;
 
 	float		freetime;			// sv.time when the object was freed
 	entvars_t	v;					// C exported fields from progs

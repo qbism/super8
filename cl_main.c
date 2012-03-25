@@ -356,7 +356,7 @@ dlight_t *CL_AllocDlight (int key)
             {
                 memset (dl, 0, sizeof(*dl));
                 dl->key = key;
-                dl->color = BestColor(130, 110, 32, 0, 222);  //qbism dyncol - default
+                dl->color = BestColor(60, 50, 12, 0, 222);  //qbism dyncol - default  HACK
                 return dl;
             }
         }
@@ -370,7 +370,7 @@ dlight_t *CL_AllocDlight (int key)
         {
             memset (dl, 0, sizeof(*dl));
             dl->key = key;
-            dl->color = BestColor(130, 110, 32, 0, 222);  //qbism dyncol - default
+            dl->color = BestColor(60, 50, 12, 0, 222);  //qbism dyncol - default
             return dl;
         }
     }
@@ -378,7 +378,7 @@ dlight_t *CL_AllocDlight (int key)
     dl = &cl_dlights[0];
     memset (dl, 0, sizeof(*dl));
     dl->key = key;
-    dl->color = BestColor(130, 110, 32, 0, 222);  //qbism dyncol - default
+    dl->color = BestColor(60, 50, 12, 0, 222);  //qbism dyncol - default
     return dl;
 }
 
@@ -644,7 +644,7 @@ void CL_RelinkEntities (void)
                 dl->radius = 200 + (rand()&31);
                 dl->minlight = 32;
                 dl->die = cl.time + 0.1;
-                dl->color = BestColor (96, 96, 140, 0, 222); //qbism dyncol
+                dl->color = BestColor (32, 32, 40, 0, 222); //qbism dyncol  HACK
             }
             if (ent->effects & EF_BRIGHTLIGHT)
             {
@@ -653,7 +653,7 @@ void CL_RelinkEntities (void)
                 dl->origin[2] += 16;
                 dl->radius = 400 + (rand()&31);
                 dl->die = cl.time + 0.001;
-                dl->color = BestColor (110, 90, 40, 0, 222); //qbism dyncol
+                dl->color = BestColor (60, 50, 10, 0, 222); //qbism dyncol
             }
             if (ent->effects & EF_DIMLIGHT)
             {
@@ -661,7 +661,7 @@ void CL_RelinkEntities (void)
                 VectorCopy (ent->origin,  dl->origin);
                 dl->radius = 200 + (rand()&31);
                 dl->die = cl.time + 0.001;
-                dl->color = BestColor (110, 50, 30, 0, 222); //qbism dyncol
+                dl->color = BestColor (30, 20, 10, 0, 222); //qbism dyncol
             }
 
         } // Manoel Kasimier

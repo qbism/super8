@@ -377,26 +377,32 @@ SV_AddGravity
 
 ============
 */
-void SV_AddGravity (edict_t *ent)
+void SV_AddGravity (edict_t *ent) //qbism- gravity fix from mh
 {
-    float	ent_gravity;
+   float   ent_gravity;
+   eval_t   *val;
 
-    /*qbism- why not do this?  gravity
-    	if (ent->v.gravity)
-    		ent_gravity = ent->v.gravity;
-    	else
-    		ent_gravity = 1.0;
-    */
-    eval_t	*val;
+   val = GetEdictFieldValue (ent, "gravity");
 
-    val = GetEdictFieldValue(ent, "gravity");
-    if (val && val->_float)
-        ent_gravity = val->_float;
-    else
-        ent_gravity = 1.0;
-    ent->v.velocity[2] -= ent_gravity * sv_gravity.value * host_frametime;
+   if (val && val->_float)
+      ent_gravity = val->_float;
+   else ent_gravity = 1.0;
+
+   // in case SV_AddGravity gets called on an entity more than once per frame
+   // (can this ever happen???)
+   if (ent->grav_frame != host_framecount)
+   {
+      // update from last frame's gravity
+      ent->v.velocity[2] -= ent->last_grav;
+      ent->grav_frame = host_framecount;
+   }
+
+   // evaluate this frame's gravity
+   ent->last_grav = (ent_gravity * sv_gravity.value * host_frametime) / 2.0f;
+
+   // update from this frame's gravity
+   ent->v.velocity[2] -= ent->last_grav;
 }
-
 
 /*
 ===============================================================================

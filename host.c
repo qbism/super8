@@ -71,6 +71,8 @@ byte        *lightcolormap; //qbism
 
 cvar_t	r_skyalpha = {"r_skyalpha","0.5"}; //0.6 Manoel Kasimier - translucent sky
 
+cvar_t  r_palette =  {"r_palette", "gfx/s8pal.lmp", true}; //qbism- the default palette to load
+
 cvar_t	host_framerate = {"host_framerate","0"};	// set for slow motion
 cvar_t	host_speeds = {"host_speeds","0"};			// set for running times
 
@@ -247,6 +249,8 @@ void Host_InitLocal (void)
     Cvar_RegisterVariableWithCallback (&host_timescale, Host_CheckTimescaleValue); // Manoel Kasimier
     // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
     Cvar_RegisterVariable (&r_skyalpha); // Manoel Kasimier - translucent sky
+
+   Cvar_RegisterVariable (&r_palette); // qbism - default palette
 
     Cvar_RegisterVariable (&host_framerate);
     Cvar_RegisterVariable (&host_speeds);
@@ -638,8 +642,7 @@ void Host_ServerFrame (void)
     static double accumulated = 0.0;
     double alpha;
     static double prevtime = 0.0;
-    //const double delta = (1.0 / 72.0);
-    const double delta = 1.0/(float)(min(cl_maxfps.value, 72));  //qbism- physics should not be more than framerate...?
+    const double delta = 1.0/(float)(min(cl_maxfps.value, 72));  //qbism- physics need not be more than framerate
     double new_frametime;
 
     accumulated += host_frametime;
@@ -884,9 +887,14 @@ void Palette_Init (void) //qbism - idea from Engoo
 {
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
 
-    fileinfo = COM_LoadHunkFile ("gfx/palette.lmp");
+    fileinfo = COM_LoadHunkFile (r_palette.string);
     if (!fileinfo)
-        Sys_Error ("Couldn't load gfx/palette.lmp");
+    {
+        fileinfo = COM_LoadHunkFile ("gfx/palette.lmp");
+        if (!fileinfo)
+            Sys_Error ("Couldn't load %s or gfx/palette.lmp", r_palette.value);
+    }
+
     host_basepal = fileinfo->data;
 
 //qbism - don't need colormap.lmp, alphamap.lmp, or addivemap.lmp now
@@ -899,21 +907,21 @@ void Palette_Init (void) //qbism - idea from Engoo
     }
     alphamap = Q_malloc(256*256);
     GrabAlphamap();
-     lightcolormap = Q_malloc(256*256);
+    lightcolormap = Q_malloc(256*256);
     GrabLightcolormap();
 
- //   fileinfo = COM_LoadHunkFile ("gfx/alphamap.lmp");
+//   fileinfo = COM_LoadHunkFile ("gfx/alphamap.lmp");
 //    if (!fileinfo)
- //       Sys_Error ("Couldn't load gfx/alphamap.lmp");
- //   alphamap = fileinfo->data;
+//       Sys_Error ("Couldn't load gfx/alphamap.lmp");
+//   alphamap = fileinfo->data;
 
     additivemap = Q_malloc(256*256);
     GrabAdditivemap();
 
     //    fileinfo = COM_LoadHunkFile ("gfx/addmap.lmp");
     //if (!fileinfo)
-   //     Sys_Error ("Couldn't load gfx/addmap.lmp");
-   // additivemap = fileinfo->data;
+    //     Sys_Error ("Couldn't load gfx/addmap.lmp");
+    // additivemap = fileinfo->data;
 
     // Manoel Kasimier - transparencies - end
 }
@@ -934,7 +942,7 @@ void Host_Init (quakeparms_t *parms)
     if (standard_quake)
         minimum_memory = MINIMUM_MEMORY;
     else
-		minimum_memory = MINIMUM_MEMORY_LEVELPAK;
+        minimum_memory = MINIMUM_MEMORY_LEVELPAK;
     if (COM_CheckParm ("-minmemory"))
         parms->memsize = minimum_memory;
 

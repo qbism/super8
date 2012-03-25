@@ -136,8 +136,12 @@ cvar_t	r_aliasstats = {"r_polymodelstats","0"};
 cvar_t	r_dspeeds = {"r_dspeeds","0"};
 cvar_t	r_drawflat = {"r_drawflat", "0"};
 cvar_t	r_ambient = {"r_ambient", "0"};
+
 cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qbism
-cvar_t	r_clintensity = {"r_clintensity", "300", true}; //qbism
+cvar_t	r_clintensity = {"r_clintensity", "1", true}; //qbism
+cvar_t	r_clbaseweight = {"r_clbaseweight", "0.5", true}; //qbism- base pixel weight for color map blending
+cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", true}; //qbism- color weight for color map blending
+
 cvar_t	r_reportsurfout = {"r_reportsurfout", "0"};
 cvar_t	r_maxsurfs = {"r_maxsurfs", "0"};
 cvar_t	r_numsurfs = {"r_numsurfs", "0"};
@@ -233,6 +237,8 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_ambient);
     Cvar_RegisterVariable (&r_coloredlights); //qbism
     Cvar_RegisterVariable (&r_clintensity); //qbism
+    Cvar_RegisterVariable (&r_clbaseweight); //qbism
+    Cvar_RegisterVariable (&r_clcolorweight); //qbism
     Cvar_RegisterVariable (&r_clearcolor);
     Cvar_RegisterVariable (&r_waterwarp);
     Cvar_RegisterVariable (&r_fullbright);
@@ -428,30 +434,45 @@ void GrabAlphamap (void) //qbism- based on Engoo
 }
 
 
-void GrabLightcolormap (void) //qbism- for lighting, fullbrights show through
+void GrabLightcolormap (void) //qbism- for colored lighting, fullbrights show through
 {
     int c,l, red, green, blue;
-    float bright;
-    float ay, ae;
+    float rl, gl, bl;
+    float ay, ae, bright;
     byte *colmap;
 
-    ay = 0.666667;
-    ae = 1.0 - ay;				// base pixels
+    if(r_coloredlights.value)
+    {
+        ae = bound (0, r_clbaseweight.value, 1.0);				// base pixels
+        ay = bound (0, r_clcolorweight.value, 1.0);             //color
+    }
+    else
+    {
+        ae = 0;
+        ay = 1.0;
+    }
+
     colmap = lightcolormap;
 
     for (l=0; l<256; l++)
     {
+        rl = host_basepal[l*3]*ae;
+        gl = host_basepal[l*3+1]*ae;
+        bl = host_basepal[l*3+2]*ae;
+
         for (c=0 ; c<256 ; c++)
         {
             if (l>223)
                 *colmap++ = l;
             else
             {
-                bright = (host_basepal[c*3]+host_basepal[c*3+1]+host_basepal[c*3+2])/768.0;
-                red = (int)(((float)host_basepal[c*3]*ae*bright)  + ((float)host_basepal[l*3] *ay));
-                green = (int)(((float)host_basepal[c*3+1]*ae*bright) + ((float)host_basepal[l*3+1] *ay));
-                blue = (int)(((float)host_basepal[c*3+2]*ae*bright)  + ((float)host_basepal[l*3+2] *ay));
-                *colmap++ = BestColor(red,green,blue, 0, 222); // High quality color tables get best color
+                //bright = sqrt((rl+gl+bl)/(host_basepal[c*3]+host_basepal[c*3+1]+host_basepal[c*3+2]+1.0));
+                red = rl + (float)host_basepal[c*3]*ay;//*bright;
+                green = gl + (float)host_basepal[c*3+1]*ay;//*bright;
+                blue = bl + (float)host_basepal[c*3+2]*ay;//*bright;
+
+
+                *colmap++ = BestColor(red,green,blue, 0, 222);
             }
         }
     }
