@@ -138,7 +138,7 @@ cvar_t	r_drawflat = {"r_drawflat", "0"};
 cvar_t	r_ambient = {"r_ambient", "0"};
 
 cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qbism
-cvar_t	r_clintensity = {"r_clintensity", "1", true}; //qbism
+cvar_t	r_clintensity = {"r_clintensity", "1.0", true}; //qbism
 cvar_t	r_clbaseweight = {"r_clbaseweight", "0.5", true}; //qbism- base pixel weight for color map blending
 cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", true}; //qbism- color weight for color map blending
 

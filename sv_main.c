@@ -1562,8 +1562,10 @@ void SV_SpawnServer (char *server)
         return;
     }
     R_LoadPalette("palette"); //qbism- cleanse the palette.
+   R_LoadPalette("r_palette.string"); //qbism- load custom palette if it exists.
 
     //qbism - colored lighting stuff begin
+    /*
     GrabColormap();
     {
         int i;
@@ -1574,6 +1576,7 @@ void SV_SpawnServer (char *server)
     GrabLightcolormap();
     GrabAdditivemap();
     R_LoadPalette(server); //qbism - load palette matching the map name, if there is one.
+     */
      //qbism - colored lighting stuff end
 
     sv.models[1] = sv.worldmodel;

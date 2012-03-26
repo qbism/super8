@@ -71,7 +71,7 @@ byte        *lightcolormap; //qbism
 
 cvar_t	r_skyalpha = {"r_skyalpha","0.5"}; //0.6 Manoel Kasimier - translucent sky
 
-cvar_t  r_palette =  {"r_palette", "gfx/s8pal.lmp", true}; //qbism- the default palette to load
+cvar_t  r_palette =  {"r_palette", "s8pal", true}; //qbism- the default palette to load
 
 cvar_t	host_framerate = {"host_framerate","0"};	// set for slow motion
 cvar_t	host_speeds = {"host_speeds","0"};			// set for running times
@@ -885,9 +885,11 @@ void Host_Frame (float time)
 
 void Palette_Init (void) //qbism - idea from Engoo
 {
+    char path[128];
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
 
-    fileinfo = COM_LoadHunkFile (r_palette.string);
+    sprintf (path,"gfx/%s.lmp",r_palette.string);
+    fileinfo = COM_LoadHunkFile (path);
     if (!fileinfo)
     {
         fileinfo = COM_LoadHunkFile ("gfx/palette.lmp");
