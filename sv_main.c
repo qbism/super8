@@ -1562,7 +1562,20 @@ void SV_SpawnServer (char *server)
         return;
     }
     R_LoadPalette("palette"); //qbism- cleanse the palette.
+
+    //qbism - colored lighting stuff begin
+    GrabColormap();
+    {
+        int i;
+        for (i=0; i<COLORLEVELS; i++)
+            memcpy(colormap_cel+i*256, host_colormap+(i-(i%16))*256, 256); // 4 shades
+    }
+     GrabAlphamap();
+    GrabLightcolormap();
+    GrabAdditivemap();
     R_LoadPalette(server); //qbism - load palette matching the map name, if there is one.
+     //qbism - colored lighting stuff end
+
     sv.models[1] = sv.worldmodel;
 //
 // clear world interaction links

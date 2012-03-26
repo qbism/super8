@@ -11,7 +11,7 @@
 		<Cursor1 position="787" topLine="0" />
 	</File>
 	<File name="bspfile.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="6820" topLine="287" />
+		<Cursor1 position="5620" topLine="236" />
 	</File>
 	<File name="cdaudio.h" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="1228" topLine="20" />
@@ -25,17 +25,17 @@
 	<File name="cl_input.c" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="2619" topLine="74" />
 	</File>
-	<File name="cl_main.c" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="12003" topLine="545" />
+	<File name="cl_main.c" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="9145" topLine="349" />
 	</File>
-	<File name="cl_parse.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="cl_parse.c" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="23841" topLine="856" />
 	</File>
 	<File name="cl_tent.c" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="11009" topLine="413" />
+		<Cursor1 position="7000" topLine="251" />
 	</File>
-	<File name="client.h" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="5417" topLine="231" />
+	<File name="client.h" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="2569" topLine="97" />
 	</File>
 	<File name="cmd.c" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="858" topLine="15" />
@@ -65,7 +65,7 @@
 		<Cursor1 position="1893" topLine="89" />
 	</File>
 	<File name="cvar.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="2823" topLine="65" />
+		<Cursor1 position="2413" topLine="55" />
 	</File>
 	<File name="d_edge.c" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="3769" topLine="157" />
@@ -109,8 +109,8 @@
 	<File name="draw.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="1367" topLine="25" />
 	</File>
-	<File name="host.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="18050" topLine="635" />
+	<File name="host.c" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="2003" topLine="64" />
 	</File>
 	<File name="host_cmd.c" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="850" topLine="18" />
@@ -130,8 +130,8 @@
 	<File name="menu.c" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="2207" topLine="51" />
 	</File>
-	<File name="model.c" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="15331" topLine="568" />
+	<File name="model.c" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="14486" topLine="553" />
 	</File>
 	<File name="model.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="8848" topLine="376" />
@@ -158,7 +158,7 @@
 		<Cursor1 position="15361" topLine="735" />
 	</File>
 	<File name="pr_cmds.c" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="42565" topLine="1827" />
+		<Cursor1 position="4425" topLine="125" />
 	</File>
 	<File name="pr_comp.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="1337" topLine="27" />
@@ -172,14 +172,14 @@
 	<File name="progdefs.q1" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="465" topLine="0" />
 	</File>
-	<File name="progs.h" open="1" top="1" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="progs.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="1520" topLine="32" />
 	</File>
 	<File name="protocol.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="2776" topLine="92" />
 	</File>
 	<File name="quakedef.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="8618" topLine="224" />
+		<Cursor1 position="8835" topLine="303" />
 	</File>
 	<File name="r_aclip.c" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="1747" topLine="44" />
@@ -202,16 +202,16 @@
 	<File name="r_light.c" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="2952" topLine="0" />
 	</File>
-	<File name="r_local.h" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="2539" topLine="66" />
+	<File name="r_local.h" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="2601" topLine="66" />
 	</File>
-	<File name="r_main.c" open="0" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="4030" topLine="131" />
+	<File name="r_main.c" open="1" top="1" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="14333" topLine="430" />
 	</File>
 	<File name="r_misc.c" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="6910" topLine="359" />
 	</File>
-	<File name="r_part.c" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="r_part.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="13352" topLine="652" />
 	</File>
 	<File name="r_shared.h" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -223,11 +223,11 @@
 	<File name="r_sprite.c" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="6004" topLine="216" />
 	</File>
-	<File name="r_surf.c" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="24375" topLine="887" />
+	<File name="r_surf.c" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="21399" topLine="807" />
 	</File>
 	<File name="render.h" open="0" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="4235" topLine="88" />
+		<Cursor1 position="2568" topLine="146" />
 	</File>
 	<File name="s_dos\cd_null.c" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="3" topLine="0" />
@@ -379,7 +379,7 @@
 	<File name="sv_move.c" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="783" topLine="347" />
 	</File>
-	<File name="sv_phys.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="sv_phys.c" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="10974" topLine="391" />
 	</File>
 	<File name="sv_user.c" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">

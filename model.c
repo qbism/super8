@@ -554,7 +554,7 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
             i = LittleLong(((int *)data)[1]);
             if (i == 1)
             {
-                loadmodel->colordata = Hunk_AllocName (l->filelen+64, "modcolor"); //qbism- need some padding
+                loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
                 k=8;
                 out = loadmodel->colordata;
                 lout = loadmodel->lightdata;
@@ -565,7 +565,6 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
                     b = data[k++];
                      weight= r_clintensity.value/(1+r+b+g);  //qbism- flatten out the color
                     *out++ = BestColor((int)(r*r*weight), (int)(g*g*weight), (int)(b*b*weight), 0, 254);
-                    //*out++ = BestColor((int)(r), (int)(g), (int)(b), 0, 254);
                     *lout++ = max((r+g+b)/3, *lout);  //avoid large differences if colored lights don't align w/ standard.
                 }
                 Q_free(fileinfo);
