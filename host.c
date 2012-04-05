@@ -892,6 +892,7 @@ void Palette_Init (void) //qbism - idea from Engoo
     fileinfo = COM_LoadHunkFile (path);
     if (!fileinfo)
     {
+        Con_Printf("Palette file %s not found.");
         fileinfo = COM_LoadHunkFile ("gfx/palette.lmp");
         if (!fileinfo)
             Sys_Error ("Couldn't load %s or gfx/palette.lmp", r_palette.value);
@@ -899,7 +900,7 @@ void Palette_Init (void) //qbism - idea from Engoo
 
     host_basepal = fileinfo->data;
 
-//qbism - don't need colormap.lmp, alphamap.lmp, or addivemap.lmp now
+//qbism - colormap, alphamap, and addivemap are generated
     host_colormap = Q_malloc(256*COLORLEVELS);
     GrabColormap();
     {
@@ -910,22 +911,10 @@ void Palette_Init (void) //qbism - idea from Engoo
     alphamap = Q_malloc(256*256);
     GrabAlphamap();
     lightcolormap = Q_malloc(256*256);
-    GrabLightcolormap();
-
-//   fileinfo = COM_LoadHunkFile ("gfx/alphamap.lmp");
-//    if (!fileinfo)
-//       Sys_Error ("Couldn't load gfx/alphamap.lmp");
-//   alphamap = fileinfo->data;
+    //qbism- need to do this AFTER r_init.... GrabLightcolormap();
 
     additivemap = Q_malloc(256*256);
     GrabAdditivemap();
-
-    //    fileinfo = COM_LoadHunkFile ("gfx/addmap.lmp");
-    //if (!fileinfo)
-    //     Sys_Error ("Couldn't load gfx/addmap.lmp");
-    // additivemap = fileinfo->data;
-
-    // Manoel Kasimier - transparencies - end
 }
 
 
@@ -1003,6 +992,7 @@ void Host_Init (quakeparms_t *parms)
 #ifdef _WIN32 // on non win32, mouse comes before video for security reasons
         IN_Init ();
 #endif
+    GrabLightcolormap(); //qbism
     }
 
     Con_DPrintf ("\n"); // Manoel Kasimier

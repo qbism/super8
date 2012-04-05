@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 int current_protocol = PROTOCOL_QBS8; //qbism
 extern qboolean		pr_alpha_supported; //johnfitz
-
+extern cvar_t r_palette;
 server_t		sv;
 server_static_t	svs;
 
@@ -1552,6 +1552,9 @@ void SV_SpawnServer (char *server)
 
     sv.time = 1.0;
 
+   if( !R_LoadPalette(r_palette.string)) //qbism- load custom palette if it exists.
+        R_LoadPalette("palette"); //qbism- default to standard palette.
+
     Q_strcpy (sv.name, server);
     sprintf (sv.modelname,"maps/%s.bsp", server);
     sv.worldmodel = Mod_ForName (sv.modelname, false);
@@ -1561,24 +1564,6 @@ void SV_SpawnServer (char *server)
         Host_Error/*Con_Printf*/ ("Couldn't spawn server %s\n", sv.modelname); // Manoel Kasimier - edited
         return;
     }
-    R_LoadPalette("palette"); //qbism- cleanse the palette.
-   R_LoadPalette("r_palette.string"); //qbism- load custom palette if it exists.
-
-    //qbism - colored lighting stuff begin
-    /*
-    GrabColormap();
-    {
-        int i;
-        for (i=0; i<COLORLEVELS; i++)
-            memcpy(colormap_cel+i*256, host_colormap+(i-(i%16))*256, 256); // 4 shades
-    }
-     GrabAlphamap();
-    GrabLightcolormap();
-    GrabAdditivemap();
-    R_LoadPalette(server); //qbism - load palette matching the map name, if there is one.
-     */
-     //qbism - colored lighting stuff end
-
     sv.models[1] = sv.worldmodel;
 //
 // clear world interaction links

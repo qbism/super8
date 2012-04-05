@@ -312,7 +312,7 @@ void CRC_Init(unsigned short *crcvalue);
 void CRC_ProcessByte(unsigned short *crcvalue, byte data);
 unsigned short CRC_Value(unsigned short crcvalue);
 void SV_LocalSound (client_t *client, char *sample, char volume);
-void R_LoadPalette (char *name);
+int R_LoadPalette (char *name);
 
 extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output
 										//  an fullscreen DIB focus gain/loss

@@ -799,7 +799,7 @@ R_LoadPalette
 ===============
 */
 
-void R_LoadPalette (char *name) //qbism - load an alternate palette
+int R_LoadPalette (char *name) //qbism - load an alternate palette
 {
     loadedfile_t	*fileinfo;
     char	pathname[MAX_QPATH];
@@ -810,7 +810,7 @@ void R_LoadPalette (char *name) //qbism - load an alternate palette
     if (!fileinfo)
     {
         Con_Printf("Palette %s not found.\n", name);
-        return;
+        return 0;
     }
     memcpy (host_basepal, fileinfo->data, 768);
     //qbism - if color 255 (transparent) isn't the default color, use it for lighting tint.
@@ -833,6 +833,7 @@ void R_LoadPalette (char *name) //qbism - load an alternate palette
     GrabAdditivemap();
     VID_SetPalette (host_basepal);
     Con_Printf("Palette %s loaded.\n", name);
+    return 1;
 }
 
 /*

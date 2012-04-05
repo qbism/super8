@@ -131,7 +131,7 @@
 		<Cursor1 position="2207" topLine="51" />
 	</File>
 	<File name="model.c" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="14486" topLine="553" />
+		<Cursor1 position="46048" topLine="1563" />
 	</File>
 	<File name="model.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="8848" topLine="376" />
@@ -178,7 +178,7 @@
 	<File name="protocol.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="2776" topLine="92" />
 	</File>
-	<File name="quakedef.h" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="quakedef.h" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="8835" topLine="303" />
 	</File>
 	<File name="r_aclip.c" open="0" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -206,7 +206,7 @@
 		<Cursor1 position="2601" topLine="66" />
 	</File>
 	<File name="r_main.c" open="1" top="1" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="14333" topLine="430" />
+		<Cursor1 position="23624" topLine="838" />
 	</File>
 	<File name="r_misc.c" open="0" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="6910" topLine="359" />
@@ -373,8 +373,8 @@
 	<File name="spritegn.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="1892" topLine="46" />
 	</File>
-	<File name="sv_main.c" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor1 position="41373" topLine="1389" />
+	<File name="sv_main.c" open="1" top="0" tabpos="10" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor1 position="45308" topLine="1549" />
 	</File>
 	<File name="sv_move.c" open="0" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor1 position="783" topLine="347" />
