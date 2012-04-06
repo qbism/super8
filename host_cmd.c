@@ -2142,4 +2142,5 @@ void Host_InitCommands (void)
 
 	Cmd_AddCommand ("mcache", Mod_Print);
 	Cmd_AddCommand ("qcexec", Host_QC_Exec); // FrikaC - qcexec function
+
 }

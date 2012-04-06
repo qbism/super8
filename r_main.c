@@ -142,6 +142,8 @@ cvar_t	r_clintensity = {"r_clintensity", "1.0", true}; //qbism
 cvar_t	r_clbaseweight = {"r_clbaseweight", "0.5", true}; //qbism- base pixel weight for color map blending
 cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", true}; //qbism- color weight for color map blending
 
+cvar_t r_fog = {"r_fog", "1", true}; //qbism-  draw fog?
+
 cvar_t	r_reportsurfout = {"r_reportsurfout", "0"};
 cvar_t	r_maxsurfs = {"r_maxsurfs", "0"};
 cvar_t	r_numsurfs = {"r_numsurfs", "0"};
@@ -228,6 +230,12 @@ void R_Init (void)
     Cmd_AddCommand ("timerefresh", R_TimeRefresh_f);
     Cmd_AddCommand ("pointfile", R_ReadPointFile_f);
     Cmd_AddCommand ("loadsky", R_LoadSky_f); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
+    Cmd_AddCommand ("fog", Fog_FogCommand_f); // qbism- fog commands from FitzQuake
+    //set up global fog
+    fog_density = 0.0;
+    fog_red = 0.3;
+    fog_green = 0.3;
+    fog_blue = 0.3;
 
     Cvar_RegisterVariable (&r_draworder);
     Cvar_RegisterVariable (&r_speeds);
@@ -239,6 +247,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_clintensity); //qbism
     Cvar_RegisterVariable (&r_clbaseweight); //qbism
     Cvar_RegisterVariable (&r_clcolorweight); //qbism
+    Cvar_RegisterVariable (&r_fog); //qbism
     Cvar_RegisterVariable (&r_clearcolor);
     Cvar_RegisterVariable (&r_waterwarp);
     Cvar_RegisterVariable (&r_fullbright);
@@ -870,7 +879,7 @@ void R_NewMap (void)
     R_ClearParticles ();
     R_BuildLightmaps(); //qbism ftestain
     R_InitSkyBox (); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
-
+    Fog_ParseWorldspawn (); //qbism- from Fitzquake- for global fog
     r_cnumsurfs = r_maxsurfs.value;
 
     if (r_cnumsurfs <= MINSURFACES)
@@ -1778,39 +1787,36 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     R_DrawViewModel (false); // Manoel Kasimier
 
     // Manoel Kasimier - fog - begin
-    if (additivemap)
-        if (developer.value >= 100)
-            if (developer.value < 356)
+    if (fog_density && r_fog.value)  //qbism - adapt for global fog
+    {
+        int			x, y, level, fogindex;
+        byte		*pbuf;
+        short		*pz;
+        extern short		*d_pzbuffer;
+        extern unsigned int	d_zwidth;
+        extern int			d_scantable[1024];
+        fogindex = BestColor(fog_red*128, fog_green*128, fog_blue*128, 0, 232); //qbism - half value, bright fog is harsh
+        for (y=0 ; y<r_refdef.vrect.height/*vid.height*/ ; y++)
+        {
+            for (x=0 ; x<r_refdef.vrect.width/*vid.width*/ ; x++)
             {
-                int			x, y, level;
-                byte		*pbuf;
-                short		*pz;
-                extern short		*d_pzbuffer;
-                extern unsigned int	d_zwidth;
-                extern int			d_scantable[1024];
-                for (y=0 ; y<r_refdef.vrect.height/*vid.height*/ ; y++)
+                pz = d_pzbuffer + (d_zwidth * (y+r_refdef.vrect.y)) + x+r_refdef.vrect.x;
+                level = 32 - (int)(*pz * ((256.0 - fog_density*256.0)/256.0))+ ((y*x)%881)%6; //qbism - ditherish
+                level= min(30, level);
+                if (level > 0)
                 {
-                    for (x=0 ; x<r_refdef.vrect.width/*vid.width*/ ; x++)
-                    {
-                        pz = d_pzbuffer + (d_zwidth * (y+r_refdef.vrect.y)) + x+r_refdef.vrect.x;
-                        //*
-                        level = 32 - (int)(*pz * (32.0/256.0));
-
-                        if (level > 0 && level <= 32)
-                        {
 #ifndef _WIN32 // Manoel Kasimier - buffered video (bloody hack)
-                            if (!r_dowarp)
-                                pbuf = vid.buffer + d_scantable[y+r_refdef.vrect.y] + x+r_refdef.vrect.x;
-                            else
+                    if (!r_dowarp)
+                        pbuf = vid.buffer + d_scantable[y+r_refdef.vrect.y] + x+r_refdef.vrect.x;
+                    else
 #endif // Manoel Kasimier - buffered video (bloody hack)
-                                pbuf = r_warpbuffer + d_scantable[y+r_refdef.vrect.y] + x+r_refdef.vrect.x;
-                            *pbuf = (byte)vid.colormap[*pbuf + (level * 256)];
-                            //	*pbuf = additivemap[(int)vid.colormap[*pbuf + ((32+level) * 256)]*256];
-                            *pbuf = additivemap[*pbuf + (int)vid.colormap[(int)developer.value-100 + (level * 256)]*256];
-                        }
-                    }
+                        pbuf = r_warpbuffer + d_scantable[y+r_refdef.vrect.y] + x+r_refdef.vrect.x;
+
+                    *pbuf = additivemap[*pbuf + (int)vid.colormap[fogindex + ((64-level) * 256)]*256];
                 }
             }
+        }
+    }
     // Manoel Kasimier - fog - end
 
     // Manoel Kasimier - buffered video (bloody hack) - begin

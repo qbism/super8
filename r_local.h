@@ -80,6 +80,8 @@ extern cvar_t	r_clintensity;
 extern cvar_t	r_clbaseweight;
 extern cvar_t	r_clcolorweight;
 
+extern cvar_t   r_fog; //qbism - fog!  not TOO bad...
+
 #define XCENTERING	(1.0 / 2.0)
 #define YCENTERING	(1.0 / 2.0)
 
@@ -295,6 +297,12 @@ extern int		r_clipflags;
 extern qboolean	r_fov_greater_than_90;
 byte *pointcolormap; //qbism palettized color
 
+//qbism - fog
+extern float fog_density, fog_red, fog_green, fog_blue;
+extern float old_density, old_red, old_green, old_blue;
+extern float fade_time; //duration of fade
+extern float fade_done; //time when fade will be done
+
 void R_BuildLightmaps(void); //qbism ftestain
 void GrabAlphamap (void); //qbism
 void GrabAdditivemap (void); //qbism
@@ -320,3 +328,5 @@ void R_InitSkyBox (void); // Manoel Kasimier - skyboxes // Code taken from the T
 qboolean R_LoadSkybox (char *name); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 
 int BestColor (int r, int g, int b, int start, int stop); //qbism
+
+void Fog_FogCommand_f (void); //qbism
