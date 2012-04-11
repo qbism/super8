@@ -1786,6 +1786,13 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
 
     R_DrawViewModel (false); // Manoel Kasimier
 
+long xorShift64(long a) {
+    a ^= (a << 21);
+    a ^= (a >> 35);
+    a ^= (a << 4);
+    return a;
+}
+
     // Manoel Kasimier - fog - begin
     if (fog_density && r_fog.value)  //qbism - adapt for global fog
     {
@@ -1801,7 +1808,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
             for (x=0 ; x<r_refdef.vrect.width/*vid.width*/ ; x++)
             {
                 pz = d_pzbuffer + (d_zwidth * (y+r_refdef.vrect.y)) + x+r_refdef.vrect.x;
-                level = 32 - (int)(*pz * ((256.0 - fog_density*256.0)/256.0))+ ((y*x)%881)%6; //qbism - ditherish
+                level = 30 - (int)(*pz * ((256.0 - fog_density*256.0)/256.0) + (int)xorShift64((long)(y*14121.753245+x*y*13.753245077))%2); //qbism - ditherish
                 level= min(30, level);
                 if (level > 0)
                 {
