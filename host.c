@@ -42,6 +42,7 @@ double	host_org_frametime;
 
 void Palette_Init (void);
 void BuildGammaTable (float g);
+void GrabLightcolormap (void);
 
 cvar_t	host_timescale = {"host_timescale", "1"};
 // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end

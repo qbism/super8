@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //define	PASSAGES
 
+void Fog_ParseWorldspawn (void);
 void		*colormap;
 //vec3_t		viewlightvec; // Manoel Kasimier - changed alias models lighting - removed
 //alight_t	r_viewlighting = {128, 192, viewlightvec}; // Manoel Kasimier - changed alias models lighting - removed
@@ -1678,6 +1679,15 @@ r_refdef must be set before the first call
 ================
 */
 byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
+
+
+long xorShift64(long a) {
+    a ^= (a << 21);
+    a ^= (a >> 35);
+    a ^= (a << 4);
+    return a;
+}
+
 void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and stereo.
 {
     int		dummy;
@@ -1785,13 +1795,6 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     // Manoel Kasimier - translucent water - end
 
     R_DrawViewModel (false); // Manoel Kasimier
-
-long xorShift64(long a) {
-    a ^= (a << 21);
-    a ^= (a >> 35);
-    a ^= (a << 4);
-    return a;
-}
 
     // Manoel Kasimier - fog - begin
     if (fog_density && r_fog.value)  //qbism - adapt for global fog

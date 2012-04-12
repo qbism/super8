@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // we need to declare some mouse variables here, because the menu system
 // references them even when on a unix system.
 
+int BestColor (int r, int g, int b, int start, int stop);
+
 extern cvar_t	r_shadowhack; //qbism- engoo shadowhack
 extern cvar_t   r_shadowhacksize; //qbism
 

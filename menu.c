@@ -34,6 +34,7 @@ cvar_t	savename = {"savename","QBS8____"}; // 8 uppercase characters
 
 
 //qbism - needed for Rikku2000 maplist, but not included w/ mingw
+#ifndef FLASH
 int scandir(const char *dir, struct dirent ***namelist,
             int (*select)(const struct dirent *),
             int (*compar)(const struct dirent **, const struct dirent **)) {
@@ -68,10 +69,11 @@ int scandir(const char *dir, struct dirent ***namelist,
   return(i);
 }
 
+//qbism - alphasort def is in dirent.h of alchemy (cygwin)
 int alphasort(const struct dirent **a, const struct dirent **b) {
   return(strcmpi((*a)->d_name, (*b)->d_name));
 }
-
+#endif
 
 void SetSavename ()
 {
