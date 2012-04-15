@@ -34,7 +34,7 @@ D_SpriteDrawSpans
 =====================
 */
 
-#ifndef DOSQUAKE
+#ifndef ASMx86QUAKE
 void D_SpriteDrawSpans (sspan_t *pspan)
 {
 	int			count, spancount, izistep;

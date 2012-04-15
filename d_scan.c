@@ -94,7 +94,7 @@ void D_WarpScreen (void)
 	}
 }
 
-#ifndef DOSQUAKE
+#ifndef ASMx86QUAKE
 /*
 =============
 D_DrawTurbulent8Span
@@ -720,7 +720,7 @@ void D_DrawSpans16_C (espan_t *pspan) //qbism up it from 8 to 16.  This + unroll
 D_DrawZSpans
 =============
 */
-#ifndef DOSQUAKE
+#ifndef ASMx86QUAKE
 void D_DrawZSpans (espan_t *pspan)
 {
 	int				count, doublecount, izistep;

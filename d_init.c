@@ -116,7 +116,7 @@ void D_SetupFrame (void)
     for (i=0 ; i<(NUM_MIPS-1) ; i++)
         d_scalemip[i] = basemip[i] * d_mipscale.value;
 
-#if	DOSQUAKE
+#if	ASMx86QUAKE
     if (d_subdiv16.value)
         d_drawspans = D_DrawSpans16;
     else

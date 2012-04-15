@@ -93,6 +93,8 @@ extern cvar_t   r_fog; //qbism - fog!  not TOO bad...
 
 #define	DIST_NOT_SET	98765
 
+#define DITHER_NUMRANDS 3947 //qbism- number of random floats for fog dithering
+
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
 typedef struct clipplane_s
 {

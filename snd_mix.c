@@ -37,7 +37,7 @@ short	*snd_out;
 
 void Snd_WriteLinearBlastStereo16 (void);
 
-#ifndef DOSQUAKE
+#ifndef ASMx86QUAKE
 void Snd_WriteLinearBlastStereo16 (void)
 {
 	int		i;
@@ -375,7 +375,7 @@ void SND_InitScaletable (void)
 			snd_scaletable[i][j] = ((signed char)j) * i * 8;
 }
 
-#ifndef DOSQUAKE
+#ifndef ASMx86QUAKE
 void SND_PaintChannelFrom8 (channel_t *ch, sfxcache_t *sc, int count)
 {
 	int 	data;

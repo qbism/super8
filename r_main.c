@@ -85,6 +85,8 @@ float	xOrigin, yOrigin;
 
 mplane_t	screenedge[4];
 
+byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
+float ditherfog[DITHER_NUMRANDS]; //qbism - pseudorandom dither
 //
 // refresh flags
 //
@@ -216,7 +218,7 @@ void R_LoadPalette_f (void); //qbism - load an alternate palette
 void R_LoadSky_f (void); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 void R_Init (void)
 {
-
+    int i;
 #if !defined(FLASH)
     int		dummy;
 
@@ -237,6 +239,9 @@ void R_Init (void)
     fog_red = 0.3;
     fog_green = 0.3;
     fog_blue = 0.3;
+    srand(8);  //leave nothing to chance.
+    for (i=0; i<DITHER_NUMRANDS; i++)
+        ditherfog[i] = (float)(rand()%20000)/100000.0;
 
     Cvar_RegisterVariable (&r_draworder);
     Cvar_RegisterVariable (&r_speeds);
@@ -1678,20 +1683,19 @@ R_RenderView
 r_refdef must be set before the first call
 ================
 */
-byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
-
-
-long xorShift64(long a) {
-    a ^= (a << 21);
-    a ^= (a >> 35);
-    a ^= (a << 4);
-    return a;
-}
 
 void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and stereo.
 {
     int		dummy;
     int		delta;
+    //qbism - for fog
+    int			x, y, level, fogindex, dither;
+    byte		*pbuf;
+    short		*pz;
+    extern short		*d_pzbuffer;
+    extern unsigned int	d_zwidth;
+    extern int			d_scantable[1024];
+
     //This causes problems for Flash when not using -O3
 #if !defined(FLASH)
     delta = (byte *)&dummy - r_stack_start;
@@ -1799,22 +1803,17 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     // Manoel Kasimier - fog - begin
     if (fog_density && r_fog.value)  //qbism - adapt for global fog
     {
-        int			x, y, level, fogindex;
-        byte		*pbuf;
-        short		*pz;
-        extern short		*d_pzbuffer;
-        extern unsigned int	d_zwidth;
-        extern int			d_scantable[1024];
+        dither=0;
         fogindex = BestColor(fog_red*128, fog_green*128, fog_blue*128, 0, 232); //qbism - half value, bright fog is harsh
         for (y=0 ; y<r_refdef.vrect.height/*vid.height*/ ; y++)
         {
             for (x=0 ; x<r_refdef.vrect.width/*vid.width*/ ; x++)
             {
                 pz = d_pzbuffer + (d_zwidth * (y+r_refdef.vrect.y)) + x+r_refdef.vrect.x;
-                level = 30 - (int)(*pz * ((256.0 - fog_density*256.0)/256.0) + (int)xorShift64((long)(y*14121.753245+x*y*13.753245077))%2); //qbism - ditherish
-                level= min(30, level);
-                if (level > 0)
+                level = (int)(*pz * (0.9 - ditherfog[dither++ % DITHER_NUMRANDS])); //- ditherfog[(x*y+x+dither++)%41]; //qbism - ditherish
+                if (level < 32)
                 {
+                    if (level < 1) level = 1;
 #ifndef _WIN32 // Manoel Kasimier - buffered video (bloody hack)
                     if (!r_dowarp)
                         pbuf = vid.buffer + d_scantable[y+r_refdef.vrect.y] + x+r_refdef.vrect.x;
@@ -1822,7 +1821,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
 #endif // Manoel Kasimier - buffered video (bloody hack)
                         pbuf = r_warpbuffer + d_scantable[y+r_refdef.vrect.y] + x+r_refdef.vrect.x;
 
-                    *pbuf = additivemap[*pbuf + (int)vid.colormap[fogindex + ((64-level) * 256)]*256];
+                    *pbuf = additivemap[*pbuf + (int)vid.colormap[fogindex + ((level+32) * 256)]*256];
                 }
             }
         }
