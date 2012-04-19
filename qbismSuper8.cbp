@@ -84,7 +84,7 @@
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_WIN32" />
 					<Add option="-DCURL_STATICLIB" />
-					<Add option="-DDOSQUAKE" />
+					<Add option="-DASMx86QUAKE" />
 					<Add directory="." />
 				</Compiler>
 				<Linker>

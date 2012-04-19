@@ -365,12 +365,6 @@ void Fog_ParseWorldspawn (void)
     char key[128], value[4096];
     char *data;
 
-    //initially no fog
-    fog_density = 0.0;
-    old_density = 0.0;
-    fade_time = 0.0;
-    fade_done = 0.0;
-
     data = COM_Parse(cl.worldmodel->entities);
     if (!data)
         return; // error

@@ -323,7 +323,8 @@ extern int			current_skill;		// skill level for currently loaded level (in case
 extern qboolean		isDedicated;
 
 extern int			minimum_memory;
-
+extern byte     palmapnofb[32][32][32];
+extern byte	    palmap[32][32][32];
 //
 // chase
 //

@@ -104,7 +104,6 @@ qpic_t	*Draw_CachePic (char *path)
 }
 
 
-
 /*
 ===============
 Draw_Init

@@ -50,6 +50,13 @@ int			r_maxsurfsseen, r_maxedgesseen, r_cnumsurfs;
 qboolean	r_surfsonstack;
 int			r_clipflags;
 
+//qbism - from engoo
+// COLOR Translation stuff
+// Came straight out of image.c of Quake2 tools
+
+byte	palmap[32][32][32];		// For fast 15-bit lookup
+byte	palmapnofb[32][32][32];		// No fullbrights
+
 #if !defined(FLASH)
 byte		*r_stack_start;
 #endif
@@ -226,7 +233,7 @@ void R_Init (void)
     r_stack_start = (byte *)&dummy;
 #endif
 
-
+    MakeMy15to8(); //qbism - engoo doesn't use it yet, so might as well
     R_InitTurb ();
 
     Cmd_AddCommand ("loadpalette", R_LoadPalette_f);
@@ -241,7 +248,7 @@ void R_Init (void)
     fog_blue = 0.3;
     srand(8);  //leave nothing to chance.
     for (i=0; i<DITHER_NUMRANDS; i++)
-        ditherfog[i] = (float)(rand()%20000)/100000.0;
+        ditherfog[i] = 0.9 + (float)(rand()%20000)/100000.0;
 
     Cvar_RegisterVariable (&r_draworder);
     Cvar_RegisterVariable (&r_speeds);
@@ -382,6 +389,28 @@ COLORMAP GRABBING
 =============================================================================
 */
 
+//qbism - 15to8 stealed from engoo.
+
+void MakeMy15to8(unsigned char *palette)
+{
+    int r, g, b, beastcolor, beefstcolor;
+    for (r=0 ; r<256 ; r+=8)
+    {
+        for (g=0 ; g<256 ; g+=8)
+        {
+            for (b=0 ; b<256 ; b+=8)
+            {
+                beastcolor = BestColor (r, g, b, 0, 255);
+                beefstcolor = BestColor (r, g, b, 0, 223);
+                palmap[r>>3][g>>3][b>>3] = beastcolor;
+                palmapnofb[r>>3][g>>3][b>>3] = beefstcolor;
+            }
+        }
+    }
+}
+
+
+
 /*
 ===============
 BestColor - qbism- from qlumpy
@@ -428,7 +457,7 @@ int BestColor (int r, int g, int b, int start, int stop)
 
 void GrabAlphamap (void) //qbism- based on Engoo
 {
-    int c,l, red, green, blue;
+    int c,l, r,g,b;
     float ay, ae;
     byte *colmap;
 
@@ -440,10 +469,30 @@ void GrabAlphamap (void) //qbism- based on Engoo
     {
         for (c=0 ; c<256 ; c++)
         {
-            red = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
-            green = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
-            blue = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
-            *colmap++ = BestColor(red,green,blue, 0, 254); // High quality color tables get best color
+            r = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
+            g = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
+            b = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
+            *colmap++ =BestColor(r,g,b, 0, 255); // High quality color tables get best color
+        }
+    }
+}
+
+void GrabFogmap (void) //qbism- yet another lookup
+{
+    int c,l, r,g,b;
+    float ay, ae;
+    byte *colmap;
+
+    colmap = fogmap;
+
+    for (l=0; l<256; l++)
+    {
+        for (c=0 ; c<256 ; c++)
+       {
+            r = (host_basepal[c*3]  + host_basepal[l*3] + (c/32.0));
+            g = (host_basepal[c*3+1] + host_basepal[l*3+1] + (c/32.0));
+            b = (host_basepal[c*3+2] + host_basepal[l*3+2] + (c/32.0));
+            *colmap++ = BestColor(r,g,b, 0, 254); // High quality color tables get best color
         }
     }
 }
@@ -451,7 +500,7 @@ void GrabAlphamap (void) //qbism- based on Engoo
 
 void GrabLightcolormap (void) //qbism- for colored lighting, fullbrights show through
 {
-    int c,l, red, green, blue;
+    int c,l, r,g,b;
     float rl, gl, bl;
     float ay, ae, bright;
     byte *colmap;
@@ -482,12 +531,12 @@ void GrabLightcolormap (void) //qbism- for colored lighting, fullbrights show th
             else
             {
                 //bright = sqrt((rl+gl+bl)/(host_basepal[c*3]+host_basepal[c*3+1]+host_basepal[c*3+2]+1.0));
-                red = rl + (float)host_basepal[c*3]*ay;//*bright;
-                green = gl + (float)host_basepal[c*3+1]*ay;//*bright;
-                blue = bl + (float)host_basepal[c*3+2]*ay;//*bright;
+                r = rl + (float)host_basepal[c*3]*ay;//*bright;
+                g = gl + (float)host_basepal[c*3+1]*ay;//*bright;
+                b = bl + (float)host_basepal[c*3+2]*ay;//*bright;
 
 
-                *colmap++ = BestColor(red,green,blue, 0, 222);
+                *colmap++ = BestColor(r,g,b, 0, 223);
             }
         }
     }
@@ -846,6 +895,7 @@ int R_LoadPalette (char *name) //qbism - load an alternate palette
     GrabAlphamap();
     GrabLightcolormap();
     GrabAdditivemap();
+    GrabFogmap();
     VID_SetPalette (host_basepal);
     Con_Printf("Palette %s loaded.\n", name);
     return 1;
@@ -1690,7 +1740,8 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     int		delta;
     //qbism - for fog
     int			x, y, level, fogindex, dither;
-    byte		*pbuf;
+    float   density_factor;
+    byte		*pbuf, *ptbuf;
     short		*pz;
     extern short		*d_pzbuffer;
     extern unsigned int	d_zwidth;
@@ -1804,24 +1855,20 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     if (fog_density && r_fog.value)  //qbism - adapt for global fog
     {
         dither=0;
-        fogindex = BestColor(fog_red*128, fog_green*128, fog_blue*128, 0, 232); //qbism - half value, bright fog is harsh
+        fogindex = palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3]; //qbism -partial value, bright fog is harsh
+        density_factor = max(1.0-fog_density*8.0,0.01);
         for (y=0 ; y<r_refdef.vrect.height/*vid.height*/ ; y++)
         {
+            pbuf = r_warpbuffer + d_scantable[y+r_refdef.vrect.y];
             for (x=0 ; x<r_refdef.vrect.width/*vid.width*/ ; x++)
             {
                 pz = d_pzbuffer + (d_zwidth * (y+r_refdef.vrect.y)) + x+r_refdef.vrect.x;
-                level = (int)(*pz * (0.9 - ditherfog[dither++ % DITHER_NUMRANDS])); //- ditherfog[(x*y+x+dither++)%41]; //qbism - ditherish
+                level = (int)(*pz * ditherfog[dither++ % DITHER_NUMRANDS] * density_factor); //- ditherfog[(x*y+x+dither++)%41]; //qbism - ditherish
                 if (level < 32)
                 {
-                    if (level < 1) level = 1;
-#ifndef _WIN32 // Manoel Kasimier - buffered video (bloody hack)
-                    if (!r_dowarp)
-                        pbuf = vid.buffer + d_scantable[y+r_refdef.vrect.y] + x+r_refdef.vrect.x;
-                    else
-#endif // Manoel Kasimier - buffered video (bloody hack)
-                        pbuf = r_warpbuffer + d_scantable[y+r_refdef.vrect.y] + x+r_refdef.vrect.x;
-
-                    *pbuf = additivemap[*pbuf + (int)vid.colormap[fogindex + ((level+32) * 256)]*256];
+                    if (level < 0) level = 0;
+                    ptbuf = pbuf + x + r_refdef.vrect.x;
+                    *ptbuf = fogmap[*ptbuf + (int)vid.colormap[fogindex + (level+32) * 256]*256];
                 }
             }
         }

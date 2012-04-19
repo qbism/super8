@@ -67,7 +67,7 @@ jmp_buf 	host_abortserver;
 
 byte		*host_basepal;
 byte		*host_colormap;//qbism
-byte        *alphamap, *additivemap; //qbism moved here
+byte        *alphamap, *additivemap, *fogmap; //qbism moved here
 byte        *lightcolormap; //qbism
 
 cvar_t	r_skyalpha = {"r_skyalpha","0.5"}; //0.6 Manoel Kasimier - translucent sky
@@ -911,6 +911,8 @@ void Palette_Init (void) //qbism - idea from Engoo
     }
     alphamap = Q_malloc(256*256);
     GrabAlphamap();
+    fogmap = Q_malloc(256*256);
+    GrabFogmap();
     lightcolormap = Q_malloc(256*256);
     //qbism- need to do this AFTER r_init.... GrabLightcolormap();
 

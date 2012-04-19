@@ -45,7 +45,7 @@ extern cvar_t r_interpolation; // Manoel Kasimier - model interpolation
 extern cvar_t r_particlealpha; // Manoel Kasimier
 extern cvar_t r_wateralpha; // Manoel Kasimier - translucent water
 byte r_foundwater, r_drawwater; // Manoel Kasimier - translucent water
-extern byte       *alphamap, *additivemap; // Manoel Kasimier - transparencies
+extern byte       *alphamap, *additivemap, *fogmap; // Manoel Kasimier - transparencies
 extern byte       *lightcolormap;  //qbism light colors
 
 typedef struct entity_s
