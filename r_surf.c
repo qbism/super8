@@ -380,6 +380,7 @@ void R_AddDynamicLights (void)
     int			sd, td;
     float		dist, rad, minlight;
     vec3_t		impact, local;
+    vec3_t      origin_for_ent; //qbism- from inside3d post: mankrip - dynamic lights on moving brush models fix
     int			s, t;
     int			i, tempcol;
     int			smax, tmax;
@@ -395,7 +396,8 @@ void R_AddDynamicLights (void)
         if (!(surf->dlightbits[lnum >> 5] & (1 << (lnum & 31)))) continue;  //qbism from MH
 
         rad = cl_dlights[lnum].radius;
-        dist = DotProduct (cl_dlights[lnum].origin, surf->plane->normal) -
+        VectorSubtract (cl_dlights[lnum].origin, currententity->origin, origin_for_ent); //qbism- from inside3d post:   mankrip - dynamic lights on moving brush models fix
+        dist = DotProduct (origin_for_ent, surf->plane->normal) - //qbism- from inside3d post:   mankrip - dynamic lights on moving brush models fix - edited
                surf->plane->dist;
         rad -= fabs(dist);
         minlight = cl_dlights[lnum].minlight;
@@ -404,9 +406,10 @@ void R_AddDynamicLights (void)
         minlight = rad - minlight;
 
         for (i=0 ; i<3 ; i++)
-        {
-            impact[i] = cl_dlights[lnum].origin[i] -
+            impact[i] = origin_for_ent[i] -  //qbism- from inside3d post:   mankrip - dynamic lights on moving brush models fix - edited
                         surf->plane->normal[i]*dist;
+        {
+            surf->plane->normal[i]*dist;
         }
 
         local[0] = DotProduct (impact, tex->vecs[0]) + tex->vecs[0][3];

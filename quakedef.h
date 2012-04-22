@@ -83,7 +83,7 @@ void as3ReadFileSharedObject(const char* filename);
 
 #define	MAX_MSGLEN		32000 //qbism- 32767 Super8 max, 65535 per qsb - was 8000		// max length of a reliable message
 #define	MAX_DATAGRAM	32000 //qbism 32767 Super8 max, 32767 per qsb - was 1024		// max length of unreliable message
-#define	DATAGRAM_MTU	1400 //qbismfrom johnfitz- reduced value if connected to server
+#define	DATAGRAM_MTU	1400 //qbism from johnfitz- reduced value if connected to server
 //
 // per-level limits
 //

@@ -70,12 +70,14 @@ void R_MarkLights (dlight_t *light, int num, mnode_t *node)  //qbism- adapted fr
    float      dist;
    msurface_t   *surf;
    int         i;
+   vec3_t      origin_for_ent; //qbism- i3d: mankrip - dynamic lights on moving brush models fix
 
    if (node->contents < 0)
       return;
 
    splitplane = node->plane;
-   dist = DotProduct (light->origin, splitplane->normal) - splitplane->dist;
+   VectorSubtract (light->origin, currententity->origin, origin_for_ent); //qbism- i3d: mankrip - dynamic lights on moving brush models fix
+   dist = DotProduct (origin_for_ent, splitplane->normal) - splitplane->dist; //qbism- i3d mankrip - dynamic lights on moving brush models fix - edited
 
    if (dist > light->radius)
    {
@@ -118,6 +120,7 @@ void R_PushDlights (mnode_t *headnode)  //qbism- from MH tute - increased dlight
    int i;
    dlight_t *l = cl_dlights;
 
+   //qbism - moved to r_main // currententity = &cl_entities[0]; // mankrip - dynamic lights on moving brush models fix
    for (i = 0; i < MAX_DLIGHTS; i++, l++)
    {
       if (l->die < cl.time || (l->radius <= 0))

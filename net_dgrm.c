@@ -290,13 +290,13 @@ int Datagram_SendUnreliableMessage (qsocket_t *sock, sizebuf_t *data)
 {
 	int 	packetLen;
 
-#ifdef DEBUG
+//#ifdef DEBUG
 	if (data->cursize == 0)
 		Sys_Error("Datagram_SendUnreliableMessage: zero length message\n");
 
 	if (data->cursize > MAX_DATAGRAM)
 		Sys_Error("Datagram_SendUnreliableMessage: message too big %u\n", data->cursize);
-#endif
+//#endif
 
 	packetLen = NET_HEADERSIZE + data->cursize;
 

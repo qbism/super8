@@ -45,7 +45,7 @@
 				<Option object_output="s_win32\Debug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
-				<Option parameters="-heapsize 640000 -drake +map arcanum4" />
+				<Option parameters="-heapsize 640000 -game unforgiven -map unf3" />
 				<Compiler>
 					<Add option="-pg" />
 					<Add option="-g" />

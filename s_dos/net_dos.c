@@ -84,7 +84,7 @@ int net_numdrivers = 3;
 #include "net_ipx.h"
 #include "net_mp.h"
 
-net_landriver_t	net_landrivers[MAX_NET_DRIVERS] =
+net_landriver_t	net_landrivers[MAX_NET_DRIVERS] = //qbism- nuke ipx
 {
 	{
 	"Beame & Whiteside TCP/IP",
@@ -108,30 +108,6 @@ net_landriver_t	net_landrivers[MAX_NET_DRIVERS] =
 	BW_AddrCompare,
 	BW_GetSocketPort,
 	BW_SetSocketPort
-	}
-,
-	{
-	"IPX",
-	false,
-	0,
-	IPX_Init,
-	IPX_Shutdown,
-	IPX_Listen,
-	IPX_OpenSocket,
-	IPX_CloseSocket,
-	IPX_Connect,
-	IPX_CheckNewConnections,
-	IPX_Read,
-	IPX_Write,
-	IPX_Broadcast,
-	IPX_AddrToString,
-	IPX_StringToAddr,
-	IPX_GetSocketAddr,
-	IPX_GetNameFromAddr,
-	IPX_GetAddrFromName,
-	IPX_AddrCompare,
-	IPX_GetSocketPort,
-	IPX_SetSocketPort
 	}
 ,
 	{
@@ -159,4 +135,4 @@ net_landriver_t	net_landrivers[MAX_NET_DRIVERS] =
 	}
 };
 
-int net_numlandrivers = 3;
+int net_numlandrivers = 2; //qbism - nuke ipx

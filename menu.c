@@ -3326,7 +3326,7 @@ void M_Audio_Key (int k)
 //=============================================================================
 /* VIDEO MENU */
 
-#define	VIDEO_ITEMS	19 //qbism
+#define	VIDEO_ITEMS	18 //qbism
 
 void M_Video_f (void)
 {

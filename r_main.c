@@ -248,7 +248,7 @@ void R_Init (void)
     fog_blue = 0.3;
     srand(8);  //leave nothing to chance.
     for (i=0; i<DITHER_NUMRANDS; i++)
-        ditherfog[i] = 0.9 + (float)(rand()%20000)/100000.0;
+        ditherfog[i] = 0.4 + (float)(rand()%10000)/100000.0;
 
     Cvar_RegisterVariable (&r_draworder);
     Cvar_RegisterVariable (&r_speeds);
@@ -489,7 +489,7 @@ void GrabFogmap (void) //qbism- yet another lookup
     {
         for (c=0 ; c<256 ; c++)
        {
-            r = (host_basepal[c*3]  + host_basepal[l*3] + (c/32.0));
+            r = (host_basepal[c*3] + host_basepal[l*3] + (c/32.0));
             g = (host_basepal[c*3+1] + host_basepal[l*3+1] + (c/32.0));
             b = (host_basepal[c*3+2] + host_basepal[l*3+2] + (c/32.0));
             *colmap++ = BestColor(r,g,b, 0, 254); // High quality color tables get best color
@@ -1568,7 +1568,6 @@ void R_DrawBEntitiesOnList (void)
 
     VectorCopy (modelorg, oldorigin);
     insubmodel = true;
-//    r_dlightframecount = r_framecount;
 
     for (i=0 ; i<cl_numvisedicts ; i++)
     {
@@ -1607,7 +1606,7 @@ void R_DrawBEntitiesOnList (void)
                 // calculate dynamic lighting for bmodel if it's not an
                 // instanced model
                 if (clmodel->firstmodelsurface != 0)
-                    R_PushDlights (clmodel->nodes + clmodel->hulls[0].firstclipnode);  //qbism - from MH
+                    R_PushDlights (clmodel->nodes + clmodel->hulls[0].firstclipnode); //qbism - from MH
 
                 r_pefragtopnode = NULL;
 
@@ -1777,6 +1776,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
         r_time1 = Sys_DoubleTime ();
 
     R_SetupFrame ();
+    currententity = &cl_entities[0];
     R_PushDlights (cl.worldmodel->nodes);  //qbism - moved here from view.c
 
 #ifdef PASSAGES
@@ -1856,7 +1856,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     {
         dither=0;
         fogindex = palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3]; //qbism -partial value, bright fog is harsh
-        density_factor = max(1.0-fog_density*8.0,0.01);
+        density_factor = max(1.0-fog_density,0.01);
         for (y=0 ; y<r_refdef.vrect.height/*vid.height*/ ; y++)
         {
             pbuf = r_warpbuffer + d_scantable[y+r_refdef.vrect.y];
