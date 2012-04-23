@@ -20,6 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // cl_main.c  -- client main loop
 
 #include "quakedef.h"
+#include "curl.h"
 
 // we need to declare some mouse variables here, because the menu system
 // references them even when on a unix system.
@@ -50,6 +51,8 @@ cvar_t	m_side = {"m_side","0.8", true};
 cvar_t	m_look = {"m_look","1", true}; // Manoel Kasimier - m_look
 cvar_t	cutscene = {"cutscene", "1"}; // Nehahra
 
+cvar_t cl_web_download = {"cl_web_download", "1", true}; //qbism - R00k / Baker tute
+cvar_t cl_web_download_url = {"cl_web_download_url", "http://www.mywebpage.com/maps/", true};
 
 client_static_t	cls;
 client_state_t	cl;
@@ -115,6 +118,13 @@ void CL_Disconnect (void)
     int i;
 // stop sounds (especially looping!)
     S_StopAllSounds (true);
+
+// We have to shut down webdownloading first
+    if( cls.download.web )  //qbism - R00k / Baker tute
+    {
+        cls.download.disconnect = true;
+        return;
+    }
 
 // ToChriS 1.67 - begin clear effects
 //void CL_ClearCshifts (void)
@@ -921,7 +931,8 @@ void CL_Init (void)
     Cvar_RegisterVariable (&m_side);
     Cvar_RegisterVariable (&m_look); // Manoel Kasimier - m_look
     Cvar_RegisterVariable (&cutscene); // Nehahra
-//	Cvar_RegisterVariable (&cl_autofire);
+    Cvar_RegisterVariable (&cl_web_download);  //qbism - R00k / Baker tute
+    Cvar_RegisterVariable (&cl_web_download_url);
 
     Cmd_AddCommand ("entities", CL_PrintEntities_f);
     Cmd_AddCommand ("disconnect", CL_Disconnect_f);

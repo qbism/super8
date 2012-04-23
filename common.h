@@ -278,3 +278,5 @@ void Q_snprintfz (char *dest, size_t size, char *fmt, ...);
 
 void COM_ForceExtension (char *path, char *extension);
 //qbism jqavi end
+
+void COM_GetFolder (char *in, char *out);//qbism- R00k /Baker tute

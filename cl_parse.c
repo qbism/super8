@@ -25,6 +25,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //We need to know the console char width for a modification below
 extern int 		con_linewidth;
 
+
+extern cvar_t cl_web_download; //qbism - R00k / Baker tute
+extern cvar_t cl_web_download_url;
+extern int Web_Get( const char *url, const char *referer, const char *name, int resume,
+                    int max_downloading_time, int timeout, int ( *_progress )(double) );
+
 char *svc_strings[] =
 {
     "svc_bad",
@@ -193,22 +199,22 @@ CL_ParseLocalSoundPacket  //qbism
 */
 void CL_ParseLocalSoundPacket(void)
 {
-	int 	volume;
-	int 	field_mask;
-	int 	sound_num;
+    int 	volume;
+    int 	field_mask;
+    int 	sound_num;
 
-	field_mask = MSG_ReadByte();
+    field_mask = MSG_ReadByte();
 
-	if (field_mask & SND_VOLUME)
-		volume = MSG_ReadByte ();
-	else
-	    volume = DEFAULT_SOUND_PACKET_VOLUME;
+    if (field_mask & SND_VOLUME)
+        volume = MSG_ReadByte ();
+    else
+        volume = DEFAULT_SOUND_PACKET_VOLUME;
 
-	if (field_mask & SND_LARGESOUND)
+    if (field_mask & SND_LARGESOUND)
         sound_num = MSG_ReadShort();
-	else sound_num = MSG_ReadByte();
+    else sound_num = MSG_ReadByte();
 
-	S_LocalSound (cl.sound_precache[sound_num]->name);
+    S_LocalSound (cl.sound_precache[sound_num]->name);
 }
 
 
@@ -275,6 +281,31 @@ void CL_KeepaliveMessage (void)
 }
 
 /*
+=====================
+CL_WebDownloadProgress //qbism - R00k / Baker tute
+Callback function for webdownloads.
+Since Web_Get only returns once it's done, we have to do various things here:
+Update download percent, handle input, redraw UI and send net packets.
+=====================
+*/
+static int CL_WebDownloadProgress( double percent )
+{
+    static double time, oldtime, newtime;
+
+    cls.download.percent = percent;
+    CL_KeepaliveMessage();
+
+    newtime = Sys_DoubleTime ();
+    time = newtime - oldtime;
+
+    Host_Frame (time);
+
+    oldtime = newtime;
+
+    return cls.download.disconnect; // abort if disconnect received
+}
+
+/*
 ==================
 CL_ParseServerInfo
 ==================
@@ -287,7 +318,14 @@ void CL_ParseServerInfo (void)
     char	model_precache[MAX_MODELS][MAX_QPATH];
     char	sound_precache[MAX_SOUNDS][MAX_QPATH];
 
-  	byte	tmp[256]; //qbism- for Dan East pocketquake
+    char url[1024];  //qbism - R00k / Baker tute
+    qboolean success = false;
+    char download_tempname[MAX_QPATH],download_finalname[MAX_QPATH];
+    char folder[MAX_QPATH];
+    char name[MAX_QPATH];
+    extern int net_hostport;
+
+    byte	tmp[256]; //qbism- for Dan East pocketquake
 
     Con_DPrintf ("Serverinfo packet received.\n");
 //
@@ -323,20 +361,20 @@ void CL_ParseServerInfo (void)
     str = MSG_ReadString ();
     Q_strncpy (cl.levelname, str, sizeof(cl.levelname)-1);
 
-	//Dan East: The original code hardcoded a console char width of 38 characters.  I've
-	//modified this to dynamically match the console width.
-	if (con_linewidth>=sizeof(tmp)) i=sizeof(tmp)-1;
-	else i=con_linewidth;
-	tmp[i--]='\0';
-	tmp[i--]='\37';
-	while (i) tmp[i--]='\36';
-	tmp[i]='\35';
+    //Dan East: The original code hardcoded a console char width of 38 characters.  I've
+    //modified this to dynamically match the console width.
+    if (con_linewidth>=sizeof(tmp)) i=sizeof(tmp)-1;
+    else i=con_linewidth;
+    tmp[i--]='\0';
+    tmp[i--]='\37';
+    while (i) tmp[i--]='\36';
+    tmp[i]='\35';
 
-	Con_Printf("\n\n");
-	Con_Printf(tmp);
+    Con_Printf("\n\n");
+    Con_Printf(tmp);
 
-	//Con_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
-	Con_Printf ("%c%s\n", 2, str);
+    //Con_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
+    Con_Printf ("%c%s\n", 2, str);
 
 //qbism:  johnfitz -- tell user which protocol this is
     Con_Printf ("Using protocol %i\n", current_protocol);
@@ -388,15 +426,136 @@ void CL_ParseServerInfo (void)
         cl.model_precache[i] = Mod_ForName (model_precache[i], false);
         if (cl.model_precache[i] == NULL)
         {
-            Con_Printf("Model %s not found\n", model_precache[i]);
-            return;
+            if (cl_web_download.value && cl_web_download_url.string) //qbism - R00k / Baker tute
+            {
+//Create the FULL path where the file should be written
+                Q_snprintfz (download_tempname, MAX_OSPATH, "%s/%s.tmp", com_gamedir, model_precache[i]);
+
+//determine the proper folder and create it, the OS will ignore if already exsists
+                COM_GetFolder(model_precache[i],folder);// "progs/","maps/"
+                Q_snprintfz (name, sizeof(name), "%s/%s", com_gamedir, folder);
+                Sys_mkdir (name);
+
+                Con_Printf( "Web downloading: %s from %s%s\n", model_precache[i], cl_web_download_url.string, model_precache[i]);
+
+//assign the url + path + file + extension we want
+                Q_snprintfz( url, sizeof( url ), "%s%s", cl_web_download_url.string, model_precache[i]);
+
+                cls.download.web = true;
+                cls.download.disconnect = false;
+                cls.download.percent = 0.0;
+
+//let libCURL do it's magic!!
+                success = Web_Get(url, NULL, download_tempname, false, 600, 30, CL_WebDownloadProgress);
+
+                cls.download.web = false;
+
+                free(url);
+                free(name);
+                free(folder);
+
+                if (success)
+                {
+                    Con_Printf("Web download succesfull: %s\n", download_tempname);
+//Rename the .tmp file to the final precache filename
+                    Q_snprintfz (download_finalname, MAX_OSPATH, "%s/%s", com_gamedir, model_precache[i]);
+                    rename (download_tempname, download_finalname);
+
+                    free(download_tempname);
+                    free(download_finalname);
+
+                    Cbuf_AddText (va("connect %u\n",net_hostport));//reconnect after each success
+                    return;
+                }
+                else
+                {
+                    remove (download_tempname);
+                    Con_Printf( "Web download of %s failed\n", download_tempname );
+                    return;
+                }
+
+                free(download_tempname);
+
+                if( cls.download.disconnect )//if the user type disconnect in the middle of the download
+                {
+                    cls.download.disconnect = false;
+                    CL_Disconnect_f();
+                    return;
+                }
+            }
+            else
+            {
+                Con_Printf("Model %s not found\n", model_precache[i]);
+                return;
+            }
         }
         CL_KeepaliveMessage ();
     }
 
+
     for (i=1 ; i<numsounds ; i++)
     {
         cl.sound_precache[i] = S_PrecacheSound (sound_precache[i]);
+        if (cl.sound_precache[i] == NULL)
+        {
+            if (cl_web_download.value && cl_web_download_url.string) //qbism - R00k / Baker tute
+            {
+//Create the FULL path where the file should be written
+                Q_snprintfz (download_tempname, MAX_OSPATH, "%s/%s.tmp", com_gamedir, sound_precache[i]);
+
+//determine the proper folder and create it, the OS will ignore if already exsists
+                COM_GetFolder(sound_precache[i],folder);// "progs/","maps/"
+                Q_snprintfz (name, sizeof(name), "%s/%s", com_gamedir, folder);
+                Sys_mkdir (name);
+
+                Con_Printf( "Web downloading: %s from %s%s\n", sound_precache[i], cl_web_download_url.string, sound_precache[i]);
+
+//assign the url + path + file + extension we want
+                Q_snprintfz( url, sizeof( url ), "%s%s", cl_web_download_url.string, sound_precache[i]);
+
+                cls.download.web = true;
+                cls.download.disconnect = false;
+                cls.download.percent = 0.0;
+
+//let libCURL do it's magic!!
+                success = Web_Get(url, NULL, download_tempname, false, 600, 30, CL_WebDownloadProgress);
+
+                cls.download.web = false;
+
+                free(url);
+                free(name);
+                free(folder);
+
+                if (success)
+                {
+                    Con_Printf("Web download succesfull: %s\n", download_tempname);
+//Rename the .tmp file to the final precache filename
+                    Q_snprintfz (download_finalname, MAX_OSPATH, "%s/%s", com_gamedir, sound_precache[i]);
+                    rename (download_tempname, download_finalname);
+
+                    free(download_tempname);
+                    free(download_finalname);
+
+                    Cbuf_AddText (va("connect %u\n",net_hostport));//reconnect after each success
+                    return;
+                }
+                else
+                {
+                    remove (download_tempname);
+                    Con_Printf( "Web download of %s failed\n", download_tempname );
+                    return;
+                }
+
+                free(download_tempname);
+
+                if( cls.download.disconnect )//if the user type disconnect in the middle of the download
+                {
+                    cls.download.disconnect = false;
+                    CL_Disconnect_f();
+                    return;
+                }
+            }
+        }
         CL_KeepaliveMessage ();
     }
 
@@ -601,7 +760,7 @@ void CL_ParseUpdate (int bits)
 
     if (bits & U_SCALE)
         ent->scale2 = MSG_ReadFloat();
-        else ent->scale2 = 1.0f;
+    else ent->scale2 = 1.0f;
 
     if (bits & U_SCALEV)
     {
@@ -618,19 +777,19 @@ void CL_ParseUpdate (int bits)
     // Tomaz - QC Alpha Scale Glow End
 
     if (bits & U_GLOW_RED) //qbism
-      	ent->glow_red = MSG_ReadByte();
+        ent->glow_red = MSG_ReadByte();
     else
-		ent->glow_red = 0;
+        ent->glow_red = 0;
 
     if (bits & U_GLOW_GREEN)
-      	ent->glow_green = MSG_ReadByte();
+        ent->glow_green = MSG_ReadByte();
     else
-		ent->glow_green = 0;
+        ent->glow_green = 0;
 
     if (bits & U_GLOW_BLUE)
-      	ent->glow_blue = MSG_ReadByte();
+        ent->glow_blue = MSG_ReadByte();
     else
-		ent->glow_blue = 0;
+        ent->glow_blue = 0;
 
     // Manoel Kasimier - QC frame_interval - begin
     if (bits & U_FRAMEINTERVAL)
@@ -672,7 +831,7 @@ void CL_ParseBaseline (entity_t *ent)
     ent->baseline.frame = MSG_ReadByte ();
     ent->baseline.colormap = MSG_ReadByte();
     ent->baseline.skin = MSG_ReadByte();
-     for (i=0 ; i<3 ; i++)
+    for (i=0 ; i<3 ; i++)
     {
         ent->baseline.origin[i] = MSG_ReadCoord ();
         ent->baseline.angles[i] = MSG_ReadAngle ();
@@ -957,9 +1116,9 @@ void CL_ParseStaticSound (void)
 
     for (i=0 ; i<3 ; i++)
         org[i] = MSG_ReadCoord ();
-        if (current_protocol == PROTOCOL_QBS8)
-            sound_num = MSG_ReadShort ();  //qbism- some maps have lots of ambients.
-        else sound_num = MSG_ReadByte ();
+    if (current_protocol == PROTOCOL_QBS8)
+        sound_num = MSG_ReadShort ();  //qbism- some maps have lots of ambients.
+    else sound_num = MSG_ReadByte ();
     vol = MSG_ReadByte ();
     atten = MSG_ReadByte ();
 
@@ -979,7 +1138,7 @@ void CL_ParseServerMessage (void)
     int			cmd;
     int			i;
     char		*str; //qbism:  johnfitz
-	int			lastcmd=0; //qbism:  johnfitz
+    int			lastcmd=0; //qbism:  johnfitz
 
 //
 // if recording demos, copy the message out
@@ -1022,7 +1181,7 @@ void CL_ParseServerMessage (void)
         switch (cmd)
         {
         default:
- 			Host_Error ("CL_ParseServerMessage: Illegible server message, previous was %s\n", svc_strings[lastcmd]); //qbism:  johnfitz -- added svc_strings[lastcmd]
+            Host_Error ("CL_ParseServerMessage: Illegible server message, previous was %s\n", svc_strings[lastcmd]); //qbism:  johnfitz -- added svc_strings[lastcmd]
             break;
 
         case svc_nop:
@@ -1106,9 +1265,9 @@ void CL_ParseServerMessage (void)
             S_StopSound(i>>3, i&7);
             break;
 
-		case svc_localsound:  //qbism
-			CL_ParseLocalSoundPacket();
-			break;
+        case svc_localsound:  //qbism
+            CL_ParseLocalSoundPacket();
+            break;
 
         case svc_updatename:
             Sbar_Changed ();

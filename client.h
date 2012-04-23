@@ -115,6 +115,15 @@ ca_disconnected, 	// full screen console with no connection
 ca_connected		// valid netcon, talking to a server
 } cactive_t;
 
+
+typedef struct
+{
+qboolean web;
+char *name;
+double percent;
+qboolean disconnect; // set when user tries to disconnect, to allow cleaning up webdownload
+} download_t;
+
 //
 // the client_static_t structure is persistant through an arbitrary number
 // of server connections
@@ -148,7 +157,7 @@ typedef struct
 	struct qsocket_s	*netcon;
 	sizebuf_t	message;		// writing buffer to send to server
 	qboolean   capturedemo; //qbism jqavi
-
+    download_t download; //qbism - R00k / Baker tute
 } client_static_t;
 
 extern client_static_t	cls;

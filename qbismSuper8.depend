@@ -43,13 +43,13 @@
 
 1316496217 "
 
-1325028307 c:\qbismsuper8\qbs8src\common.h
+1335152285 c:\qbismsuper8\qbs8src\common.h
 
 1307845135 c:\qbismsuper8\qbs8src\bspfile.h
 
 1330812533 c:\qbismsuper8\qbs8src\vid.h
 
-1324862425 c:\qbismsuper8\qbs8src\sys.h
+1335155531 c:\qbismsuper8\qbs8src\sys.h
 
 1307489739 c:\qbismsuper8\qbs8src\zone.h
 
@@ -75,7 +75,7 @@
 
 1334718520 c:\qbismsuper8\qbs8src\render.h
 
-1331358925 c:\qbismsuper8\qbs8src\client.h
+1335152285 c:\qbismsuper8\qbs8src\client.h
 
 1331605690 c:\qbismsuper8\qbs8src\progs.h
 	"pr_comp.h"
@@ -146,10 +146,11 @@
 1319071598 source:c:\qbismsuper8\qbs8src\cl_input.c
 	"quakedef.h"
 
-1334717900 source:c:\qbismsuper8\qbs8src\cl_main.c
+1335152300 source:c:\qbismsuper8\qbs8src\cl_main.c
 	"quakedef.h"
+	"curl.h"
 
-1328066358 source:c:\qbismsuper8\qbs8src\cl_parse.c
+1335157625 source:c:\qbismsuper8\qbs8src\cl_parse.c
 	"quakedef.h"
 
 1334190972 source:c:\qbismsuper8\qbs8src\cl_tent.c
@@ -169,7 +170,7 @@
 
 1295694336 
 
-1325028287 source:c:\qbismsuper8\qbs8src\common.c
+1335152285 source:c:\qbismsuper8\qbs8src\common.c
 	"quakedef.h"
 
 1311821574 source:c:\qbismsuper8\qbs8src\console.c
@@ -321,11 +322,11 @@
 	"quakedef.h"
 	"r_local.h"
 
-1335052548 source:c:\qbismsuper8\qbs8src\r_light.c
+1335064887 source:c:\qbismsuper8\qbs8src\r_light.c
 	"quakedef.h"
 	"r_local.h"
 
-1335049940 source:c:\qbismsuper8\qbs8src\r_main.c
+1335064887 source:c:\qbismsuper8\qbs8src\r_main.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -496,7 +497,7 @@
 
 1108298958 c:\qbismsuper8\qbs8src\anorms.h
 
-1315364691 c:\qbismsuper8\qbs8src\curl.h
+1315690984 c:\qbismsuper8\qbs8src\curl.h
 	"curlver.h"
 	<stdio.h>
 	<limits.h>
@@ -514,21 +515,20 @@
 	"easy.h"
 	"multi.h"
 
-1315364691 c:\qbismsuper8\qbs8src\curlver.h
+1315690984 c:\qbismsuper8\qbs8src\curlver.h
 
-1315364692 c:\qbismsuper8\qbs8src\easy.h
+1315690985 c:\qbismsuper8\qbs8src\easy.h
 
-1315364694 c:\qbismsuper8\qbs8src\multi.h
+1315690986 c:\qbismsuper8\qbs8src\multi.h
 	"curl.h"
 
-1315686735 source:c:\qbismsuper8\qbs8src\webdownload.c
+1315690989 source:c:\qbismsuper8\qbs8src\webdownload.c
 	"webdownload.h"
-	"Winsock2.h"
 	"quakedef.h"
-	<curl/curl.h>
+	"curl.h"
 	<stdio.h>
 
-1315364698 c:\qbismsuper8\qbs8src\webdownload.h
+1315690989 c:\qbismsuper8\qbs8src\webdownload.h
 
 1313092376 c:\codeblocks\include\math.h
 	<sys/reent.h>
@@ -807,7 +807,7 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1335064887 c:\qbismsuper8\qbs8src\version.h
+1335158964 c:\qbismsuper8\qbs8src\version.h
 
 1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
 	"quakedef.h"
