@@ -45,7 +45,7 @@
 				<Option object_output="s_win32\Debug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
-				<Option parameters="-heapsize 640000 -game unforgiven -map unf3" />
+				<Option parameters="-heapsize 640000 -game unforgiven +map unf3" />
 				<Compiler>
 					<Add option="-pg" />
 					<Add option="-g" />
@@ -94,6 +94,7 @@
 					<Add library="wsock32" />
 					<Add library="dinput" />
 					<Add library="dxguid" />
+					<Add library="curldll" />
 				</Linker>
 				<ExtraCommands>
 					<Add before="version.bat" />
@@ -505,6 +506,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="wad.h" />
+		<Unit filename="webdownload.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="world.c">
 			<Option compilerVar="CC" />
 		</Unit>
