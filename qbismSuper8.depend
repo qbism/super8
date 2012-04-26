@@ -464,7 +464,7 @@
 	"s_win32/winquake.h"
 	"s_win32/movie.h"
 
-1335040812 source:c:\qbismsuper8\qbs8src\sv_main.c
+1335233797 source:c:\qbismsuper8\qbs8src\sv_main.c
 	"quakedef.h"
 	"version.h"
 
@@ -807,7 +807,7 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1335233797 c:\qbismsuper8\qbs8src\version.h
+1335412573 c:\qbismsuper8\qbs8src\version.h
 
 1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
 	"quakedef.h"
@@ -1779,4 +1779,9 @@
 1327549244 source:c:\qbismsuper8\qbs8src\s_dos\snd_mixa.s
 	"asm_i386.h"
 	"quakeasm.h"
+
+1335412362 source:c:\qbismsuper8\qbs8src\cl_webdownload.cpp
+	<windows.h>
+	<wininet.h>
+	<urlmon.h>
 
