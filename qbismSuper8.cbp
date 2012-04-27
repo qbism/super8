@@ -124,6 +124,7 @@
 		<Unit filename="cl_tent.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="cl_webdownload.cpp" />
 		<Unit filename="client.h" />
 		<Unit filename="cmd.c">
 			<Option compilerVar="CC" />
@@ -506,9 +507,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="wad.h" />
-		<Unit filename="webdownload.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="world.c">
 			<Option compilerVar="CC" />
 		</Unit>

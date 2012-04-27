@@ -1562,7 +1562,7 @@ void SV_SpawnServer (char *server)
     if (!sv.worldmodel || (sv.worldmodel->numvertexes == -1)) // MrG - incorrect BSP version is no longer fatal - edited
     {
         sv.active = false;
-        Host_Error/*Con_Printf*/ ("Couldn't spawn server %s\n", sv.modelname); //qbism was Host_Error Manoel Kasimier - edited
+       Con_Printf ("Couldn't spawn server %s\n", sv.modelname); //qbism was Host_Error Manoel Kasimier - edited
         return;
     }
     sv.models[1] = sv.worldmodel;

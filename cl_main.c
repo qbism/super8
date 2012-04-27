@@ -52,7 +52,7 @@ cvar_t	m_look = {"m_look","1", true}; // Manoel Kasimier - m_look
 cvar_t	cutscene = {"cutscene", "1"}; // Nehahra
 
 cvar_t cl_web_download = {"cl_web_download", "1", true}; //qbism - R00k / Baker tute
-cvar_t cl_web_download_url = {"cl_web_download_url", "http://www.mywebpage.com/maps/", true};
+cvar_t cl_web_download_url = {"cl_web_download_url", "http://qbism.com/_q1maps/", true};
 
 client_static_t	cls;
 client_state_t	cl;

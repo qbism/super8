@@ -344,3 +344,7 @@ extern	cvar_t vid_mode; //qbism
 extern	cvar_t snd_speed; //qbism
 extern int current_protocol; //qbism
 
+extern cvar_t cl_web_download; //qbism - R00k / Baker tute
+extern cvar_t cl_web_download_url;
+extern int Web_Get( const char *url, const char *referer, const char *name, int resume,
+                    int max_downloading_time, int timeout, int ( *_progress )(double) );

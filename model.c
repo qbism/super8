@@ -541,55 +541,58 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
     }
     loadmodel->lightdata = Hunk_AllocName ( l->filelen, "modlight");
     memcpy (loadmodel->lightdata, mod_base + l->fileofs, l->filelen);
-    strcpy(litname, loadmodel->name);
-    COM_StripExtension(loadmodel->name, litname);
-    COM_DefaultExtension(litname, ".lit");    //qbism- indexed colored
-    fileinfo = COM_LoadFile(litname,0); //qbism- don't load into hunk
-    if (fileinfo && ((l->filelen*3 +8) == fileinfo->filelen))
+    if (cls.state != ca_dedicated)
     {
-        Con_DPrintf("%s loaded from %s\n", litname, fileinfo->path->pack ? fileinfo->path->pack->filename : fileinfo->path->filename);
-
-        data = fileinfo->data;
-        if (data[0] == 'Q' && data[1] == 'L' && data[2] == 'I' && data[3] == 'T')
+        strcpy(litname, loadmodel->name);
+        COM_StripExtension(loadmodel->name, litname);
+        COM_DefaultExtension(litname, ".lit");    //qbism- indexed colored
+        fileinfo = COM_LoadFile(litname,0); //qbism- don't load into hunk
+        if (fileinfo && ((l->filelen*3 +8) == fileinfo->filelen))
         {
-            i = LittleLong(((int *)data)[1]);
-            if (i == 1)
+            Con_DPrintf("%s loaded from %s\n", litname, fileinfo->path->pack ? fileinfo->path->pack->filename : fileinfo->path->filename);
+
+            data = fileinfo->data;
+            if (data[0] == 'Q' && data[1] == 'L' && data[2] == 'I' && data[3] == 'T')
             {
-                loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
-                k=8;
-                out = loadmodel->colordata;
-                lout = loadmodel->lightdata;
-                while(k <= fileinfo->filelen)
+                i = LittleLong(((int *)data)[1]);
+                if (i == 1)
                 {
-                    r = data[k++];
-                    g = data[k++];
-                    b = data[k++];
-                     weight= r_clintensity.value/(1+r+b+g);  //qbism- flatten out the color
-                    *out++ = BestColor((int)(r*r*weight), (int)(g*g*weight), (int)(b*b*weight), 0, 254);
-                    *lout++ = max((r+g+b)/3, *lout);  //avoid large differences if colored lights don't align w/ standard.
+                    loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
+                    k=8;
+                    out = loadmodel->colordata;
+                    lout = loadmodel->lightdata;
+                    while(k <= fileinfo->filelen)
+                    {
+                        r = data[k++];
+                        g = data[k++];
+                        b = data[k++];
+                        weight= r_clintensity.value/(1+r+b+g);  //qbism- flatten out the color
+                        *out++ = BestColor((int)(r*r*weight), (int)(g*g*weight), (int)(b*b*weight), 0, 254);
+                        *lout++ = max((r+g+b)/3, *lout);  //avoid large differences if colored lights don't align w/ standard.
+                    }
+                    Q_free(fileinfo);
+                    return;
                 }
-                Q_free(fileinfo);
-                return;
+                else
+                    Con_Printf("Unknown .LIT file version (%d)\n", i);
             }
             else
-                Con_Printf("Unknown .LIT file version (%d)\n", i);
+                Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
         }
-        else
-            Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
+        //qbism- no lit.  Still need to have something.
+        loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
+        memset (loadmodel->colordata, 1, l->filelen+18);  //qbism- fill w/ color index
     }
-    //qbism- no lit.  Still need to have something.
-    loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
-    memset (loadmodel->colordata, 1, l->filelen+18);  //qbism- fill w/ color index
 
- /*   loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
-    out = loadmodel->colordata;
-    lout = loadmodel->lightdata;
-    for(i=0 ; i < sizeof(loadmodel->lightdata); i++)
-    {
-        j= *lout++;
-        *out++ = BestColor(j,j,j,0,254);
-    }
-*/
+    /*   loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
+       out = loadmodel->colordata;
+       lout = loadmodel->lightdata;
+       for(i=0 ; i < sizeof(loadmodel->lightdata); i++)
+       {
+           j= *lout++;
+           *out++ = BestColor(j,j,j,0,254);
+       }
+    */
 }
 
 

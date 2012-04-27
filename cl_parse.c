@@ -26,11 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern int 		con_linewidth;
 
 
-extern cvar_t cl_web_download; //qbism - R00k / Baker tute
-extern cvar_t cl_web_download_url;
-extern int Web_Get( const char *url, const char *referer, const char *name, int resume,
-                    int max_downloading_time, int timeout, int ( *_progress )(double) );
-
 char *svc_strings[] =
 {
     "svc_bad",
@@ -444,7 +439,6 @@ void CL_ParseServerInfo (void)
                 cls.download.web = true;
                 cls.download.disconnect = false;
                 cls.download.percent = 0.0;
-
 //let libCURL do it's magic!!
                 success = Web_Get(url, NULL, download_tempname, false, 600, 30, CL_WebDownloadProgress);
 
@@ -456,7 +450,7 @@ void CL_ParseServerInfo (void)
 
                 if (success)
                 {
-                    Con_Printf("Web download succesfull: %s\n", download_tempname);
+                    Con_Printf("Web download succesful: %s\n", download_tempname);
 //Rename the .tmp file to the final precache filename
                     Q_snprintfz (download_finalname, MAX_OSPATH, "%s/%s", com_gamedir, model_precache[i]);
                     rename (download_tempname, download_finalname);
@@ -491,7 +485,6 @@ void CL_ParseServerInfo (void)
         }
         CL_KeepaliveMessage ();
     }
-
 
     for (i=1 ; i<numsounds ; i++)
     {

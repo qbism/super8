@@ -2,7 +2,6 @@
     #include <wininet.h>
     #include <urlmon.h>
 
-
     typedef int (*DOWNLOADPROGRESSPROC) (double);
 
     class CDownloader : public IBindStatusCallback
