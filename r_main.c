@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //define	PASSAGES
 
+void MakeMy15to8();
 void Fog_ParseWorldspawn (void);
 void		*colormap;
 //vec3_t		viewlightvec; // Manoel Kasimier - changed alias models lighting - removed
@@ -391,7 +392,7 @@ COLORMAP GRABBING
 
 //qbism - 15to8 stealed from engoo.
 
-void MakeMy15to8(unsigned char *palette)
+void MakeMy15to8()
 {
     int r, g, b, beastcolor, beefstcolor;
     for (r=0 ; r<256 ; r+=8)

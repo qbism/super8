@@ -150,7 +150,7 @@
 	"quakedef.h"
 	"curl.h"
 
-1335492567 source:c:\qbismsuper8\qbs8src\cl_parse.c
+1335498019 source:c:\qbismsuper8\qbs8src\cl_parse.c
 	"quakedef.h"
 
 1334190972 source:c:\qbismsuper8\qbs8src\cl_tent.c
@@ -326,7 +326,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1335064887 source:c:\qbismsuper8\qbs8src\r_main.c
+1335496696 source:c:\qbismsuper8\qbs8src\r_main.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -807,7 +807,7 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1335494617 c:\qbismsuper8\qbs8src\version.h
+1335496482 c:\qbismsuper8\qbs8src\version.h
 
 1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
 	"quakedef.h"

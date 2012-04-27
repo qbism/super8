@@ -283,7 +283,7 @@ Since Web_Get only returns once it's done, we have to do various things here:
 Update download percent, handle input, redraw UI and send net packets.
 =====================
 */
-static int CL_WebDownloadProgress( double percent )
+/*static int CL_WebDownloadProgress( double percent )
 {
     static double time, oldtime, newtime;
 
@@ -298,6 +298,19 @@ static int CL_WebDownloadProgress( double percent )
     oldtime = newtime;
 
     return cls.download.disconnect; // abort if disconnect received
+}*/
+
+int CL_WebDownloadProgress (double percent)
+{
+   static int oldpct = -1;
+
+   if ((int) percent != oldpct)
+   {
+      printf ("...Downloading %i%%\n", (int) percent);
+      oldpct = (int) percent;
+   }
+
+   return 1;
 }
 
 /*
