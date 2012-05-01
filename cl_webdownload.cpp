@@ -1,3 +1,6 @@
+
+    #ifdef WEBDL    //qbism - sometimes works, needs more testing
+
     #include <windows.h>
     #include <wininet.h>
     #include <urlmon.h>
@@ -140,3 +143,4 @@
 
        return DownloadResult;
     }
+#endif //WEBDL

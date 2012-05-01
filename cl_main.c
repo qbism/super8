@@ -51,8 +51,10 @@ cvar_t	m_side = {"m_side","0.8", true};
 cvar_t	m_look = {"m_look","1", true}; // Manoel Kasimier - m_look
 cvar_t	cutscene = {"cutscene", "1"}; // Nehahra
 
+#ifdef WEBDL    //qbism - sometimes works, needs more testing
 cvar_t cl_web_download = {"cl_web_download", "1", true}; //qbism - R00k / Baker tute
 cvar_t cl_web_download_url = {"cl_web_download_url", "http://qbism.com/_q1maps/", true};
+#endif // WEBDL
 
 client_static_t	cls;
 client_state_t	cl;
@@ -119,12 +121,14 @@ void CL_Disconnect (void)
 // stop sounds (especially looping!)
     S_StopAllSounds (true);
 
+#ifdef WEBDL    //qbism - sometimes works, needs more testing
 // We have to shut down webdownloading first
     if( cls.download.web )  //qbism - R00k / Baker tute
     {
         cls.download.disconnect = true;
         return;
     }
+#endif //WEBDL
 
 // ToChriS 1.67 - begin clear effects
 //void CL_ClearCshifts (void)
@@ -931,8 +935,11 @@ void CL_Init (void)
     Cvar_RegisterVariable (&m_side);
     Cvar_RegisterVariable (&m_look); // Manoel Kasimier - m_look
     Cvar_RegisterVariable (&cutscene); // Nehahra
+
+    #ifdef WEBDL    //qbism - sometimes works, needs more testing
     Cvar_RegisterVariable (&cl_web_download);  //qbism - R00k / Baker tute
     Cvar_RegisterVariable (&cl_web_download_url);
+    #endif
 
     Cmd_AddCommand ("entities", CL_PrintEntities_f);
     Cmd_AddCommand ("disconnect", CL_Disconnect_f);

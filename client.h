@@ -116,6 +116,7 @@ ca_connected		// valid netcon, talking to a server
 } cactive_t;
 
 
+#ifdef WEBDL    //qbism - sometimes works, needs more testing
 typedef struct
 {
 qboolean web;
@@ -123,7 +124,7 @@ char *name;
 double percent;
 qboolean disconnect; // set when user tries to disconnect, to allow cleaning up webdownload
 } download_t;
-
+#endif
 //
 // the client_static_t structure is persistant through an arbitrary number
 // of server connections
@@ -157,7 +158,11 @@ typedef struct
 	struct qsocket_s	*netcon;
 	sizebuf_t	message;		// writing buffer to send to server
 	qboolean   capturedemo; //qbism jqavi
+
+    #ifdef WEBDL    //qbism - sometimes works, needs more testing
     download_t download; //qbism - R00k / Baker tute
+    #endif
+
 } client_static_t;
 
 extern client_static_t	cls;

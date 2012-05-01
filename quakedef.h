@@ -344,7 +344,12 @@ extern	cvar_t vid_mode; //qbism
 extern	cvar_t snd_speed; //qbism
 extern int current_protocol; //qbism
 
+#ifdef WEBDL    //qbism - sometimes works, needs more testing
 extern cvar_t cl_web_download; //qbism - R00k / Baker tute
 extern cvar_t cl_web_download_url;
+#endif
+
+#ifdef WEBDL    //qbism - sometimes works, needs more testing
 extern int Web_Get( const char *url, const char *referer, const char *name, int resume,
                     int max_downloading_time, int timeout, int ( *_progress )(double) );
+#endif

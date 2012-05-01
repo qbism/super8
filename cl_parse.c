@@ -275,6 +275,7 @@ void CL_KeepaliveMessage (void)
     SZ_Clear (&cls.message);
 }
 
+#ifdef WEBDL    //qbism - sometimes works, needs more testing
 /*
 =====================
 CL_WebDownloadProgress //qbism - R00k / Baker tute
@@ -283,6 +284,7 @@ Since Web_Get only returns once it's done, we have to do various things here:
 Update download percent, handle input, redraw UI and send net packets.
 =====================
 */
+//qbism - neither version seems to work.
 /*static int CL_WebDownloadProgress( double percent )
 {
     static double time, oldtime, newtime;
@@ -312,6 +314,7 @@ int CL_WebDownloadProgress (double percent)
 
    return 1;
 }
+#endif
 
 /*
 ==================
@@ -434,6 +437,7 @@ void CL_ParseServerInfo (void)
         cl.model_precache[i] = Mod_ForName (model_precache[i], false);
         if (cl.model_precache[i] == NULL)
         {
+#ifdef WEBDL    //qbism - sometimes works, needs more testing
             if (cl_web_download.value && cl_web_download_url.string) //qbism - R00k / Baker tute
             {
 //Create the FULL path where the file should be written
@@ -491,6 +495,8 @@ void CL_ParseServerInfo (void)
                 }
             }
             else
+#endif //WEBDL
+
             {
                 Con_Printf("Model %s not found\n", model_precache[i]);
                 return;
@@ -504,7 +510,8 @@ void CL_ParseServerInfo (void)
         cl.sound_precache[i] = S_PrecacheSound (sound_precache[i]);
         if (cl.sound_precache[i] == NULL)
         {
-            if (cl_web_download.value && cl_web_download_url.string) //qbism - R00k / Baker tute
+ #ifdef WEBDL    //qbism - sometimes works, needs more testing
+           if (cl_web_download.value && cl_web_download_url.string) //qbism - R00k / Baker tute
             {
 //Create the FULL path where the file should be written
                 Q_snprintfz (download_tempname, MAX_OSPATH, "%s/%s.tmp", com_gamedir, sound_precache[i]);
@@ -534,7 +541,7 @@ void CL_ParseServerInfo (void)
 
                 if (success)
                 {
-                    Con_Printf("Web download succesfull: %s\n", download_tempname);
+                    Con_Printf("Web download succesful: %s\n", download_tempname);
 //Rename the .tmp file to the final precache filename
                     Q_snprintfz (download_finalname, MAX_OSPATH, "%s/%s", com_gamedir, sound_precache[i]);
                     rename (download_tempname, download_finalname);
@@ -561,6 +568,8 @@ void CL_ParseServerInfo (void)
                     return;
                 }
             }
+            #endif
+            //qbism - normally just ignore missing sounds
         }
         CL_KeepaliveMessage ();
     }

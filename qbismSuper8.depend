@@ -4,7 +4,7 @@
 
 1316563144 h"
 
-1335493353 c:\qbismsuper8\qbs8src\quakedef.h
+1335836517 c:\qbismsuper8\qbs8src\quakedef.h
 	<math.h>
 	<string.h>
 	<stdarg.h>
@@ -75,7 +75,7 @@
 
 1334718520 c:\qbismsuper8\qbs8src\render.h
 
-1335152285 c:\qbismsuper8\qbs8src\client.h
+1335836551 c:\qbismsuper8\qbs8src\client.h
 
 1331605690 c:\qbismsuper8\qbs8src\progs.h
 	"pr_comp.h"
@@ -807,7 +807,7 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1335496482 c:\qbismsuper8\qbs8src\version.h
+1335836551 c:\qbismsuper8\qbs8src\version.h
 
 1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
 	"quakedef.h"
