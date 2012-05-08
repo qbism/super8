@@ -1861,15 +1861,17 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
         for (y=0 ; y<r_refdef.vrect.height/*vid.height*/ ; y++)
         {
             pbuf = r_warpbuffer + d_scantable[y+r_refdef.vrect.y];
-            for (x=0 ; x<r_refdef.vrect.width/*vid.width*/ ; x++)
+            for (x=0 ; x<r_refdef.vrect.width/*vid.width*/ ; x+=2)
             {
                 pz = d_pzbuffer + (d_zwidth * (y+r_refdef.vrect.y)) + x+r_refdef.vrect.x;
                 level = (int)(*pz * ditherfog[dither++ % DITHER_NUMRANDS] * density_factor); //- ditherfog[(x*y+x+dither++)%41]; //qbism - ditherish
-                if (level < 32)
+                if (level < 31)
                 {
                     if (level < 0) level = 0;
                     ptbuf = pbuf + x + r_refdef.vrect.x;
                     *ptbuf = fogmap[*ptbuf + (int)vid.colormap[fogindex + (level+32) * 256]*256];
+                    ptbuf ++;
+                    *ptbuf = fogmap[*ptbuf + (int)vid.colormap[fogindex + (level+33) * 256]*256];
                 }
             }
         }

@@ -75,8 +75,9 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-march=core2" />
+					<Add option="-march=prescott" />
 					<Add option="-fomit-frame-pointer" />
+					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-w" />
 					<Add option="-DWIN32" />
@@ -85,6 +86,7 @@
 					<Add option="-D_WIN32" />
 					<Add option="-DCURL_STATICLIB" />
 					<Add option="-DASMx86QUAKE" />
+					<Add option="-D__SSE__" />
 					<Add directory="." />
 				</Compiler>
 				<Linker>
