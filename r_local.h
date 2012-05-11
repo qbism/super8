@@ -28,6 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define BMODEL_FULLY_CLIPPED	0x10 // value returned by R_BmodelCheckBBox ()
 									 //  if bbox is trivially rejected
 
+#define FRAME_DELTA (1.0 / 72.0) //qbism - constant physics framerate
+
 //===========================================================================
 // viewmodel lighting
 

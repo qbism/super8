@@ -6,6 +6,7 @@
 		<Option makefile="MAKEFILE" />
 		<Option execution_dir="C:\qbismSuper8\qbS8src\s_win32\" />
 		<Option pch_mode="2" />
+		<Option default_target="Debug Win32" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Release Win32">
@@ -45,18 +46,21 @@
 				<Option object_output="s_win32\Debug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
-				<Option parameters="-heapsize 640000" />
+				<Option parameters="-game honey -heapsize 64000 +map saint" />
 				<Compiler>
+					<Add option="-march=prescott" />
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
 					<Add option="-pg" />
 					<Add option="-g" />
+					<Add option="-ftree-vectorize" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_WIN32" />
-					<Add option="-DCURL_STATICLIB" />
+					<Add option="-DASMx86QUAKE" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory=".\scitech\include" />
 					<Add directory=".\dxsdk\sdk\inc" />
 				</ResourceCompiler>
 				<Linker>
@@ -74,19 +78,20 @@
 				<Option object_output="s_win32\Release" />
 				<Option type="0" />
 				<Option compiler="gcc" />
+				<Option parameters="-game honey -heapsize 64000 +map saint" />
 				<Compiler>
 					<Add option="-march=prescott" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-w" />
+					<Add option="-ftree-vectorize" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_WIN32" />
 					<Add option="-DCURL_STATICLIB" />
 					<Add option="-DASMx86QUAKE" />
-					<Add option="-D__SSE__" />
 					<Add directory="." />
 				</Compiler>
 				<Linker>
@@ -96,7 +101,6 @@
 					<Add library="wsock32" />
 					<Add library="dinput" />
 					<Add library="dxguid" />
-					<Add library="curldll" />
 				</Linker>
 				<ExtraCommands>
 					<Add before="version.bat" />
@@ -211,7 +215,6 @@
 		</Unit>
 		<Unit filename="model.h" />
 		<Unit filename="modelgen.h" />
-		<Unit filename="mpdosock.h" />
 		<Unit filename="net.h" />
 		<Unit filename="net_dgrm.c">
 			<Option compilerVar="CC" />
@@ -225,9 +228,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="net_ser.h" />
-		<Unit filename="net_vcr.h" />
-		<Unit filename="net_wins.h" />
-		<Unit filename="net_wipx.h" />
 		<Unit filename="pr_cmds.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -294,25 +294,31 @@
 		</Unit>
 		<Unit filename="s_dos\d_draw.S">
 			<Option target="Win32 asm" />
+			<Option target="Debug Win32" />
 		</Unit>
 		<Unit filename="s_dos\d_draw16.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
 			<Option target="Win32 asm" />
+			<Option target="Debug Win32" />
 		</Unit>
 		<Unit filename="s_dos\d_polysa.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
 			<Option target="Win32 asm" />
+			<Option target="Debug Win32" />
 		</Unit>
 		<Unit filename="s_dos\d_scana.S">
 			<Option target="Win32 asm" />
+			<Option target="Debug Win32" />
 		</Unit>
 		<Unit filename="s_dos\d_spr8.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
 			<Option target="Win32 asm" />
+			<Option target="Debug Win32" />
 		</Unit>
 		<Unit filename="s_dos\d_varsa.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
 			<Option target="Win32 asm" />
+			<Option target="Debug Win32" />
 		</Unit>
 		<Unit filename="s_dos\dos_v2.c">
 			<Option compilerVar="CC" />
@@ -365,14 +371,17 @@
 		<Unit filename="s_dos\r_aliasa.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
 			<Option target="Win32 asm" />
+			<Option target="Debug Win32" />
 		</Unit>
 		<Unit filename="s_dos\r_edgea.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
 			<Option target="Win32 asm" />
+			<Option target="Debug Win32" />
 		</Unit>
 		<Unit filename="s_dos\r_varsa.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
 			<Option target="Win32 asm" />
+			<Option target="Debug Win32" />
 		</Unit>
 		<Unit filename="s_dos\snd_dos.c">
 			<Option compilerVar="CC" />
@@ -384,6 +393,7 @@
 		</Unit>
 		<Unit filename="s_dos\snd_mixa.S">
 			<Option target="Win32 asm" />
+			<Option target="Debug Win32" />
 		</Unit>
 		<Unit filename="s_dos\sys_dos.c">
 			<Option compilerVar="CC" />
@@ -427,6 +437,12 @@
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
+		<Unit filename="s_sdl\sys_sdl.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="s_sdl\vid_sdl.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="s_win32\cd_win.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -454,15 +470,8 @@
 		<Unit filename="s_win32\qbism-s8.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
-		<Unit filename="s_win32\quake.ico" />
 		<Unit filename="s_win32\resource.h" />
 		<Unit filename="s_win32\snd_win.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="s_win32\sys_win.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="s_win32\vid_win.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="s_win32\winquake.h" />

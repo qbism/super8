@@ -554,19 +554,7 @@ qboolean Host_FilterTime (float time)
 
     realtime += time;
 
-    if (cl_maxfps.value <= 0)
-        cl_maxfps.value = 20;
-    else
-    {
-        if (lastmaxfps != cl_maxfps.value)//R00k dont spam this!!
-        {
-            cl_maxfps.value = bound(20, cl_maxfps.value, 1024);
-            Cvar_SetValue ("cl_maxfps", cl_maxfps.value);
-            lastmaxfps = cl_maxfps.value;//R00k
-        }
-    }
-
-    fps = max(20, cl_maxfps.value);  //qbism
+    fps = max(10, cl_maxfps.value);
 
     if (!cls.timedemo && realtime - oldrealtime < 1.0/fps)
         return false;		// framerate is too high
@@ -638,115 +626,37 @@ Host_ServerFrame //qbism- framerate independent physics from mh
 ==================
 */
 
+
 void Host_ServerFrame (void)
 {
-    static double accumulated = 0.0;
-    double alpha;
-    static double prevtime = 0.0;
-    const double delta = 1.0/(float)(min(cl_maxfps.value, 72));  //qbism- physics need not be more than framerate
-    double new_frametime;
+	// run the world state
+	pr_global_struct->frametime = host_frametime;
 
-    accumulated += host_frametime;
+	// set the time and clear the general datagram
+	SV_ClearDatagram ();
 
-    pr_global_struct->frametime = host_frametime;
-    SV_ClearDatagram ();
-    SV_CheckForNewClients ();
+	// check for new clients
+	SV_CheckForNewClients ();
 
-    while (accumulated >= delta)
-    {
-        host_frametime = delta;
-        pr_global_struct->frametime = delta;
+	// read client messages
+	SV_RunClients ();
 
-        SV_RunClients ();
+	// move things around and think
+	// always pause in single player if in console or menus
+	if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game))
+		SV_Physics ();
 
-        if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game))
-            SV_Physics ();
-
-        accumulated -= delta;
-    }
-
-    alpha = accumulated / delta;
-
-    // assign the remainder of the timestep to a new interpolated time
-    new_frametime = host_frametime * alpha + prevtime * (1.0 - alpha);
-    prevtime = host_frametime;
-    host_frametime = new_frametime;
-    pr_global_struct->frametime = host_frametime;
-
-    // send all messages to the clients
-    SV_SendClientMessages ();
+	// send all messages to the clients
+	SV_SendClientMessages ();
 }
 
-
-
-/*
-void Host_ServerFrame (void)
-{
-    qboolean sv_runphysics = false;
-    static float sv_hosttime = 777;  //qbism 0:)
-    float sv_physicstime;
-    float servertime;
-
-    // run the world state
-    pr_global_struct->frametime = host_frametime;
-
-    // set the time and clear the general datagram
-    SV_ClearDatagram ();
-
-    // check for new clients
-    SV_CheckForNewClients ();
-
-    // read client messages
-    SV_RunClients ();
-
-    sv_hosttime += host_frametime;
-
-//qbism- calculate servertime - throttle physics fps
-
-//   servertime = 1/max(min(cl_maxfps.value, 72), 20);
-    servertime = 1/max(cl_maxfps.value, 20);
-
-    if (host_frametime >= servertime)
-    {
-        sv_runphysics = true;
-        sv_hosttime = 0;
-        sv_physicstime = host_frametime;
-    }
-    else if (sv_hosttime >= servertime)
-    {
-        sv_runphysics = true;
-        sv_hosttime = 0;
-        sv_physicstime = servertime;
-    }
-    else sv_runphysics = false;
-
-    if (sv_runphysics)
-    {
-        float sv_savedtime = host_frametime;
-
-        host_frametime = sv_physicstime;
-        pr_global_struct->frametime = host_frametime;
-
-        // move things around and think
-        // always pause in single player if in console or menus
-        if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game))
-            SV_Physics ();
-
-        host_frametime = sv_savedtime;
-        pr_global_struct->frametime = host_frametime;
-    }
-
-    // send all messages to the clients
-    SV_SendClientMessages ();
-}
-*/
 
 /*
 ==================
 Host_Frame
 
 Runs all active servers
-==================delta
+==================
 */
 void _Host_Frame (float time)
 {
