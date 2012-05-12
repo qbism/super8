@@ -70,13 +70,12 @@ char *svc_strings[] =
     "svc_cdtrack",			// [byte] track [byte] looptrack
     "svc_sellscreen",
     "svc_cutscene",
-    // DarkPlaces - begin
-    "",//svc_showlmp",	// [string] iconlabel [string] lmpfile [short] x [short] y
-    "",//svc_hidelmp",	// [string] iconlabel
-    "",//svc_skybox", // [string] skyname
-    "svc_localsound", // 38
-    "", // 39
-    "", // 40
+    "",// 35
+    "",// 36
+    "svc_skybox", // [string] skyname
+    "", // 38
+    "svc_bf", // 39  qbism- bonus flash, from Fitzquake protocol
+    "svc_fog", // 40 qbism- fog, from Fitzquake protocol
     "", // 41
     "", // 42
     "", // 43
@@ -84,8 +83,9 @@ char *svc_strings[] =
     "", // 45
     "", // 46
     "", // 47
-    "", // 48
-    "", // 49
+    "svc_localsound", // 48  //qbism- play sound to specific player
+    "svc_say", // 49
+    // DarkPlaces - begin
     "",//svc_cgame", //				50		// [short] length [bytes] data
     "",//svc_unusedlh1", //			51		// unused
     "",//svc_effect", //			52		// [vector] org [byte] modelindex [byte] startframe [byte] framecount [byte] framerate

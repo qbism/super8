@@ -189,18 +189,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define svc_cutscene		34
 
+
 //johnfitz -- PROTOCOL_FITZQUAKE -- new server messages
 #define	svc_skybox				37	// [string] name
-#define svc_bf					40
-//qbism was - define svc_fog					41	// [byte] density [byte] red [byte] green [byte] blue [float] time
-#define svc_spawnbaseline2		42  // support for large modelindex, large framenum, alpha, using flags
-#define svc_spawnstatic2		43	// support for large modelindex, large framenum, alpha, using flags
-#define	svc_spawnstaticsound2	44	// [coord3] [short] samp [byte] vol [byte] aten
+#define svc_bf					40  //bonus flash
+#define svc_fog					41	// [byte] density [byte] red [byte] green [byte] blue [float] time
 //johnfitz
 
-#define svc_localsound      48  //qbism play sound to a single client
+#define svc_localsound   48  //qbism play sound to a single client
 #define	svc_say				49	//qbism TTS [string] null terminated string
-#define svc_fog			    51	// [byte] enable <optional past this point, only included if enable is true> [float] density [byte] red [byte] green [byte] blue
 
 #define svc_letterbox		60	// Manoel Kasimier - svc_letterbox
 #define svc_vibrate			61	// Manoel Kasimier
