@@ -83,7 +83,7 @@ char *svc_strings[] =
     "", // 45
     "", // 46
     "", // 47
-    "svc_localsound", // 48  //qbism- play sound to specific player
+    "svc_localsound", // 48  //play a localsound
     "svc_say", // 49
     // DarkPlaces - begin
     "",//svc_cgame", //				50		// [short] length [bytes] data

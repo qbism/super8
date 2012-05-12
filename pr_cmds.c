@@ -2706,7 +2706,7 @@ ebfs_builtin_t pr_ebfs_builtins[] =
     {  30, "traceoff", PF_traceoff },
     {  31, "eprint", PF_eprint },			// void(entity e) debug print an entire entity
     {  32, "walkmove", PF_walkmove },		// float(float yaw, float dist) walkmove
-	{  33, "localsound", PF_localsound }, //qbism
+//	{  33, "fixme", PF_Fixme},				// float(float yaw, float dist)
     {  34, "droptofloor", PF_droptofloor },
     {  35, "lightstyle", PF_lightstyle },
     {  36, "rint", PF_rint },
@@ -2723,7 +2723,7 @@ ebfs_builtin_t pr_ebfs_builtins[] =
     {  47, "nextent", PF_nextent },
     {  48, "particle", PF_particle },
     {  49, "ChangeYaw", PF_changeyaw },
-//	{  50, "fixme", PF_Fixme },
+	{  50, "localsound", PF_localsound }, //qbism - plays an S_LocalSound
     {  51, "vectoangles", PF_vectoangles },
 
     {  52, "WriteByte", PF_WriteByte },

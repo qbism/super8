@@ -196,7 +196,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define svc_fog					41	// [byte] density [byte] red [byte] green [byte] blue [float] time
 //johnfitz
 
-#define svc_localsound   48  //qbism play sound to a single client
+#define svc_localsound      48  //qbism play sound to a single client, S_LocalSound
 #define	svc_say				49	//qbism TTS [string] null terminated string
 
 #define svc_letterbox		60	// Manoel Kasimier - svc_letterbox

@@ -54,6 +54,7 @@ cvar_t	cl_bobup = {"cl_bobup","0.5", false};
 cvar_t	v_kicktime = {"v_kicktime", "0.5", false};
 cvar_t	v_kickroll = {"v_kickroll", "0.6", false};
 cvar_t	v_kickpitch = {"v_kickpitch", "0.6", false};
+cvar_t  v_gunkick = {"v_gunkick", "1", true}; //qbism - from directq
 
 cvar_t	v_iyaw_cycle = {"v_iyaw_cycle", "2", false};
 cvar_t	v_iroll_cycle = {"v_iroll_cycle", "0.5", false};
@@ -301,12 +302,12 @@ V_CheckGamma
 */
 qboolean V_CheckGamma (void)
 {
- //qbism- just always do it.
- //   static float oldgammavalue;
+//qbism- just always do it.
+//   static float oldgammavalue;
 
- //   if (v_gamma.value == oldgammavalue)
- //       return false;
- //   oldgammavalue = v_gamma.value;
+//   if (v_gamma.value == oldgammavalue)
+//       return false;
+//   oldgammavalue = v_gamma.value;
 
     BuildGammaTable (v_gamma.value);
     vid.recalc_refdef = 1;				// force a surface cache flush
@@ -888,8 +889,10 @@ void V_CalcRefdef (void)
     view->frame = cl.stats[STAT_WEAPONFRAME];
     view->colormap = vid.colormap;
 
-// set up the refresh position
-    VectorAdd (r_refdef.viewangles, cl.punchangle, r_refdef.viewangles);
+    // set up the refresh position
+	vec3_t kickangle; //qbism- v_gunkick from directq
+    VectorScale (cl.punchangle, v_gunkick.value, kickangle);
+    if (v_gunkick.value) VectorAdd (r_refdef.viewangles, kickangle, r_refdef.viewangles);
 
 // smooth out stair step ups
     if (cl.onground && ent->origin[2] - oldz > 0)
@@ -944,7 +947,7 @@ void V_RenderView (void)
             V_CalcRefdef ();
     }
 
-	if (r_fisheye.value)
+    if (r_fisheye.value)
         R_RenderView_Fisheye ();//qbism Aardappel fisheye
     else
     {
@@ -996,6 +999,7 @@ void V_Init (void)
     Cvar_RegisterVariable (&v_kicktime);
     Cvar_RegisterVariable (&v_kickroll);
     Cvar_RegisterVariable (&v_kickpitch);
+    Cvar_RegisterVariable (&v_gunkick); //qbism- from directq
 
     BuildGammaTable (1.0);	// no gamma yet
     Cvar_RegisterVariable (&v_gamma);
