@@ -222,6 +222,17 @@ void	R_InitTextures (void)
 R_Init
 ===============
 */
+
+void FogDitherInit(void)
+{
+    int i;
+    float dfactor;
+    dfactor = max(1.0-fog_density,0.01);
+    for (i=0; i<DITHER_NUMRANDS; i++)
+        ditherfog[i] = dfactor* 0.4 + (float)(rand()%10000)/100000.0;
+}
+
+
 void R_LoadPalette_f (void); //qbism - load an alternate palette
 void R_LoadSky_f (void); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 void R_Init (void)
@@ -248,9 +259,7 @@ void R_Init (void)
     fog_green = 0.3;
     fog_blue = 0.3;
     srand(8);  //leave nothing to chance.
-    for (i=0; i<DITHER_NUMRANDS; i++)
-        ditherfog[i] = 0.4 + (float)(rand()%10000)/100000.0;
-
+    FogDitherInit();
     Cvar_RegisterVariable (&r_draworder);
     Cvar_RegisterVariable (&r_speeds);
     Cvar_RegisterVariable (&r_timegraph);
@@ -489,7 +498,7 @@ void GrabFogmap (void) //qbism- yet another lookup
     for (l=0; l<256; l++)
     {
         for (c=0 ; c<256 ; c++)
-       {
+        {
             r = (host_basepal[c*3] + host_basepal[l*3] + (c/32.0));
             g = (host_basepal[c*3+1] + host_basepal[l*3+1] + (c/32.0));
             b = (host_basepal[c*3+2] + host_basepal[l*3+2] + (c/32.0));
@@ -1739,7 +1748,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     int		dummy;
     int		delta;
     //qbism - for fog
-    int			x, y, level, fogindex, dither;
+    int			x, y, level, fogindex, dither, xref;
     float   density_factor;
     byte		*pbuf, *ptbuf;
     short		*pz;
@@ -1853,28 +1862,30 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     R_DrawViewModel (false); // Manoel Kasimier
 
     // Manoel Kasimier - fog - begin
+    static float previous_fog_density;
     if (fog_density && r_fog.value)  //qbism - adapt for global fog
     {
         dither=0;
-        fogindex = palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3]; //qbism -partial value, bright fog is harsh
-        density_factor = max(1.0-fog_density,0.01);
+        if(previous_fog_density != fog_density)
+            FogDitherInit();
+        fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3]; //qbism -partial value, bright fog is harsh
         for (y=0 ; y<r_refdef.vrect.height/*vid.height*/ ; y++)
         {
             pbuf = r_warpbuffer + d_scantable[y+r_refdef.vrect.y];
-            for (x=0 ; x<r_refdef.vrect.width/*vid.width*/ ; x+=2)
+            pz = d_pzbuffer + (d_zwidth * (y+r_refdef.vrect.y));
+            for (x=0 ; x<r_refdef.vrect.width/*vid.width*/ ; x++)
             {
-                pz = d_pzbuffer + (d_zwidth * (y+r_refdef.vrect.y)) + x+r_refdef.vrect.x;
-                level = (int)(*pz * ditherfog[dither++ % DITHER_NUMRANDS] * density_factor); //- ditherfog[(x*y+x+dither++)%41]; //qbism - ditherish
-                if (level < 31)
+                xref = x+r_refdef.vrect.x;
+                level = (int)( *(pz + xref) * ditherfog[dither++ % DITHER_NUMRANDS]); //ditherish
+                if (level < 32)
                 {
                     if (level < 0) level = 0;
-                    ptbuf = pbuf + x + r_refdef.vrect.x;
-                    *ptbuf = fogmap[*ptbuf + (int)vid.colormap[fogindex + (level+32) * 256]*256];
-                    ptbuf ++;
-                    *ptbuf = fogmap[*ptbuf + (int)vid.colormap[fogindex + (level+33) * 256]*256];
+                    ptbuf = pbuf + xref;
+                    *ptbuf = fogmap[*ptbuf + (int)vid.colormap[fogindex + level<<3]<<3];
                 }
             }
         }
+        previous_fog_density = fog_density;
     }
     // Manoel Kasimier - fog - end
 

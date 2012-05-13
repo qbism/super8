@@ -213,12 +213,12 @@
 	"d_local.h"
 	"adivtab.h"
 
-1336699007 c:\qbismsuper8\qbs8src\r_local.h
+1336875359 c:\qbismsuper8\qbs8src\r_local.h
 	"r_shared.h"
 
 945816200 c:\qbismsuper8\qbs8src\adivtab.h
 
-1336535332 source:c:\qbismsuper8\qbs8src\d_scan.c
+1336854402 source:c:\qbismsuper8\qbs8src\d_scan.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
@@ -326,7 +326,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1336534918 source:c:\qbismsuper8\qbs8src\r_main.c
+1336880497 source:c:\qbismsuper8\qbs8src\r_main.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -338,7 +338,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1336535332 source:c:\qbismsuper8\qbs8src\r_sky.c
+1336881087 source:c:\qbismsuper8\qbs8src\r_sky.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
@@ -807,7 +807,7 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1336854068 c:\qbismsuper8\qbs8src\version.h
+1336876609 c:\qbismsuper8\qbs8src\version.h
 
 1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
 	"quakedef.h"
