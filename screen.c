@@ -443,9 +443,9 @@ void SCR_DrawFPS (void)
     static float fps = 0; //qbism - let's see higher precision, better for tweaking
     char st[10];
 
-    if (realtime - last_realtime > 1.0)
+    if (realtime - last_realtime > 4.0) //qbism - was 1, for better averaging
     {
-        fps = (host_framecount - last_framecount) / (realtime - last_realtime) + 0.5;
+        fps = (host_framecount - last_framecount) / (realtime - last_realtime) + 2.0;
         last_framecount = host_framecount;
         last_realtime = realtime;
     }

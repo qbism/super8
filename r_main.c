@@ -1881,7 +1881,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
                 {
                     if (level < 0) level = 0;
                     ptbuf = pbuf + xref;
-                    *ptbuf = fogmap[*ptbuf + (int)vid.colormap[fogindex + level<<3]<<3];
+                    *ptbuf = fogmap[*ptbuf + (int)vid.colormap[fogindex + level*256]*256];
                 }
             }
         }
