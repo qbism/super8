@@ -1750,7 +1750,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     //qbism - for fog
     int			x, y, level, fogindex, dither, xref;
     float   density_factor;
-    byte		*pbuf, *ptbuf;
+    byte		*pbuf;
     short		*pz;
     extern short		*d_pzbuffer;
     extern unsigned int	d_zwidth;
@@ -1861,33 +1861,28 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
 
     R_DrawViewModel (false); // Manoel Kasimier
 
-    // Manoel Kasimier - fog - begin
+    //qbism- originally based on Makaqu 1.3 fog.  added global fog, dithering, optimizing
     static float previous_fog_density;
-    if (fog_density && r_fog.value)  //qbism - adapt for global fog
+    if (fog_density && r_fog.value)
     {
         dither=0;
         if(previous_fog_density != fog_density)
-            FogDitherInit();
-        fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3]; //qbism -partial value, bright fog is harsh
-        for (y=0 ; y<r_refdef.vrect.height/*vid.height*/ ; y++)
+            FogDitherInit(); //dither includes density factor, so regenerate when it changes
+        fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3]; //qbism -fractional value, bright fog is harsh
+        for (y=0 ; y<r_refdef.vrect.height; y++)
         {
             pbuf = r_warpbuffer + d_scantable[y+r_refdef.vrect.y];
             pz = d_pzbuffer + (d_zwidth * (y+r_refdef.vrect.y));
-            for (x=0 ; x<r_refdef.vrect.width/*vid.width*/ ; x++)
+            for (x=0 ; x<r_refdef.vrect.width; x++)
             {
                 xref = x+r_refdef.vrect.x;
-                level = (int)( *(pz + xref) * ditherfog[dither++ % DITHER_NUMRANDS]); //ditherish
-                if (level < 32)
-                {
-                    if (level < 0) level = 0;
-                    ptbuf = pbuf + xref;
-                    *ptbuf = fogmap[*ptbuf + (int)vid.colormap[fogindex + level*256]*256];
-                }
+                level = (int)( *(pz + xref) * ditherfog[dither++ % DITHER_NUMRANDS]);
+                if (level < 32 && level >= 0)
+                    *(pbuf + xref) = fogmap[*(pbuf + xref) + (int)vid.colormap[fogindex + level*256]*256];
             }
         }
         previous_fog_density = fog_density;
     }
-    // Manoel Kasimier - fog - end
 
     // Manoel Kasimier - buffered video (bloody hack) - begin
 #ifdef _WIN32
