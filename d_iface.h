@@ -32,8 +32,9 @@ typedef struct
 } emitpoint_t;
 
 typedef enum {
-	pt_static, pt_grav, pt_slowgrav, pt_fire, pt_explode, pt_explode2, pt_blob, pt_blob2
-} ptype_t;
+	pt_static, pt_grav, pt_slowgrav, pt_fire, pt_explode, pt_explode2, pt_blob, pt_blob2, pt_fastgrav, pt_smoke, pt_decel, pt_sticky, pt_add, pt_staticfade, pt_addfade,pt_staticfadeadd, pt_slowgravaddfade
+} ptype_t; //qbism -more particle types from engoo.  Changed some names to be more generic/descriptive
+
 
 // !!! if this is changed, it must be changed in d_ifacea.h too !!!
 typedef struct particle_s
@@ -47,6 +48,8 @@ typedef struct particle_s
 	float		ramp;
 	float		die;
 	ptype_t		type;
+	float       alpha;
+	float       alphavel;
 	float		start_time; // Manoel Kasimier
 } particle_t;
 
@@ -143,18 +146,17 @@ void D_Aff8Patch (void *pcolormap);
 void D_PolysetDraw (void);
 void D_PolysetDraw_C (void); // Manoel Kasimier - transparencies
 void D_PolysetDrawFinalVerts (finalvert_t *fv, int numverts);
-void D_DrawParticle (particle_t *pparticle); // Manoel Kasimier - enabled C particle renderer
-void D_DrawParticle_66 (particle_t *pparticle); // Manoel Kasimier - translucent particles
-void D_DrawParticle_33 (particle_t *pparticle); // Manoel Kasimier - translucent particles
+void D_DrawParticle_C (particle_t *pparticle); // Manoel Kasimier - enabled C particle renderer
+void D_DrawParticle_66_C (particle_t *pparticle); // Manoel Kasimier - translucent particles
+void D_DrawParticle_33_C (particle_t *pparticle); // Manoel Kasimier - translucent particles
 //void D_DrawPoly (void); qbism this engine draws spans
 void D_DrawSprite (void);
 void D_DrawSurfaces (void);
 void D_DrawZPoint (void);
-void D_EndParticles (void);
 void D_Init (void);
 void D_ViewChanged (void);
 void D_SetupFrame (void);
-void D_StartParticles (void);
+
 void D_WarpScreen (void);
 
 void D_DrawRect (void);

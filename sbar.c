@@ -1197,9 +1197,9 @@ void Crosshair_Draw (int x, int y, int color)
 		for (countx=0 ; countx<11 ; countx++)
 			if ((pixel_value = crosshair_tex[num][county][countx]))
 			{
-				if (pixel_value == 6 && alphamap)
+				if (pixel_value == 6)
 					pixel_color = alphamap[(int)(pdest[countx*xmult] + color*256)];
-				else if (pixel_value == 3 && alphamap)
+				else if (pixel_value == 3)
 					pixel_color = alphamap[(int)(color + pdest[countx*xmult]*256)];
 				else
 					pixel_color = color;

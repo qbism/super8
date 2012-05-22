@@ -89,9 +89,9 @@ void D_DrawSkyScans8 (espan_t *pspan)
 
 	if (r_skyalpha.value > 0)
 	{
-		if (r_skyalpha.value < 0.5 && alphamap)
+		if (r_skyalpha.value < 0.5)
 			D_DrawSkyPixel = D_DrawSkyPixel33;
-		else if (r_skyalpha.value < 1.0 && alphamap)
+		else if (r_skyalpha.value < 1.0)
 			D_DrawSkyPixel = D_DrawSkyPixel66;
 		else
 			D_DrawSkyPixel = D_DrawSkyPixelOpaque;

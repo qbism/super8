@@ -178,8 +178,9 @@ cvar_t	r_wateralpha = {"r_wateralpha","0.3333", true}; // Manoel Kasimier - tran
 cvar_t	r_shadowhack = {"r_shadowhack", "0", false};
 cvar_t	r_shadowhacksize = {"r_shadowhacksize", "2.7", true};
 
-extern cvar_t  r_fisheye; //qbism fisheye added
-extern cvar_t	scr_fov;
+//qbism- particle cvars
+cvar_t  r_part_scale = {"r_part_scale", "1.0", true};
+//cvar_t  r_part_
 
 //void CreatePassages (void); // Manoel Kasimier - removed
 //void SetVisibilityByPassages (void); // Manoel Kasimier - removed
@@ -298,7 +299,6 @@ void R_Init (void)
     // Manoel Kasimier - changed alias models lighting - end
     Cvar_RegisterVariable (&r_interpolation); // Manoel Kasimier - model interpolation
     Cvar_RegisterVariable (&r_wateralpha); // Manoel Kasimier - translucent water
-    Cvar_RegisterVariable (&r_particlealpha); // Manoel Kasimier
     Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
 //    Cvar_RegisterVariable (&r_sprite_addblend); // Manoel Kasimier
     Cvar_RegisterVariable (&r_shadowhack); //qbism- engoo shadowhack
@@ -308,6 +308,9 @@ void R_Init (void)
     Cvar_RegisterVariable(&r_stains);
     Cvar_RegisterVariable(&r_stainfadetime);
     Cvar_RegisterVariable(&r_stainfadeamount);
+
+    //qbism particle cvars
+    Cvar_RegisterVariable(&r_part_scale);
 
     Cvar_SetValue ("r_maxedges", (float) 100000); //NUMSTACKEDGES //qbism was 60000
     Cvar_SetValue ("r_maxsurfs", (float) 100000); //NUMSTACKSURFACES //qbism was 60000

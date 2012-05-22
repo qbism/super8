@@ -1229,7 +1229,7 @@ void D_DrawSprite (void)
 	// Manoel Kasimier - transparencies - begin
 	else if (currententity->alpha != ENTALPHA_DEFAULT)
 	{
-		if (!alphamap || sw_stipplealpha.value)
+		if (sw_stipplealpha.value)
 			D_SpriteDrawSpans_Stippled (sprite_spans);
 		else if (ENTALPHA_DECODE(currententity->alpha) < 0.5)
 			D_SpriteDrawSpans_33 (sprite_spans);

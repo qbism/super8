@@ -295,7 +295,7 @@ stipple:
 						while (--r_turb_spancount > 0);
 					}
 				}
-				else if (r_wateralpha.value <= 0.41 && alphamap) // 33%
+				else if (r_wateralpha.value <= 0.41) // 33%
 				{
 					do
 					{

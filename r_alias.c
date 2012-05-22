@@ -77,8 +77,7 @@ static aedge_t	aedges[12] =
 
 //qbism- dumped from r_2d.c (deleted)
 cvar_t	r_interpolation = {"r_interpolation", "1"}; // Manoel Kasimier - model interpolation
-cvar_t	r_particlealpha = {"r_particlealpha","0.2", true};
-cvar_t	sw_stipplealpha = {"sw_stipplealpha","0", true}; // must be present in GLMakaqu because it's saved in the config file
+cvar_t	sw_stipplealpha = {"sw_stipplealpha","0", true};
 /* qbism - alias models show through completely- cvar_t	r_sprite_addblend = {"r_sprite_addblend","0", true}; */
 
 cvar_t		scr_left	= {"scr_left",	"1", true};

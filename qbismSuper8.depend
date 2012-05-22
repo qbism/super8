@@ -53,7 +53,7 @@
 
 1307489739 c:\qbismsuper8\qbs8src\zone.h
 
-1288591625 c:\qbismsuper8\qbs8src\mathlib.h
+1337301936 c:\qbismsuper8\qbs8src\mathlib.h
 
 1307751276 c:\qbismsuper8\qbs8src\wad.h
 
@@ -73,7 +73,7 @@
 
 1308178542 c:\qbismsuper8\qbs8src\sound.h
 
-1334718520 c:\qbismsuper8\qbs8src\render.h
+1337565634 c:\qbismsuper8\qbs8src\render.h
 
 1336534924 c:\qbismsuper8\qbs8src\client.h
 
@@ -92,11 +92,11 @@
 
 1336534937 c:\qbismsuper8\qbs8src\server.h
 
-1331358925 c:\qbismsuper8\qbs8src\model.h
+1337140178 c:\qbismsuper8\qbs8src\model.h
 	"modelgen.h"
 	"spritegn.h"
 
-1336441889 c:\qbismsuper8\qbs8src\modelgen.h
+1337140178 c:\qbismsuper8\qbs8src\modelgen.h
 	<stdlib.h>
 	<stdio.h>
 	<math.h>
@@ -119,7 +119,7 @@
 	"lbmlib.h"
 	"mathlib.h"
 
-1325469688 c:\qbismsuper8\qbs8src\d_iface.h
+1337570739 c:\qbismsuper8\qbs8src\d_iface.h
 
 945806060 c:\qbismsuper8\qbs8src\input.h
 
@@ -153,10 +153,10 @@
 1336850352 source:c:\qbismsuper8\qbs8src\cl_parse.c
 	"quakedef.h"
 
-1336535332 source:c:\qbismsuper8\qbs8src\cl_tent.c
+1337569881 source:c:\qbismsuper8\qbs8src\cl_tent.c
 	"quakedef.h"
 
-1336535617 source:c:\qbismsuper8\qbs8src\cmd.c
+1337137400 source:c:\qbismsuper8\qbs8src\cmd.c
 	"quakedef.h"
 	"stdio.h"
 	"s_win32/winquake.h"
@@ -183,7 +183,7 @@
 
 945802460 c:\qbismsuper8\qbs8src\crc.h
 
-1336535332 source:c:\qbismsuper8\qbs8src\cvar.c
+1337402062 source:c:\qbismsuper8\qbs8src\cvar.c
 	"quakedef.h"
 
 1325446779 source:c:\qbismsuper8\qbs8src\d_edge.c
@@ -199,36 +199,36 @@
 	"quakedef.h"
 	"d_local.h"
 
-1323672279 source:c:\qbismsuper8\qbs8src\d_modech.c
+1337566468 source:c:\qbismsuper8\qbs8src\d_modech.c
 	"quakedef.h"
 	"d_local.h"
 
-1312035335 source:c:\qbismsuper8\qbs8src\d_part.c
+1337567379 source:c:\qbismsuper8\qbs8src\d_part.c
 	"quakedef.h"
 	"d_local.h"
 
-1331358925 source:c:\qbismsuper8\qbs8src\d_polyse.c
+1337560763 source:c:\qbismsuper8\qbs8src\d_polyse.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
 	"adivtab.h"
 
-1336875359 c:\qbismsuper8\qbs8src\r_local.h
+1337137400 c:\qbismsuper8\qbs8src\r_local.h
 	"r_shared.h"
 
 945816200 c:\qbismsuper8\qbs8src\adivtab.h
 
-1336854402 source:c:\qbismsuper8\qbs8src\d_scan.c
+1337560766 source:c:\qbismsuper8\qbs8src\d_scan.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
 
-1311821574 source:c:\qbismsuper8\qbs8src\d_sky.c
+1337560760 source:c:\qbismsuper8\qbs8src\d_sky.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
 
-1334448864 source:c:\qbismsuper8\qbs8src\d_sprite.c
+1337560755 source:c:\qbismsuper8\qbs8src\d_sprite.c
 	"quakedef.h"
 	"d_local.h"
 
@@ -263,13 +263,13 @@
 	<math.h>
 	"quakedef.h"
 
-1335064177 source:c:\qbismsuper8\qbs8src\menu.c
+1337563543 source:c:\qbismsuper8\qbs8src\menu.c
 	"quakedef.h"
 	<dirent.h>
 	<stdlib.h>
 	<sys/types.h>
 
-1336535332 source:c:\qbismsuper8\qbs8src\model.c
+1337140178 source:c:\qbismsuper8\qbs8src\model.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -291,7 +291,7 @@
 1311045642 source:c:\qbismsuper8\qbs8src\net_main.c
 	"quakedef.h"
 
-1336850605 source:c:\qbismsuper8\qbs8src\pr_cmds.c
+1337402650 source:c:\qbismsuper8\qbs8src\pr_cmds.c
 	"quakedef.h"
 
 1336534918 source:c:\qbismsuper8\qbs8src\pr_edict.c
@@ -326,7 +326,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1336885333 source:c:\qbismsuper8\qbs8src\r_main.c
+1337643017 source:c:\qbismsuper8\qbs8src\r_main.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -334,7 +334,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1336534918 source:c:\qbismsuper8\qbs8src\r_part.c
+1337646598 source:c:\qbismsuper8\qbs8src\r_part.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -443,7 +443,7 @@
 	"resource.h"
 	<ddraw.h>
 
-1316663283 source:c:\qbismsuper8\qbs8src\sbar.c
+1337560757 source:c:\qbismsuper8\qbs8src\sbar.c
 	"quakedef.h"
 
 1336888118 source:c:\qbismsuper8\qbs8src\screen.c
@@ -490,7 +490,7 @@
 1336535462 source:c:\qbismsuper8\qbs8src\zone.c
 	"quakedef.h"
 
-1327032866 source:c:\qbismsuper8\qbs8src\r_alias.c
+1337560749 source:c:\qbismsuper8\qbs8src\r_alias.c
 	"quakedef.h"
 	"r_local.h"
 	"anorms.h"
@@ -807,7 +807,7 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1336925828 c:\qbismsuper8\qbs8src\version.h
+1337646604 c:\qbismsuper8\qbs8src\version.h
 
 1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
 	"quakedef.h"

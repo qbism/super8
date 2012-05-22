@@ -71,6 +71,9 @@
 					<Add library="dinput" />
 					<Add library="dxguid" />
 				</Linker>
+				<ExtraCommands>
+					<Add before="version.bat" />
+				</ExtraCommands>
 			</Target>
 			<Target title="Win32 asm">
 				<Option output="..\..\quake\qbismS8" prefix_auto="1" extension_auto="1" />
@@ -107,6 +110,9 @@
 				</ExtraCommands>
 			</Target>
 		</Build>
+		<ExtraCommands>
+			<Add before="version.bat" />
+		</ExtraCommands>
 		<Unit filename="adivtab.h" />
 		<Unit filename="anorm_dots.h" />
 		<Unit filename="anorms.h" />
@@ -437,12 +443,6 @@
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="s_sdl\sys_sdl.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="s_sdl\vid_sdl.c">
-			<Option compilerVar="CC" />
-		</Unit>
 		<Unit filename="s_win32\cd_win.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -472,6 +472,12 @@
 		</Unit>
 		<Unit filename="s_win32\resource.h" />
 		<Unit filename="s_win32\snd_win.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="s_win32\sys_win.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="s_win32\vid_win.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="s_win32\winquake.h" />

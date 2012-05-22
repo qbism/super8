@@ -41,8 +41,15 @@ extern cvar_t r_light_vec_y;
 extern cvar_t r_light_vec_z;
 extern cvar_t r_light_style;
 // Manoel Kasimier - r_light_style - end
+
+//qbism particle cvars
+extern cvar_t r_part_scale;
+
+
+extern cvar_t  r_fisheye; //qbism fisheye added
+extern cvar_t	scr_fov;
+
 extern cvar_t r_interpolation; // Manoel Kasimier - model interpolation
-extern cvar_t r_particlealpha; // Manoel Kasimier
 extern cvar_t r_wateralpha; // Manoel Kasimier - translucent water
 byte r_foundwater, r_drawwater; // Manoel Kasimier - translucent water
 extern byte       *alphamap, *additivemap, *fogmap; // Manoel Kasimier - transparencies

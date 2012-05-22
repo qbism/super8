@@ -1585,7 +1585,7 @@ void D_RasterizeAliasPolySmooth (void)
         else if (currententity->alpha == ENTALPHA_DEFAULT) // Manoel Kasimier - transparencies
             D_PolysetDrawSpans8 (a_spans);
     // Manoel Kasimier - transparencies - begin
-        else if (!alphamap || sw_stipplealpha.value)
+        else if (sw_stipplealpha.value)
             D_PolysetDrawSpans8_Stippled (a_spans);
         else if (ENTALPHA_DECODE(currententity->alpha) < 0.5)
             D_PolysetDrawSpans8_33 (a_spans);
@@ -1641,7 +1641,7 @@ void D_RasterizeAliasPolySmooth (void)
             else if (currententity->alpha == ENTALPHA_DEFAULT) // Manoel Kasimier - transparencies
                 D_PolysetDrawSpans8 (pstart);
         // Manoel Kasimier - transparencies - begin
-            else if (!alphamap || sw_stipplealpha.value)
+            else if (sw_stipplealpha.value)
                 D_PolysetDrawSpans8_Stippled (pstart);
             else if (ENTALPHA_DECODE(currententity->alpha) < 0.5f)
                 D_PolysetDrawSpans8_33 (pstart);
