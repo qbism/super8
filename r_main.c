@@ -180,7 +180,16 @@ cvar_t	r_shadowhacksize = {"r_shadowhacksize", "2.7", true};
 
 //qbism- particle cvars
 cvar_t  r_part_scale = {"r_part_scale", "1.0", true};
-//cvar_t  r_part_
+cvar_t  r_part_blob_count = {"r_part_blob_count", "256", true};
+cvar_t  r_part_blob_time = {"r_part_blob_time", "0.2", true};
+cvar_t  r_part_blob_vel = {"r_part_blob_vel", "200", true};
+cvar_t  r_part_explo1_count = {"r_part_explo1_count", "400", true};
+cvar_t  r_part_explo1_time = {"r_part_explo1_time", "5", true};
+cvar_t  r_part_explo1_vel = {"r_part_explo1_vel", "400", true};
+cvar_t  r_part_explo2_count = {"r_part_explo2_count", "200", true};
+cvar_t  r_part_explo2_time = {"r_part_explo2_time", "0.3", true};
+cvar_t  r_part_explo2_vel = {"r_part_explo2_vel", "300", true};
+cvar_t  r_part_sticky_time = {"r_part_sticky_time;", "18", true};
 
 //void CreatePassages (void); // Manoel Kasimier - removed
 //void SetVisibilityByPassages (void); // Manoel Kasimier - removed
@@ -311,6 +320,16 @@ void R_Init (void)
 
     //qbism particle cvars
     Cvar_RegisterVariable(&r_part_scale);
+    Cvar_RegisterVariable(&r_part_blob_count);
+    Cvar_RegisterVariable(&r_part_blob_time);
+    Cvar_RegisterVariable(&r_part_blob_vel);
+    Cvar_RegisterVariable(&r_part_explo1_count);
+    Cvar_RegisterVariable(&r_part_explo1_time);
+    Cvar_RegisterVariable(&r_part_explo1_vel);
+    Cvar_RegisterVariable(&r_part_explo2_count);
+    Cvar_RegisterVariable(&r_part_explo2_time);
+    Cvar_RegisterVariable(&r_part_explo2_vel);
+    Cvar_RegisterVariable(&r_part_sticky_time);
 
     Cvar_SetValue ("r_maxedges", (float) 100000); //NUMSTACKEDGES //qbism was 60000
     Cvar_SetValue ("r_maxsurfs", (float) 100000); //NUMSTACKSURFACES //qbism was 60000

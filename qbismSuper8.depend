@@ -73,7 +73,7 @@
 
 1308178542 c:\qbismsuper8\qbs8src\sound.h
 
-1337565634 c:\qbismsuper8\qbs8src\render.h
+1337741457 c:\qbismsuper8\qbs8src\render.h
 
 1336534924 c:\qbismsuper8\qbs8src\client.h
 
@@ -193,7 +193,7 @@
 1327463541 c:\qbismsuper8\qbs8src\d_local.h
 	"r_shared.h"
 
-1309304160 c:\qbismsuper8\qbs8src\r_shared.h
+1337832777 c:\qbismsuper8\qbs8src\r_shared.h
 
 1334448864 source:c:\qbismsuper8\qbs8src\d_init.c
 	"quakedef.h"
@@ -203,7 +203,7 @@
 	"quakedef.h"
 	"d_local.h"
 
-1337567379 source:c:\qbismsuper8\qbs8src\d_part.c
+1337656478 source:c:\qbismsuper8\qbs8src\d_part.c
 	"quakedef.h"
 	"d_local.h"
 
@@ -213,7 +213,7 @@
 	"d_local.h"
 	"adivtab.h"
 
-1337137400 c:\qbismsuper8\qbs8src\r_local.h
+1337741551 c:\qbismsuper8\qbs8src\r_local.h
 	"r_shared.h"
 
 945816200 c:\qbismsuper8\qbs8src\adivtab.h
@@ -326,7 +326,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1337643017 source:c:\qbismsuper8\qbs8src\r_main.c
+1337745283 source:c:\qbismsuper8\qbs8src\r_main.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -334,7 +334,7 @@
 	"quakedef.h"
 	"r_local.h"
 
-1337646598 source:c:\qbismsuper8\qbs8src\r_part.c
+1337745184 source:c:\qbismsuper8\qbs8src\r_part.c
 	"quakedef.h"
 	"r_local.h"
 
@@ -807,7 +807,7 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1337646604 c:\qbismsuper8\qbs8src\version.h
+1337835978 c:\qbismsuper8\qbs8src\version.h
 
 1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
 	"quakedef.h"

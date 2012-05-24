@@ -48,6 +48,19 @@ extern int		r_drawnpolycount;
 
 extern cvar_t	r_clearcolor;
 
+//qbism particle cvars
+extern cvar_t r_part_scale;         //global particle scale
+extern cvar_t r_part_blob_count;    //quantity of particles for blob explosion
+extern cvar_t r_part_blob_time;     //life span of blob particles
+extern cvar_t r_part_blob_vel;      //velocity of blob particles
+extern cvar_t r_part_explo1_count;
+extern cvar_t r_part_explo1_time;
+extern cvar_t r_part_explo1_vel;
+extern cvar_t r_part_explo2_count;
+extern cvar_t r_part_explo2_time;
+extern cvar_t r_part_explo2_vel;
+extern cvar_t r_part_sticky_time;   //new type for gib trail or similar, sticks to walls and floors
+
 extern int	sintable[SIN_BUFFER_SIZE];
 extern int	intsintable[SIN_BUFFER_SIZE];
 

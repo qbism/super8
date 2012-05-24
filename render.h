@@ -42,10 +42,6 @@ extern cvar_t r_light_vec_z;
 extern cvar_t r_light_style;
 // Manoel Kasimier - r_light_style - end
 
-//qbism particle cvars
-extern cvar_t r_part_scale;
-
-
 extern cvar_t  r_fisheye; //qbism fisheye added
 extern cvar_t	scr_fov;
 

@@ -281,7 +281,7 @@ void R_ParticleExplosion (vec3_t org)
     int			i, j;
     particle_t	*p;
 
-    for (i=0 ; i<1024 ; i++)
+    for (i=0 ; i<r_part_explo1_count.value ; i++)
     {
         if (!free_particles)
             return;
@@ -290,7 +290,7 @@ void R_ParticleExplosion (vec3_t org)
         p->next = active_particles;
         active_particles = p;
 
-        p->die = cl.time + 5;
+        p->die = cl.time + r_part_explo1_time.value;
         p->start_time = cl.time-1.4; // Manoel Kasimier
         p->color = ramp1[0];
         p->ramp = rand()&3;
@@ -300,7 +300,7 @@ void R_ParticleExplosion (vec3_t org)
             for (j=0 ; j<3 ; j++)
             {
                 p->org[j] = org[j] + ((rand()%32)-16);
-                p->vel[j] = (rand()%512)-256;
+                p->vel[j] = (rand()%(int)r_part_explo1_vel.value)-(r_part_explo1_vel.value/2);
             }
         }
         else
@@ -309,7 +309,7 @@ void R_ParticleExplosion (vec3_t org)
             for (j=0 ; j<3 ; j++)
             {
                 p->org[j] = org[j] + ((rand()%32)-16);
-                p->vel[j] = (rand()%512)-256;
+                p->vel[j] = (rand()%(int)r_part_explo1_vel.value)-(r_part_explo1_vel.value/2);
             }
         }
     }
@@ -327,7 +327,7 @@ void R_ParticleExplosion2 (vec3_t org, int colorStart, int colorLength)
     particle_t	*p;
     int			colorMod = 0;
 
-    for (i=0; i<512; i++)
+    for (i=0; i<r_part_explo2_count.value; i++)
     {
         if (!free_particles)
             return;
@@ -336,7 +336,7 @@ void R_ParticleExplosion2 (vec3_t org, int colorStart, int colorLength)
         p->next = active_particles;
         active_particles = p;
 
-        p->die = cl.time + 0.3;
+        p->die = cl.time + r_part_explo1_time.value;
         p->start_time = cl.time; // Manoel Kasimier
         p->color = colorStart + (colorMod % colorLength);
         colorMod++;
@@ -345,7 +345,7 @@ void R_ParticleExplosion2 (vec3_t org, int colorStart, int colorLength)
         for (j=0 ; j<3 ; j++)
         {
             p->org[j] = org[j] + ((rand()%32)-16);
-            p->vel[j] = (rand()%512)-256;
+            p->vel[j] = (rand()%(int)r_part_explo2_vel.value)-(r_part_explo2_vel.value/2);
         }
     }
 }
@@ -361,7 +361,7 @@ void R_BlobExplosion (vec3_t org)
     int			i, j;
     particle_t	*p;
 
-    for (i=0 ; i<1024 ; i++)
+    for (i=0 ; i<r_part_blob_count.value ; i++)
     {
         if (!free_particles)
             return;
@@ -369,8 +369,8 @@ void R_BlobExplosion (vec3_t org)
         free_particles = p->next;
         p->next = active_particles;
         active_particles = p;
+        p->die = cl.time + r_part_blob_time.value + (rand()&8)*0.05;
 
-        p->die = cl.time + 1 + (rand()&8)*0.05;
         p->start_time = cl.time; // Manoel Kasimier
 
         if (i & 1)
@@ -380,7 +380,7 @@ void R_BlobExplosion (vec3_t org)
             for (j=0 ; j<3 ; j++)
             {
                 p->org[j] = org[j] + ((rand()%32)-16);
-                p->vel[j] = (rand()%512)-256;
+                p->vel[j] = (rand()%(int)r_part_blob_vel.value)-(r_part_blob_vel.value/2);
             }
         }
         else
@@ -390,13 +390,13 @@ void R_BlobExplosion (vec3_t org)
             for (j=0 ; j<3 ; j++)
             {
                 p->org[j] = org[j] + ((rand()%32)-16);
-                p->vel[j] = (rand()%512)-256;
+                p->vel[j] = (rand()%(int)r_part_blob_vel.value/2)-(r_part_blob_vel.value/4);
             }
         }
     }
 }
 
-//qbism - most everything below this line is pasted from Engoo.
+//qbism - stuff below this line is based on Engoo particles.
 //--------------------------------------------------------------------
 /*
 ===============
@@ -501,11 +501,11 @@ void R_RunParticleEffect (vec3_t org, vec3_t dir, int color, int count)
             //p->color = (color&~7) + (rand()&7);
             p->start_time = cl.time; // Manoel Kasimier
             p->color = (color&~35) + (rand()&2);
-            if (p->color > 64 && p->color < 79)
-            {
-                p->type = pt_slowgrav;
-                p->die = cl.time + 12;
-            }
+            //       if (p->color > 64 && p->color < 79)
+            //     {
+            //         p->type = pt_slowgrav;
+            //         p->die = cl.time + 8;
+            //    }
             if (color > 256)
             {
                 p->type = pt_slowgrav;
@@ -675,8 +675,9 @@ void R_LavaSplash (vec3_t org)
     float		vel;
     vec3_t		dir;
 
-    for (i=-16 ; i<16 ; i++)
-        for (j=-16 ; j<16 ; j++)
+    Con_Printf("lavasplash\n"); //qbism DEBUG
+    for (i=-12 ; i<12 ; i++)
+        for (j=-12 ; j<12 ; j++)
             for (k=0 ; k<1 ; k++)
             {
                 if (!free_particles)
@@ -835,10 +836,13 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
         {
         case 0:	// rocket trail
 
-            if ((rand()&25) < 1)  //qbism -added occasional soot
+            if ((rand()&35) < 1)  //qbism -added occasional falling ash
             {
                 p->type = pt_grav;
-                p->color = 43;
+                p->color = 32;
+                for (j=0 ; j<3 ; j++)
+                    p->org[j] = start[j] + ((rand()&6)-3);
+                break;
             }
             else
             {
@@ -865,11 +869,11 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             for (j=0 ; j<3 ; j++)
             {
                 p->org[j] = start[j] + ((rand()&6)-3);
-                p->vel[j] = (float)((rand()&12)-24); //qbism- add scatter velocity, for wall sticking
+                p->vel[j] = (float)((rand()%24)-12); //qbism- add scatter velocity, for wall sticking
 
             }
             p->type = pt_sticky;
-            p->die = cl.time + 16; //qbism - stick around
+            p->die = cl.time + r_part_sticky_time.value; //qbism - stick around
             break;
 
         case 3:
@@ -886,13 +890,13 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             VectorCopy (start, p->org);
             if (tracercount & 1)
             {
-                p->vel[0] = 30*vec[1];
-                p->vel[1] = 30*-vec[0];
+                p->vel[0] = (27+rand()*4)*vec[1];
+                p->vel[1] = (27+rand()*4)*-vec[0];
             }
             else
             {
-                p->vel[0] = 30*-vec[1];
-                p->vel[1] = 30*vec[0];
+                p->vel[0] = (27+rand()*4)*-vec[1];
+                p->vel[1] = (27+rand()*4)*vec[0];
             }
             break;
 
@@ -901,8 +905,8 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             p->color = 67 + (rand()&3);
             for (j=0 ; j<3 ; j++)
             {
-                p->org[j] = start[j] + ((rand()&6)-3);
-                p->vel[j] = (float)((rand()&8)-16);
+                p->org[j] = start[j] + ((rand()%6)-3);
+                p->vel[j] = (float)((rand()%16)-8);
             }
             p->type = pt_sticky;
             len -= 3;
@@ -1238,9 +1242,9 @@ void R_DrawParticles (void)
                 i = 6;
                 while (l->contents != CONTENTS_EMPTY)
                 {
-                    p->org[0] -= p->vel[0]*1.05;
-                    p->org[1] -= p->vel[1]*1.05;
-                    p->org[2] -= p->vel[2]*1.05;
+                    p->org[0] -= p->vel[0]*1.1;
+                    p->org[1] -= p->vel[1]*1.1;
+                    p->org[2] -= p->vel[2]*1.1;
                     i--; //no infinite loops
                     if (!i)
                     {
