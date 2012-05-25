@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "s_win32/movie.h"
 #endif
 
+extern cvar_t r_palette;
+
 void CL_FinishTimeDemo (void);
 
 /*
@@ -303,6 +305,7 @@ void CL_PlayDemo_f (void)
 //
 // open the demo file
 //
+
     Q_strcpy (name, Cmd_Argv(1));
     COM_DefaultExtension (name, ".dem");
 
@@ -314,7 +317,6 @@ void CL_PlayDemo_f (void)
         cls.demonum = -1;		// stop demo loop
         return;
     }
-
     cls.demoplayback = true;
     cls.state = ca_connected;
     cls.forcetrack = 0;
@@ -332,6 +334,8 @@ void CL_PlayDemo_f (void)
         cls.forcetrack = -cls.forcetrack;
 // ZOID, fscanf is evil
 //	fscanf (cls.demofile, "%i\n", &cls.forcetrack);
+   if( !R_LoadPalette(r_palette.string)) //qbism- load custom palette if it exists.
+        R_LoadPalette("palette"); //qbism- default to standard palette.
 }
 
 /*

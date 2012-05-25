@@ -1492,7 +1492,7 @@ void SV_SpawnServer (char *server)
         Cvar_Set ("hostname", "UNNAMED");
     scr_centertime_off = 0;
 
-    Con_DPrintf ("SpawnServer: %s\n",server);
+    Con_Printf ("SpawnServer: %s\n",server); //qbism - change to con_printf
     svs.changelevel_issued = false;		// now safe to issue another
 
 //
@@ -1555,7 +1555,6 @@ void SV_SpawnServer (char *server)
  if (cls.state != ca_dedicated)
    if( !R_LoadPalette(r_palette.string)) //qbism- load custom palette if it exists.
         R_LoadPalette("palette"); //qbism- default to standard palette.
-
     Q_strcpy (sv.name, server);
     sprintf (sv.modelname,"maps/%s.bsp", server);
     sv.worldmodel = Mod_ForName (sv.modelname, false);
