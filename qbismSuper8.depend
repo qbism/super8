@@ -334,11 +334,11 @@
 	"quakedef.h"
 	"r_local.h"
 
-1337835978 source:c:\qbismsuper8\qbs8src\r_part.c
+1337999804 source:c:\qbismsuper8\qbs8src\r_part.c
 	"quakedef.h"
 	"r_local.h"
 
-1336881087 source:c:\qbismsuper8\qbs8src\r_sky.c
+1338001110 source:c:\qbismsuper8\qbs8src\r_sky.c
 	"quakedef.h"
 	"r_local.h"
 	"d_local.h"
@@ -807,7 +807,7 @@
 1313397314 c:\codeblocks\include\sys\errno.h
 	<sys/reent.h>
 
-1337918770 c:\qbismsuper8\qbs8src\version.h
+1338004070 c:\qbismsuper8\qbs8src\version.h
 
 1319689101 source:/media/4E66813166811ABB/qbismSuper8/qbS8src/chase.c
 	"quakedef.h"

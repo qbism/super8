@@ -396,7 +396,7 @@ void R_BlobExplosion (vec3_t org)
     }
 }
 
-//qbism - stuff below this line is based on Engoo particles.
+//qbism - schtuff below this line is based on Engoo particles.
 //--------------------------------------------------------------------
 /*
 ===============

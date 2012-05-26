@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //define	PASSAGES
 
 void MakeMy15to8();
-void Fog_ParseWorldspawn (void);
+void ParseWorldspawn (void);
 void		*colormap;
 //vec3_t		viewlightvec; // Manoel Kasimier - changed alias models lighting - removed
 //alight_t	r_viewlighting = {128, 192, viewlightvec}; // Manoel Kasimier - changed alias models lighting - removed
@@ -966,8 +966,8 @@ void R_NewMap (void)
     r_viewleaf = NULL;
     R_ClearParticles ();
     R_BuildLightmaps(); //qbism ftestain
+    ParseWorldspawn (); //qbism- based on Fitzquake
     R_InitSkyBox (); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
-    Fog_ParseWorldspawn (); //qbism- from Fitzquake- for global fog
     r_cnumsurfs = r_maxsurfs.value;
 
     if (r_cnumsurfs <= MINSURFACES)

@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "r_local.h"
 #include "d_local.h"
 
+extern cvar_t r_palette;
 
 int		iskyspeed = 8;
 int		iskyspeed2 = 2;
@@ -355,12 +356,12 @@ void Fog_FogCommand_f (void)
 
 /*
 =============
-Fog_ParseWorldspawn
+ParseWorldspawn based on Fog_ParseWorldspawn
 
 called at map load
 =============
 */
-void Fog_ParseWorldspawn (void)
+void ParseWorldspawn (void)
 {
     char key[128], value[4096];
     char *data;
@@ -391,6 +392,22 @@ void Fog_ParseWorldspawn (void)
         if (!strcmp("fog", key))
         {
             sscanf(value, "%f %f %f %f", &fog_density, &fog_red, &fog_green, &fog_blue);
+        }
+        if (!strcmp("sky", key)) //qbism - add more keys
+        {
+            sscanf(value, "%s", &r_skyname.value);
+        }
+        if (!strcmp("skybox", key))
+        {
+            sscanf(value, "%s", &r_skyname.value);
+        }
+        if (!strcmp("wateralpha", key))
+        {
+            sscanf(value, "%s", &r_wateralpha.value);
+        }
+        if (!strcmp("palette", key))
+        {
+            sscanf(value, "%s", &r_palette.value);
         }
     }
 }
