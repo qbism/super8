@@ -497,10 +497,9 @@ void R_RunParticleEffect (vec3_t org, vec3_t dir, int color, int count)
         }
         else //bullet impact
         {
-            p->die = cl.time + 0.1*(rand()%8);
-            //p->color = (color&~7) + (rand()&7);
             p->start_time = cl.time; // Manoel Kasimier
-            p->color = (color&~35) + (rand()&2);
+            p->color = (color&~7) + (rand()&2);
+            // p->color = (color&~35) + (rand()&2);
             //       if (p->color > 64 && p->color < 79)
             //     {
             //         p->type = pt_slowgrav;
@@ -508,39 +507,43 @@ void R_RunParticleEffect (vec3_t org, vec3_t dir, int color, int count)
             //    }
             if (color > 256)
             {
+                p->die = cl.time + 0.1*(rand()%8);
                 p->type = pt_slowgrav;
                 p->color = p->color - 256;
             }
 
             else if (color > 512)
             {
+                p->die = cl.time + 0.1*(rand()%8);
                 p->type = pt_explode;
                 p->color = p->color - 512;
             }
 
             else if (color > 768)
             {
+                p->die = cl.time + 0.1*(rand()%8);
                 p->type = pt_explode;
                 p->color = p->color - 768;
             }
 
             else if (color > 1024)
             {
+                p->die = cl.time + 0.1*(rand()%8);
                 p->type = pt_explode;
                 p->color = p->color - 1024;
             }
 
             else
             {
+                p->die = cl.time + 0.1*(rand()%8);
                 p->type = pt_grav;
-
-            }
-            for (j=0 ; j<3 ; j++)
-            {
-                p->org[j] = org[j];
-                //	p->vel[j] = dir[j]*15 + (rand()%300)-150;
-                //		p->vel[j] = dir[j]*15 + (rand()%150)-75;
-                p->vel[j] = dir[j]*((rand()%22)) + (rand()%50)-25;
+                for (j=0 ; j<3 ; j++)
+                {
+                    p->org[j] = org[j];
+                    //	p->vel[j] = dir[j]*15 + (rand()%300)-150;
+                    //		p->vel[j] = dir[j]*15 + (rand()%150)-75;
+                    p->vel[j] = dir[j]*((rand()%22)) + (rand()%50)-25;
+                }
             }
         }
     }
@@ -709,54 +712,6 @@ void R_LavaSplash (vec3_t org)
 
 /*
 ===============
-R_Blood
-===============
-*/
-void R_Blood(int count, vec3_t mins, vec3_t maxs, vec3_t vel_mins, vec3_t vel_maxs)
-{
-    const int color = 73;
-    int idist[3], vdist[3];
-    int i, j;
-    particle_t *p;
-
-    for (i = 0; i < 3; i++)
-    {
-        idist[i] = (int)(maxs[i] - mins[i] + 0.1f);
-        vdist[i] = (int)(vel_maxs[i] - vel_mins[i] + 0.1f);
-
-        if (idist[i] < 1)
-            idist[i] = 1;
-        if (vdist[i] < 1)
-            vdist[i] = 1;
-    }
-
-    for (i = 0; i < count; i++)
-    {
-        if (!free_particles)
-            break;
-        p = free_particles;
-        free_particles = p->next;
-        p->next = active_particles;
-        active_particles = p;
-
-        //p->die = cl.time + 0.1*(rand()%5);
-        p->die = cl.time + 0.1*(rand()%65);
-        p->color = (float)((color&~7) + (rand()&7));
-        p->alpha = 0.6;
-        p->type = pt_sticky;
-        for (j = 0; j < 3; j++)
-        {
-            p->org[j] = mins[j] + rand() % idist[j] + ((rand()&15)-8);
-            p->vel[j] = vel_mins[j] + rand() % vdist[j];
-        }
-    }
-}
-
-
-
-
-/*
-===============
 R_TeleportSplash
 
 ===============
@@ -849,7 +804,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
                 p->type = pt_fire;
                 p->ramp = (rand()&3);
                 p->color = ramp3[(int)p->ramp];
-                p->alpha = 0.4;
+                p->alpha = 0.25;
             }
 
             for (j=0 ; j<3 ; j++)
@@ -890,13 +845,13 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             VectorCopy (start, p->org);
             if (tracercount & 1)
             {
-                p->vel[0] = (27+rand()*4)*vec[1];
-                p->vel[1] = (27+rand()*4)*-vec[0];
+                p->vel[0] = (27+rand()%4)*vec[1];
+                p->vel[1] = (27+rand()%4)*-vec[0];
             }
             else
             {
-                p->vel[0] = (27+rand()*4)*-vec[1];
-                p->vel[1] = (27+rand()*4)*vec[0];
+                p->vel[0] = (27+rand()%4)*-vec[1];
+                p->vel[1] = (27+rand()%4)*vec[0];
             }
             break;
 
@@ -1242,9 +1197,10 @@ void R_DrawParticles (void)
                 i = 6;
                 while (l->contents != CONTENTS_EMPTY)
                 {
-                    p->org[0] -= p->vel[0]*1.1;
-                    p->org[1] -= p->vel[1]*1.1;
-                    p->org[2] -= p->vel[2]*1.1;
+                    VectorNormalize(p->vel);
+                    p->org[0] -= p->vel[0]*3;
+                    p->org[1] -= p->vel[1]*3;
+                    p->org[2] -= p->vel[2]*3;
                     i--; //no infinite loops
                     if (!i)
                     {

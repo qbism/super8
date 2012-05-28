@@ -189,7 +189,7 @@ cvar_t  r_part_explo1_vel = {"r_part_explo1_vel", "400", true};
 cvar_t  r_part_explo2_count = {"r_part_explo2_count", "200", true};
 cvar_t  r_part_explo2_time = {"r_part_explo2_time", "0.3", true};
 cvar_t  r_part_explo2_vel = {"r_part_explo2_vel", "300", true};
-cvar_t  r_part_sticky_time = {"r_part_sticky_time;", "18", true};
+cvar_t  r_part_sticky_time = {"r_part_sticky_time", "18", true};
 
 //void CreatePassages (void); // Manoel Kasimier - removed
 //void SetVisibilityByPassages (void); // Manoel Kasimier - removed
