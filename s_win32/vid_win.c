@@ -471,14 +471,17 @@ VID_CheckWindowXY
 */
 void VID_CheckWindowXY (void)
 {
-    if (((int) vid_window_x.value > (GetSystemMetrics (SM_CXSCREEN) - 160)) ||
-            ((int) vid_window_y.value > (GetSystemMetrics (SM_CYSCREEN) - 120)) ||
-            ((int) vid_window_x.value < 0)									   ||
-            ((int) vid_window_y.value < 0))
-    {
+   if ((int) vid_window_x.value > GetSystemMetrics (SM_CXSCREEN) - dd_window_width -10)  //qbism HACK - what is actual?
+       Cvar_SetValue ("vid_window_x", GetSystemMetrics (SM_CXSCREEN) - dd_window_width -15);
+
+   if ((int) vid_window_y.value > GetSystemMetrics (SM_CYSCREEN) - dd_window_height -35)
+       Cvar_SetValue ("vid_window_y", GetSystemMetrics (SM_CYSCREEN) - dd_window_height -40);
+
+    if ((int) vid_window_x.value < 0)
         Cvar_SetValue ("vid_window_x", 0.0);
+
+    if ((int) vid_window_y.value < 0)
         Cvar_SetValue ("vid_window_y", 0.0);
-    }
 }
 
 
@@ -805,7 +808,7 @@ qboolean VID_SetWindowedMode (int modenum)
         return true;
 
     // position and show the DIB window
-    VID_CheckWindowXY ();
+    //VID_CheckWindowXY ();
     SetWindowPos (hWndWinQuake, NULL, (int) vid_window_x.value,
                   (int) vid_window_y.value, 0, 0,
                   SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
@@ -893,6 +896,7 @@ qboolean VID_SetFullDIBMode (int modenum)
     }
 
     // position and show the DIB window
+    //VID_CheckWindowXY();
     SetWindowPos (hWndWinQuake, HWND_TOPMOST, 0, 0, 0, 0,
                   SWP_NOSIZE | SWP_SHOWWINDOW | SWP_DRAWFRAME);
     ShowWindow (hWndWinQuake, SW_SHOWDEFAULT);
@@ -1678,6 +1682,7 @@ void VID_Update (vrect_t *rects)
         rects = &rect;
     }
 
+    VID_CheckWindowXY ();  //qbism- put the check here, and nowhere else
     if (firstupdate)
     {
         if (modestate == MS_WINDOWED)
@@ -1693,8 +1698,7 @@ void VID_Update (vrect_t *rects)
                     Cvar_SetValue ("vid_window_y", 0.0);
                 }
 
-                VID_CheckWindowXY ();
-                SetWindowPos (hWndWinQuake, NULL, (int) vid_window_x.value,
+                                SetWindowPos (hWndWinQuake, NULL, (int) vid_window_x.value,
                               (int) vid_window_y.value, 0, 0,
                               SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
             }

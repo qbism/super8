@@ -314,7 +314,6 @@
 		</Unit>
 		<Unit filename="s_dos\d_scana.S">
 			<Option target="Win32 asm" />
-			<Option target="Debug Win32" />
 		</Unit>
 		<Unit filename="s_dos\d_spr8.S">
 			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />

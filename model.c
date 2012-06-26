@@ -529,7 +529,7 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
 {
     int		i, j, k;
     int		r, g, b;
-    float weight;
+    float   weight, wlout;
     byte	*out, *lout, *data;
     char	litname[1024];
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
@@ -567,7 +567,8 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
                         g = data[k++];
                         b = data[k++];
                         weight= r_clintensity.value/(1+r+b+g);  //qbism- flatten out the color
-                        *out++ = BestColor((int)(r*r*weight), (int)(g*g*weight), (int)(b*b*weight), 0, 254);
+                        wlout = *lout*(1-r_clintensity.value);
+                        *out++ = BestColor((int)(r*r*weight)+wlout, (int)(g*g*weight)+wlout, (int)(b*b*weight)+wlout, 0, 254);
                         *lout++ = max((r+g+b)/3, *lout);  //avoid large differences if colored lights don't align w/ standard.
                     }
                     Q_free(fileinfo);

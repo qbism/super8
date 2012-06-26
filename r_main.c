@@ -462,17 +462,17 @@ int BestColor (int r, int g, int b, int start, int stop)
 //
 // let any color go to 0 as a last resort
 //
-    bestdistortion = ( (int)r*r + (int)g*g + (int)b*b )*2;
+    bestdistortion = ( (int)r + (int)g + (int)b )*2; //qbism  ( (int)r*r + (int)g*g + (int)b*b )*2;
     bestcolor = 0;
 
     pal = host_basepal + start*3;
     for (i=start ; i<= stop ; i++)
     {
-        dr = r - (int)pal[0];
-        dg = g - (int)pal[1];
-        db = b - (int)pal[2];
+        dr = abs(r - (int)pal[0]);
+        dg = abs(g - (int)pal[1]);
+        db = abs(b - (int)pal[2]);
         pal += 3;
-        distortion = dr*dr + dg*dg + db*db;
+        distortion = dr + dg + db; //qbism - more weight on value.  dr*dr + dg*dg + db*db;
         if (distortion < bestdistortion)
         {
             if (!distortion)
@@ -1853,7 +1853,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
         se_time2 = Sys_DoubleTime (); // scan edges time
 //		de_time1 = se_time2; // draw entities time
     }
-    R_DrawViewModel (true);
+ //   R_DrawViewModel (true); qbism - move after particles
 
     if (r_dspeeds.value) // Manoel Kasimier
         de_time1 = Sys_DoubleTime (); // Manoel Kasimier - draw entities time
@@ -1881,6 +1881,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     }
     // Manoel Kasimier - translucent water - end
 
+    R_DrawViewModel (true); //qbism draw after particles.  it's worth the overdraw.
     R_DrawViewModel (false); // Manoel Kasimier
 
     //qbism- originally based on Makaqu 1.3 fog.  added global fog, dithering, optimizing

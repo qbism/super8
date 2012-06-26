@@ -3713,23 +3713,14 @@ char *quitMessage =  //qbism- show credits
     "Press Y to Quit.\n\
 Press N to Reconsider.\n\
 \n\
-qbism Super 8 engine\n\
+qbism Super8 engine\n\
 \n\
-code sources:\n\
-originally based on Makaqu\n\
-Programmed by Manoel Kasimier\n\
-and ToChriS Quake by Victor Luchitz\n\
-FlashQuake port by Michael Rennie\n\
-joequake engine by Jozsef Szalontai\n\
-qrack engine coded by R00k\n\
-fteqw engine by Spike and FTE Team\n\
-FitzQuake coded by John Fitz\n\
-DarkPlaces engine by Lord Havoc\n\
-GoldQuake engine by Sajt\n\
-enhanced WinQuake by Bengt Jardrup \n\
-Tutorials- JTR, Fett, Baker and MH\n\
-...and of course Quake GPL code by ID\n\
-Thanks to any other GPL coders!";
+Originally based on Makaqu\n\
+Also thanks to code from ToChriS Quake,\n\
+FlashQuake port, joequake engine,\n\
+Qrack, FTEQW, FitzQuake, DarkPlaces,\n\
+GoldQuake, and BJP's WinQuake\n\
+Tutorials and support from inside3d.com";
 
 void M_Quit_f (void)
 {

@@ -1441,6 +1441,7 @@ void Host_Spawn_f (void)
 	int		i;
 	client_t	*client;
 	edict_t	*ent;
+	float *sendangle;
 
 	if (cmd_source == src_command)
 	{
@@ -1550,8 +1551,9 @@ void Host_Spawn_f (void)
 	// with a permanent head tilt
 	ent = EDICT_NUM( 1 + (host_client - svs.clients) );
 	MSG_WriteByte (&host_client->message, svc_setangle);
+	sendangle = sv.loadgame ? ent->v.v_angle : ent->v.angles; //qbism -mh view angle save
 	for (i=0 ; i < 2 ; i++)
-		MSG_WriteAngle (&host_client->message, ent->v.angles[i] );
+		MSG_WriteAngle (&host_client->message, sendangle[i]); //qbism -mh view angle save
 	MSG_WriteAngle (&host_client->message, 0 );
 
 	SV_WriteClientdataToMessage (sv_player, &host_client->message);
