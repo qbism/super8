@@ -1147,7 +1147,7 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj, float aspect)
     if(r_fisheye.value)
     {
         pixelAspect = (float)r_refdef.vrect.height/(float)r_refdef.vrect.width;//qbism DEBUG - from fisheye, which is better?
-//	screenAspect = 1.0; //qbism DEBUG - from fisheye, which is better?
+//	screenAspect = 1.0; //qbism DEBUG - original, which is better?
         screenAspect = r_refdef.vrect.width*pixelAspect /r_refdef.vrect.height;
     }
     else

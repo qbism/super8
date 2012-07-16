@@ -203,8 +203,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define svc_vibrate			61	// Manoel Kasimier
 
 
-
-
 //
 // client to server
 //

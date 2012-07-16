@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
+#include "version.h" //qbism - displayed on demo playback
 #include "quakedef.h"
 
 //qbism jqavi - JoeQuake avi from Baker tutorial
@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern cvar_t r_palette;
 
 void CL_FinishTimeDemo (void);
+void CL_UpdateDemoStat (int stat);
 
 /*
 ==============================================================================
@@ -41,6 +42,12 @@ Whenever cl.time gets past the last received message, another message is
 read from the demo file.
 ==============================================================================
 */
+
+//qbism - added from proquake 3.50
+//plus Baker single player fix http://forums.inside3d.com/viewtopic.php?t=4567
+// JPG 1.05 - support for recording demos after connecting to the server
+byte	demo_head[3][MAX_MSGLEN];
+int		demo_head_size[2];
 
 /*
 ==============
@@ -66,7 +73,51 @@ void CL_StopPlayback (void)
 #ifdef _WIN32 //qbism jqavi
     Movie_StopPlayback ();
 #endif
-current_protocol = PROTOCOL_QBS8; //qbism- revert back to standard protocol
+    current_protocol = PROTOCOL_QBS8; //qbism- revert back to standard protocol
+}
+
+/* JPG - need to fix up the demo message
+==============
+CL_FixMsg
+==============
+*/
+void CL_FixMsg (int fix)
+{
+    char s1[7] = "coop 0";
+    char s2[7] = "cmd xs";
+    char *s;
+    int match = 0;
+    int c, i;
+
+    s = fix ? s1 : s2;
+
+    MSG_BeginReading ();
+    while (1)
+    {
+        if (msg_badread)
+            return;
+        if (MSG_ReadByte () != svc_stufftext)
+            return;
+
+        while (1)
+        {
+            c = MSG_ReadChar();
+            if (c == -1 || c == 0)
+                break;
+            if (c == s[match])
+            {
+                match++;
+                if (match == 6)
+                {
+                    for (i = 0 ; i < 6 ; i++)
+                        net_message.data[msg_readcount - 6 + i] ^= s1[i] ^ s2[i];
+                    match = 0;
+                }
+            }
+            else
+                match = 0;
+        }
+    }
 }
 
 /*
@@ -89,7 +140,9 @@ void CL_WriteDemoMessage (void)
         f = LittleFloat (cl.viewangles[i]);
         fwrite (&f, 4, 1, cls.demofile);
     }
+    CL_FixMsg(1); // JPG - some demo things are bad
     fwrite (net_message.data, net_message.cursize, 1, cls.demofile);
+    CL_FixMsg(0); // JPG - some demo things are bad
     fflush (cls.demofile);
 }
 
@@ -165,6 +218,36 @@ int CL_GetMessage (void)
     if (cls.demorecording)
         CL_WriteDemoMessage ();
 
+    // JPG 1.05 - support for recording demos after connecting
+    if (cls.signon < 2)
+    {
+        memcpy(demo_head[cls.signon], net_message.data, net_message.cursize);
+        demo_head_size[cls.signon] = net_message.cursize;
+
+        if (!cls.signon)
+        {
+            char *ch;
+            int len;
+
+            len = strlen(demo_head[0]);
+            ch = strstr(demo_head[0] + len + 1, "qbism server build");
+            if (ch)
+                memcpy(ch, va("QBISM SERVER BUILD %s\n", BUILDVERSION), 28);
+            else
+            {
+                ch = demo_head[0] + demo_head_size[0];
+                *ch++ = svc_print;
+                ch += 1 + sprintf(ch, "\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n"
+                                  "\n   \01\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\03");
+                *ch++ = svc_print;
+                ch += 1 + sprintf(ch, "\02\n   QBISM SERVER BUILD %s"
+                                  "\n   \07\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\11"
+                                  "\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n", BUILDVERSION);
+                demo_head_size[0] = ch - (char *) demo_head[0];
+            }
+        }
+    }
+
     return r;
 }
 
@@ -199,6 +282,23 @@ void CL_Stop_f (void)
     Con_Printf ("Completed demo\n");
 }
 
+
+/*
+====================
+CL_UpdateDemoStat
+
+qbism - from MH improvement to 'record any time'
+====================
+*/
+void CL_UpdateDemoStat (int stat)
+{
+    if (stat < 0 || stat >= MAX_CL_STATS) return;
+
+    MSG_WriteByte (&net_message, svc_updatestat);
+    MSG_WriteByte (&net_message, stat);
+    MSG_WriteLong (&net_message, cl.stats[stat]);
+}
+
 /*
 ====================
 CL_Record_f
@@ -209,7 +309,7 @@ record <demoname> <map> [cd track]
 void CL_Record_f (void)
 {
     int		c;
-	char	name[MAX_OSPATH];
+    char	name[MAX_OSPATH];
     int		track;
 
     if (cmd_source != src_command)
@@ -228,9 +328,22 @@ void CL_Record_f (void)
         return;
     }
 
+    // JPG 3.00 - consecutive demo bug
+    if (cls.demorecording)
+        CL_Stop_f();
+
+    /* JPG 1.05 - got rid of this because recording after connecting is now supported
     if (c == 2 && cls.state == ca_connected)
     {
         Con_Printf("Can not record - already connected to server\nClient demo recording must be started before connecting\n");
+        return;
+    }
+    */
+
+    // JPG 1.05 - replaced it with this
+    if (c == 2 && cls.state == ca_connected && cls.signon < 2)
+    {
+        Con_Printf("Can't record - try again when connected\n");
         return;
     }
 
@@ -268,6 +381,65 @@ void CL_Record_f (void)
     fprintf (cls.demofile, "%i\n", cls.forcetrack);
 
     cls.demorecording = true;
+
+    // JPG 1.05 - initialize the demo file if we're already connected
+    if (c == 2 && cls.state == ca_connected)
+    {
+        byte *data = net_message.data;
+        int cursize = net_message.cursize;
+        int i;
+
+        for (i = 0 ; i < 2 ; i++)
+        {
+            net_message.data = demo_head[i];
+            net_message.cursize = demo_head_size[i];
+            CL_WriteDemoMessage();
+        }
+
+        net_message.data = demo_head[2];
+        SZ_Clear (&net_message);
+
+        // current names, colors, and frag counts
+        for (i=0 ; i < cl.maxclients ; i++)
+        {
+            MSG_WriteByte (&net_message, svc_updatename);
+            MSG_WriteByte (&net_message, i);
+            MSG_WriteString (&net_message, cl.scores[i].name);
+            MSG_WriteByte (&net_message, svc_updatefrags);
+            MSG_WriteByte (&net_message, i);
+            MSG_WriteShort (&net_message, cl.scores[i].frags);
+            MSG_WriteByte (&net_message, svc_updatecolors);
+            MSG_WriteByte (&net_message, i);
+            MSG_WriteByte (&net_message, cl.scores[i].colors);
+        }
+
+        // send all current light styles
+        for (i = 0 ; i < MAX_LIGHTSTYLES ; i++)
+        {
+            MSG_WriteByte (&net_message, svc_lightstyle);
+            MSG_WriteByte (&net_message, i);
+            MSG_WriteString (&net_message, cl_lightstyle[i].map);
+        }
+
+        CL_UpdateDemoStat (STAT_TOTALSECRETS);
+        CL_UpdateDemoStat (STAT_TOTALMONSTERS);
+        CL_UpdateDemoStat (STAT_SECRETS);
+        CL_UpdateDemoStat (STAT_MONSTERS);
+
+         // view entity
+        MSG_WriteByte (&net_message, svc_setview);
+        MSG_WriteShort (&net_message, cl.viewentity);
+
+        // signon
+        MSG_WriteByte (&net_message, svc_signonnum);
+        MSG_WriteByte (&net_message, 3);
+
+        CL_WriteDemoMessage();
+
+        // restore net_message
+        net_message.data = data;
+        net_message.cursize = cursize;
+    }
 }
 
 
@@ -281,7 +453,7 @@ play [demoname]
 void CL_PlayDemo_f (void)
 {
     int length; // BlackAura (11/08/2004) - Cache demo files in memory
-	char	name[256];
+    char	name[256];
     int c;
     qboolean neg = false;
 
@@ -334,7 +506,7 @@ void CL_PlayDemo_f (void)
         cls.forcetrack = -cls.forcetrack;
 // ZOID, fscanf is evil
 //	fscanf (cls.demofile, "%i\n", &cls.forcetrack);
-   if( !R_LoadPalette(r_palette.string)) //qbism- load custom palette if it exists.
+    if( !R_LoadPalette(r_palette.string)) //qbism- load custom palette if it exists.
         R_LoadPalette("palette"); //qbism- default to standard palette.
 }
 

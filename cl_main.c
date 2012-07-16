@@ -162,6 +162,7 @@ void CL_Disconnect (void)
 
     cls.demoplayback = cls.timedemo = false;
     cls.signon = 0;
+    cl.intermission = 0; //qbism DEBUG - works OK? from Baker: So critical.  SCR_UpdateScreen uses this.
     // Manoel Kasimier - begin
     Vibration_Stop (0);
     Vibration_Stop (1);
@@ -174,8 +175,6 @@ void CL_Disconnect_f (void)
     if (sv.active)
         Host_ShutdownServer (false);
 }
-
-
 
 
 /*

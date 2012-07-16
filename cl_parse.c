@@ -304,15 +304,15 @@ Update download percent, handle input, redraw UI and send net packets.
 
 int CL_WebDownloadProgress (double percent)
 {
-   static int oldpct = -1;
+    static int oldpct = -1;
 
-   if ((int) percent != oldpct)
-   {
-      printf ("...Downloading %i%%\n", (int) percent);
-      oldpct = (int) percent;
-   }
+    if ((int) percent != oldpct)
+    {
+        printf ("...Downloading %i%%\n", (int) percent);
+        oldpct = (int) percent;
+    }
 
-   return 1;
+    return 1;
 }
 #endif
 
@@ -510,8 +510,8 @@ void CL_ParseServerInfo (void)
         cl.sound_precache[i] = S_PrecacheSound (sound_precache[i]);
         if (cl.sound_precache[i] == NULL)
         {
- #ifdef WEBDL    //qbism - sometimes works, needs more testing
-           if (cl_web_download.value && cl_web_download_url.string) //qbism - R00k / Baker tute
+#ifdef WEBDL    //qbism - sometimes works, needs more testing
+            if (cl_web_download.value && cl_web_download_url.string) //qbism - R00k / Baker tute
             {
 //Create the FULL path where the file should be written
                 Q_snprintfz (download_tempname, MAX_OSPATH, "%s/%s.tmp", com_gamedir, sound_precache[i]);
@@ -568,7 +568,7 @@ void CL_ParseServerInfo (void)
                     return;
                 }
             }
-            #endif
+#endif
             //qbism - normally just ignore missing sounds
         }
         CL_KeepaliveMessage ();
@@ -1193,6 +1193,7 @@ void CL_ParseServerMessage (void)
         SHOWNET(svc_strings[cmd]);
 
         // other commands
+
         switch (cmd)
         {
         default:

@@ -1154,7 +1154,7 @@ qboolean SV_SendClientDatagram (client_t *client)
 
 	//johnfitz -- if client is nonlocal, use smaller max size so packets aren't fragmented
 	//if (Q_strcmp (client->netconnection->address, "LOCAL") != 0)
-        if (coop.value || deathmatch.value) //qbism- any multiplayer, even LOCAL will fail over wifi
+         if (svs.maxclients > 1) //qbism- any multiplayer, even LOCAL will fail over wifi
 		msg.maxsize = DATAGRAM_MTU;
 	//johnfitz
 

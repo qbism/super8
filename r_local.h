@@ -306,6 +306,7 @@ extern float fog_density, fog_red, fog_green, fog_blue;
 extern float old_density, old_red, old_green, old_blue;
 extern float fade_time; //duration of fade
 extern float fade_done; //time when fade will be done
+void GrabFogmap (void);
 
 void R_BuildLightmaps(void); //qbism ftestain
 void GrabAlphamap (void); //qbism

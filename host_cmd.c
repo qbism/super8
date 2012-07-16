@@ -1451,7 +1451,7 @@ void Host_Spawn_f (void)
 
 	if (host_client->spawned)
 	{
-		Con_Printf ("Spawn not valid -- allready spawned\n");
+		Con_Printf ("Spawn not valid -- already spawned\n");
 		return;
 	}
 	// run the entrance script

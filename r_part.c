@@ -31,7 +31,6 @@ int		ramp2[8] = {0x6f, 0x6e, 0x6d, 0x6c, 0x6b, 0x6a, 0x68, 0x66};
 int		ramp3[8] = {0x6d, 0x6b, 6, 5, 4, 3};
 
 particle_t	*active_particles, *free_particles;
-
 particle_t	*particles;
 int			r_numparticles;
 
@@ -269,6 +268,7 @@ void R_ParseParticleEffect (void)
 
     R_RunParticleEffect (org, dir, color, count);
 }
+
 
 /*
 ===============
@@ -678,7 +678,6 @@ void R_LavaSplash (vec3_t org)
     float		vel;
     vec3_t		dir;
 
-    Con_Printf("lavasplash\n"); //qbism DEBUG
     for (i=-12 ; i<12 ; i++)
         for (j=-12 ; j<12 ; j++)
             for (k=0 ; k<1 ; k++)
@@ -1176,12 +1175,30 @@ void R_DrawParticles (void)
             p->vel[2] -= grav * 8;
             break;
 
+		case pt_smoke:
+			p->alpha = 1;
+			p->vel[2] += grav;
+			break;
+
+        case pt_decel:
+			p->alpha = 1;
+			for (i=0 ; i<3 ; i++)
+				p->vel[i] += p->vel[i]* -dvel;
+			break;
+
         case pt_staticfade:
             p->alpha + frametime*p->alphavel;
 
             if (p->alpha <= 0)
                 p->die = -1;
             break;
+
+		case pt_staticfadeadd:
+			p->alpha += frametime*p->alphavel;
+			if (p->alpha <= 0)
+				p->die = -1;
+			break;
+
         case pt_sticky: //pt_blood in engoo... could be anything sticky
             VectorScale(p->vel, frametime, diff);
             VectorAdd(p->org, diff, p->org);

@@ -2240,7 +2240,7 @@ void VID_MenuDraw (void)
         // we only have room for 15 fullscreen modes, so don't allow
         // 360-wide modes, because if there are 5 320-wide modes and
         // 5 360-wide modes, we'll run out of space
-        if (ptr) //qbism...but now don't care... && ((pv->width != 360) || 1)) //qbism debug was COM_CheckParm("-allow360")))
+        if (ptr) //qbism...but now don't care... && ((pv->width != 360) || 1)) //was COM_CheckParm("-allow360")))
         {
             dup = 0;
 

@@ -1526,8 +1526,6 @@ trace_t SV_Trace_Toss (edict_t *ent, edict_t *ignore)
     vec3_t	move;
     vec3_t	end;
     double	save_frametime;
-//	extern particle_t	*active_particles, *free_particles;
-//	particle_t	*p;
     int i;	// 2001-09-16 SV_Trace_Toss endless loop fix by LordHavoc
 
     save_frametime = host_frametime;
