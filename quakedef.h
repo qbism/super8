@@ -313,6 +313,8 @@ void CRC_ProcessByte(unsigned short *crcvalue, byte data);
 unsigned short CRC_Value(unsigned short crcvalue);
 void SV_LocalSound (client_t *client, char *sample, char volume);
 int R_LoadPalette (char *name);
+void Fog_ParseServerMessage (void);
+qboolean R_LoadSkybox (char *name);
 
 extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output
 										//  an fullscreen DIB focus gain/loss
@@ -347,9 +349,7 @@ extern int current_protocol; //qbism
 #ifdef WEBDL    //qbism - sometimes works, needs more testing
 extern cvar_t cl_web_download; //qbism - R00k / Baker tute
 extern cvar_t cl_web_download_url;
-#endif
 
-#ifdef WEBDL    //qbism - sometimes works, needs more testing
 extern int Web_Get( const char *url, const char *referer, const char *name, int resume,
                     int max_downloading_time, int timeout, int ( *_progress )(double) );
 #endif

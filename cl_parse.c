@@ -74,9 +74,9 @@ char *svc_strings[] =
     "",// 36
     "svc_skybox", // [string] skyname
     "", // 38
-    "svc_bf", // 39  qbism- bonus flash, from Fitzquake protocol
-    "svc_fog", // 40 qbism- fog, from Fitzquake protocol
-    "", // 41
+    "", // 39
+    "svc_bf", // 40  qbism- bonus flash, from Fitzquake protocol
+    "svc_fog", // 41 qbism- fog, from Fitzquake protocol
     "", // 42
     "", // 43
     "", // 44
@@ -1429,6 +1429,19 @@ void CL_ParseServerMessage (void)
         case svc_sellscreen:
             Cmd_ExecuteString ("help", src_command);
             break;
+
+            //qbism - not sure why it took me so long to add these... johnfitz -- new svc types
+		case svc_skybox:
+			R_LoadSky (MSG_ReadString());
+			break;
+
+		case svc_bf:
+			Cmd_ExecuteString ("bf", src_command);
+			break;
+
+		case svc_fog:
+			Fog_ParseServerMessage ();
+			break;
 
             // Manoel Kasimier - svc_letterbox - begin
         case svc_letterbox:

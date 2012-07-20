@@ -393,21 +393,14 @@ void ParseWorldspawn (void)
         {
             sscanf(value, "%f %f %f %f", &fog_density, &fog_red, &fog_green, &fog_blue);
         }
-        if (!strcmp("sky", key)) //qbism - add more keys
+/*        if (!strcmp("skyboxsomething", key)) //qbism - add more keys?  Don't match commands or vars!
         {
             sscanf(value, "%s", &r_skyname.value);
         }
-        if (!strcmp("skybox", key))
-        {
-            sscanf(value, "%s", &r_skyname.value);
-        }
-        if (!strcmp("wateralpha", key))
-        {
-            sscanf(value, "%s", &r_wateralpha.value);
-        }
-        if (!strcmp("palette", key))
+        if (!strcmp("palettesomething", key))
         {
             sscanf(value, "%s", &r_palette.value);
         }
+        */
     }
 }
