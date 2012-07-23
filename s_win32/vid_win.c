@@ -26,9 +26,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <ddraw.h>
 
 // true if the ddraw driver started up OK
-qboolean vid_usingddraw = false;
-
-qboolean		stretched; //qbism - added back
+qboolean    vid_usingddraw = false;
+int	stretched; //qbism - added back
 
 int min_vid_width=320; //qbism- Dan East (for very low-res display)
 
@@ -54,7 +53,7 @@ static void Check_Gamma (void)
 
     for (i = 0; i < 256; i++)
     {
-        f = pow ((i + 1) / 256.0, gamm);
+        f = pow (i / 256.0, gamm);  //qbism- was (i + 1).  Don't increase black brightness.
         inf = f * 255 + 0.5;
 
         if (inf < 0) inf = 0;
@@ -471,11 +470,11 @@ VID_CheckWindowXY
 */
 void VID_CheckWindowXY (void)
 {
-   if ((int) vid_window_x.value > GetSystemMetrics (SM_CXSCREEN) - dd_window_width -10)  //qbism HACK - what is actual?
-       Cvar_SetValue ("vid_window_x", GetSystemMetrics (SM_CXSCREEN) - dd_window_width -15);
+    if ((int) vid_window_x.value > GetSystemMetrics (SM_CXSCREEN) - dd_window_width -10)  //qbism HACK - what is actual?
+        Cvar_SetValue ("vid_window_x", GetSystemMetrics (SM_CXSCREEN) - dd_window_width -15);
 
-   if ((int) vid_window_y.value > GetSystemMetrics (SM_CYSCREEN) - dd_window_height -35)
-       Cvar_SetValue ("vid_window_y", GetSystemMetrics (SM_CYSCREEN) - dd_window_height -40);
+    if ((int) vid_window_y.value > GetSystemMetrics (SM_CYSCREEN) - dd_window_height -35)
+        Cvar_SetValue ("vid_window_y", GetSystemMetrics (SM_CYSCREEN) - dd_window_height -40);
 
     if ((int) vid_window_x.value < 0)
         Cvar_SetValue ("vid_window_x", 0.0);
@@ -639,6 +638,46 @@ void VID_InitModes (HINSTANCE hInstance)
     windowed_default = vid_default;
     ReleaseDC (NULL, hdc);
     nummodes = VID_WINDOWED_MODES;	// reserve space for windowed mode  //qbism was 3
+}
+
+/*
+================
+CenterWindow  //qbism - mh / Baker
+================
+*/
+void CenterWindow (HWND hWndCenter)
+{
+    // get the size of the desktop working area and the window
+    RECT workarea, rect;
+    int out_left, out_top;
+
+    // Baker: MSDN says SPI_GETWORKAREA is for the primary monitor so we are ok!
+    if (!SystemParametersInfo (SPI_GETWORKAREA, 0, &workarea, 0) || !GetWindowRect (hWndCenter, &rect))
+    {
+        Sys_Error ("CenterWindow: SystemParametersInfo failed\n");
+        return;
+    }
+
+    // center it properly in the working area (don't assume that top and left are 0!!!)
+
+    out_left = workarea.left + ((workarea.right - workarea.left) - (rect.right - rect.left)) / 2;
+    out_top  = workarea.top + ((workarea.bottom - workarea.top) - (rect.bottom - rect.top)) / 2;
+
+    if (out_left < 0) out_left = 0;
+    if (out_top < 0) out_top = 0;
+
+    SetWindowPos
+    (
+        hWndCenter,
+        NULL,
+        out_left,
+        out_top,
+        0,
+        0,
+        SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME
+    );
+    vid_window_x.value = out_left;
+    vid_window_y.value = out_top;
 }
 
 
@@ -809,9 +848,7 @@ qboolean VID_SetWindowedMode (int modenum)
 
     // position and show the DIB window
     //VID_CheckWindowXY ();
-    SetWindowPos (hWndWinQuake, NULL, (int) vid_window_x.value,
-                  (int) vid_window_y.value, 0, 0,
-                  SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
+    CenterWindow(hWndWinQuake); //qbism
 
     if (force_minimized)
         ShowWindow (hWndWinQuake, SW_MINIMIZE);
@@ -897,9 +934,7 @@ qboolean VID_SetFullDIBMode (int modenum)
 
     // position and show the DIB window
     //VID_CheckWindowXY();
-    SetWindowPos (hWndWinQuake, HWND_TOPMOST, 0, 0, 0, 0,
-                  SWP_NOSIZE | SWP_SHOWWINDOW | SWP_DRAWFRAME);
-    ShowWindow (hWndWinQuake, SW_SHOWDEFAULT);
+    CenterWindow(hWndWinQuake); //qbism
     UpdateWindow (hWndWinQuake);
 
     vid.numpages = 1;
@@ -1014,6 +1049,7 @@ int VID_SetMode (int modenum, unsigned char *palette)
         if (key_dest != key_menu && !cl.paused) // Manoel Kasimier - edited
         {
             stat = VID_SetWindowedMode (modenum);
+
             IN_ActivateMouse ();
             IN_HideMouse ();
         }
@@ -1126,9 +1162,7 @@ int VID_SetMode (int modenum, unsigned char *palette)
 
     if (!force_minimized)
     {
-        SetWindowPos (hWndWinQuake, HWND_TOP, 0, 0, 0, 0,
-                      SWP_DRAWFRAME | SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW |
-                      SWP_NOCOPYBITS);
+        CenterWindow(hWndWinQuake); //qbism
 
         SetForegroundWindow (hWndWinQuake);
     }
@@ -1626,6 +1660,7 @@ void FlipScreen (vrect_t *rects)
                         }
                     }
                 }
+
                 IDirectDrawSurface_Unlock (dd_BackBuffer, NULL);
 
                 // correctly offset source
@@ -1698,7 +1733,7 @@ void VID_Update (vrect_t *rects)
                     Cvar_SetValue ("vid_window_y", 0.0);
                 }
 
-                                SetWindowPos (hWndWinQuake, NULL, (int) vid_window_x.value,
+                SetWindowPos (hWndWinQuake, NULL, (int) vid_window_x.value,
                               (int) vid_window_y.value, 0, 0,
                               SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
             }

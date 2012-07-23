@@ -83,7 +83,7 @@
 				<Option compiler="gcc" />
 				<Option parameters="-game honey -heapsize 64000 +map saint" />
 				<Compiler>
-					<Add option="-march=pentium-mmx" />
+					<Add option="-march=pentium2" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />

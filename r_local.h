@@ -79,7 +79,6 @@ extern cvar_t	sw_stipplealpha; // Manoel Kasimier
 
 extern cvar_t	r_coloredlights; //qbism - at last!
 extern cvar_t	r_clintensity;
-extern cvar_t	r_clbaseweight;
 extern cvar_t	r_clcolorweight;
 
 extern cvar_t   r_fog; //qbism - fog!  not TOO bad...

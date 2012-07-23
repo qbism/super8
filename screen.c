@@ -1216,13 +1216,11 @@ void SCR_UpdateScreen (void)
 
     V_UpdatePalette ();
 
-#ifdef _WIN32 //qbism jqavi
-    Movie_UpdateScreen ();
-#endif
+    #ifdef _WIN32 //qbism jqavi
+ 	Movie_UpdateScreen ();
+ 	#endif
 
-    //
 // update one of three areas
-//
     if (scr_copyeverything)
     {
         vrect.x = 0;

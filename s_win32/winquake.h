@@ -81,8 +81,11 @@ extern HWND		hwnd_dialog;
 
 extern HANDLE	hinput, houtput;
 
+extern cvar_t   capture_hack;  //qbism
+extern float    hack_ctr;
+
 void IN_UpdateClipCursor (void);
-void CenterWindow(HWND hWndCenter, int width, int height, BOOL lefttopjustify);
+void CenterWindow(HWND hWndCenter);
 
 void S_BlockSound (void);
 void S_UnblockSound (void);

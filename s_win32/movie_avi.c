@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../quakedef.h"
 #include "movie_avi.h"
+#include "movie.h" //qbism - get stretched
 #include <windows.h>
 #include <vfw.h>
 #include <mmreg.h>
@@ -245,12 +246,12 @@ qboolean Capture_Open (char *filename)
 	}
 
 	// initialize video data
-	m_video_frame_size = vid.width * vid.height * 3;
+	m_video_frame_size = vid.width * vid.height * 3 *(1 + stretched*3);
 
 	memset (&bitmap_info_header, 0, sizeof(bitmap_info_header));
 	bitmap_info_header.biSize = sizeof(BITMAPINFOHEADER);
-	bitmap_info_header.biWidth = vid.width;
-	bitmap_info_header.biHeight = vid.height;
+	bitmap_info_header.biWidth = vid.width*(1 + stretched);
+	bitmap_info_header.biHeight = vid.height*(1 + stretched);
 	bitmap_info_header.biPlanes = 1;
 	bitmap_info_header.biBitCount = 24;
 	bitmap_info_header.biCompression = BI_RGB;
@@ -382,12 +383,14 @@ void Capture_Close (void)
 	qAVIFileExit ();
 }
 
-void Capture_WriteVideo (byte *pixel_buffer)
+void Capture_WriteVideo (byte *pixel_buffer) //qbism - call from vid_win.c
 {
+    int	bufsize;
 	HRESULT	hr;
-	int	size = vid.width * vid.height * 3;
 
-	if (m_video_frame_size != size)
+	bufsize = vid.width * vid.height * 3 *(1 + stretched*3);
+
+	if (m_video_frame_size != bufsize)
 	{
 		Con_Printf ("ERROR: Frame size changed\n");
 		return;

@@ -399,40 +399,6 @@ void R_BlobExplosion (vec3_t org)
 //--------------------------------------------------------------------
 /*
 ===============
-R_PlasmaExplosion
-used by TE_TEI_PLASMAHIT
-===============
-*/
-void R_PlasmaExplosion (vec3_t org, int colorStart, int colorLength, int count)
-{
-    int			i, j;
-    particle_t	*p;
-    int			colorMod = 0;
-
-    for (i=0; i<count; i++)
-    {
-        if (!free_particles)
-            return;
-        p = free_particles;
-        free_particles = p->next;
-        p->next = active_particles;
-        active_particles = p;
-        // TODO: Implement Spark Trail type
-        p->die = cl.time + 0.4;
-        p->start_time = cl.time; // Manoel Kasimier
-        p->color = colorStart + (colorMod % colorLength);
-        colorMod++;
-
-        p->type = pt_decel;
-        for (j=0 ; j<3 ; j++)
-        {
-            p->org[j] = org[j] + ((rand()%4)-2);
-            p->vel[j] = (rand()%1500)-750;
-        }
-    }
-}
-/*
-===============
 R_RunParticleEffect
 
 
@@ -554,124 +520,6 @@ void R_RunParticleEffect (vec3_t org, vec3_t dir, int color, int count)
     }
 }
 
-
-// --------------------
-// Used by TE_TEI_SMOKE
-// --------------------
-
-void R_Smoke (vec3_t org, vec3_t dir, int color, int count)
-{
-    int			i, j;
-    particle_t	*p;
-
-    for (i=0 ; i<count ; i++)
-    {
-        if (!free_particles)
-            return;
-        p = free_particles;
-        free_particles = p->next;
-        p->next = active_particles;
-        active_particles = p;
-        if (count == 1024)
-        {
-            // rocket explosion
-            p->die = cl.time + 5;
-            p->start_time = cl.time; // Manoel Kasimier
-            p->color = ramp1[0];
-            p->ramp = rand()&3;
-            if (i & 1)
-            {
-                p->type = pt_smoke;
-                for (j=0 ; j<3 ; j++)
-                {
-                    p->org[j] = org[j] + ((rand()%32)-16);
-                    p->vel[j] = (rand()%512)-256;
-                }
-            }
-            else
-            {
-                p->type = pt_smoke;
-                for (j=0 ; j<3 ; j++)
-                {
-                    p->org[j] = org[j] + ((rand()%32)-16);
-                    p->vel[j] = (rand()%512)-256;
-                }
-            }
-        }
-        else
-        {
-            p->die = cl.time + 0.1*(rand()%5);
-            p->start_time = cl.time; // Manoel Kasimier
-            p->color = (color&~7) + (rand()&7);
-            p->type = pt_smoke;
-            for (j=0 ; j<3 ; j++)
-            {
-                p->org[j] = org[j] + ((rand()%6)-3);
-                p->vel[j] = (rand()%50)-25;
-            }
-        }
-    }
-}
-
-
-// --------------------
-// Used for the engine splash calls (by r_particle_splash)
-// --------------------
-
-void R_Splash (vec3_t org, vec3_t dir, int color, int count, int power)
-{
-    int			i, j;
-    particle_t	*p;
-
-    for (i=0 ; i<count ; i++)
-    {
-        if (!free_particles)
-            return;
-        p = free_particles;
-        free_particles = p->next;
-        p->next = active_particles;
-        active_particles = p;
-        if (count == 1024)
-        {
-            // rocket explosion
-            p->die = cl.time + 5;
-            p->start_time = cl.time; // Manoel Kasimier
-            p->color = ramp1[0];
-            p->ramp = rand()&3;
-            if (i & 1)
-            {
-                p->type = pt_smoke;
-                for (j=0 ; j<3 ; j++)
-                {
-                    p->org[j] = org[j] + ((rand()%32)-16);
-                    p->vel[j] = (rand()%512)-256;
-                }
-            }
-            else
-            {
-                p->type = pt_smoke;
-                for (j=0 ; j<3 ; j++)
-                {
-                    p->org[j] = org[j] + ((rand()%32)-16);
-                    p->vel[j] = (rand()%512)-256;
-                }
-            }
-        }
-        else
-        {
-            p->die = cl.time + 0.4*(rand()%5);
-            p->start_time = cl.time; // Manoel Kasimier
-            p->color = color;
-            p->type = pt_blob;
-            for (j=0 ; j<3 ; j++)
-            {
-                p->org[j] = org[j];
-                p->vel[j] = (rand()%350)-(125);
-            }
-        }
-    }
-}
-
 /*
 ===============
 R_LavaSplash
@@ -687,7 +535,7 @@ void R_LavaSplash (vec3_t org)
     float		vel;
     vec3_t		dir;
 
-    for (k=0 ; k<4 ; k++) // Manoel Kasimier - edited & moved here
+    for (k=0 ; k<2 ; k++)
         for (i=-12 ; i<12 ; i++)
             for (j=-12 ; j<12 ; j++)
 
@@ -907,82 +755,6 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
     }
 }
 
-// LEI - lame particle beam
-// (TODO: Quake2 polygon beam)
-void R_ParticleBeam (vec3_t start, vec3_t end, int thecol)
-{
-    vec3_t		vec;
-    float		len;
-    int			j;
-    particle_t	*p;
-    int			dec;
-    static int	tracercount;
-    int	wat;
-    //int	thecol;
-
-
-
-    VectorSubtract (end, start, vec);
-    len = VectorNormalize (vec);
-    dec = 1;
-
-    while (len > 0)
-    {
-        len -= dec;
-
-        if (!free_particles)
-            return;
-        p = free_particles;
-        free_particles = p->next;
-        p->next = active_particles;
-        active_particles = p;
-
-        VectorCopy (vec3_origin, p->vel);
-        p->die = cl.time;
-        p->start_time = cl.time; // Manoel Kasimier
-
-
-        wat = rand()&2;
-        {
-            if (wat == 2) 	// Outer Glow
-            {
-                p->color = thecol;
-                p->type = pt_staticfadeadd;
-                p->die = cl.time + 2;
-                p->start_time = cl.time; // Manoel Kasimier
-                p->alpha = 0.6;
-                p->alphavel = -0.7;
-                for (j=0 ; j<3 ; j++)
-                    p->org[j] = start[j] + ((rand()&4)-2);
-            }
-            else
-            {
-                // Inner Line
-                p->color = thecol;
-                p->type = pt_staticfadeadd;
-                p->die = cl.time + 2;
-                p->start_time = cl.time; // Manoel Kasimier
-                p->alpha = 1;
-                p->alphavel = -0.9;
-                for (j=0 ; j<3 ; j++)
-                    p->org[j] = start[j];
-            }
-        }
-
-
-        VectorAdd (start, vec, start);
-    }
-}
-
-
-/*
-===============
-R_RailTrail
-Used by TE_RAILTRAIL
-i'm a quake2 function short and stout
-===============
-*/
-
 
 void MakeNormalVectors (vec3_t forward, vec3_t right, vec3_t up)
 {
@@ -998,68 +770,6 @@ void MakeNormalVectors (vec3_t forward, vec3_t right, vec3_t up)
     VectorMA (right, -d, forward, right);
     VectorNormalize (right);
     CrossProduct (right, forward, up);
-}
-
-
-
-void R_RailTrail (vec3_t start, vec3_t end)
-{
-    vec3_t		move;
-    vec3_t		vec;
-    float		len;
-    int			j;
-    particle_t	*p;
-    float		dec;
-    vec3_t		right, up;
-    int			i;
-    float		d, c, s;
-    vec3_t		dir;
-    byte		clr = 40;
-
-    VectorCopy (start, move);
-    VectorSubtract (end, start, vec);
-    len = VectorNormalize (vec);
-
-    MakeNormalVectors (vec, right, up);
-
-    for (i=0 ; i<len ; i++)
-    {
-        if (!free_particles)
-            return;
-
-        p = free_particles;
-        free_particles = p->next;
-        p->next = active_particles;
-        active_particles = p;
-
-        p->die = cl.time + 2.0;
-        p->start_time = cl.time; // Manoel Kasimier
-        VectorClear (p->vel);
-
-        d = i * 0.1;
-        c = cos(d);
-        s = sin(d);
-
-        VectorScale (right, c, dir);
-        VectorMA (dir, s, up, dir);
-        p->type = pt_staticfadeadd;
-        p->alpha = 1.0;
-        //	p->alphavel = -1.0 / (1+frand()*0.2);
-        p->alphavel = -1.0;
-
-        p->color = clr + (rand()&7);
-        for (j=0 ; j<3 ; j++)
-        {
-            p->org[j] = move[j] + dir[j]*3;
-            p->vel[j] = dir[j]*6;
-        }
-
-        VectorAdd (move, vec, move);
-    }
-
-    dec = 0.75;
-    VectorScale (vec, dec, vec);
-    VectorCopy (start, move);
 }
 
 
@@ -1260,3 +970,295 @@ void R_DrawParticles (void)
         }
     }
 }
+
+////qbism - below this line is sadly not used yet /////////
+
+/*
+===============
+R_PlasmaExplosion
+used by TE_TEI_PLASMAHIT
+===============
+*/
+void R_PlasmaExplosion (vec3_t org, int colorStart, int colorLength, int count)
+{
+    int			i, j;
+    particle_t	*p;
+    int			colorMod = 0;
+
+    for (i=0; i<count; i++)
+    {
+        if (!free_particles)
+            return;
+        p = free_particles;
+        free_particles = p->next;
+        p->next = active_particles;
+        active_particles = p;
+        // TODO: Implement Spark Trail type
+        p->die = cl.time + 0.4;
+        p->start_time = cl.time; // Manoel Kasimier
+        p->color = colorStart + (colorMod % colorLength);
+        colorMod++;
+
+        p->type = pt_decel;
+        for (j=0 ; j<3 ; j++)
+        {
+            p->org[j] = org[j] + ((rand()%4)-2);
+            p->vel[j] = (rand()%1500)-750;
+        }
+    }
+}
+
+// --------------------
+// Used by TE_TEI_SMOKE
+// --------------------
+
+void R_Smoke (vec3_t org, vec3_t dir, int color, int count)
+{
+    int			i, j;
+    particle_t	*p;
+
+    for (i=0 ; i<count ; i++)
+    {
+        if (!free_particles)
+            return;
+        p = free_particles;
+        free_particles = p->next;
+        p->next = active_particles;
+        active_particles = p;
+        if (count == 1024)
+        {
+            // rocket explosion
+            p->die = cl.time + 5;
+            p->start_time = cl.time; // Manoel Kasimier
+            p->color = ramp1[0];
+            p->ramp = rand()&3;
+            if (i & 1)
+            {
+                p->type = pt_smoke;
+                for (j=0 ; j<3 ; j++)
+                {
+                    p->org[j] = org[j] + ((rand()%32)-16);
+                    p->vel[j] = (rand()%512)-256;
+                }
+            }
+            else
+            {
+                p->type = pt_smoke;
+                for (j=0 ; j<3 ; j++)
+                {
+                    p->org[j] = org[j] + ((rand()%32)-16);
+                    p->vel[j] = (rand()%512)-256;
+                }
+            }
+        }
+        else
+        {
+            p->die = cl.time + 0.1*(rand()%5);
+            p->start_time = cl.time; // Manoel Kasimier
+            p->color = (color&~7) + (rand()&7);
+            p->type = pt_smoke;
+            for (j=0 ; j<3 ; j++)
+            {
+                p->org[j] = org[j] + ((rand()%6)-3);
+                p->vel[j] = (rand()%50)-25;
+            }
+        }
+    }
+}
+
+
+// --------------------
+// Used for the engine splash calls (by r_particle_splash)
+// --------------------
+
+void R_Splash (vec3_t org, vec3_t dir, int color, int count, int power)
+{
+    int			i, j;
+    particle_t	*p;
+
+    for (i=0 ; i<count ; i++)
+    {
+        if (!free_particles)
+            return;
+        p = free_particles;
+        free_particles = p->next;
+        p->next = active_particles;
+        active_particles = p;
+        if (count == 1024)
+        {
+            // rocket explosion
+            p->die = cl.time + 5;
+            p->start_time = cl.time; // Manoel Kasimier
+            p->color = ramp1[0];
+            p->ramp = rand()&3;
+            if (i & 1)
+            {
+                p->type = pt_smoke;
+                for (j=0 ; j<3 ; j++)
+                {
+                    p->org[j] = org[j] + ((rand()%32)-16);
+                    p->vel[j] = (rand()%512)-256;
+                }
+            }
+            else
+            {
+                p->type = pt_smoke;
+                for (j=0 ; j<3 ; j++)
+                {
+                    p->org[j] = org[j] + ((rand()%32)-16);
+                    p->vel[j] = (rand()%512)-256;
+                }
+            }
+        }
+        else
+        {
+            p->die = cl.time + 0.4*(rand()%5);
+            p->start_time = cl.time; // Manoel Kasimier
+            p->color = color;
+            p->type = pt_blob;
+            for (j=0 ; j<3 ; j++)
+            {
+                p->org[j] = org[j];
+                p->vel[j] = (rand()%350)-(125);
+            }
+        }
+    }
+}
+
+// LEI - lame particle beam
+// (TODO: Quake2 polygon beam)
+void R_ParticleBeam (vec3_t start, vec3_t end, int thecol)
+{
+    vec3_t		vec;
+    float		len;
+    int			j;
+    particle_t	*p;
+    int			dec;
+    static int	tracercount;
+    int	wat;
+    //int	thecol;
+
+
+
+    VectorSubtract (end, start, vec);
+    len = VectorNormalize (vec);
+    dec = 1;
+
+    while (len > 0)
+    {
+        len -= dec;
+
+        if (!free_particles)
+            return;
+        p = free_particles;
+        free_particles = p->next;
+        p->next = active_particles;
+        active_particles = p;
+
+        VectorCopy (vec3_origin, p->vel);
+        p->die = cl.time;
+        p->start_time = cl.time; // Manoel Kasimier
+
+
+        wat = rand()&2;
+        {
+            if (wat == 2) 	// Outer Glow
+            {
+                p->color = thecol;
+                p->type = pt_staticfadeadd;
+                p->die = cl.time + 2;
+                p->start_time = cl.time; // Manoel Kasimier
+                p->alpha = 0.6;
+                p->alphavel = -0.7;
+                for (j=0 ; j<3 ; j++)
+                    p->org[j] = start[j] + ((rand()&4)-2);
+            }
+            else
+            {
+                // Inner Line
+                p->color = thecol;
+                p->type = pt_staticfadeadd;
+                p->die = cl.time + 2;
+                p->start_time = cl.time; // Manoel Kasimier
+                p->alpha = 1;
+                p->alphavel = -0.9;
+                for (j=0 ; j<3 ; j++)
+                    p->org[j] = start[j];
+            }
+        }
+
+
+        VectorAdd (start, vec, start);
+    }
+}
+
+
+/*
+===============
+R_RailTrail
+Used by TE_RAILTRAIL
+i'm a quake2 function short and stout
+===============
+*/
+
+void R_RailTrail (vec3_t start, vec3_t end)
+{
+    vec3_t		move;
+    vec3_t		vec;
+    float		len;
+    int			j;
+    particle_t	*p;
+    float		dec;
+    vec3_t		right, up;
+    int			i;
+    float		d, c, s;
+    vec3_t		dir;
+    byte		clr = 40;
+
+    VectorCopy (start, move);
+    VectorSubtract (end, start, vec);
+    len = VectorNormalize (vec);
+
+    MakeNormalVectors (vec, right, up);
+
+    for (i=0 ; i<len ; i++)
+    {
+        if (!free_particles)
+            return;
+
+        p = free_particles;
+        free_particles = p->next;
+        p->next = active_particles;
+        active_particles = p;
+
+        p->die = cl.time + 2.0;
+        p->start_time = cl.time; // Manoel Kasimier
+        VectorClear (p->vel);
+
+        d = i * 0.1;
+        c = cos(d);
+        s = sin(d);
+
+        VectorScale (right, c, dir);
+        VectorMA (dir, s, up, dir);
+        p->type = pt_staticfadeadd;
+        p->alpha = 1.0;
+        //	p->alphavel = -1.0 / (1+frand()*0.2);
+        p->alphavel = -1.0;
+
+        p->color = clr + (rand()&7);
+        for (j=0 ; j<3 ; j++)
+        {
+            p->org[j] = move[j] + dir[j]*3;
+            p->vel[j] = dir[j]*6;
+        }
+
+        VectorAdd (move, vec, move);
+    }
+
+    dec = 0.75;
+    VectorScale (vec, dec, vec);
+    VectorCopy (start, move);
+}
+
+

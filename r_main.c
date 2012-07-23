@@ -150,7 +150,7 @@ cvar_t	r_ambient = {"r_ambient", "0"};
 
 cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qbism
 cvar_t	r_clintensity = {"r_clintensity", "1.0", true}; //qbism
-cvar_t	r_clbaseweight = {"r_clbaseweight", "0.5", true}; //qbism- base pixel weight for color map blending
+//qbism - no longer necessary.  cvar_t	r_clbaseweight = {"r_clbaseweight", "0.5", true}; //qbism- base pixel weight for color map blending
 cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", true}; //qbism- color weight for color map blending
 
 cvar_t r_fog = {"r_fog", "1", true}; //qbism-  draw fog?
@@ -278,7 +278,6 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_ambient);
     Cvar_RegisterVariable (&r_coloredlights); //qbism
     Cvar_RegisterVariable (&r_clintensity); //qbism
-    Cvar_RegisterVariable (&r_clbaseweight); //qbism
     Cvar_RegisterVariable (&r_clcolorweight); //qbism
     Cvar_RegisterVariable (&r_fog); //qbism
     Cvar_RegisterVariable (&r_clearcolor);
@@ -539,13 +538,13 @@ void GrabLightcolormap (void) //qbism- for colored lighting, fullbrights show th
 
     if(r_coloredlights.value)
     {
-        ae = bound (0, r_clbaseweight.value, 1.0);				// base pixels
+        ae = 1.0;				// base pixels
         ay = bound (0, r_clcolorweight.value, 1.0);             //color
     }
     else
     {
-        ae = 0;
-        ay = 1.0;
+        ae = 1.0;
+        ay = 0.0;
     }
 
     colmap = lightcolormap;
@@ -631,23 +630,22 @@ void GrabColormap (void)  //qbism - fixed, was a little screwy
     for (l=0; l<COLORLEVELS; l++)
     {
         frac = (float)l/(COLORLEVELS-1);
-        frac = 1.0 - (frac * frac);
-        fracscaled= frac*cscale;
-        rscaled = r_colmapred.value * frac * frac;
-        gscaled = r_colmapgreen.value * frac * frac;
-        bscaled = r_colmapblue.value * frac * frac;
+        frac = 1.05 - (frac * frac);  //qbism was 1.0.... boost!
+        //rscaled = r_colmapred.value*cscale;
+       // gscaled = r_colmapgreen.value*cscale;
+       // bscaled = r_colmapblue.value*cscale;
 
         for (c=0 ; c<256-PALBRIGHTS ; c++)
         {
-            red = (int)((float)host_basepal[c*3]*fracscaled + rscaled);
-            green = (int)((float)host_basepal[c*3+1]*fracscaled + gscaled);
-            blue = (int)((float)host_basepal[c*3+2]*fracscaled + bscaled);
+            red = (int)((float)host_basepal[c*3]*frac); //+ rscaled);
+            green = (int)((float)host_basepal[c*3+1]*frac); //+ gscaled);
+            blue = (int)((float)host_basepal[c*3+2]*frac); // + bscaled);
 
 //
 // note: 254 instead of 255 because 255 is the transparent color, and we
 // don't want anything remapping to that
 //
-            *colmap++ = BestColor(red,green,blue, 0, 254);  //qbism - clamp, was 254
+            *colmap++ = BestColor(red,green,blue, 0, 254);
         }
         for ( ; c<256 ; c++)
         {
