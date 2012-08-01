@@ -949,6 +949,37 @@ void Key_Event (int key, qboolean down)
 		}
 	// Manoel Kasimier - on-screen keyboard - end
 
+//qbism - DEMO_REWIND - Baker change
+// PGUP and PGDN rewind and fast-forward demos
+	if (cls.demoplayback && cls.demonum == -1 && !cls.timedemo && !cls.capturedemo)
+		if (key == K_PGUP || key == K_PGDN)
+			if (key_dest == key_game && down /* && cls.demospeed == 0 && cls.demorewind == false*/)
+			{
+				// During normal demoplayback, PGUP/PGDN will rewind and fast forward (if key_dest is game)
+				if (key == K_PGUP)
+				{
+					cls.demospeed = 5;
+					cls.demorewind =  false;
+				}
+				else if (key == K_PGDN)
+				{
+					cls.demospeed = 5;
+					cls.demorewind = true;
+				}
+				return; // If something is bound to it, do not process it.
+			}
+			else //if (!down && (cls.demospeed != 0 || cls.demorewind != 0))
+			{
+				// During normal demoplayback, releasing PGUP/PGDN resets the speed
+				// We need to check even if not key_game in case something silly happened (to be safe)
+				cls.demospeed = 0;
+				cls.demorewind = false;
+
+				if (key_dest == key_game)
+					return; // Otherwise carry on ...
+			}
+			//DEMO_REWIND end
+
 //
 // key up events only generate commands if the game key binding is
 // a button command (leading + sign).  These will occur even in console mode,

@@ -591,16 +591,16 @@ void R_AliasSetUpBlendedTransform (int trivial_accept)
 // TODO: could cache lazily, stored in the entity
 
     // orientation interpolation (Euler angles, yuck!)
-    timepassed = (float)cl.time - currententity->rotate_start_time; // edited
+    timepassed = (float)cl.ctime - currententity->rotate_start_time; // edited //DEMO_REWIND - qbism - based on Baker change
     if (currententity->rotate_start_time == 0 || timepassed > 1)
     {
-        currententity->rotate_start_time = (float)cl.time; // edited
+        currententity->rotate_start_time = (float)cl.ctime; // edited //DEMO_REWIND - qbism - based on Baker change
         VectorCopy (currententity->angles, currententity->angles1);
         VectorCopy (currententity->angles, currententity->angles2);
     }
     if (!VectorCompare (currententity->angles, currententity->angles2))
     {
-        currententity->rotate_start_time = (float)cl.time; // edited
+        currententity->rotate_start_time = (float)cl.ctime; // edited //DEMO_REWIND - qbism - based on Baker change
         VectorCopy (currententity->angles2, currententity->angles1);
         VectorCopy (currententity->angles, currententity->angles2);
         lerp = 0;
@@ -616,17 +616,17 @@ void R_AliasSetUpBlendedTransform (int trivial_accept)
     AngleVectors (t, alias_forward, alias_right, alias_up);
 
     // positional interpolation
-    timepassed = (float)cl.time - currententity->translate_start_time; // edited
+    timepassed = (float)cl.ctime - currententity->translate_start_time; // edited //DEMO_REWIND - qbism - based on Baker change
 
     if (currententity->translate_start_time == 0 || timepassed > 1)
     {
-        currententity->translate_start_time = (float)cl.time; // edited
+        currententity->translate_start_time = (float)cl.ctime; // edited //DEMO_REWIND - qbism - based on Baker change
         VectorCopy (currententity->origin, currententity->origin1);
         VectorCopy (currententity->origin, currententity->origin2);
     }
     if (!VectorCompare (currententity->origin, currententity->origin2))
     {
-        currententity->translate_start_time = (float)cl.time; // edited
+        currententity->translate_start_time = (float)cl.ctime; // edited //DEMO_REWIND - qbism - based on Baker change
         VectorCopy (currententity->origin2, currententity->origin1);
         VectorCopy (currententity->origin, currententity->origin2);
         lerp = 0;
@@ -954,7 +954,7 @@ void R_AliasSetupSkin (void)
         numskins = paliasskingroup->numskins;
         fullskininterval = pskinintervals[numskins-1];
 
-        skintime = cl.time + currententity->syncbase;
+        skintime = cl.ctime + currententity->syncbase;
 
         // when loading in Mod_LoadAliasSkinGroup, we guaranteed all interval
         // values are positive, so we don't have to worry about division by 0
@@ -1171,7 +1171,7 @@ void R_AliasSetupFrame (void)
         numframes = paliasgroup->numframes;
         fullinterval = pintervals[numframes-1];
 
-        time = cl.time + currententity->syncbase;
+        time = cl.time + currententity->syncbase;//?FIXME.. time or ctime?  DEMO_REWIND - qbism - Baker change
 
 //
 // when loading in Mod_LoadAliasGroup, we guaranteed all interval values
@@ -1193,7 +1193,7 @@ void R_AliasSetupFrame (void)
     }
     currententity->pose1 = currententity->pose2 = pose;
     currententity->framegroup1 = currententity->framegroup2 = paliasgroup; // Manoel Kasimier - edited
-    currententity->frame_start_time = (float)cl.time;
+    currententity->frame_start_time = (float)cl.ctime;//DEMO_REWIND - qbism - based on Baker change
     // Manoel Kasimier - model interpolation - end
 }
 
@@ -1243,7 +1243,7 @@ void R_AliasSetupBlendedFrame (void)
         pintervals = (float *)((byte *)paliashdr + paliasgroup->intervals);
         numframes = paliasgroup->numframes;
         fullinterval = pintervals[numframes-1];
-        time = (float)cl.time + currententity->syncbase;
+        time = (float)cl.ctime + currententity->syncbase;//DEMO_REWIND - qbism - based on Baker change
         targettime = time - ((int)(time / fullinterval)) * fullinterval;
         for (pose=0 ; pose<(numframes-1) ; pose++)
         {
@@ -1272,17 +1272,17 @@ void R_AliasSetupBlendedFrame (void)
             e->framegroup2 = paliasgroup; // Manoel Kasimier
             e->pose2 = pose;
 
-            e->frame_start_time = (float)cl.time;
+            e->frame_start_time = (float)cl.ctime;//DEMO_REWIND - qbism - based on Baker change
             blend = 0;
         }
         else
-            blend = ((float)cl.time - e->frame_start_time) / interval; // Manoel Kasimier - edited
+            blend = ((float)cl.ctime - e->frame_start_time) / interval; // Manoel Kasimier - edited
     }
     else
     {
         e->pose1 = e->pose2 = pose;
         e->lastmodel = e->model;
-        e->frame_start_time = (float)cl.time;
+        e->frame_start_time = (float)cl.ctime;//DEMO_REWIND - qbism - based on Baker change
         e->framegroup1 = e->framegroup2 = paliasgroup; // Manoel Kasimier - edited
         blend = 0;
     }

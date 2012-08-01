@@ -342,7 +342,7 @@ void CL_UpdateTEnts (void)
 
 	num_temp_entities = 0;
 
-	srand ((int) (cl.time * 1000)); //qbism:  from johnfitz -- freeze beams when paused
+	srand ((int) (cl.ctime * 1000)); //qbism - Baker - DEMO_REWIND_HARD_ANIMS_TIME, johnfitz -- freeze beams when paused
 
 // update lightning
 	for (i=0, b=cl_beams ; i< MAX_BEAMS ; i++, b++)

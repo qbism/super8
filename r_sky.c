@@ -66,7 +66,7 @@ void R_SetSkyFrame (void)
     s2 = iskyspeed2 / g;
     temp = SKYSIZE * s1 * s2;
 
-    skytime = cl.time - ((int)(cl.time / temp) * temp);
+    skytime = cl.ctime - ((int)(cl.ctime / temp) * temp);//DEMO_REWIND - qbism - translated to SW from GL Baker change
 }
 
 // Manoel Kasimier - skyboxes - begin

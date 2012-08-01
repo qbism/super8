@@ -797,7 +797,7 @@ void R_DrawParticles (void)
     VectorScale (vup, yscaleshrink, r_pup);
     VectorCopy (vpn, r_ppn);
 
-    frametime = cl.time - cl.oldtime;
+    frametime = fabs(cl.time - cl.oldtime); //DEMO_REWIND - qbism - Baker change (no, it is not supposed to be 'ctime')
     time3 = frametime * 17;
     time2 = frametime * 13; // 15;
     time1 = frametime * 10;

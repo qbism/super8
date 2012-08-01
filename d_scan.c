@@ -71,7 +71,7 @@ void D_WarpScreen (void)
 				(int)((float)u * wratio * w / (w + AMP2 * 2));
 	}
 
-	turb = intsintable + ((int)(cl.time*SPEED)&(CYCLE-1));
+	turb = intsintable + ((int)(cl.ctime*SPEED)&(CYCLE-1)); //DEMO_REWIND - qbism - Baker change (ctime)
 	dest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
 
 	for (v=0 ; v<scr_vrect.height ; v++, dest += vid.rowbytes)

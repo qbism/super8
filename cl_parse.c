@@ -1366,12 +1366,18 @@ void CL_ParseServerMessage (void)
             CL_SignonReply ();
             break;
 
-        case svc_killedmonster:
-            cl.stats[STAT_MONSTERS]++;
+        case svc_killedmonster: //DEMO_REWIND qbism - by Baker, typical for all stats
+            if (cls.demoplayback && cls.demorewind)
+                cl.stats[STAT_MONSTERS]--;
+            else
+                cl.stats[STAT_MONSTERS]++;
             break;
 
         case svc_foundsecret:
-            cl.stats[STAT_SECRETS]++;
+            if (cls.demoplayback && cls.demorewind)
+                cl.stats[STAT_SECRETS]--;
+            else
+                cl.stats[STAT_SECRETS]++;
             break;
 
         case svc_updatestat:
@@ -1396,7 +1402,10 @@ void CL_ParseServerMessage (void)
 
         case svc_intermission:
             cl.letterbox = 0; // Manoel Kasimier - svc_letterbox
-            cl.intermission = 1;
+            if (cls.demoplayback && cls.demorewind)
+                cl.intermission = 0;
+            else
+                cl.intermission = 1;
             //cl.completed_time = cl.time;//qbism: intermission bugfix -- by joe
             cl.completed_time = cl.mtime[0];
             vid.recalc_refdef = true;	// go to full screen
@@ -1404,7 +1413,10 @@ void CL_ParseServerMessage (void)
 
         case svc_finale:
             cl.letterbox = 0; // Manoel Kasimier - svc_letterbox
-            cl.intermission = 2;
+            if (cls.demoplayback && cls.demorewind)
+                cl.intermission = 0;
+            else
+                cl.intermission = 2;
             cl.completed_time = cl.time;
             vid.recalc_refdef = true;	// go to full screen
             //qbism:  johnfitz -- log centerprints to console
@@ -1417,7 +1429,10 @@ void CL_ParseServerMessage (void)
 
         case svc_cutscene:
             cl.letterbox = 0; // Manoel Kasimier - svc_letterbox
-            cl.intermission = 3;
+            if (cls.demoplayback && cls.demorewind)
+                cl.intermission = 0;
+            else
+                cl.intermission = 3;
             cl.completed_time = cl.time;
             vid.recalc_refdef = true;	// go to full screen
             //qbism:  johnfitz -- log centerprints to console
@@ -1431,17 +1446,17 @@ void CL_ParseServerMessage (void)
             break;
 
             //qbism - not sure why it took me so long to add these... johnfitz -- new svc types
-		case svc_skybox:
-			R_LoadSky (MSG_ReadString());
-			break;
+        case svc_skybox:
+            R_LoadSky (MSG_ReadString());
+            break;
 
-		case svc_bf:
-			Cmd_ExecuteString ("bf", src_command);
-			break;
+        case svc_bf:
+            Cmd_ExecuteString ("bf", src_command);
+            break;
 
-		case svc_fog:
-			Fog_ParseServerMessage ();
-			break;
+        case svc_fog:
+            Fog_ParseServerMessage ();
+            break;
 
             // Manoel Kasimier - svc_letterbox - begin
         case svc_letterbox:

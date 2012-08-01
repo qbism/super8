@@ -35,7 +35,7 @@ void R_AnimateLight (void)
 //
 // light animations
 // 'm' is normal light, 'a' is no light, 'z' is double bright
-	i = (int)(cl.time*10);
+	i = (int)(cl.ctime*10);  //DEMO_REWIND_HARD_ANIMS_TIME qbism - Baker change
 	for (j=0 ; j<MAX_LIGHTSTYLES ; j++)
 	{
 		if (!cl_lightstyle[j].length)

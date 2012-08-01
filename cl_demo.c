@@ -28,6 +28,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern cvar_t r_palette;
 
 void CL_FinishTimeDemo (void);
+
+//DEMO_REWIND qbism-  Baker change
+typedef struct framepos_s
+{
+	long				baz;
+	struct framepos_s	*next;
+} framepos_t;
+
+framepos_t	*dem_framepos = NULL;
+qboolean	start_of_demo = false;
+qboolean	bumper_on = false;
+//DEMO_REWIND
+
 void CL_UpdateDemoStat (int stat);
 
 /*
@@ -146,6 +159,35 @@ void CL_WriteDemoMessage (void)
     fflush (cls.demofile);
 }
 
+//DEMO_REWIND qbism - Baker change
+void PushFrameposEntry (long fbaz)
+{
+	framepos_t	*newf;
+
+	newf = malloc (sizeof(framepos_t)); // Demo rewind
+	newf->baz = fbaz;
+
+	if (!dem_framepos)
+	{
+		newf->next = NULL;
+		start_of_demo = false;
+	}
+	else
+	{
+		newf->next = dem_framepos;
+	}
+	dem_framepos = newf;
+}
+
+static void EraseTopEntry (void)
+{
+	framepos_t	*top;
+
+	top = dem_framepos;
+	dem_framepos = dem_framepos->next;
+	free (top);
+}//DEMO_REWIND
+
 /*
 ====================
 CL_GetMessage
@@ -160,6 +202,13 @@ int CL_GetMessage (void)
 
     if	(cls.demoplayback)
     {
+        //DEMO_REWIND qbism - Baker change
+		if (start_of_demo && cls.demorewind)
+			return 0;
+
+		if (cls.signon < SIGNONS)	// clear stuffs if new demo
+			while (dem_framepos)
+				EraseTopEntry ();//DEMO_REWIND
         // decide if it is time to grab the next message
         if (cls.signon == SIGNONS)	// allways grab until fully connected
         {
@@ -173,10 +222,17 @@ int CL_GetMessage (void)
                 if (host_framecount == cls.td_startframe + 1)
                     cls.td_starttime = realtime;
             }
-            else if ( /* cl.time > 0 && */ cl.time <= cl.mtime[0])
-            {
-                return 0;		// don't need another message yet
-            }
+            //DEMO_REWIND qbism - Baker change
+			else if (!cls.demorewind && cl.ctime <= cl.mtime[0])
+				return 0;		// don't need another message yet
+			else if (cls.demorewind && cl.ctime >= cl.mtime[0])
+				return 0;
+
+			// joe: fill in the stack of frames' positions
+			// enable on intermission or not...?
+			// NOTE: it can't handle fixed intermission views!
+			if (!cls.demorewind /*&& !cl.intermission*/)
+				PushFrameposEntry (ftell(cls.demofile)); //DEMO_REWIND
         }
 
         // get the next message
@@ -197,7 +253,18 @@ int CL_GetMessage (void)
             CL_StopPlayback ();
             return 0;
         }
-
+//DEMO_REWIND qbism - Baker change
+		// joe: get out framestack's top entry
+		if (cls.demorewind /*&& !cl.intermission*/)
+		{
+			if (dem_framepos/* && dem_framepos->baz*/)	// Baker: in theory, if this occurs we ARE at the start of the demo with demo rewind on
+			{
+				fseek (cls.demofile, dem_framepos->baz, SEEK_SET);
+				EraseTopEntry (); // Baker: we might be able to improve this better but not right now.
+			}
+			if (!dem_framepos)
+				bumper_on = start_of_demo = true;
+		}//DEMO_REWIND
         return 1;
     }
 
@@ -470,6 +537,12 @@ void CL_PlayDemo_f (void)
 // disconnect from server
 //
     CL_Disconnect ();
+
+    //DEMO_REWIND qbism - Baker change
+	// Revert
+	cls.demorewind = false;
+	cls.demospeed = 0; // 0 = Don't use
+	bumper_on = false; //DEMO_REWIND
 
     // BlackAura (11/08/2004) - stop playing music
     CDAudio_Stop();

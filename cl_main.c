@@ -410,7 +410,8 @@ void CL_DecayLights (void)
     dlight_t	*dl;
     float		time;
 
-    time = cl.time - cl.oldtime;
+    //DEMO_REWIND qbism - Baker change
+    time = fabs(cl.time - cl.oldtime); // To make sure it stays forward oriented time
 
     dl = cl_dlights;
     for (i=0 ; i<MAX_DLIGHTS ; i++, dl++)
@@ -447,13 +448,15 @@ should be put at.
 */
 float	CL_LerpPoint (void)
 {
+    extern qboolean bumper_on;  //DEMO_REWIND qbism - Baker change
+
     float	f, frac;
 
     f = cl.mtime[0] - cl.mtime[1];
 
     if (!f || cl_nolerp.value || cls.timedemo || sv.active)
     {
-        cl.time = cl.mtime[0];
+        cl.time = cl.ctime = cl.mtime[0];  //DEMO_REWIND qbism - Baker change
         return 1;
     }
 
@@ -463,15 +466,19 @@ float	CL_LerpPoint (void)
         cl.mtime[1] = cl.mtime[0] - 0.1;
         f = 0.1;
     }
-    frac = (cl.time - cl.mtime[1]) / f;
+    frac = (cl.ctime - cl.mtime[1]) / f;  //DEMO_REWIND qbism - Baker change
 //Con_Printf ("frac: %f\n",frac);
     if (frac < 0)
     {
         if (frac < -0.01)
         {
-            SetPal(1);
-            cl.time = cl.mtime[1];
-//				Con_Printf ("low frac\n");
+            SetPal(1);  //qbism - TODO - what does this do?
+            //DEMO_REWIND qbism - Baker change
+            if (bumper_on)
+            {
+                cl.ctime = cl.mtime[1];
+            }
+            else cl.time = cl.ctime = cl.mtime[1];//DEMO_REWIND
         }
         frac = 0;
     }
@@ -480,8 +487,11 @@ float	CL_LerpPoint (void)
         if (frac > 1.01)
         {
             SetPal(2);
-            cl.time = cl.mtime[0];
-//				Con_Printf ("high frac\n");
+            //DEMO_REWIND qbism - Baker change
+            if (bumper_on)
+                cl.ctime = cl.mtime[0];
+            else cl.time = cl.ctime = cl.mtime[0]; // Here is where we get foobar'd
+            //DEMO_REWIND
         }
         frac = 1;
     }
@@ -536,7 +546,7 @@ void CL_RelinkEntities (void)
         }
     }
 
-    bobjrotate = anglemod(100*cl.time);
+    bobjrotate = anglemod(100*cl.ctime);//DEMO_REWIND_HARD_ANIMS_TIME qbism - Baker change
 
 // start on the entity after the world
     for (i=1,ent=cl_entities+1 ; i<cl.num_entities ; i++,ent++)
@@ -767,6 +777,11 @@ int CL_ReadFromServer (void)
 
     cl.oldtime = cl.time;
     cl.time += host_frametime;
+    //DEMO_REWIND qbism - Baker change
+	if (!cls.demorewind || !cls.demoplayback)	// by joe
+		cl.ctime += host_frametime;
+	else
+		cl.ctime -= host_frametime; //DEMO_REWIND
 
     do
     {
@@ -935,10 +950,10 @@ void CL_Init (void)
     Cvar_RegisterVariable (&m_look); // Manoel Kasimier - m_look
     Cvar_RegisterVariable (&cutscene); // Nehahra
 
-    #ifdef WEBDL    //qbism - sometimes works, needs more testing
+#ifdef WEBDL    //qbism - sometimes works, needs more testing
     Cvar_RegisterVariable (&cl_web_download);  //qbism - R00k / Baker tute
     Cvar_RegisterVariable (&cl_web_download_url);
-    #endif
+#endif
 
     Cmd_AddCommand ("entities", CL_PrintEntities_f);
     Cmd_AddCommand ("disconnect", CL_Disconnect_f);

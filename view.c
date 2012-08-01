@@ -127,7 +127,7 @@ float V_CalcBob (void)
     float	bob;
     float	cycle;
 
-    cycle = cl.time - (int)(cl.time/cl_bobcycle.value)*cl_bobcycle.value;
+    cycle = cl.ctime - (int)(cl.ctime/cl_bobcycle.value)*cl_bobcycle.value;//DEMO_REWIND - qbism - Baker change
     cycle /= cl_bobcycle.value;
     if (cycle < cl_bobup.value)
         cycle = M_PI * cycle / cl_bobup.value;
@@ -643,9 +643,9 @@ void CalcGunAngle (void)
     cl.viewent.angles[YAW] = r_refdef.viewangles[YAW] + yaw;
     cl.viewent.angles[PITCH] = - (r_refdef.viewangles[PITCH] + pitch);
 
-    cl.viewent.angles[ROLL] -= v_idlescale.value * sin(cl.time*v_iroll_cycle.value) * v_iroll_level.value;
-    cl.viewent.angles[PITCH] -= v_idlescale.value * sin(cl.time*v_ipitch_cycle.value) * v_ipitch_level.value;
-    cl.viewent.angles[YAW] -= v_idlescale.value * sin(cl.time*v_iyaw_cycle.value) * v_iyaw_level.value;
+    cl.viewent.angles[ROLL] -= v_idlescale.value * sin(cl.ctime*v_iroll_cycle.value) * v_iroll_level.value;//DEMO_REWIND - qbism - Baker change
+    cl.viewent.angles[PITCH] -= v_idlescale.value * sin(cl.ctime*v_ipitch_cycle.value) * v_ipitch_level.value;
+    cl.viewent.angles[YAW] -= v_idlescale.value * sin(cl.ctime*v_iyaw_cycle.value) * v_iyaw_level.value;
 }
 
 /*
@@ -685,9 +685,9 @@ Idle swaying
 */
 void V_AddIdle (void)
 {
-    r_refdef.viewangles[ROLL] += v_idlescale.value * sin(cl.time*v_iroll_cycle.value) * v_iroll_level.value;
-    r_refdef.viewangles[PITCH] += v_idlescale.value * sin(cl.time*v_ipitch_cycle.value) * v_ipitch_level.value;
-    r_refdef.viewangles[YAW] += v_idlescale.value * sin(cl.time*v_iyaw_cycle.value) * v_iyaw_level.value;
+    r_refdef.viewangles[ROLL] += v_idlescale.value * sin(cl.ctime*v_iroll_cycle.value) * v_iroll_level.value; //DEMO_REWIND - qbism - Baker change
+    r_refdef.viewangles[PITCH] += v_idlescale.value * sin(cl.ctime*v_ipitch_cycle.value) * v_ipitch_level.value;
+    r_refdef.viewangles[YAW] += v_idlescale.value * sin(cl.ctime*v_iyaw_cycle.value) * v_iyaw_level.value;
 }
 
 

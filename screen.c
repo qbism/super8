@@ -39,7 +39,7 @@ float		scr_conlines;		// lines of console to display
 float		oldfov; // edited
 cvar_t		scr_viewsize = {"viewsize","100", true};
 cvar_t		scr_fov = {"fov","91.25"};	// 10 - 170 //qbism 91.25 works best for fisheye
-cvar_t		scr_conspeed = {"scr_conspeed","300"};
+cvar_t		scr_conspeed = {"scr_conspeed","1000"};
 cvar_t		scr_showpause = {"showpause","1"};
 cvar_t		scr_centertime = {"scr_centertime","2"};
 cvar_t		scr_printspeed = {"scr_printspeed","16"}; // 8 // Manoel Kasimier - edited
@@ -508,6 +508,11 @@ void SCR_SetUpToDrawConsole (void)
 {
     float conspeed; //qbism from goldquake
     extern cvar_t	con_alpha; // Manoel Kasimier - transparent console
+    	//qbism - from johnfitz -- let's hack away the problem of slow console when host_timescale is <0
+// DEMO_REWIND - qbism - Baker change
+	extern float frame_timescale;
+	float timescale;
+
     Con_CheckResize ();
 
     if (scr_drawloading)
@@ -526,24 +531,21 @@ void SCR_SetUpToDrawConsole (void)
     else
         scr_conlines = 0;				// none visible
 
+timescale = (host_timescale.value > 0) ? host_timescale.value : 1; //qbism - DEMO_REWIND by Baker - johnfitz -- timescale
+
     conspeed = scr_conspeed.value * (vid.height / 200.0f) * host_cpu_frametime;
 
     if (scr_conlines < scr_con_current)
     {
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-//		scr_con_current -= scr_conspeed.value*host_frametime;
-        scr_con_current -= conspeed;
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
+        scr_con_current -= scr_conspeed.value*host_frametime/frame_timescale; //qbism - DEMO_REWIND by Baker - johnfitz -- timescale
+
         if (scr_conlines > scr_con_current)
             scr_con_current = scr_conlines;
 
     }
     else if (scr_conlines > scr_con_current)
     {
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-//		scr_con_current += scr_conspeed.value*host_frametime;
-        scr_con_current += conspeed;
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
+        scr_con_current += scr_conspeed.value*host_frametime/frame_timescale; //qbism - DEMO_REWIND by Baker - johnfitz -- timescale
         if (scr_conlines < scr_con_current)
             scr_con_current = scr_conlines;
     }

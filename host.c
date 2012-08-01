@@ -44,7 +44,7 @@ void Palette_Init (void);
 void BuildGammaTable (float g);
 void GrabLightcolormap (void);
 
-cvar_t	host_timescale = {"host_timescale", "1"};
+cvar_t	host_timescale = {"host_timescale", "0"};
 // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
 
 quakeparms_t host_parms;
@@ -251,10 +251,11 @@ void Host_InitLocal (void)
     // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
     Cvar_RegisterVariable (&r_skyalpha); // Manoel Kasimier - translucent sky
 
-   Cvar_RegisterVariable (&r_palette); // qbism - default palette
+    Cvar_RegisterVariable (&r_palette); // qbism - default palette
 
     Cvar_RegisterVariable (&host_framerate);
     Cvar_RegisterVariable (&host_speeds);
+    Cvar_RegisterVariable (&host_timescale); //qbism - from johnfitz
 
     Cvar_RegisterVariable (&sys_ticrate);
     Cvar_RegisterVariable (&serverprofile);
@@ -547,6 +548,9 @@ Host_FilterTime
 Returns false if the time is too short to run a frame
 ===================
 */
+
+float frame_timescale = 1.0f; //DEMO_REWIND - qbism - Baker change
+
 qboolean Host_FilterTime (float time)
 {
     double	fps;
@@ -565,34 +569,25 @@ qboolean Host_FilterTime (float time)
     else
 #endif
 
-        // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-        //	host_frametime = realtime - oldrealtime;
-        host_org_frametime = host_cpu_frametime = realtime - oldrealtime;
-    // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
-    oldrealtime = realtime;
+	host_frametime = realtime - oldrealtime;
+	oldrealtime = realtime;
 
-    if (host_framerate.value > 0)
-        // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-        //		host_frametime = host_framerate.value;
-        host_org_frametime = host_framerate.value;
-    // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
-    else
+//qbism - fitzquake host_framerate + DEMO_REWIND Baker change
+    frame_timescale = 1;
+    if (cls.demoplayback && cls.demospeed && !cls.timedemo && !cls.capturedemo && cls.demonum == -1)
     {
-        // don't allow really long or short frames
-        // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-        /*
-        if (host_frametime > 0.1)
-        host_frametime = 0.1;
-        if (host_frametime < 0.001)
-        host_frametime = 0.001;
-        */
-        if (host_org_frametime > 0.1)
-            host_org_frametime = 0.1;
-        if (host_org_frametime < 0.001)
-            host_org_frametime = 0.001;
-        // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
+        host_frametime *= cls.demospeed;
+        frame_timescale = cls.demospeed;
     }
-    host_frametime = host_org_frametime * host_timescale.value;	// 2001-10-20 TIMESCALE extension by Tomaz/Maddes
+    else if (host_timescale.value > 0 && !(cls.demoplayback && cls.demospeed && !cls.timedemo && !cls.capturedemo && cls.demonum == -1) )
+    {
+        host_frametime *= host_timescale.value;
+        frame_timescale = host_timescale.value;
+    }
+    else if (host_framerate.value > 0)
+        host_frametime = host_framerate.value;
+    else // don't allow really long or short frames
+        host_frametime = CLAMP (0.001, host_frametime, 0.1); //johnfitz -- use CLAMP
 
     return true;
 }
@@ -629,25 +624,25 @@ Host_ServerFrame //qbism- framerate independent physics from mh
 
 void Host_ServerFrame (void)
 {
-	// run the world state
-	pr_global_struct->frametime = host_frametime;
+    // run the world state
+    pr_global_struct->frametime = host_frametime;
 
-	// set the time and clear the general datagram
-	SV_ClearDatagram ();
+    // set the time and clear the general datagram
+    SV_ClearDatagram ();
 
-	// check for new clients
-	SV_CheckForNewClients ();
+    // check for new clients
+    SV_CheckForNewClients ();
 
-	// read client messages
-	SV_RunClients ();
+    // read client messages
+    SV_RunClients ();
 
-	// move things around and think
-	// always pause in single player if in console or menus
-	if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game))
-		SV_Physics ();
+    // move things around and think
+    // always pause in single player if in console or menus
+    if (!sv.paused && (svs.maxclients > 1 || key_dest == key_game))
+        SV_Physics ();
 
-	// send all messages to the clients
-	SV_SendClientMessages ();
+    // send all messages to the clients
+    SV_SendClientMessages ();
 }
 
 
@@ -905,7 +900,7 @@ void Host_Init (quakeparms_t *parms)
 #ifdef _WIN32 // on non win32, mouse comes before video for security reasons
         IN_Init ();
 #endif
-    GrabLightcolormap(); //qbism
+        GrabLightcolormap(); //qbism
     }
 
     Con_DPrintf ("\n"); // Manoel Kasimier

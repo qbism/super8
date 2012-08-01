@@ -528,7 +528,7 @@ void Sbar_SoloScoreboard (int x, int y, int vertical) // default 0, -48, 0
 	units = seconds - 10*tens;
 	sprintf (str,"Time :%3i:%i%i", minutes, tens, units);
 //*/// Manoel Kasimier
-	sprintf (str,"Time: %s", timetos((int)cl.time)); // Manoel Kasimier
+	sprintf (str,"Time: %s", timetos((int)cl.ctime)); // Manoel Kasimier - qbism - altered for DEMO_REWIND - Baker
 	if (vertical)
 		Sbar_DrawString (x, y - 16, str);
 	else
