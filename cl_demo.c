@@ -200,6 +200,9 @@ int CL_GetMessage (void)
     int		r, i;
     float	f;
 
+	if (cl.paused & 2) //PAUSE_DEMO - qbism - Baker change
+		return 0;
+
     if	(cls.demoplayback)
     {
         //DEMO_REWIND qbism - Baker change

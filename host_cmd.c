@@ -1372,6 +1372,9 @@ Host_Pause_f
 */
 void Host_Pause_f (void)
 {
+ //PAUSE_DEMO - qbism - Baker change
+	if (cls.demonum == -1) // Don't allow startdemos to be paused
+		cl.paused ^= 2;		// to handle demo-pause
 
 	if (cmd_source == src_command)
 	{

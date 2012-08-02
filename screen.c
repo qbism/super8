@@ -939,7 +939,7 @@ void SCR_ScreenShot_f (void)
 //
 // find a file name to save it to
 //
-    Q_strcpy(pcxname,"quake00.pcx"); //qbism screenshots dir
+    Q_strcpy(pcxname,"qbs8_00.pcx"); //qbism screenshots dir
 
     for (i=0 ; i<=99 ; i++)
     {
@@ -951,7 +951,7 @@ void SCR_ScreenShot_f (void)
     }
     if (i==100)
     {
-        Con_Printf ("SCR_ScreenShot_f: Couldn't create a PCX file\n");
+        Con_Printf ("SCR_ScreenShot_f: Too many PCX files in directory.\n");
         return;
     }
 

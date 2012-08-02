@@ -64,19 +64,31 @@ qboolean Movie_IsActive (void)
 void Movie_Start_f (void)
 {
     char	name[MAX_OSPATH], path[256]; //qbism jqavi was MAX_FILELENGTH
+    int     i;
 
-    if (Cmd_Argc() != 2)
+    if (Cmd_Argc() != 2) //qbism - autogenerate file name if none is given.
     {
-        Con_Printf ("capture_start <filename> : Start capturing to named file\n");
-        return;
+        Q_strcpy(name,"qbs8_00.avi"); //qbism screenshots dir
+
+        for (i=0 ; i<=99 ; i++)
+        {
+            name[5] = i/10 + '0';
+            name[6] = i%10 + '0';
+            sprintf (path, "%s/%s", com_gamedir, name);
+            if (Sys_FileTime(path) == -1)
+                break;	// file doesn't exist
+        }
+        if (i==100)
+        {
+            Con_Printf ("Movie_Start_f: Too many AVI files in directory.\n");
+            return;
+        }
     }
-
-    Q_strncpyz (name, Cmd_Argv(1), sizeof(name));
-    COM_ForceExtension (name, ".avi");
-
-    //hack_ctr = capture_hack.value;
-    //Q_snprintfz (path, sizeof(path), "%s/%s", capture_dir.string, name);
-    //if (!(moviefile = fopen(path, "wb")))
+    else
+    {
+        Q_strncpyz (name, Cmd_Argv(1), sizeof(name));
+        COM_ForceExtension (name, ".avi");
+    }
 
     hack_ctr = capture_hack.value;
     Q_snprintfz (path, sizeof(path), "%s/%s", com_gamedir, name);

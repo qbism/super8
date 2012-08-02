@@ -1171,7 +1171,7 @@ void R_AliasSetupFrame (void)
         numframes = paliasgroup->numframes;
         fullinterval = pintervals[numframes-1];
 
-        time = cl.time + currententity->syncbase;//?FIXME.. time or ctime?  DEMO_REWIND - qbism - Baker change
+        time = cl.time + currententity->syncbase;//DEMO_REWIND - qbism - Baker change
 
 //
 // when loading in Mod_LoadAliasGroup, we guaranteed all interval values
