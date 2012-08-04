@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // movie.c -- video capturing
 
 #include "../quakedef.h"
-#include "movie.h"
 #include "movie_avi.h"
 
 extern	float	scr_con_current;
@@ -68,17 +67,18 @@ void Movie_Start_f (void)
 
     if (Cmd_Argc() != 2) //qbism - autogenerate file name if none is given.
     {
-        Q_strcpy(name,"qbs8_00.avi"); //qbism screenshots dir
+        Q_strcpy(name,"qbs8_000.avi"); //qbism screenshots dir
 
-        for (i=0 ; i<=99 ; i++)
+        for (i=0 ; i<=999 ; i++)
         {
-            name[5] = i/10 + '0';
-            name[6] = i%10 + '0';
+            name[5] = i/100 + '0';
+            name[6] = i/10 + '0';
+            name[7] = i%10 + '0';
             sprintf (path, "%s/%s", com_gamedir, name);
             if (Sys_FileTime(path) == -1)
                 break;	// file doesn't exist
         }
-        if (i==100)
+        if (i==1000)
         {
             Con_Printf ("Movie_Start_f: Too many AVI files in directory.\n");
             return;

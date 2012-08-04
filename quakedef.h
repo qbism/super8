@@ -322,6 +322,8 @@ extern int			current_skill;		// skill level for currently loaded level (in case
 										//  the user changes the cvar while the level is
 										//  running, this reflects the level actually in use)
 
+extern int stretched; //qbism - video stretch, also used by pcx and avi capture.
+
 extern qboolean		isDedicated;
 
 extern int			minimum_memory;
@@ -337,10 +339,9 @@ void Chase_Update (void);
 
 dfunction_t *ED_FindFunction (char *name);	// FrikaC - qcexec function
 // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-extern	double	host_cpu_frametime;
 extern	double	host_org_frametime;
 extern	cvar_t	host_timescale;
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
+
 
 extern	cvar_t vid_mode; //qbism
 extern	cvar_t snd_speed; //qbism

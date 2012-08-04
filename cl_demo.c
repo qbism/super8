@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //qbism jqavi - JoeQuake avi from Baker tutorial
 #ifdef _WIN32
-#include "s_win32/movie.h"
+#include "s_win32/movie_avi.h"
 #endif
 
 extern cvar_t r_palette;

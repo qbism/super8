@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #ifdef _WIN32 //qbism jqavi
 #include "s_win32/winquake.h"
-#include "s_win32/movie.h"
+#include "s_win32/movie_avi.h"
 #endif
 
 #ifndef _WIN32

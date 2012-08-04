@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "r_local.h"
 #ifdef _WIN32
-#include "s_win32/movie.h"
+#include "s_win32/movie_avi.h"
 #endif
 
 extern cvar_t scr_ofsx; //qbism
@@ -201,10 +201,7 @@ void SCR_CheckDrawCenterString (void)
     if (scr_center_lines > scr_erase_lines)
         scr_erase_lines = scr_center_lines;
 
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-//	scr_centertime_off -= host_frametime;
-    scr_centertime_off -= host_cpu_frametime;
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
+    scr_centertime_off -= host_frametime;
 
     if (scr_centertime_off <= 0 && !cl.intermission)
         return;
@@ -472,7 +469,7 @@ void SCR_DrawPause (void)
 
     if (!cl.paused)
         return;
-        M_DrawPlaque ("gfx/pause.lmp", false); // Manoel Kasimier
+    M_DrawPlaque ("gfx/pause.lmp", false); // Manoel Kasimier
 }
 
 
@@ -508,10 +505,10 @@ void SCR_SetUpToDrawConsole (void)
 {
     float conspeed; //qbism from goldquake
     extern cvar_t	con_alpha; // Manoel Kasimier - transparent console
-    	//qbism - from johnfitz -- let's hack away the problem of slow console when host_timescale is <0
+    //qbism - from johnfitz -- let's hack away the problem of slow console when host_timescale is <0
 // DEMO_REWIND - qbism - Baker change
-	extern float frame_timescale;
-	float timescale;
+    extern float frame_timescale;
+    float timescale;
 
     Con_CheckResize ();
 
@@ -531,9 +528,9 @@ void SCR_SetUpToDrawConsole (void)
     else
         scr_conlines = 0;				// none visible
 
-timescale = (host_timescale.value > 0) ? host_timescale.value : 1; //qbism - DEMO_REWIND by Baker - johnfitz -- timescale
+    timescale = (host_timescale.value > 0) ? host_timescale.value : 1; //qbism - DEMO_REWIND by Baker - johnfitz -- timescale
 
-    conspeed = scr_conspeed.value * (vid.height / 200.0f) * host_cpu_frametime;
+    conspeed = scr_conspeed.value * (vid.height / 200.0f) * host_frametime;
 
     if (scr_conlines < scr_con_current)
     {
@@ -939,17 +936,18 @@ void SCR_ScreenShot_f (void)
 //
 // find a file name to save it to
 //
-    Q_strcpy(pcxname,"qbs8_00.pcx"); //qbism screenshots dir
+    Q_strcpy(pcxname,"qbs8_000.pcx"); //qbism screenshots dir
 
-    for (i=0 ; i<=99 ; i++)
+    for (i=0 ; i<=999 ; i++)
     {
-        pcxname[5] = i/10 + '0';
-        pcxname[6] = i%10 + '0';
+        pcxname[5] = i/100 + '0';
+        pcxname[6] = i/10 + '0';
+        pcxname[7] = i%10 + '0';
         sprintf (checkname, "%s/%s", com_gamedir, pcxname);
         if (Sys_FileTime(checkname) == -1)
             break;	// file doesn't exist
     }
-    if (i==100)
+    if (i==1000)
     {
         Con_Printf ("SCR_ScreenShot_f: Too many PCX files in directory.\n");
         return;
@@ -1153,7 +1151,7 @@ void SCR_UpdateScreen (void)
     {
         // something changed, so reorder the screen
         SCR_CalcRefdef ();
-     }
+    }
 //
 // do 3D refresh drawing, and then update the screen
 //
@@ -1218,9 +1216,9 @@ void SCR_UpdateScreen (void)
 
     V_UpdatePalette ();
 
-    #ifdef _WIN32 //qbism jqavi
- 	Movie_UpdateScreen ();
- 	#endif
+#ifdef _WIN32 //qbism jqavi
+    Movie_UpdateScreen ();
+#endif
 
 // update one of three areas
     if (scr_copyeverything)

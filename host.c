@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "r_local.h"
 #ifdef _WIN32 //qbism jqavi
-#include "s_win32/movie.h"
+#include "s_win32/movie_avi.h"
 #endif
 
 /*
@@ -37,15 +37,13 @@ Memory is cleared / released when a server or client begins, not when they end.
 */
 
 // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-double	host_cpu_frametime;
 double	host_org_frametime;
+cvar_t	host_timescale = {"host_timescale", "0"};
+// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
 
 void Palette_Init (void);
 void BuildGammaTable (float g);
 void GrabLightcolormap (void);
-
-cvar_t	host_timescale = {"host_timescale", "0"};
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
 
 quakeparms_t host_parms;
 

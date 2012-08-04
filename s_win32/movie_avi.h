@@ -25,3 +25,12 @@ qboolean Capture_Open (char *filename);
 void Capture_WriteVideo (byte *pixel_buffer);
 void Capture_WriteAudio (int samples, byte *sample_buffer);
 void Capture_Close (void);
+
+void Movie_Init (void);
+void Movie_StopPlayback (void);
+double Movie_FrameTime (void);
+void Movie_TransferStereo16 (void);
+void Movie_UpdateScreen (void);
+
+qboolean Movie_GetSoundtime (void);
+qboolean Movie_IsActive (void);

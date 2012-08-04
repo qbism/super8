@@ -21,7 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../quakedef.h"
 #include "movie_avi.h"
-#include "movie.h" //qbism - get stretched
 #include <windows.h>
 #include <vfw.h>
 #include <mmreg.h>
