@@ -1,9 +1,10 @@
 /*
-Copyright (C) 1996-1997 Id Software, Inc.
+Copyright (C) 1996-2001 Id Software, Inc.
+Copyright (C) 1999-2012 multiple contributors
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
+as published by the Free Software Foundation; either version 3
 of the License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
@@ -1399,6 +1400,222 @@ void	Cmd_ExecuteString (char *text, cmd_source_t src)
 
 }
 
+//qbism - talk macros and location begin - from Baker's FQ Mark V
+#define MAX_LOCATIONS 64
+typedef struct
+{
+	vec3_t mins_corner;		// min xyz corner
+	vec3_t maxs_corner;		// max xyz corner
+	vec_t sd;				// sum of dimensions
+	char name[32];
+} location_t;
+
+static location_t	locations[MAX_LOCATIONS];
+static int			numlocations = 0;
+
+/*
+===============
+LOC_LoadLocations
+
+Load the locations for the current level from the location file
+===============
+*/
+void LOC_LoadLocations (void)
+{
+	FILE *f;
+	char		*ch;
+	char		locs_filename[64];
+	char		base_map_name[64];
+	char		buff[256];
+	location_t *thisloc;
+	int i;
+	float temp;
+
+	numlocations = 0;
+
+	COM_StripExtension (cl.worldmodel->name + 5 /* +5 = skip "maps/" */, base_map_name);
+	sprintf (locs_filename, "locs/%s.loc", base_map_name);
+
+	if (COM_FOpenFile (locs_filename, &f, cl.worldmodel->loadinfo.searchpath) == -1)
+		return;
+
+	thisloc = locations;
+	while (!feof(f) && numlocations < MAX_LOCATIONS)
+	{
+		if (fscanf(f, "%f, %f, %f, %f, %f, %f, ", &thisloc->mins_corner[0], &thisloc->mins_corner[1], &thisloc->mins_corner[2], &thisloc->maxs_corner[0], &thisloc->maxs_corner[1], &thisloc->maxs_corner[2]) == 6)
+		{
+			thisloc->sd = 0;
+			for (i = 0 ; i < 3 ; i++)
+			{
+				if (thisloc->mins_corner[i] > thisloc->maxs_corner[i])
+				{
+					temp = thisloc->mins_corner[i];
+					thisloc->mins_corner[i] = thisloc->maxs_corner[i];
+					thisloc->maxs_corner[i] = temp;
+				}
+				thisloc->sd += thisloc->maxs_corner[i] - thisloc->mins_corner[i];
+			}
+			thisloc->mins_corner[2] -= 32.0;
+			thisloc->maxs_corner[2] += 32.0;
+			fgets(buff, 256, f);
+
+			ch = strrchr(buff, '\n');	if (ch)		*ch = 0;	// Eliminate trailing newline characters
+			ch = strrchr(buff, '\"');	if (ch)		*ch = 0;	// Eliminate trailing quotes
+
+			for (ch = buff ; *ch == ' ' || *ch == '\t' || *ch == '\"' ; ch++);	// Go through the string and forward past any spaces, tabs or double quotes to find start of the name
+
+			strcpy (thisloc->name, ch);
+			thisloc = &locations[++numlocations];
+		}
+		else
+			fgets(buff, 256, f);
+	}
+
+	fclose(f);
+}
+
+/*
+===============
+LOC_GetLocation
+
+Get the name of the location of a point
+===============
+*/
+// return the nearest rectangle if you aren't in any (manhattan distance)
+char *LOC_GetLocation (vec3_t worldposition)
+{
+	location_t *thisloc;
+	location_t *bestloc;
+	float dist, bestdist;
+
+	if (numlocations == 0)
+		return "(Not loaded)";
+
+
+	bestloc = NULL;
+	bestdist = 999999;
+	for (thisloc = locations ; thisloc < locations + numlocations ; thisloc++)
+	{
+		dist =	fabs(thisloc->mins_corner[0] - worldposition[0]) + fabs(thisloc->maxs_corner[0] - worldposition[0]) +
+				fabs(thisloc->mins_corner[1] - worldposition[1]) + fabs(thisloc->maxs_corner[1] - worldposition[1]) +
+				fabs(thisloc->mins_corner[2] - worldposition[2]) + fabs(thisloc->maxs_corner[2] - worldposition[2]) - thisloc->sd;
+
+		if (dist < .01)
+			return thisloc->name;
+
+		if (dist < bestdist)
+		{
+			bestdist = dist;
+			bestloc = thisloc;
+		}
+	}
+	if (bestloc)
+		return bestloc->name;
+	return "somewhere";
+}
+
+
+
+char *Weapons_String (void)
+{
+	static char weapons_string[256];
+
+	memset (weapons_string, 0, sizeof(weapons_string));
+
+	strcat (weapons_string, "(");
+	if (cl.items & IT_ROCKET_LAUNCHER)  strcat (weapons_string, "RL ");
+	if (cl.items & IT_GRENADE_LAUNCHER) strcat (weapons_string, "GL ");
+	if (cl.items & IT_LIGHTNING)  		strcat (weapons_string, "LG ");
+
+	if (strlen (weapons_string) == 1) // No good weapons.
+	{
+		if (cl.items & IT_SUPER_NAILGUN)  	strcat (weapons_string, "SNG ");
+		if (cl.items & IT_SUPER_SHOTGUN)  	strcat (weapons_string, "SSG ");
+		if (cl.items & IT_SUPER_NAILGUN)  	strcat (weapons_string, "NG ");
+	}
+
+	// Not even bad weapons
+	if (strlen (weapons_string) == 1) 		strcat (weapons_string, "none");
+
+	strcat (weapons_string, ")");
+
+	return weapons_string;
+}
+
+char *Powerups_String (void)
+{
+	static char powerups_string[256];
+
+	memset (powerups_string, 0, sizeof(powerups_string));
+
+	if (cl.items & IT_QUAD)				strcat (powerups_string, "[QUAD] ");
+	if (cl.items & IT_INVULNERABILITY)  strcat (powerups_string, "[PENT] ");
+	if (cl.items & IT_INVISIBILITY)		strcat (powerups_string, "[RING] ");
+
+	return powerups_string;
+}
+
+char *Time_String (void)
+{
+	static char level_time_string[256];
+	int minutes = cl.time / 60;
+	int seconds = cl.time - (60 * minutes);
+	minutes &= 511;
+
+	memset (level_time_string, 0, sizeof(level_time_string));
+
+	sprintf (level_time_string, "%i:%02i", minutes, seconds);
+
+	return level_time_string;
+}
+
+
+char *Expand_Talk_Macros (char *string)
+{
+	static char modified_string[256];
+	int		readpos = 0;
+	int		writepos = 0;
+	char	*insert_point;
+	char	letter;
+	int		i, match;
+
+	memset (modified_string, 0, sizeof(modified_string));
+
+	// Byte by byte copy cmd_args into the buffer.
+
+	for ( ; string[readpos] && writepos < 100; )
+	{
+		if (string[readpos] != '%')
+		{
+			modified_string[writepos] = string[readpos];
+			readpos ++;
+			writepos ++;
+			continue; // Not a macro to replace or some invalid macro
+		}
+
+		// We found a macro
+		readpos ++; // Skip the percent
+		letter = string[readpos];
+		readpos ++; // Skip writing the letter too
+		insert_point = &modified_string[writepos];
+
+			 if (letter == 'a')  writepos += sprintf(insert_point, "%i", cl.stats[STAT_ARMOR]);
+		else if (letter == 'c')  writepos += sprintf(insert_point, "%i", cl.stats[STAT_CELLS]);
+		else if (letter == 'd')  writepos += sprintf(insert_point, "%s", LOC_GetLocation(cl.death_location));
+		else if (letter == 'h')  writepos += sprintf(insert_point, "%i", cl.stats[STAT_HEALTH]);
+		else if (letter == 'l')  writepos += sprintf(insert_point, "%s", LOC_GetLocation(cl_entities[cl.viewentity].origin));
+		else if (letter == 'p')	 writepos += sprintf(insert_point, "%s", Powerups_String (/*cl.items*/));
+		else if (letter == 'r')  writepos += sprintf(insert_point, "%i", cl.stats[STAT_ROCKETS]);
+		else if (letter == 't')  writepos += sprintf(insert_point, "%s", Time_String (/*cl.time*/));
+		else if (letter == 'w')  writepos += sprintf(insert_point, "%s", Weapons_String (/*cl.items*/));
+		else					 writepos += sprintf(insert_point, "(invalid macro '%c')", letter);
+	}
+
+	modified_string[writepos] = 0; // Null terminate the copy
+	return modified_string;
+}
+//qbism - talk macros and location end
+
 
 /*
 ===================
@@ -1424,6 +1641,16 @@ void Cmd_ForwardToServer (void)
         SZ_Print (&cls.message, Cmd_Argv(0));
         SZ_Print (&cls.message, " ");
     }
+
+    //qbism - talk macro begin
+    if (Cmd_Argc() > 1 && (Q_strcasecmp(Cmd_Argv(0), "say") == 0 || !Q_strcasecmp(Cmd_Argv(0), "say_team") == 0) )
+	{
+		char *new_text = Expand_Talk_Macros (Cmd_Args());  // Func also writes out the new message
+
+		SZ_Print (&cls.message, new_text);
+		return;
+	}
+	else //qbism - talk macro end
     if (Cmd_Argc() > 1)
         SZ_Print (&cls.message, Cmd_Args());
     else

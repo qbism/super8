@@ -1015,7 +1015,8 @@ skipwhite:
     }
 
 // parse single characters
-    if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
+	if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'') //qbism - Baker - IP port
+  //if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
     {
         com_token[len] = c;
         len++;

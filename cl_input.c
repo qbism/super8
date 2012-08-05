@@ -260,6 +260,32 @@ void IN_Impulse (void)
     in_impulse=Q_atoi(Cmd_Argv(1));
 }
 
+//qbism - bestweapon, via FQ Mark V
+static int weaponstat[7] = {STAT_SHELLS, STAT_SHELLS, STAT_NAILS, STAT_NAILS, STAT_ROCKETS, STAT_ROCKETS, STAT_CELLS};
+
+/*
+===============
+IN_BestWeapon //qbism - bestweapon, via FQ Mark V
+===============
+*/
+// bind CTRL "bestweapon 8 5 4 3 2 1" will select LG (weapon 8), SSG (weapon 5), etc. based on if you have the weapon and ammo for it.
+//  ProQuake, DarkPlaces, DirectQ, Qrack, etc. have this.
+static void IN_BestWeapon (void)
+{
+	int i, impulse;
+
+	for (i = 1 ; i < Cmd_Argc() ; i++)
+	{
+		impulse = atoi(Cmd_Argv(i));
+		if (impulse > 0 && impulse < 9 && (impulse == 1 ||
+			((cl.items & (IT_SHOTGUN << (impulse - 2))) && cl.stats[weaponstat[impulse-2]])))
+		{
+			in_impulse = impulse;
+			break;
+		}
+	}
+}
+
 /*
 ===============
 CL_KeyState
@@ -324,7 +350,7 @@ float CL_KeyState (kbutton_t *key)
 //==========================================================================
 
 cvar_t	cl_upspeed = {"cl_upspeed","200"};
-cvar_t	cl_forwardspeed = {"cl_forwardspeed","200", true};
+cvar_t	cl_forwardspeed = {"cl_forwardspeed","400", true}; //qbism - always run by default
 cvar_t	cl_backspeed = {"cl_backspeed","200", true};
 cvar_t	cl_sidespeed = {"cl_sidespeed","350"};
 
@@ -555,6 +581,7 @@ void CL_InitInput (void)
     Cmd_AddCommand ("impulse", IN_Impulse);
     Cmd_AddCommand ("+klook", IN_KLookDown);
     Cmd_AddCommand ("-klook", IN_KLookUp);
+    Cmd_AddCommand ("bestweapon", IN_BestWeapon); //qbism - bestweapon
 
 }
 

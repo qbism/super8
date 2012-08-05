@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 int current_protocol = PROTOCOL_QBS8; //qbism
 extern qboolean		pr_alpha_supported; //johnfitz
 extern cvar_t r_palette;
+extern	cvar_t	sv_novis; //qbism - from FQ via Mark V
 server_t		sv;
 server_static_t	svs;
 
@@ -101,6 +102,7 @@ void SV_Init (void)
     Cvar_RegisterVariable (&sv_idealpitchscale);
     Cvar_RegisterVariable (&sv_aim_h); // Manoel Kasimier - horizontal autoaim
     Cvar_RegisterVariable (&sv_aim);
+    Cvar_RegisterVariable (&sv_novis); //qbism - from FQ
     Cvar_RegisterVariable (&sv_nostep);
     Cvar_RegisterVariable (&sv_enable_use_button); // Manoel Kasimier - +USE fix
     Cvar_RegisterVariable (&sv_qcexec); // Manoel Kasimier - qcexec
@@ -718,7 +720,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
                 SV_FindTouchedLeafs (ent, sv.worldmodel->nodes, pvs);
 
                 // if the entity didn't touch any leafs in the pvs don't send it to the client
-                if (!ent->touchleaf) continue; //qbism fixme, do sv_novis?  if (!ent->touchleaf && !sv_novis.integer)
+                if (!ent->touchleaf && !sv_novis.value) continue;//qbism - novis from FQ
             }
 
 

@@ -257,6 +257,9 @@ typedef struct
 
 // frag scoreboard
     scoreboard_t	*scores;		// [cl.maxclients]
+
+	vec3_t			death_location;		//qbism -talk macro via FQ Mark V - used for %d formatting
+
 } client_state_t;
 
 

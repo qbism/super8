@@ -317,6 +317,11 @@ typedef struct {
 
 typedef enum {mod_brush, mod_sprite, mod_alias} modtype_t;
 
+typedef struct
+{
+	char	searchpath[MAX_OSPATH];
+} loadinfo_t; //qbism - model search path, from FQ Mark V
+
 typedef struct model_s
 {
 	char		name[MAX_QPATH];
@@ -382,6 +387,7 @@ typedef struct model_s
 	byte		*colordata; //qbism indexed colored
 	byte		*entities;
 
+    loadinfo_t	loadinfo;  //qbism - model search path
 //
 // additional model data
 //

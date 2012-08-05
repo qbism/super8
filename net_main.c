@@ -63,6 +63,7 @@ int unreliableMessagesSent = 0;
 int unreliableMessagesReceived = 0;
 
 cvar_t	net_messagetimeout = {"net_messagetimeout","300"};
+cvar_t	net_connecttimeout = {"net_connecttimeout","10"};	//qbism - Baker net fix - From ProQuake - qkick/qflood protection
 cvar_t	hostname = {"hostname", "UNNAMED"};
 
 qboolean	configRestored = false;
@@ -535,6 +536,13 @@ int	NET_GetMessage (qsocket_t *sock)
 			NET_Close(sock);
 			return -1;
 		}
+        //qbism - Baker net fix - From ProQuake: qflood/qkick protection
+		if (net_time - sock->lastMessageTime > net_connecttimeout.value && sv.active &&
+			host_client && sock == host_client->netconnection && !strcmp(host_client->name, "unconnected"))
+		{
+			NET_Close(sock);
+			return -1;
+		}
 	}
 
 
@@ -758,6 +766,7 @@ void NET_Init (void)
 	SZ_Alloc (&net_message, NET_MAXMESSAGE);
 
 	Cvar_RegisterVariable (&net_messagetimeout);
+	Cvar_RegisterVariable (&net_connecttimeout); //qbism - Baker - network fix
 	Cvar_RegisterVariable (&hostname);
 	Cvar_RegisterVariable (&config_com_port);
 	Cvar_RegisterVariable (&config_com_irq);

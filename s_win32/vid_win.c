@@ -362,7 +362,7 @@ viddef_t	vid;				// global video state
 #define MODE_FULLSCREEN_DEFAULT	(MODE_WINDOWED + VID_WINDOWED_MODES) //qbism was 3
 
 // Note that 0 is MODE_WINDOWED
-cvar_t		vid_mode = {"vid_mode", "0", true}; //qbism was false
+cvar_t		vid_mode = {"vid_mode", "3", true}; //qbism was false
 // Note that 0 is MODE_WINDOWED
 cvar_t		vid_default_mode_win = {"vid_default_mode_win", "3", true};
 cvar_t		vid_wait = {"vid_wait", "1", true};
@@ -378,7 +378,7 @@ cvar_t		vid_window_y = {"vid_window_y", "0", false};
 int			vid_modenum = NO_MODE;
 int			vid_testingmode, vid_realmode;
 double		vid_testendtime;
-int			vid_default = MODE_WINDOWED;
+int			vid_default = MODE_FULLSCREEN_DEFAULT; //qbism
 static int	windowed_default;
 
 modestate_t	modestate = MS_UNINIT;
@@ -404,7 +404,8 @@ typedef struct
 } vmode_t;
 
 static vmode_t	modelist[MAX_MODE_LIST];
-static int		nummodes;
+static int		nummodes = VID_WINDOWED_MODES;	// reserve space for windowed mode  //qbism was 3
+
 static vmode_t	*pcurrentmode;
 
 int		aPage;					// Current active display page
@@ -451,6 +452,7 @@ void VID_RememberWindowPos (void)
 
     if (GetWindowRect (hWndWinQuake, &rect))
     {
+
         if ((rect.left < GetSystemMetrics (SM_CXSCREEN)) &&
                 (rect.top < GetSystemMetrics (SM_CYSCREEN))  &&
                 (rect.right > 0)                             &&
@@ -619,25 +621,49 @@ void VID_InitModes (HINSTANCE hInstance)
     // automatically stretch the default mode up if > 640x480 desktop resolution
     hdc = GetDC (NULL);
 
+    for (i = VID_WINDOWED_MODES; i<nummodes; i++) //qbism FIXME - this gets stomped on.
+    {
+        if ((modelist[i].width == 1280) && (modelist[i].height == 720) && !startwindowed)  //qbism - do fullscreen as default.
+        {
+            vid_default = i;
+            continue;
+        }
+        else if ((modelist[i].width == 1024) && (modelist[i].height == 600) && !startwindowed)  //qbism - do fullscreen as default.
+        {
+            vid_default = i;
+            continue;
+        }
+        else if ((modelist[i].width == 800) && (modelist[i].height == 480) && !startwindowed)  //qbism - do fullscreen as default.
+        {
+            vid_default = i;
+            continue;
+        }
+        else if ((modelist[i].width == 640) && (modelist[i].height == 400) && !startwindowed)  //qbism - do fullscreen as default.
+        {
+            vid_default = i;
+            continue;
+        }
+        else if ((modelist[i].width == GetDeviceCaps (hdc, HORZRES)) && (modelist[i].height == GetDeviceCaps (hdc, VERTRES)) && !startwindowed)  //qbism - do fullscreen as default.
+        {
+            vid_default = i;
+            continue;
+        }
+    }
+
     if ((GetDeviceCaps (hdc, HORZRES) > modelist[1].width) && !COM_CheckParm ("-noautostretch"))  //qbism - was 800
     {
-        vid_default = MODE_WINDOWED + 2;
+        windowed_default = MODE_WINDOWED + 2;
     }
     else if ((GetDeviceCaps (hdc, HORZRES) > modelist[0].width) && !COM_CheckParm ("-noautostretch"))  //qbism - was 640
     {
-        vid_default = MODE_WINDOWED + 1;
+        windowed_default = MODE_WINDOWED + 1;
     }
     else
     {
-        vid_default = MODE_WINDOWED;
+        windowed_default = MODE_WINDOWED;
     }
-
-    // always start at the lowest mode then switch to the higher one if selected
-    vid_default = MODE_WINDOWED;
-
-    windowed_default = vid_default;
     ReleaseDC (NULL, hdc);
-    nummodes = VID_WINDOWED_MODES;	// reserve space for windowed mode  //qbism was 3
+    Cvar_SetValue("vid_fullscreen_mode", vid_default); //qbism
 }
 
 /*
@@ -751,9 +777,14 @@ void VID_GetDisplayModes (void)
     }
     while (stat);
 
-    if (nummodes != originalnummodes)
+    if (nummodes == originalnummodes)
+         Con_Printf ("No fullscreen DIB modes found\n");
+
+ /*qbism - was   if (nummodes != originalnummodes)
         vid_default = MODE_FULLSCREEN_DEFAULT;
     else Con_Printf ("No fullscreen DIB modes found\n");
+        */
+
 }
 
 
@@ -1282,9 +1313,9 @@ void VID_Init (unsigned char *palette)
         Cmd_AddCommand ("vid_fullscreen", VID_Fullscreen_f);
         Cmd_AddCommand ("vid_minimize", VID_Minimize_f);
 
-        VID_InitModes (global_hInstance);
         basenummodes = nummodes;
         VID_GetDisplayModes ();
+        VID_InitModes (global_hInstance); //qbism - move after VID_GetDisplayModes
     }
 
     //vid.maxwarpwidth = WARP_WIDTH;
@@ -1294,35 +1325,6 @@ void VID_Init (unsigned char *palette)
     vid.colormap = host_colormap;
     vid.fullbright = 256 - LittleLong (*((int *) vid.colormap + 2048));
     vid_testingmode = 0;
-
-#if 0
-    // GDI doesn't let us remap palette index 0, so we'll remap color
-    // mappings from that black to another one
-    bestmatchmetric = 256 * 256 * 3;
-
-    for (i = 1; i < 256; i++)
-    {
-        dr = palette[0] - palette[i*3];
-        dg = palette[1] - palette[i*3+1];
-        db = palette[2] - palette[i*3+2];
-        t = (dr * dr) + (dg * dg) + (db * db);
-
-        if (t < bestmatchmetric)
-        {
-            bestmatchmetric = t;
-            bestmatch = i;
-
-            if (t == 0)
-                break;
-        }
-    }
-
-    for (i = 0, ptmp = vid.colormap; i < (1 << (VID_CBITS + 8)); i++, ptmp++)
-    {
-        if (*ptmp == 0)
-            *ptmp = bestmatch;
-    }
-#endif
 
     if (COM_CheckParm("-startwindowed"))
     {
@@ -1343,9 +1345,9 @@ void VID_Init (unsigned char *palette)
     hide_window = false;
     if (firsttime) S_Init ();
     vid_initialized = true;
-    //force_mode_set = true;
-    //qbism VID_SetMode (vid_default, palette);
-    //force_mode_set = false;
+ //   force_mode_set = true;
+ //qbism - not needed   VID_SetMode (vid_default, palette);
+ //   force_mode_set = false;
     vid_realmode = vid_modenum;
     VID_SetPalette (palette);
     vid_menudrawfn = VID_MenuDraw;
@@ -1787,7 +1789,7 @@ void VID_Update (vrect_t *rects)
     }
     else
     {
-        if ((int) vid_mode.value != vid_realmode)
+  if ((int) vid_mode.value != vid_realmode)
         {
             VID_SetMode ((int) vid_mode.value, vid_curpal);
             Cvar_SetValue ("vid_mode", (float) vid_modenum);
@@ -2040,7 +2042,7 @@ LONG WINAPI MainWndProc (
                 force_mode_set = false;
             }
 
-            VID_SetMode ((int) vid_fullscreen_mode.value, vid_curpal);
+            VID_SetMode ((int) vid_fullscreen_mode.value, vid_curpal); //qbism
             break;
         case SC_SCREENSAVE:
         case SC_MONITORPOWER:

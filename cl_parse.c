@@ -577,6 +577,7 @@ void CL_ParseServerInfo (void)
 // local state
     cl_entities[0].model = cl.worldmodel = cl.model_precache[1];
     vibration_update[0] = vibration_update[1] = false; // Manoel Kasimier
+    LOC_LoadLocations ();	//qbism - talk macro - Read a location file
 
     R_NewMap ();
 
@@ -959,6 +960,8 @@ void CL_ParseClientdata (void ) //qbism read bits in function similar to johnfit
     i = MSG_ReadShort ();
     if (cl.stats[STAT_HEALTH] != i)
     {
+        if (i <= 0)
+            memcpy(cl.death_location, cl_entities[cl.viewentity].origin, sizeof(vec3_t));
         cl.stats[STAT_HEALTH] = i;
         Sbar_Changed ();
     }

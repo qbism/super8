@@ -517,6 +517,19 @@ void NET_Stats_f (void)
 }
 
 
+void Strip_Port (char *ch)  //qbism - Baker - IP port
+{
+	if (ch = strchr(ch, ':'))
+	{
+		int old_port = net_hostport;
+		sscanf(ch+1, "%d", &net_hostport);
+		for ( ; ch[-1] == ' ' ; ch--);
+		*ch = 0;
+		if (net_hostport != old_port)
+			Con_Printf("Setting port to %d\n", net_hostport);
+	}
+}
+
 static qboolean testInProgress = false;
 static int		testPollCount;
 static int		testDriver;
@@ -590,9 +603,13 @@ static void Test_f (void)
     struct qsockaddr sendaddr;
 
     if (testInProgress)
-        return;
+	{
+		Con_Printf("There is already a test/rcon in progress\n");
+		return;
+	}
 
     host = Cmd_Argv (1);
+    Strip_Port(host); //qbism - Baker - IP port
 
     if (host && hostCacheCount)
     {
@@ -620,12 +637,18 @@ static void Test_f (void)
             break;
     }
     if (net_landriverlevel == net_numlandrivers)
-        return;
+	{
+		Con_Printf("Could not resolve %s\n", host); //qbism - Baker net fix
+		return;
+	}
 
 JustDoIt:
     testSocket = dfunc.OpenSocket(0);
     if (testSocket == -1)
-        return;
+	{
+		Con_Printf("Could not open socket\n"); //qbism - Baker net fix
+		return;
+	}
 
     testInProgress = true;
     testPollCount = 20;
@@ -718,9 +741,13 @@ static void Test2_f (void)
     struct qsockaddr sendaddr;
 
     if (test2InProgress)
-        return;
+	{
+		Con_Printf("There is already a test/rcon in progress\n"); //qbism - Baker network fix
+		return;
+	}
 
     host = Cmd_Argv (1);
+    Strip_Port(host); //qbism - Baker - IP port
 
     if (host && hostCacheCount)
     {
@@ -747,7 +774,10 @@ static void Test2_f (void)
             break;
     }
     if (net_landriverlevel == net_numlandrivers)
-        return;
+	{
+		Con_Printf("Could not resolve %s\n", host); //qbism - Baker network fix
+		return;
+	}
 
 JustDoIt:
     test2Socket = dfunc.OpenSocket(0);
@@ -1034,8 +1064,8 @@ static qsocket_t *_Datagram_CheckNewConnections (void)
             }
             // it's somebody coming back in from a crash/disconnect
             // so close the old qsocket and let their retry get them back in
-            NET_Close(s);
-            return NULL;
+            //qbism - Baker - network fix   NET_Close(s);
+            //qbism - Baker - network fix   return NULL;
         }
     }
 
@@ -1387,6 +1417,8 @@ ErrorReturn2:
 qsocket_t *Datagram_Connect (char *host)
 {
     qsocket_t *ret = NULL;
+
+    Strip_Port(host); //qbism - Baker - IP port
 
     for (net_landriverlevel = 0; net_landriverlevel < net_numlandrivers; net_landriverlevel++)
         if (net_landrivers[net_landriverlevel].initialized)

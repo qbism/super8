@@ -149,9 +149,9 @@ cvar_t	r_drawflat = {"r_drawflat", "0"};
 cvar_t	r_ambient = {"r_ambient", "0"};
 
 cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qbism
-cvar_t	r_clintensity = {"r_clintensity", "1.0", true}; //qbism
+cvar_t	r_clintensity = {"r_clintensity", "1.2", true}; //qbism
 //qbism - no longer necessary.  cvar_t	r_clbaseweight = {"r_clbaseweight", "0.5", true}; //qbism- base pixel weight for color map blending
-cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", true}; //qbism- color weight for color map blending
+cvar_t	r_clcolorweight= {"r_clcolorweight", "0.7", true}; //qbism- color weight for color map blending
 
 cvar_t r_fog = {"r_fog", "1", true}; //qbism-  draw fog?
 
@@ -307,7 +307,7 @@ void R_Init (void)
     // Manoel Kasimier - changed alias models lighting - end
     Cvar_RegisterVariable (&r_interpolation); // Manoel Kasimier - model interpolation
     Cvar_RegisterVariable (&r_wateralpha); // Manoel Kasimier - translucent water
-    Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
+   Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
 //    Cvar_RegisterVariable (&r_sprite_addblend); // Manoel Kasimier
     Cvar_RegisterVariable (&r_shadowhack); //qbism- engoo shadowhack
     Cvar_RegisterVariable (&r_shadowhacksize); //qbism

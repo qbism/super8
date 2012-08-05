@@ -321,7 +321,9 @@ void Key_Console (int key)
 
 //============================================================================
 
-char chat_buffer[32];
+#define MAX_CHAT_SIZE 45 //qbism - talk macro
+char chat_buffer[MAX_CHAT_SIZE];
+
 qboolean team_message = false;
 
 void Key_Message (int key)
@@ -367,7 +369,7 @@ void Key_Message (int key)
 		return;
 	}
 
-	if (chat_bufferlen == 31)
+	if (chat_bufferlen == MAX_CHAT_SIZE - (team_message ? 6 : 1)) // 6 vs 1 = so same amount of text onscreen in "say" versus "say_team"
 		return; // all full
 
 	chat_buffer[chat_bufferlen++] = key;

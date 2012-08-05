@@ -388,9 +388,10 @@ int WINS_CheckNewConnections (void)
 	if (net_acceptsocket == -1)
 		return -1;
 
-	//if (precvfrom (net_acceptsocket, buf, sizeof(buf), MSG_PEEK, NULL, NULL) > 0)
-	//if (recvfrom (net_acceptsocket, buf, sizeof(buf), MSG_PEEK, NULL, NULL) > 0) //qbism- from SB - not supported on PPC
-	ioctlsocket(net_acceptsocket, FIONREAD, &nBytesAvailable);
+	//qbism - via FQ Mark V - From ProQuake: - fix for zero-sized packet bug by changing > to >=
+	//if (precvfrom (net_acceptsocket, buf, sizeof(buf), MSG_PEEK, NULL, NULL) >= 0)
+
+	ioctlsocket(net_acceptsocket, FIONREAD, &nBytesAvailable); //qbism - from SB, pocketQuake - is this better?
 	if (nBytesAvailable > 0)
 	{
 		return net_acceptsocket;
@@ -516,14 +517,13 @@ int WINS_GetSocketAddr (int socket, struct qsockaddr *addr)
 
 int WINS_GetNameFromAddr (struct qsockaddr *addr, char *name)
 {
-	struct hostent *hostentry;
-
+	/* qbism - via FQ Mark V - From ProQuake: "commented this out because it's slow and completely useless"
 	hostentry = pgethostbyaddr ((char *)&((struct sockaddr_in *)addr)->sin_addr, sizeof(struct in_addr), AF_INET);
 	if (hostentry)
 	{
 		Q_strncpy (name, (char *)hostentry->h_name, NET_NAMELEN - 1);
 		return 0;
-	}
+	} */
 
 	Q_strcpy (name, WINS_AddrToString (addr));
 	return 0;

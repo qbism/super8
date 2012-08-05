@@ -717,7 +717,23 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 		if (hwnd_dialog)
 		{
-			if (GetWindowRect (hwnd_dialog, &rect))
+            //qbism - really center window - Baker change
+			RECT workarea;
+			if (SystemParametersInfo (SPI_GETWORKAREA, 0, &workarea, 0) && GetWindowRect (hwnd_dialog, &rect) && AdjustWindowRectEx(&rect, 0, FALSE, 0))
+			{
+               // center it properly in the working area (don't assume that top and left are 0!!!)
+				 SetWindowPos
+				 (
+					hwnd_dialog,
+					NULL,
+					workarea.left + ((workarea.right - workarea.left) - (rect.right - rect.left)) / 2,
+					workarea.top + ((workarea.bottom - workarea.top) - (rect.bottom - rect.top)) / 2,
+					0,
+					0,
+					SWP_NOZORDER | SWP_NOSIZE
+				 );
+			}
+        /*qbism - was
 			{
 				if (rect.left > (rect.top * 2))
 				{
@@ -727,6 +743,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 						SWP_NOZORDER | SWP_NOSIZE);
 				}
 			}
+        */
 
 			ShowWindow (hwnd_dialog, SW_SHOWDEFAULT);
 			UpdateWindow (hwnd_dialog);
