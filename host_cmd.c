@@ -336,7 +336,7 @@ void Host_Map_f (void)
 
 	if (cmd_source != src_command)
 		return;
-	cls.demonum = -1;		// stop demo loop in case this fails
+	CL_Clear_Demos_Queue (); //qbism - from FQ Mark V - timedemo is a very intentional action
 
 	CL_Disconnect ();
 	Host_ShutdownServer(false);
@@ -2094,6 +2094,7 @@ void Host_Stopdemo_f (void)
 	if (!cls.demoplayback)
 		return;
 	CL_StopPlayback ();
+    CL_Clear_Demos_Queue ();
 	CL_Disconnect ();
 }
 

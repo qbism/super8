@@ -45,19 +45,24 @@ cvar_t	capture_fps	= {"capture_fps", "30.0", true};
 //qbism - removed, broken.... cvar_t	capture_console	= {"capture_console", "1", true};
 cvar_t	capture_hack	= {"capture_hack", "0", true};
 cvar_t	capture_mp3	= {"capture_mp3", "0", true};
-cvar_t	capture_mp3_kbps = {"capture_mp3_kbps", "128", true};
+cvar_t	capture_mp3_kbps = {"capture_mp3_kbps", "192", true};
 
 static qboolean movie_is_capturing = false;
 qboolean	avi_loaded, acm_loaded;
 
 qboolean Movie_IsActive (void)
 {
-    // don't output whilst 'loading' is displayed
-    if (scr_drawloading)
-        return false;
+	// don't output whilst console is down or 'loading' is displayed
+	if ((/*!capture_console.value && */ scr_con_current > 0) || scr_drawloading)
+		return false;
 
-    // otherwise output if a file is open to write to
-    return movie_is_capturing;
+	//qbism - from FQ Mark V - Never capture the console if capturedemo is running
+	//qbism - ...but might want to capture console, such as tutorial vid.
+	//if (cls.capturedemo && scr_con_current > 0)
+	//	return false;
+
+	// otherwise output if a file is open to write to
+	return movie_is_capturing;
 }
 
 void Movie_Start_f (void)
@@ -129,15 +134,25 @@ void Movie_Stop_f (void)
     Con_Printf ("Stopped capturing\n");
 }
 
-void Movie_CaptureDemo_f (void)
+void Movie_CaptureDemo_f (void)  //qbism - with additional enhancement from FQ Mark V
 {
     if (Cmd_Argc() != 2)
     {
-        Con_Printf ("Usage: capturedemo <demoname>\n");
+        Con_Printf ("Usage: capturedemo <demoname>\nstopdemo or capture_stop will end video capture\n");
+        return;
+    }
+
+    if (movie_is_capturing)
+    {
+        Con_Printf ("Can't capture demo, video is capturing\n");
         return;
     }
 
     Con_Printf ("Capturing %s.dem\n", Cmd_Argv(1));
+    if (key_dest != key_game)
+        key_dest = key_game;
+
+    CL_Clear_Demos_Queue ();
 
     CL_PlayDemo_f ();
     if (!cls.demoplayback)
@@ -148,6 +163,7 @@ void Movie_CaptureDemo_f (void)
 
     if (!movie_is_capturing)
         Movie_StopPlayback ();
+    Host_Stopdemo_f ();
 }
 
 void Movie_Init (void)

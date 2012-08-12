@@ -352,6 +352,14 @@ void CL_Stop_f (void)
     Con_Printf ("Completed demo\n");
 }
 
+void CL_Clear_Demos_Queue (void) //qbism - from FQ Mark V
+{
+	int i;
+	for (i = 0;i < MAX_DEMOS; i ++)	// Clear demo loop queue
+		cls.demos[i][0] = 0;
+	cls.demonum = -1;				// Set next demo to none
+}
+
 
 /*
 ====================
@@ -427,7 +435,7 @@ void CL_Record_f (void)
         track = -1;
 
     sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
-
+    CL_Clear_Demos_Queue (); //qbism - from FQ Mark V timedemo is a very intentional action
 //
 // start the map up
 //
@@ -624,7 +632,10 @@ void CL_TimeDemo_f (void)
         Con_Printf ("timedemo <demoname> : gets demo speeds\n");
         return;
     }
+	if (key_dest != key_game) //qbism - close console from FQ Mark V
+		key_dest = key_game;
 
+	CL_Clear_Demos_Queue (); //qbism - from FQ Mark V - timedemo is a very intentional action
     CL_PlayDemo_f ();
 
 // cls.td_starttime will be grabbed at the second frame of the demo, so

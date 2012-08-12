@@ -171,6 +171,7 @@ void CL_Disconnect (void)
 
 void CL_Disconnect_f (void)
 {
+    CL_Clear_Demos_Queue (); //qbism - from FQ Mark V - timedemo is a very intentional action
     CL_Disconnect ();
     if (sv.active)
         Host_ShutdownServer (false);

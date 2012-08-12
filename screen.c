@@ -531,6 +531,8 @@ void SCR_SetUpToDrawConsole (void)
     timescale = (host_timescale.value > 0) ? host_timescale.value : 1; //qbism - DEMO_REWIND by Baker - johnfitz -- timescale
 
     conspeed = scr_conspeed.value * (vid.height / 200.0f) * host_frametime;
+	if (cls.timedemo || cls.capturedemo)
+		frame_timescale = .00001; // Make it open or close instantly in timedemo
 
     if (scr_conlines < scr_con_current)
     {

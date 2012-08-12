@@ -842,7 +842,12 @@ void CL_ParseBaseline (entity_t *ent)
         ent->baseline.modelindex = MSG_ReadShort ();
         ent->baseline.alpha = MSG_ReadByte(); //qbism: johnfitz -- PROTOCOL_FITZQUAKE
     }
-    else ent->baseline.modelindex = MSG_ReadByte ();
+    else
+    {
+        ent->baseline.modelindex = MSG_ReadByte ();
+        ent->baseline.alpha = ENTALPHA_DEFAULT;
+    }
+
 
     ent->baseline.frame = MSG_ReadByte ();
     ent->baseline.colormap = MSG_ReadByte();
@@ -1084,6 +1089,8 @@ void CL_ParseStatic (void)
     if (current_protocol == PROTOCOL_QBS8)
     {
         int		bits;
+
+        ent->alpha = ent->baseline.alpha; //qbism: finally figured this out.
         bits = MSG_ReadLong("CL_ParseStatic");
 
         if (bits & U_SCALE)
@@ -1110,7 +1117,6 @@ void CL_ParseStatic (void)
     else
     {
         ent->glow_size = 0;
-        ent->alpha = ENTALPHA_DEFAULT;
         ent->scale2 = 1.0f;
         ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
     }
@@ -1142,7 +1148,6 @@ void CL_ParseStaticSound (void)
 
     S_StaticSound (cl.sound_precache[sound_num], org, vol, atten);
 }
-
 
 #define SHOWNET(x) if(cl_shownet.value==2)Con_Printf ("%3i:%s\n", msg_readcount-1, x);
 

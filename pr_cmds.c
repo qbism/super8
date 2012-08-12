@@ -702,17 +702,17 @@ void PF_ambientsound (void)
     }
     if (current_protocol == PROTOCOL_QBS8)
     {
-          if (soundnum >MAX_SOUNDS)
+        if (soundnum >MAX_SOUNDS)
         {
             Con_Printf ("ambient sound: soundnum > MAX_SOUNDS.\n");
             return;
         }
     }
     else if (soundnum >256)
-        {
-            Con_Printf ("ambient sound: soundnum >256.\n");
-            return;
-        }
+    {
+        Con_Printf ("ambient sound: soundnum >256.\n");
+        return;
+    }
 
 
 // add an svc_spawnambient command to the level signon packet
@@ -775,23 +775,23 @@ void PF_sound (void)
 //qbism - plays sound to an individual client... I hear voices...
 void PF_localsound (void)
 {
-	char		*sample;
-	char 		volume;
-	client_t	*client;
-	int			entnum;
+    char		*sample;
+    char 		volume;
+    client_t	*client;
+    int			entnum;
 
-	entnum = G_EDICTNUM(OFS_PARM0);
-	if (entnum < 1 || entnum > svs.maxclients)
-	{
-		Con_Printf ("tried to send local sound to a non-client\n");
-		return;
-	}
+    entnum = G_EDICTNUM(OFS_PARM0);
+    if (entnum < 1 || entnum > svs.maxclients)
+    {
+        Con_Printf ("tried to send local sound to a non-client\n");
+        return;
+    }
 
-	client = &svs.clients[entnum-1];
-	sample = G_STRING(OFS_PARM1);
-	volume = (char)(G_FLOAT(OFS_PARM2) * 255);
+    client = &svs.clients[entnum-1];
+    sample = G_STRING(OFS_PARM1);
+    volume = (char)(G_FLOAT(OFS_PARM2) * 255);
 
-	SV_LocalSound (client, sample, volume);
+    SV_LocalSound (client, sample, volume);
 }
 
 /*
@@ -1800,20 +1800,25 @@ void PF_makestatic (void)
 {
     edict_t	*ent;
     int		i;
+    float	scale=1;
+    vec3_t	scalev= {0,0,0};
+    float	glow_size=0;
+    int		bits=0;
+    eval_t *val;
 
     ent = G_EDICT(OFS_PARM0);
-
-    //qbism:  johnfitz -- don't send invisible static entities
-	if (ent->alpha == ENTALPHA_ZERO) {
-		ED_Free (ent);
-		return;
-	}
-	//johnfitz
 
     MSG_WriteByte (&sv.signon,svc_spawnstatic);
 
     if (current_protocol == PROTOCOL_QBS8)
     {
+        if (val = GetEdictFieldValue(ent, "alpha"))
+        {
+            ent->alpha = ENTALPHA_ENCODE(val->_float); //qbism ent->alpha
+            //qbism:  fitzquake  don't send invisible entities unless they have effects
+            if (ent->alpha == ENTALPHA_ZERO && !ent->v.effects)
+                return;
+        }
         MSG_WriteShort (&sv.signon, SV_ModelIndex(pr_strings + ent->v.model));
         MSG_WriteByte (&sv.signon, ent->alpha); //qbism
     }
@@ -1831,17 +1836,11 @@ void PF_makestatic (void)
     // Manoel Kasimier - QC Alpha Scale Glow - begin
     if (current_protocol == PROTOCOL_QBS8)
     {
-        float	scale=1;
-        vec3_t	scalev= {0,0,0};
-        float	glow_size=0;
-        int		bits=0;
-        eval_t *val;
-
-		if ((val = GetEdictFieldValue(ent, "scale")))
-		{
-			scale = val->_float;
-			bits |= U_SCALE;
-		}
+        if ((val = GetEdictFieldValue(ent, "scale")))
+        {
+            scale = val->_float;
+            bits |= U_SCALE;
+        }
         if ((val = GetEdictFieldValue(ent, "scalev")))
         {
             for (i=0 ; i<3 ; i++)
@@ -2229,27 +2228,27 @@ float fopen (string,float)
 */
 void PF_fopen (void) //qbism - updated from mh FRIK_FILE tute
 {
-   char *p = G_STRING(OFS_PARM0);
-   int fmode = G_FLOAT (OFS_PARM1);
-   int h = 0;
+    char *p = G_STRING(OFS_PARM0);
+    int fmode = G_FLOAT (OFS_PARM1);
+    int h = 0;
 
-   switch (fmode)
-   {
-   case 0: // read
-      Sys_FileOpenRead (va("%s/%s",com_gamedir, p), &h);
-      break;
+    switch (fmode)
+    {
+    case 0: // read
+        Sys_FileOpenRead (va("%s/%s",com_gamedir, p), &h);
+        break;
 
- //  case 1: // append -- sane version
- //     h = Sys_FileOpenAppend (va("%s/%s", com_gamedir, p));
- //     break;
+//  case 1: // append -- sane version
+//     h = Sys_FileOpenAppend (va("%s/%s", com_gamedir, p));
+//     break;
 
-   default: // write
-      h = Sys_FileOpenWrite (va("%s/%s", com_gamedir, p));
-      break;
-   }
+    default: // write
+        h = Sys_FileOpenWrite (va("%s/%s", com_gamedir, p));
+        break;
+    }
 
-   // always common now
-   G_FLOAT (OFS_RETURN) = (float) h;
+    // always common now
+    G_FLOAT (OFS_RETURN) = (float) h;
 }
 
 
@@ -2723,7 +2722,7 @@ ebfs_builtin_t pr_ebfs_builtins[] =
     {  47, "nextent", PF_nextent },
     {  48, "particle", PF_particle },
     {  49, "ChangeYaw", PF_changeyaw },
-	{  50, "localsound", PF_localsound }, //qbism - plays an S_LocalSound
+    {  50, "localsound", PF_localsound }, //qbism - plays an S_LocalSound
     {  51, "vectoangles", PF_vectoangles },
 
     {  52, "WriteByte", PF_WriteByte },
