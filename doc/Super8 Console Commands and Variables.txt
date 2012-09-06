@@ -1,6 +1,6 @@
 qbismSuper8 Console Commands, Variables and Command Line Parameters
 
-Last update:  8/6/11
+Last update:  9/6/12
 Contents
 
 1.  Notes
@@ -120,8 +120,6 @@ unbind [key] - Remove the current commands bound to a key.
 
 unbindall - Remove every key binding.  (Use with caution. Current key bindings are saved when you exit so if you unbindall then exit only the ESC key will work.)
 
- 
-
 [+] unbindshift  - Unbind command from a SHIFTed key.
 5.  Movement and View Control
 
@@ -237,11 +235,15 @@ fov [value] - Sets field of view in degrees. Set to 90 +/- in fisheye mode.
 
 [+] fviews[1-6] - sets the number of view cube sides to render in fisheye mode. ffov up to about 120 only requires fviews = 3, which speeds up rendering. ffov up to 180 needs 5, and all 6 above 180.
 
+[+] fog - type "fog" in console for options and description.  Overrides the current fog color and/or density.
+r_fog[0/1] - turn fog display on or off.
+
 gamma [0.0 - 1.0] - Sets the gamma correction level (brightness). Lower values are brighter.
 [+] loadsky [filename] - Loads a skybox.
 [+] loadpalette [filename] - Loads a .pal file to replace the base palette.
 [+]r_clintensity - color saturation and brightness factor.  Default is 300.
 [+]r_coloredlights [0/1] - use colored lights, or not.
+[+]r_colorweight [0.0 - 1.0] - strength of color aspect in light mixing.
 r_ambient [value] - Set minimum light value for map lighting.
 r_drawentities [0/1] - Toggles the drawing of objects like doors, bars, buttons, monsters, items, nails, rockets, and grenades.
 r_drawflat [0/1] - Toggles the drawing of texture maps (0=use texture maps.)
@@ -253,7 +255,7 @@ r_fullbright [0/1] - Toggles whether light shading is in effect.
 [+]  r_light_vec_x [value]  - X vector when r_light_style is active.
 [+]  r_light_vec_y [value]  - Y vector when r_light_style is active.
 [+]  r_light_vec_z [value]  - Z vector when r_light_style is active.
-[+]  r_particlealpha  [0.0-1.0]  - Set transparency of particles.
+[+]  r_part_* [value] - OK, I'm going to be lazy and lump together:  a series of CVARS to control various particle aspects.  Type "r_part" then TAB key for full list.
 [+] r_polyblend [0/1]  - Toggle full-screen color blending effects, like bonus flashes and underwater tinting. (renamed from "gl_polyblend")
 [+]  r_shadowhack [0/1]  - Fake shadows for entities using darklights.
 [+]  r_shadowhacksize [value]  - Size factor of fake entity shadows.
@@ -294,7 +296,7 @@ viewsize [value] - Set the view size by adding a border around the screen.
 [+] capture_hack[value]  - Set to a low integer value like 1 or 2 if captured video looks like slow motion.  Sometimes it helps.
 [+] capture_mp3 [0/1]  - Capture audio in mp3 format instead of wav format.  Used during video capture.
 [+] capture_mp3_kbps[value]  - mp3 data rate, used  if capture_mp3 is set.
-[+] capture_start  - Start video capture in real-time.  Takes a high performance CPU to avoid jerkiness.
+[+] capture_start  - Start video capture in real-time.  Takes a high performance CPU to avoid jerkiness.  Can start/stop anytime.
 [+] capture_stop  - Stop video capture.
 [+] capturedemo [demoname]  - Play back a demo and capture it to video.  This is the best way to capture smooth video on most computers.
 [+]  con_logcenterprint [0/1]  - record centerprint messages in demos.  Set to 0 for less screen text during playback.
@@ -449,6 +451,7 @@ vid_describemode [mode] - Report information on selected video mode.
 vid_describemodes - Report information on all video modes.
 vid_mode [mode] - Sets the video mode.
 vid_nummodes - Reports the total number of video modes available.
+[+]  vid_stretch_by_2 - scale up a low res mode x2 for higher res video modes.
 vid_testmode [mode] - Switch to another videomode temporarily, to test it.
 vid_wait [value] - From techinfo.txt:
 sets the type of waiting that the video adapter should do, as follows:
@@ -473,6 +476,8 @@ nosound [0/1] Audio on/off toggle.
 play - Play a sound effect.
 playvol [filename] [volume] Play a sound at a given volume.
 
+_snd_mixahead [seconds] - o.2 default.  Higher numbers can smooth choppy sound, but increases audio delay.
+
 snd_noextraupdate [0/1] - Sound time will be inlcuded in host_speeds unless this is 1. Otherwise it's not recommended, sound can get choppy.
 
 snd_show [0/1] - Toggles the display of sounds currently being played.
@@ -491,7 +496,7 @@ d_mipcap [0-3] - Sets the detail level. 0 is the highest detail.
 
 d_mipscale [0-40] - Smoothness/detail balance of distant objects. Uses resampled (mip) textures to reduce jagged or flickering edges in distance. 0 turns off mip.
 
-developer [0/1, 100-255] - Toggle display of extra debugging information. [+] Values of 100 to 255 will turn on various colors of depth shading, or colored fog.
+developer [0/1, 100-255] - Toggle display of extra debugging information. [+] Values of 100 to 255 will turn on various colors of depth shading.
 
 edict [value] - Display information on an edict in the game.
 edictcount - Display summary information about game edicts.

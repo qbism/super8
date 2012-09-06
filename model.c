@@ -1,22 +1,19 @@
-/*
-Copyright (C) 1996-1997 Id Software, Inc.
+/*  Copyright (C) 1996-1997 Id Software, Inc.
+    Copyright (C) 1999-2012 other authors as noted in code comments
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
+along with this program; if not, write to the Free Software Foundation, Inc.,
+59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
 // models.c -- model loading and caching
 
 // models are the only shared resource between a client and server running
@@ -952,18 +949,26 @@ void Mod_LoadFaces (lump_t *l)
 
         if (!Q_strncmp(out->texinfo->texture->name,"*",1))		// turbulent
         {
-            // Manoel Kasimier - translucent water - begin
-            if (Q_strncmp(out->texinfo->texture->name,"*lava",5)) // lava should be opaque
-                //	if (Q_strncmp(out->texinfo->texture->name,"*teleport",9)) // teleport should be opaque
-                out->flags |= SURF_DRAWTRANSLUCENT;
-            // Manoel Kasimier - translucent water - end
-            out->flags |= (SURF_DRAWTURB | SURF_DRAWTILED);
-            for (i=0 ; i<2 ; i++)
+            if (!Q_strncmp(out->texinfo->texture->name, "*glass",6))
             {
-                out->extents[i] = 16384;
-                out->texturemins[i] = -8192;
+                out->flags |= (SURF_DRAWTRANSLUCENT| SURF_DRAWTILED);
             }
-            continue;
+            else
+            {
+                // Manoel Kasimier - translucent water - begin
+                if (Q_strncmp(out->texinfo->texture->name,"*lava",5)) // lava should be opaque
+                    //	if (Q_strncmp(out->texinfo->texture->name,"*teleport",9)) // teleport should be opaque
+                    out->flags |= SURF_DRAWTRANSLUCENT;
+                // Manoel Kasimier - translucent water - end
+                out->flags |= (SURF_DRAWTURB | SURF_DRAWTILED);
+                for (i=0 ; i<2 ; i++)
+                {
+                    out->extents[i] = 16384;
+                    out->texturemins[i] = -8192;
+                }
+                continue;
+
+            }
         }
     }
 }

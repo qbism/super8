@@ -1,22 +1,19 @@
-/*
-Copyright (C) 1996-1997 Id Software, Inc.
+/*  Copyright (C) 1996-1997 Id Software, Inc.
+    Copyright (C) 1999-2012 other authors as noted in code comments
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
+along with this program; if not, write to the Free Software Foundation, Inc.,
+59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
 // r_main.c
 
 #include "quakedef.h"
@@ -174,7 +171,8 @@ cvar_t	r_light_vec_y = {"r_light_vec_y", "0"};
 cvar_t	r_light_vec_z = {"r_light_vec_z", "-1"};
 cvar_t	r_light_style = {"r_light_style", "1", true};
 // Manoel Kasimier - changed alias models lighting - end
-cvar_t	r_wateralpha = {"r_wateralpha","0.3333", true}; // Manoel Kasimier - translucent water
+cvar_t	r_wateralpha = {"r_wateralpha","0.6666", true}; // Manoel Kasimier - translucent water
+cvar_t	r_glassalpha = {"r_wateralpha","0.3333", true}; //qb: *glass
 cvar_t	r_shadowhack = {"r_shadowhack", "0", false};
 cvar_t	r_shadowhacksize = {"r_shadowhacksize", "2.7", true};
 
@@ -307,6 +305,7 @@ void R_Init (void)
     // Manoel Kasimier - changed alias models lighting - end
     Cvar_RegisterVariable (&r_interpolation); // Manoel Kasimier - model interpolation
     Cvar_RegisterVariable (&r_wateralpha); // Manoel Kasimier - translucent water
+    Cvar_RegisterVariable (&r_glassalpha); //qb: *glass
    Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
 //    Cvar_RegisterVariable (&r_sprite_addblend); // Manoel Kasimier
     Cvar_RegisterVariable (&r_shadowhack); //qbism- engoo shadowhack

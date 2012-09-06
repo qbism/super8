@@ -1,22 +1,19 @@
-/*
-Copyright (C) 1996-1997 Id Software, Inc.
+/*  Copyright (C) 1996-1997 Id Software, Inc.
+    Copyright (C) 1999-2012 other authors as noted in code comments
 
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
 
 See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
+along with this program; if not, write to the Free Software Foundation, Inc.,
+59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
 //
 // vid_dos.c: DOS-specific video routines
 //
@@ -48,7 +45,7 @@ cvar_t		_vid_default_mode_win = {"_vid_default_mode_win","1", true};
 cvar_t		vid_config_x = {"vid_config_x","800", true};
 cvar_t		vid_config_y = {"vid_config_y","600", true};
 cvar_t		vid_stretch_by_2 = {"vid_stretch_by_2","1", true};
-cvar_t		_windowed_mouse = {"_windowed_mouse","0", true};
+//qb: pointless in DOS  cvar_t		_windowed_mouse = {"_windowed_mouse","0", true};
 cvar_t		vid_fullscreen_mode = {"vid_fullscreen_mode","3", true};
 cvar_t		vid_windowed_mode = {"vid_windowed_mode","0", true};
 cvar_t		block_switch = {"block_switch","0", true};
@@ -100,7 +97,7 @@ void    VID_Init (unsigned char *palette)
 	Cvar_RegisterVariable (&vid_config_x);
 	Cvar_RegisterVariable (&vid_config_y);
 	Cvar_RegisterVariable (&vid_stretch_by_2);
-	Cvar_RegisterVariable (&_windowed_mouse);
+//qb: pointless in DOS	Cvar_RegisterVariable (&_windowed_mouse);
 	Cvar_RegisterVariable (&vid_fullscreen_mode);
 	Cvar_RegisterVariable (&vid_windowed_mode);
 	Cvar_RegisterVariable (&block_switch);
