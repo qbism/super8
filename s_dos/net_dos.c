@@ -18,7 +18,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "../net_loop.h"
 #include "../net_dgrm.h"
-#include "../net_ser.h"
 
 net_driver_t net_drivers[MAX_NET_DRIVERS] =
 {
@@ -54,23 +53,6 @@ net_driver_t net_drivers[MAX_NET_DRIVERS] =
 	Datagram_CanSendUnreliableMessage,
 	Datagram_Close,
 	Datagram_Shutdown
-	}
-	,
-	{
-	"Serial",
-	false,
-	Serial_Init,
-	Serial_Listen,
-	Serial_SearchForHosts,
-	Serial_Connect,
-	Serial_CheckNewConnections,
-	Serial_GetMessage,
-	Serial_SendMessage,
-	Serial_SendUnreliableMessage,
-	Serial_CanSendMessage,
-	Serial_CanSendUnreliableMessage,
-	Serial_Close,
-	Serial_Shutdown
 	}
 };
 
