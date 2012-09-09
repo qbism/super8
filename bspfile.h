@@ -33,7 +33,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define	MAX_MAP_LEAFS		32767 //qbism was 8192
 #define	MAX_MAP_VERTS		65535
 #define	MAX_MAP_FACES		65535
-#define	MAX_MAP_MARKSURFACES 65535  //qbism was 32767
 #define	MAX_MAP_TEXINFO		4096
 #define	MAX_MAP_EDGES		256000
 #define	MAX_MAP_SURFEDGES	512000
@@ -54,6 +53,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define BSPVERSION	29
 #define	TOOLVERSION	2
+//qb:  from hmap2 - BSP2 also exists, but its version is "BSP2" not a number
 
 typedef struct
 {
@@ -149,7 +149,6 @@ typedef struct
 #define	CONTENTS_CURRENT_UP		-13
 #define	CONTENTS_CURRENT_DOWN	-14
 
-
 typedef struct
 {
 	int			planenum;
@@ -160,12 +159,29 @@ typedef struct
 	unsigned short	numfaces;	// counting both sides
 } dnode_t;
 
+//qb: MODIFIED FOR BSP2 from hmap2
+typedef struct
+{
+	int			planenum;
+	int			children[2];	// negative numbers are -(leafs+1), not nodes
+	float		mins[3];		// for sphere culling
+	float		maxs[3];
+	unsigned short	firstface;
+	unsigned short	numfaces;	// counting both sides
+} dnode_t_BSP2;
+
 typedef struct
 {
 	int			planenum;
 	short		children[2];	// negative numbers are contents
 } dclipnode_t;
 
+// MODIFIED FOR BSP2
+typedef struct
+{
+	int			planenum;
+	int			children[2];	// negative numbers are contents
+} dclipnode_t_BSP2;
 
 typedef struct texinfo_s
 {
@@ -177,10 +193,20 @@ typedef struct texinfo_s
 
 // note that edge 0 is never used, because negative edge nums are used for
 // counterclockwise use of the edge in a face
+// counterclockwise use of the edge in a face
 typedef struct
 {
 	unsigned short	v[2];		// vertex numbers
 } dedge_t;
+
+//qb: MODIFIED FOR BSP2
+typedef struct
+{
+	unsigned int	v[2];		// vertex numbers
+} dedge_t_BSP2;
+
+#define	MAXLIGHTMAPS	4
+
 
 #define	MAXLIGHTMAPS	4
 typedef struct
@@ -197,6 +223,20 @@ typedef struct
 	int			lightofs;		// start of [numstyles*surfsize] samples
 } dface_t;
 
+// MODIFIED FOR BSP2
+typedef struct
+{
+	int			planenum;
+	int			side;
+
+	int			firstedge;		// we must support > 64k edges
+	int			numedges;
+	int			texinfo;
+
+// lighting info
+	byte		styles[MAXLIGHTMAPS];
+	int			lightofs;		// start of [numstyles*surfsize] samples
+} dface_t_BSP2;
 
 
 #define	AMBIENT_WATER	0
@@ -221,6 +261,21 @@ typedef struct
 
 	byte		ambient_level[NUM_AMBIENTS];
 } dleaf_t;
+
+//qb: MODIFIED FOR BSP2
+typedef struct
+{
+	int			contents;
+	int			visofs;				// -1 = no visibility info
+
+	float		mins[3];			// for frustum culling
+	float		maxs[3];
+
+	unsigned int		firstmarksurface;
+	unsigned int		nummarksurfaces;
+
+	byte		ambient_level[NUM_AMBIENTS];
+} dleaf_t_BSP2;
 
 
 //============================================================================
@@ -267,8 +322,6 @@ extern	int			numclipnodes;
 
 extern	int			numedges;
 extern	dedge_t		dedges[MAX_MAP_EDGES];
-
-extern	unsigned short	dmarksurfaces[MAX_MAP_MARKSURFACES];
 
 extern	int			numsurfedges;
 extern	int			dsurfedges[MAX_MAP_SURFEDGES];

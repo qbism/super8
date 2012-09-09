@@ -91,13 +91,12 @@ void D_WarpScreen (void)
 	}
 }
 
-#ifndef ASMx86QUAKE
 /*
 =============
 D_DrawTurbulent8Span
 =============
 */
-void D_DrawTurbulent8Span (void)  //qbism- was D_DrawTurbulent8Span
+void D_DrawTurbulent8Span (void)
 {
 //	int		sturb, tturb;
 
@@ -113,7 +112,6 @@ void D_DrawTurbulent8Span (void)  //qbism- was D_DrawTurbulent8Span
 #undef tturb
 }
 
-#endif
 
 /*
 =============
@@ -1076,7 +1074,7 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
 D_DrawZSpans
 =============
 */
-#ifndef ASMx86QUAKE
+
 void D_DrawZSpans (espan_t *pspan)
 {
 	int				count, doublecount, izistep;
@@ -1129,6 +1127,6 @@ void D_DrawZSpans (espan_t *pspan)
 
 	} while ((pspan = pspan->pnext) != NULL);
 }
-#endif
+
 
 
