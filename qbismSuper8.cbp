@@ -233,7 +233,6 @@
 		<Unit filename="net_main.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="net_ser.h" />
 		<Unit filename="pr_cmds.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -364,13 +363,6 @@
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="s_dos\net_mp.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\net_ser.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\net_ser.h">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="s_dos\r_aliasa.S">

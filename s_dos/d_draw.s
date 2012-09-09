@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "asm_draw.h"
 #include "d_ifacea.h"
 
-#if	id386
+#if	ASMx86QUAKE
 
 //----------------------------------------------------------------------
 // 8-bpp horizontal span drawing code for polygons, with no transparency.
@@ -1031,4 +1031,4 @@ LFDone:
 	popl	%ebp				// restore the caller's stack frame
 	ret
 
-#endif	// id386
+#endif	// ASMx86QUAKE

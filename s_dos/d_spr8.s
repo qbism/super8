@@ -23,7 +23,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "quakeasm.h"
 #include "asm_draw.h"
 
-#if id386
+#if ASMx86QUAKE
 
 //----------------------------------------------------------------------
 // 8-bpp horizontal span drawing code for polygons, with transparency.
@@ -894,4 +894,4 @@ LNextSpan:
 	popl	%ebp				// restore the caller's stack frame
 	ret
 
-#endif	// id386
+#endif	// ASMx86QUAKE

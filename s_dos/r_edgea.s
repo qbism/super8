@@ -743,4 +743,4 @@ C(R_SurfacePatch):
 
 	ret
 
-#endif	// id386
+#endif	// id386broken

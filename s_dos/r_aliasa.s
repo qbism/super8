@@ -230,4 +230,4 @@ Lsavelight:
 	fstp	%st(0)
 	jmp		Lp1
 
-#endif	// id386
+#endif	// id386broken

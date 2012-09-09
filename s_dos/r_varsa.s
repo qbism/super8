@@ -23,7 +23,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "asm_draw.h"
 #include "d_ifacea.h"
 
-#if id386
+#if ASMx86QUAKE
 
 	.data
 
@@ -57,4 +57,4 @@ FloatMinus2ToThe31nd:	.long	0xcf000000
 .globl	C(r_bmodelactive)
 C(r_bmodelactive):	.long	0
 
-#endif	// id386
+#endif	// ASMx86QUAKE

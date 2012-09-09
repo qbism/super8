@@ -23,7 +23,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "asm_i386.h"
 #include "quakeasm.h"
 
-#if	id386
+#if	ASMx86QUAKE
 
 	.text
 
@@ -212,4 +212,4 @@ LClampDone2:
 	ret
 
 
-#endif	// id386
+#endif	// ASMx86QUAKE

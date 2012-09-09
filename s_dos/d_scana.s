@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "asm_draw.h"
 #include "d_ifacea.h"
 
-#if id386
+#if ASMx86QUAKE
 
 	.data
 
@@ -82,4 +82,4 @@ Llp:
 	popl	%ebp				// restore caller's stack frame pointer
 	ret
 
-#endif	// id386
+#endif	// ASMx86QUAKE

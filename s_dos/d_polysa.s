@@ -1740,4 +1740,4 @@ LNextTri:
 	ret
 
 
-#endif	// id386
+#endif	// id386broken
