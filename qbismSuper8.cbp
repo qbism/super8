@@ -16,7 +16,7 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-march=i586" />
+					<Add option="-march=pentium2" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O3" />
 					<Add option="-w" />
@@ -65,40 +65,6 @@
 				</ResourceCompiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
-					<Add option="-static-libgcc" />
-					<Add library="winmm" />
-					<Add library="wsock32" />
-					<Add library="dinput" />
-					<Add library="dxguid" />
-				</Linker>
-				<ExtraCommands>
-					<Add before="version.bat" />
-				</ExtraCommands>
-			</Target>
-			<Target title="Win32 asm">
-				<Option output="..\..\quake\qbismS8" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="..\..\quake" />
-				<Option object_output="s_win32\Release" />
-				<Option type="0" />
-				<Option compiler="gcc" />
-				<Option parameters="-game honey -heapsize 64000 +map saint" />
-				<Compiler>
-					<Add option="-march=pentium2" />
-					<Add option="-fomit-frame-pointer" />
-					<Add option="-fexpensive-optimizations" />
-					<Add option="-O3" />
-					<Add option="-w" />
-					<Add option="-ftree-vectorize" />
-					<Add option="-DWIN32" />
-					<Add option="-DNDEBUG" />
-					<Add option="-D_WINDOWS" />
-					<Add option="-D_WIN32" />
-					<Add option="-DCURL_STATICLIB" />
-					<Add option="-DASMx86QUAKE" />
-					<Add directory="." />
-				</Compiler>
-				<Linker>
-					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add library="winmm" />
 					<Add library="wsock32" />
@@ -293,131 +259,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="render.h" />
-		<Unit filename="s_dos\cd_null.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\d_draw.S">
-			<Option target="Win32 asm" />
-			<Option target="Debug Win32" />
-		</Unit>
-		<Unit filename="s_dos\d_draw16.S">
-			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
-			<Option target="Win32 asm" />
-			<Option target="Debug Win32" />
-		</Unit>
-		<Unit filename="s_dos\d_polysa.S">
-			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
-			<Option target="Win32 asm" />
-			<Option target="Debug Win32" />
-		</Unit>
-		<Unit filename="s_dos\d_scana.S">
-			<Option target="Win32 asm" />
-		</Unit>
-		<Unit filename="s_dos\d_spr8.S">
-			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
-			<Option target="Win32 asm" />
-			<Option target="Debug Win32" />
-		</Unit>
-		<Unit filename="s_dos\d_varsa.S">
-			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
-			<Option target="Win32 asm" />
-			<Option target="Debug Win32" />
-		</Unit>
-		<Unit filename="s_dos\dos_v2.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\in_dos.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\mplib.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\mplpc.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\net_bw.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\net_bw.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\net_dos.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\net_ipx.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\net_ipx.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\net_mp.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\net_mp.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\r_aliasa.S">
-			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
-			<Option target="Win32 asm" />
-			<Option target="Debug Win32" />
-		</Unit>
-		<Unit filename="s_dos\r_edgea.S">
-			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
-			<Option target="Win32 asm" />
-			<Option target="Debug Win32" />
-		</Unit>
-		<Unit filename="s_dos\r_varsa.S">
-			<Option compiler="gcc" use="0" buildCommand="$compiler $options $includes -c -x assembler-with-cpp $file -o $object" />
-			<Option target="Win32 asm" />
-			<Option target="Debug Win32" />
-		</Unit>
-		<Unit filename="s_dos\snd_dos.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\snd_gus.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\snd_mixa.S">
-			<Option target="Win32 asm" />
-			<Option target="Debug Win32" />
-		</Unit>
-		<Unit filename="s_dos\sys_dos.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\vid_dos.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\vid_dos.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\vid_ext.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\vid_vga.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\vregset.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_dos\vregset.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="s_flash\cd_flash.c">
 			<Option compilerVar="CC" />
 			<Option target="&lt;{~None~}&gt;" />
