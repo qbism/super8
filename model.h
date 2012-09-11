@@ -128,8 +128,8 @@ typedef struct msurface_s
 // surface generation data
 	struct surfcache_s	*cachespots[MIPLEVELS];
 
-	short		texturemins[2];
-	short		extents[2];
+	int		texturemins[2];  //qb: bsp2, was short
+	int		extents[2];  //qb: bsp2, was short
 
 	mtexinfo_t	*texinfo;
 
@@ -146,7 +146,7 @@ typedef struct mnode_s
 	int			contents;		// 0, to differentiate from leafs
 	int			visframe;		// node needs to be traversed if current
 
-	short		minmaxs[6];		// for bounding box culling
+	float		minmaxs[6];		//qb:  was short, float for bsp2 - for bounding box culling
 
 	struct mnode_s	*parent;
 
@@ -166,7 +166,7 @@ typedef struct mleaf_s
 	int			contents;		// wil be a negative contents number
 	int			visframe;		// node needs to be traversed if current
 
-	short		minmaxs[6];		// for bounding box culling
+	float		minmaxs[6];		//qb: float for bsp2 - for bounding box culling
 
 	struct mnode_s	*parent;
 
@@ -323,6 +323,7 @@ typedef struct model_s
 {
 	char		name[MAX_QPATH];
 	qboolean	needload;		// bmodels and sprites don't cache normally
+	qboolean    isbsp2; //qb: from DP
 
 	modtype_t	type;
 	int			numframes;

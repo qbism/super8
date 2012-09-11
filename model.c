@@ -718,7 +718,7 @@ void Mod_LoadVertexes (lump_t *l)
 
     in = (void *)(mod_base + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Sys_Error ("MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
+        Sys_Error ("Mod_LoadVertexes: funny lump size in %s",loadmodel->name);
     count = l->filelen / sizeof(*in);
 //	out = Hunk_AllocName ( count*sizeof(*out), loadname);
     out = Hunk_AllocName ( (count+8)*sizeof(*out), "modvert"); // Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
@@ -743,24 +743,37 @@ Mod_LoadEdges
 */
 void Mod_LoadEdges (lump_t *l)
 {
-    dedge_t *in;
     medge_t *out;
     int 	i, count;
+    size_t	structsize = loadmodel->isbsp2 ? 8 : 4;  //qb: from DP
 
-    in = (void *)(mod_base + l->fileofs);
-    if (l->filelen % sizeof(*in))
-        Sys_Error ("MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
-    count = l->filelen / sizeof(*in);
+
+    if (l->filelen % structsize)
+        Sys_Error ("Mod_LoadEdges: funny lump size in %s",loadmodel->name);
+    count = l->filelen / structsize;
 //	out = Hunk_AllocName ( (count + 1) * sizeof(*out), loadname);
     out = Hunk_AllocName ( (count + 13) * sizeof(*out), "modedges"); // Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 
     loadmodel->edges = out;
     loadmodel->numedges = count;
 
-    for ( i=0 ; i<count ; i++, in++, out++)
+    if (loadmodel->isbsp2)
     {
-        out->v[0] = (unsigned short)LittleShort(in->v[0]);
-        out->v[1] = (unsigned short)LittleShort(in->v[1]);
+        dedge_t_BSP2 *in = (void *)(mod_base + l->fileofs);
+        for ( i=0 ; i<count ; i++, in++, out++)
+        {
+            out->v[0] = (unsigned int)LittleShort(in->v[0]);
+            out->v[1] = (unsigned int)LittleShort(in->v[1]);
+        }
+    }
+    else
+    {
+        dedge_t *in = (void *)(mod_base + l->fileofs);
+        for ( i=0 ; i<count ; i++, in++, out++)
+        {
+            out->v[0] = (unsigned short)LittleShort(in->v[0]);
+            out->v[1] = (unsigned short)LittleShort(in->v[1]);
+        }
     }
 }
 
@@ -779,7 +792,7 @@ void Mod_LoadTexinfo (lump_t *l)
 
     in = (void *)(mod_base + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Sys_Error ("MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
+        Sys_Error ("Mod_LoadTexinfo: funny lump size in %s",loadmodel->name);
     count = l->filelen / sizeof(*in);
 //	out = Hunk_AllocName ( count*sizeof(*out), loadname);
     out = Hunk_AllocName ( (count+6)*sizeof(*out), "modtxinf"); // Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
@@ -845,8 +858,8 @@ void CalcSurfaceExtents (msurface_t *s)
     mtexinfo_t	*tex;
     int		bmins[2], bmaxs[2];
 
-    mins[0] = mins[1] = 999999;
-    maxs[0] = maxs[1] = -99999;
+    mins[0] = mins[1] = 9999999;
+    maxs[0] = maxs[1] = -9999999;
 
     tex = s->texinfo;
 
@@ -884,6 +897,41 @@ void CalcSurfaceExtents (msurface_t *s)
 }
 
 
+//qb:  flag faces
+void Mod_FlagFaces ( msurface_t *out)
+{
+    int i;
+    if (!Q_strncmp(out->texinfo->texture->name,"sky",3))	// sky
+    {
+        out->flags |= (SURF_DRAWSKY | SURF_DRAWTILED);
+        return;
+    }
+
+    if (!Q_strncmp(out->texinfo->texture->name,"*",1))		// turbulent
+    {
+        if (!Q_strncmp(out->texinfo->texture->name, "*glass",6))
+        {
+            out->flags |= (SURF_DRAWTRANSLUCENT| SURF_DRAWTILED);
+        }
+        else
+        {
+            // Manoel Kasimier - translucent water - begin
+            if (Q_strncmp(out->texinfo->texture->name,"*lava",5)) // lava should be opaque
+                //	if (Q_strncmp(out->texinfo->texture->name,"*teleport",9)) // teleport should be opaque
+                out->flags |= SURF_DRAWTRANSLUCENT;
+            // Manoel Kasimier - translucent water - end
+            out->flags |= (SURF_DRAWTURB | SURF_DRAWTILED);
+            for (i=0 ; i<2 ; i++)
+            {
+                out->extents[i] = 16384;
+                out->texturemins[i] = -8192;
+            }
+            return;
+
+        }
+    }
+}
+
 /*
 =================
 Mod_LoadFaces
@@ -891,85 +939,97 @@ Mod_LoadFaces
 */
 void Mod_LoadFaces (lump_t *l)
 {
-    dface_t		*in;
+    // dface_t		*in;
     msurface_t 	*out;
     int			i, count, surfnum;
     int			planenum, side;
+    size_t structsize = loadmodel->isbsp2 ? 28 : 20; //qb: bsp2 from DP
 
-    in = (void *)(mod_base + l->fileofs);
-    if (l->filelen % sizeof(*in))
-        Sys_Error ("MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
-    count = l->filelen / sizeof(*in);
+
+    // in = (void *)(mod_base + l->fileofs);
+    if (l->filelen % structsize)
+        Sys_Error ("Mod_LoadFaces: funny lump size in %s",loadmodel->name);
+    count = l->filelen / structsize;
 //	out = Hunk_AllocName ( count*sizeof(*out), loadname);
     out = Hunk_AllocName ( (count+6)*sizeof(*out), "modface"); // Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
     loadmodel->surfaces = out;
     loadmodel->numsurfaces = count;
 
-    for ( surfnum=0 ; surfnum<count ; surfnum++, in++, out++)
+    if (loadmodel->isbsp2)  //qb: bsp2 based on DP
     {
-        out->firstedge = LittleLong(in->firstedge);
-        out->numedges = LittleShort(in->numedges);
-        out->flags = 0;
-
-        planenum = LittleShort(in->planenum);
-        side = LittleShort(in->side);
-        if (side)
-            out->flags |= SURF_PLANEBACK;
-
-        out->plane = loadmodel->planes + planenum;
-
-        out->texinfo = loadmodel->texinfo + LittleShort (in->texinfo);
-
-        CalcSurfaceExtents (out);
-
-        // lighting info
-
-        for (i=0 ; i<MAXLIGHTMAPS ; i++)
-            out->styles[i] = in->styles[i];
-        i = LittleLong(in->lightofs);
-        if (i == -1)
+        dface_t_BSP2 *in;
+        in = (void *)(mod_base + l->fileofs);
+        for ( surfnum=0 ; surfnum<count ; surfnum++, in++, out++)
         {
-            out->samples = NULL;
-            out->colorsamples = NULL;
-        }
+            out->firstedge = LittleLong(in->firstedge);
+            out->numedges = LittleLong(in->numedges);
+            out->flags = 0;
+            planenum = LittleLong(in->planenum);
+            side = LittleLong(in->side);
+            if (side)
+                out->flags |= SURF_PLANEBACK;
 
-        else
-        {
-            out->samples = loadmodel->lightdata + i;
-            out->colorsamples = loadmodel->colordata + i; //qbism
+            out->plane = loadmodel->planes + planenum;
+            out->texinfo = loadmodel->texinfo + LittleLong(in->texinfo);
 
-        }
+            CalcSurfaceExtents (out);
 
-        // set the drawing flags flag
+            // lighting info
 
-        if (!Q_strncmp(out->texinfo->texture->name,"sky",3))	// sky
-        {
-            out->flags |= (SURF_DRAWSKY | SURF_DRAWTILED);
-            continue;
-        }
-
-        if (!Q_strncmp(out->texinfo->texture->name,"*",1))		// turbulent
-        {
-            if (!Q_strncmp(out->texinfo->texture->name, "*glass",6))
+            for (i=0 ; i<MAXLIGHTMAPS ; i++)
+                out->styles[i] = in->styles[i];
+            i = LittleLong(in->lightofs);
+            if (i == -1)
             {
-                out->flags |= (SURF_DRAWTRANSLUCENT| SURF_DRAWTILED);
+                out->samples = NULL;
+                out->colorsamples = NULL;
             }
+
             else
             {
-                // Manoel Kasimier - translucent water - begin
-                if (Q_strncmp(out->texinfo->texture->name,"*lava",5)) // lava should be opaque
-                    //	if (Q_strncmp(out->texinfo->texture->name,"*teleport",9)) // teleport should be opaque
-                    out->flags |= SURF_DRAWTRANSLUCENT;
-                // Manoel Kasimier - translucent water - end
-                out->flags |= (SURF_DRAWTURB | SURF_DRAWTILED);
-                for (i=0 ; i<2 ; i++)
-                {
-                    out->extents[i] = 16384;
-                    out->texturemins[i] = -8192;
-                }
-                continue;
+                out->samples = loadmodel->lightdata + i;
+                out->colorsamples = loadmodel->colordata + i; //qbism
 
             }
+            Mod_FlagFaces (out);
+        }
+    }
+    else
+    {
+        dface_t *in;
+        in = (void *)(mod_base + l->fileofs);
+        for ( surfnum=0 ; surfnum<count ; surfnum++, in++, out++)
+        {
+            out->firstedge = LittleLong(in->firstedge);
+            out->numedges = LittleShort(in->numedges);
+            out->flags = 0;
+            planenum = LittleShort(in->planenum);
+            side = LittleShort(in->side);
+            if (side)
+                out->flags |= SURF_PLANEBACK;
+
+            out->plane = loadmodel->planes + planenum;
+            out->texinfo = loadmodel->texinfo + LittleShort(in->texinfo);
+            CalcSurfaceExtents (out);
+
+            // lighting info
+
+            for (i=0 ; i<MAXLIGHTMAPS ; i++)
+                out->styles[i] = in->styles[i];
+            i = LittleLong(in->lightofs);
+            if (i == -1)
+            {
+                out->samples = NULL;
+                out->colorsamples = NULL;
+            }
+
+            else
+            {
+                out->samples = loadmodel->lightdata + i;
+                out->colorsamples = loadmodel->colordata + i; //qbism
+
+            }
+            Mod_FlagFaces(out);
         }
     }
 }
@@ -997,50 +1057,94 @@ Mod_LoadNodes
 void Mod_LoadNodes (lump_t *l)
 {
     int			i, j, count, p;
-    dnode_t		*in;
+    //dnode_t		*in;
     mnode_t 	*out;
+    size_t structsize = loadmodel->isbsp2 ? 44 : 24; //qb:  BSP2 from DP
 
-    in = (void *)(mod_base + l->fileofs);
-    if (l->filelen % sizeof(*in))
+    //in = (void *)(mod_base + l->fileofs);
+    if (l->filelen % structsize)
         Sys_Error ("MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
-    count = l->filelen / sizeof(*in);
+    count = l->filelen / structsize;
+    if (count == 0)
+        Sys_Error("Mod_LoadNodes: missing BSP tree in %s",loadmodel->name);  //qb: from DP
     out = Hunk_AllocName ( count*sizeof(*out), "modnode");
 
     loadmodel->nodes = out;
     loadmodel->numnodes = count;
 
-    for ( i=0 ; i<count ; i++, in++, out++)
+    if(loadmodel->isbsp2)
     {
-        for (j=0 ; j<3 ; j++)
+        dnode_t_BSP2		*in;
+        in = (void *)(mod_base + l->fileofs);
+        for ( i=0 ; i<count ; i++, in++, out++)
         {
-            out->minmaxs[j] = LittleShort (in->mins[j]);
-            out->minmaxs[3+j] = LittleShort (in->maxs[j]);
-        }
-
-        p = LittleLong(in->planenum);
-        out->plane = loadmodel->planes + p;
-
-        out->firstsurface = (unsigned short)LittleShort (in->firstface); //qbism:  from johnfitz -- explicit cast as unsigned short
-        out->numsurfaces = (unsigned short)LittleShort (in->numfaces); //qbism:  johnfitz -- explicit cast as unsigned short
-
-        for (j=0 ; j<2 ; j++)
-        {
-            //qbism:  johnfitz begin -- hack to handle nodes > 32k, adapted from darkplaces
-            p = (unsigned short)LittleShort(in->children[j]);
-            if (p < count)
-                out->children[j] = loadmodel->nodes + p;
-            else
+            for (j=0 ; j<3 ; j++)
             {
-                p = 65535 - p; //note this uses 65535 intentionally, -1 is leaf 0
-                if (p < loadmodel->numleafs)
-                    out->children[j] = (mnode_t *)(loadmodel->leafs + p);
+                out->minmaxs[j] = LittleFloat (in->mins[j]);
+                out->minmaxs[3+j] = LittleFloat (in->maxs[j]);
+            }
+
+            p = LittleLong(in->planenum);
+            out->plane = loadmodel->planes + p;
+
+            out->firstsurface = (unsigned short)LittleShort (in->firstface); //qbism:  from johnfitz -- explicit cast as unsigned short
+            out->numsurfaces = (unsigned short)LittleShort (in->numfaces); //qbism:  johnfitz -- explicit cast as unsigned short
+
+            for (j=0 ; j<2 ; j++)
+            {
+                p = LittleLong(in->children[j]);
+                if (p < count)
+                    out->children[j] = loadmodel->nodes + p;
                 else
                 {
-                    Con_Printf("Mod_LoadNodes: invalid leaf index %i (file has only %i leafs)\n", p, loadmodel->numleafs);
-                    out->children[j] = (mnode_t *)(loadmodel->leafs); //map it to the solid leaf
+                    if (p < loadmodel->numleafs)
+                        out->children[j] = (mnode_t *)(loadmodel->leafs + p);
+                    else
+                    {
+                        Con_Printf("Mod_LoadNodes: invalid leaf index %i (file has only %i leafs)\n", p, loadmodel->numleafs);
+                        out->children[j] = (mnode_t *)(loadmodel->leafs); //map it to the solid leaf
+                    }
                 }
             }
-            //qbism:  johnfitz end
+        }
+    }
+    else
+    {
+        dnode_t		*in;
+        in = (void *)(mod_base + l->fileofs);
+        for ( i=0 ; i<count ; i++, in++, out++)
+        {
+            for (j=0 ; j<3 ; j++)
+            {
+                out->minmaxs[j] = (float)LittleShort (in->mins[j]);
+                out->minmaxs[3+j] = (float)LittleShort (in->maxs[j]);
+            }
+
+            p = LittleLong(in->planenum);
+            out->plane = loadmodel->planes + p;
+
+            out->firstsurface = (unsigned short)LittleShort (in->firstface); //qbism:  from johnfitz -- explicit cast as unsigned short
+            out->numsurfaces = (unsigned short)LittleShort (in->numfaces); //qbism:  johnfitz -- explicit cast as unsigned short
+
+            for (j=0 ; j<2 ; j++)
+            {
+                //qbism:  johnfitz begin -- hack to handle nodes > 32k, adapted from darkplaces
+                p = (unsigned short)LittleShort(in->children[j]);
+                if (p < count)
+                    out->children[j] = loadmodel->nodes + p;
+                else
+                {
+                    p = 65535 - p; //note this uses 65535 intentionally, -1 is leaf 0
+                    if (p < loadmodel->numleafs)
+                        out->children[j] = (mnode_t *)(loadmodel->leafs + p);
+                    else
+                    {
+                        Con_Printf("Mod_LoadNodes: invalid leaf index %i (file has only %i leafs)\n", p, loadmodel->numleafs);
+                        out->children[j] = (mnode_t *)(loadmodel->leafs); //map it to the solid leaf
+                    }
+                }
+                //qbism:  johnfitz end
+            }
         }
     }
 
@@ -1048,6 +1152,7 @@ void Mod_LoadNodes (lump_t *l)
 }
 
 void Mod_ProcessLeafs (dleaf_t *in, int filelen);	// 2001-12-28 .VIS support by Maddes
+void Mod_ProcessLeafs_BSP2 (dleaf_t_BSP2 *in, int filelen); //qb: bsp2
 /*
 =================
 Mod_LoadLeafs
@@ -1055,25 +1160,18 @@ Mod_LoadLeafs
 */
 void Mod_LoadLeafs (lump_t *l)
 {
-    dleaf_t 	*in;
-// 2001-12-28 .VIS support by Maddes  start
-    /*
-    	mleaf_t 	*out;
-    	int			i, j, count, p;
-    */
-// 2001-12-28 .VIS support by Maddes  end
-
-    in = (void *)(mod_base + l->fileofs);
-// 2001-12-28 .VIS support by Maddes  start
-    /*
-    	if (l->filelen % sizeof(*in))
-    		Sys_Error ("MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
-    	count = l->filelen / sizeof(*in);
-    	out = Hunk_AllocName ( count*sizeof(*out), loadname);
-    */
-// 2001-12-28 .VIS support by Maddes  end
-
-    Mod_ProcessLeafs (in, l->filelen);
+    if(loadmodel->isbsp2)
+    {
+        dleaf_t_BSP2 	*in;
+        in = (void *)(mod_base + l->fileofs);
+        Mod_ProcessLeafs_BSP2 (in, l->filelen);
+    }
+    else
+    {
+        dleaf_t 	*in;
+        in = (void *)(mod_base + l->fileofs);
+        Mod_ProcessLeafs (in, l->filelen);
+    }
 }
 
 void Mod_ProcessLeafs (dleaf_t *in, int filelen)
@@ -1098,8 +1196,8 @@ void Mod_ProcessLeafs (dleaf_t *in, int filelen)
     {
         for (j=0 ; j<3 ; j++)
         {
-            out->minmaxs[j] = LittleShort (in->mins[j]);
-            out->minmaxs[3+j] = LittleShort (in->maxs[j]);
+            out->minmaxs[j] = (float) LittleShort (in->mins[j]);
+            out->minmaxs[3+j] = (float) LittleShort (in->maxs[j]);
         }
 
         p = LittleLong(in->contents);
@@ -1121,6 +1219,47 @@ void Mod_ProcessLeafs (dleaf_t *in, int filelen)
     }
 }
 
+
+void Mod_ProcessLeafs_BSP2 (dleaf_t_BSP2 *in, int filelen)  //qb: bsp2
+{
+    mleaf_t 	*out;
+    int			i, j, count, p;
+
+    if (filelen % sizeof(*in))
+        Sys_Error ("Mod_ProcessLeafs: funny lump size in %s", loadmodel->name);
+    count = filelen / sizeof(*in);
+    out = Hunk_AllocName ( count*sizeof(*out), "USE_LEAF");
+
+    loadmodel->leafs = out;
+    loadmodel->numleafs = count;
+
+    for ( i=0 ; i<count ; i++, in++, out++)
+    {
+        for (j=0 ; j<3 ; j++)
+        {
+            out->minmaxs[j] = LittleFloat (in->mins[j]);
+            out->minmaxs[3+j] =  LittleFloat (in->maxs[j]);
+        }
+
+        p = LittleLong(in->contents);
+        out->contents = p;
+
+        out->firstmarksurface = loadmodel->marksurfaces +
+                                (unsigned short)LittleShort(in->firstmarksurface);
+        out->nummarksurfaces = (unsigned short)LittleShort(in->nummarksurfaces);
+
+        p = LittleLong(in->visofs);
+        if (p == -1)
+            out->compressed_vis = NULL;
+        else
+            out->compressed_vis = loadmodel->visdata + p;
+        out->efrags = NULL;
+
+        for (j=0 ; j<4 ; j++)
+            out->ambient_sound_level[j] = in->ambient_level[j];
+    }
+}
+
 /*
 =================
 Mod_LoadClipnodes
@@ -1128,20 +1267,17 @@ Mod_LoadClipnodes
 */
 void Mod_LoadClipnodes (lump_t *l)
 {
-    dclipnode_t *in;
+    //dclipnode_t *in;
     mclipnode_t *out; //qbism:  johnfitz -- was dclipnode_t
     int			i, count;
     hull_t		*hull;
+    size_t structsize = loadmodel->isbsp2 ? 12 : 8;
 
-    in = (void *)(mod_base + l->fileofs);
-    if (l->filelen % sizeof(*in))
-        Sys_Error ("MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
-    count = l->filelen / sizeof(*in);
+    //in = (void *)(mod_base + l->fileofs);
+    if (l->filelen % structsize)
+        Sys_Error ("Mod_LoadClipnodes: funny lump size in %s",loadmodel->name);
+    count = l->filelen / structsize;
     out = Hunk_AllocName ( count*sizeof(*out), "modcnode");
-
-    //qbism:  johnfitz -- warn about exceeding old limits
-    if (count > 32767)
-        Con_DPrintf("%i clipnodes exceeds standard limit of 32767.\n", count);
 
     loadmodel->clipnodes = out;
     loadmodel->numclipnodes = count;
@@ -1170,22 +1306,44 @@ void Mod_LoadClipnodes (lump_t *l)
     hull->clip_maxs[1] = 32;
     hull->clip_maxs[2] = 64;
 
-    for (i=0 ; i<count ; i++, out++, in++)
+    if(loadmodel->isbsp2)
     {
-        out->planenum = LittleLong(in->planenum);
+        dclipnode_t_BSP2 *in;
+        in = (void *)(mod_base + l->fileofs);
+        for (i=0 ; i<count ; i++, out++, in++)
+        {
+            out->planenum = LittleLong(in->planenum);
 
-        //qbism:  johnfitz -- bounds check
-        if (out->planenum < 0 || out->planenum >= loadmodel->numplanes)
-            Host_Error ("Mod_LoadClipnodes: planenum out of bounds");
+            //qbism:  johnfitz -- bounds check
+            if (out->planenum < 0 || out->planenum >= loadmodel->numplanes)
+                Host_Error ("Mod_LoadClipnodes: planenum out of bounds");
 
-        //qbism:  johnfitz begin -- support clipnodes > 32k
-        out->children[0] = (unsigned short)LittleShort(in->children[0]);
-        out->children[1] = (unsigned short)LittleShort(in->children[1]);
-        if (out->children[0] >= count)
-            out->children[0] -= 65536;
-        if (out->children[1] >= count)
-            out->children[1] -= 65536;
-        //qbism:  johnfitz end
+            out->children[0] = LittleFloat(in->children[0]);
+            out->children[1] = LittleFloat(in->children[1]);
+
+        }
+    }
+    else
+    {
+        dclipnode_t *in;
+        in = (void *)(mod_base + l->fileofs);
+        for (i=0 ; i<count ; i++, out++, in++)
+        {
+            out->planenum = LittleLong(in->planenum);
+
+            //qbism:  johnfitz -- bounds check
+            if (out->planenum < 0 || out->planenum >= loadmodel->numplanes)
+                Host_Error ("Mod_LoadClipnodes: planenum out of bounds");
+
+            //qbism:  johnfitz begin -- support clipnodes > 32k
+            out->children[0] = (unsigned short)LittleShort(in->children[0]);
+            out->children[1] = (unsigned short)LittleShort(in->children[1]);
+            if (out->children[0] >= count)
+                out->children[0] -= 65536;
+            if (out->children[1] >= count)
+                out->children[1] -= 65536;
+            //qbism:  johnfitz end
+        }
     }
 }
 
@@ -1236,28 +1394,42 @@ Mod_LoadMarksurfaces
 void Mod_LoadMarksurfaces (lump_t *l)
 {
     int		i, j, count;
-    short		*in;
+    // short		*in;
     msurface_t **out;
+    size_t structsize = loadmodel->isbsp2 ? 4 : 2;
 
-    in = (void *)(mod_base + l->fileofs);
-    if (l->filelen % sizeof(*in))
-        Sys_Error ("MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
-    count = l->filelen / sizeof(*in);
+    //in = (void *)(mod_base + l->fileofs);
+    if (l->filelen % structsize)
+        Sys_Error ("Mod_LoadMarksurfaces: funny lump size in %s",loadmodel->name);
+    count = l->filelen / structsize;
     out = Hunk_AllocName ( count*sizeof(*out), "modmsurf");
 
     loadmodel->marksurfaces = out;
     loadmodel->nummarksurfaces = count;
 
-    //qbism:  johnfitz -- warn mappers about exceeding old limits
-    if (count > 32767)
-        Con_DPrintf("%i marksurfaces exceeds standard limit of 32767.\n", count);
-
-    for ( i=0 ; i<count ; i++)
+    if(loadmodel->isbsp2)
     {
-        j = (unsigned short)LittleShort(in[i]); //qbism:  johnfitz -- explicit cast as unsigned short
-        if (j >= loadmodel->numsurfaces)
-            Sys_Error ("Mod_ParseMarksurfaces: bad surface number");
-        out[i] = loadmodel->surfaces + j;
+        int		*in;
+        in = (void *)(mod_base + l->fileofs);
+        for ( i=0 ; i<count ; i++)
+        {
+            j = LittleLong(in[i]);
+            if (j >= loadmodel->numsurfaces)
+                Sys_Error ("Mod_ParseMarksurfaces: bad surface number");
+            out[i] = loadmodel->surfaces + j;
+        }
+    }
+    else
+    {
+        short		*in;
+        in = (void *)(mod_base + l->fileofs);
+        for ( i=0 ; i<count ; i++)
+        {
+            j = (unsigned short)LittleShort(in[i]); //qbism:  johnfitz -- explicit cast as unsigned short
+            if (j >= loadmodel->numsurfaces)
+                Sys_Error ("Mod_ParseMarksurfaces: bad surface number");
+            out[i] = loadmodel->surfaces + j;
+        }
     }
 }
 
@@ -1273,7 +1445,7 @@ void Mod_LoadSurfedges (lump_t *l)
 
     in = (void *)(mod_base + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Sys_Error ("MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
+        Sys_Error ("Mod_LoadSurfedges: funny lump size in %s",loadmodel->name);
     count = l->filelen / sizeof(*in);
 //	out = Hunk_AllocName ( count*sizeof(*out), loadname);
     out = Hunk_AllocName ( (count+24)*sizeof(*out), "modsedge"); // Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
@@ -1300,7 +1472,7 @@ void Mod_LoadPlanes (lump_t *l)
 
     in = (void *)(mod_base + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Sys_Error ("MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
+        Sys_Error ("Mod_LoadPlanes: funny lump size in %s",loadmodel->name);
     count = l->filelen / sizeof(*in);
 //	out = Hunk_AllocName ( count*2*sizeof(*out), loadname);
     out = Hunk_AllocName ( (count+6)*sizeof(*out), "modplane"); // Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
@@ -1382,7 +1554,7 @@ void Mod_LoadSubmodels (lump_t *l)
 
     in = (void *)(mod_base + l->fileofs);
     if (l->filelen % sizeof(*in))
-        Sys_Error ("MOD_LoadBmodel: funny lump size in %s",loadmodel->name);
+        Sys_Error ("Mod_LoadSubmodels: funny lump size in %s",loadmodel->name);
     count = l->filelen / sizeof(*in);
     out = Hunk_AllocName ( count*sizeof(*out), "modmodel");
 
@@ -1595,13 +1767,17 @@ void Mod_LoadBrushModel (model_t *mod, void *buffer, loadedfile_t *brush_fileinf
     loadmodel->type = mod_brush;
 
     header = (dheader_t *)buffer;
+    loadmodel->isbsp2 = false;
 
     i = LittleLong (header->version);
+    if (i == 844124994 ) //qb: 'BSP2'
+        loadmodel->isbsp2 = true;
+    else
     if (i != BSPVERSION)
 //		Sys_Error ("Mod_LoadBrushModel: %s has wrong version number (%i should be %i)", mod->name, i, BSPVERSION);
         // MrG - incorrect BSP version is no longer fatal - begin
     {
-        Con_Printf("Mod_LoadBrushModel: %s has wrong version number (%i should be %i)\n", mod->name, i, BSPVERSION);
+        Con_Printf("Mod_LoadBrushModel: %s has wrong version number (%i should be %i or BSP2)\n", mod->name, i, BSPVERSION);
         mod->numvertexes=-1;	// HACK
         return;
     }
