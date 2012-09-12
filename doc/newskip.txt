@@ -1,0 +1,64 @@
+
+================================================================================
+Newskip version 1.0 by John Fitzgibbons
+email: johnfitz@u.washington.edu 
+web: http://www.celephais.net/
+July 13, 2007
+
+Newskip is a tool that removes "skip" surfaces from a Quake bsp file so that
+the game won't draw them. It works on both world brushes and entities, and
+supports liquids too. Based on the original concept by Tyrann.
+
+How To Use It
+--------------------------------------------------------------------------------
+
+1) Using the textures in newskip.wad, mark surfaces in your map that you don't
+want drawn in-game.  Skip can be used on any solid brush, *waterskip, *slimeskip,
+and *lavaskip are necessary when a brush contains a liquid, becuase all faces on
+a brush need to have the same contents type for Qbsp.  Be sure to run Qbsp with
+the option -transwater if you do use skip on liquid brushes, otherwise you
+won't be able to see anything on the other side of the skipped face.
+
+2) Place newskip.exe somewhere convenient, like where you keep Qbsp. Call it
+from the command prompt or in a batch file, like so: "newskip <mapname>"
+
+How It Works
+--------------------------------------------------------------------------------
+
+Newskip does not actually delete anything from the bsp file, so the processed
+file will still be the same size as the original.  What newskip does is re-
+arrange the internal arrays of surfaces in the file, and lowers the total
+surface counts so that the surfaces at the end of the list are ignored by the
+engine when rendering.
+
+For the world itself, Newskip edits each leaf's "nummarksurfaces" count and
+reorders the marksurfaces array.  For brush entities, Newskip edits each
+model's "numfaces" count and reorders the surfaces array.
+
+Copyright / Permissions
+--------------------------------------------------------------------------------
+
+Copyright (C) 2007 John Fitzgibbons
+
+This program is free software; you can redistribute it and/or modify it under 
+the terms of the GNU General Public License as published by the Free Software 
+Foundation; either version 2 of the License, or (at your option) any later 
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY 
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
+PARTICULAR PURPOSE.
+
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with 
+this program; if not, write to the Free Software Foundation, Inc., 59 Temple 
+Place - Suite 330, Boston, MA  02111-1307, USA.
+
+History
+--------------------------------------------------------------------------------
+
+version 1.0
+	- initial release
+	- removes skip on both worldmodel and entities
+	- supports skip on liquids

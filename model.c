@@ -1773,7 +1773,7 @@ void Mod_LoadBrushModel (model_t *mod, void *buffer, loadedfile_t *brush_fileinf
     if (i == 844124994 ) //qb: 'BSP2'
         loadmodel->isbsp2 = true;
     else
-    if (i != BSPVERSION)
+    if ( i != BSPVERSION)
 //		Sys_Error ("Mod_LoadBrushModel: %s has wrong version number (%i should be %i)", mod->name, i, BSPVERSION);
         // MrG - incorrect BSP version is no longer fatal - begin
     {
