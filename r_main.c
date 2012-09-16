@@ -147,7 +147,7 @@ cvar_t	r_ambient = {"r_ambient", "0"};
 
 cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qbism
 cvar_t	r_clintensity = {"r_clintensity", "1.2", true}; //qbism
-//qbism - no longer necessary.  cvar_t	r_clbaseweight = {"r_clbaseweight", "0.5", true}; //qbism- base pixel weight for color map blending
+cvar_t	r_clbaseweight = {"r_clbaseweight", "1.0", true}; //qbism- base pixel weight for color map blending
 cvar_t	r_clcolorweight= {"r_clcolorweight", "0.7", true}; //qbism- color weight for color map blending
 
 cvar_t r_fog = {"r_fog", "1", true}; //qbism-  draw fog?
@@ -276,6 +276,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_ambient);
     Cvar_RegisterVariable (&r_coloredlights); //qbism
     Cvar_RegisterVariable (&r_clintensity); //qbism
+    Cvar_RegisterVariable (&r_clbaseweight); //qbism
     Cvar_RegisterVariable (&r_clcolorweight); //qbism
     Cvar_RegisterVariable (&r_fog); //qbism
     Cvar_RegisterVariable (&r_clearcolor);
@@ -537,7 +538,7 @@ void GrabLightcolormap (void) //qbism- for colored lighting, fullbrights show th
 
     if(r_coloredlights.value)
     {
-        ae = 1.0;				// base pixels
+        ae = bound (0, r_clbaseweight.value, 1.0);	    		// base pixels
         ay = bound (0, r_clcolorweight.value, 1.0);             //color
     }
     else

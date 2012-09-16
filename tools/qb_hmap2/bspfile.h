@@ -147,8 +147,8 @@ typedef struct
 	int			children[2];	// negative numbers are -(leafs+1), not nodes
 	float		mins[3];		// for sphere culling
 	float		maxs[3];
-	unsigned short	firstface;
-	unsigned short	numfaces;	// counting both sides
+	unsigned int	firstface;  //qb:  taniwha catch, was unsigned short
+	unsigned int	numfaces;	//qb:  taniwha catch, was unsigned short // counting both sides
 } dnode_t;
 
 // MODIFIED FOR BSP2
@@ -278,6 +278,9 @@ extern	int			dsurfedges[MAX_MAP_SURFEDGES];
 extern	hullinfo_t	hullinfo;
 
 extern qboolean		ismcbsp;
+
+//qb: added here// MODIFIED FOR BSP2
+extern unsigned int	dmarksurfaces[MAX_MAP_MARKSURFACES];
 
 typedef struct epair_s
 {

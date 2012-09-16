@@ -762,8 +762,8 @@ void Mod_LoadEdges (lump_t *l)
         dedge_t_BSP2 *in = (void *)(mod_base + l->fileofs);
         for ( i=0 ; i<count ; i++, in++, out++)
         {
-            out->v[0] = (unsigned int)LittleShort(in->v[0]);
-            out->v[1] = (unsigned int)LittleShort(in->v[1]);
+            out->v[0] = (unsigned int)LittleLong(in->v[0]);
+            out->v[1] = (unsigned int)LittleLong(in->v[1]);
         }
     }
     else
@@ -850,16 +850,16 @@ CalcSurfaceExtents
 Fills in s->texturemins[] and s->extents[]
 ================
 */
-void CalcSurfaceExtents (msurface_t *s)
+void CalcSurfaceExtents (msurface_t *s) //qb: modified for BSP2
 {
     float	mins[2], maxs[2], val;
     int		i,j, e;
     mvertex_t	*v;
     mtexinfo_t	*tex;
-    int		bmins[2], bmaxs[2];
+    float		bmins[2], bmaxs[2];
 
-    mins[0] = mins[1] = 9999999;
-    maxs[0] = maxs[1] = -9999999;
+    mins[0] = mins[1] = 99999.0;
+    maxs[0] = maxs[1] = -99999.0;
 
     tex = s->texinfo;
 
@@ -891,8 +891,8 @@ void CalcSurfaceExtents (msurface_t *s)
 
         s->texturemins[i] = bmins[i] * 16;
         s->extents[i] = (bmaxs[i] - bmins[i]) * 16;
-        if ( !(tex->flags & TEX_SPECIAL) && s->extents[i] > 256)
-            Sys_Error ("Bad surface extents");
+       if ( !(tex->flags & TEX_SPECIAL) && s->extents[i] > 256)
+            Sys_Error ("Bad surface extents: %i", s->extents[i]);
     }
 }
 
@@ -1056,7 +1056,7 @@ Mod_LoadNodes
 */
 void Mod_LoadNodes (lump_t *l)
 {
-    int			i, j, count, p;
+    unsigned int			i, j, count, p;
     //dnode_t		*in;
     mnode_t 	*out;
     size_t structsize = loadmodel->isbsp2 ? 44 : 24; //qb:  BSP2 from DP
@@ -1084,15 +1084,15 @@ void Mod_LoadNodes (lump_t *l)
                 out->minmaxs[3+j] = LittleFloat (in->maxs[j]);
             }
 
-            p = LittleLong(in->planenum);
+            p = (unsigned int) LittleLong(in->planenum);
             out->plane = loadmodel->planes + p;
 
-            out->firstsurface = (unsigned short)LittleShort (in->firstface); //qbism:  from johnfitz -- explicit cast as unsigned short
-            out->numsurfaces = (unsigned short)LittleShort (in->numfaces); //qbism:  johnfitz -- explicit cast as unsigned short
+            out->firstsurface = (unsigned int) LittleLong (in->firstface);
+            out->numsurfaces = (unsigned int) LittleLong (in->numfaces);
 
             for (j=0 ; j<2 ; j++)
             {
-                p = LittleLong(in->children[j]);
+                p = (unsigned int) LittleLong(in->children[j]);
                 if (p < count)
                     out->children[j] = loadmodel->nodes + p;
                 else
@@ -1245,8 +1245,8 @@ void Mod_ProcessLeafs_BSP2 (dleaf_t_BSP2 *in, int filelen)  //qb: bsp2
         out->contents = p;
 
         out->firstmarksurface = loadmodel->marksurfaces +
-                                (unsigned short)LittleShort(in->firstmarksurface);
-        out->nummarksurfaces = (unsigned short)LittleShort(in->nummarksurfaces);
+                                (unsigned int)LittleLong(in->firstmarksurface);
+        out->nummarksurfaces = (unsigned int)LittleLong(in->nummarksurfaces);
 
         p = LittleLong(in->visofs);
         if (p == -1)
@@ -1318,8 +1318,8 @@ void Mod_LoadClipnodes (lump_t *l)
             if (out->planenum < 0 || out->planenum >= loadmodel->numplanes)
                 Host_Error ("Mod_LoadClipnodes: planenum out of bounds");
 
-            out->children[0] = LittleFloat(in->children[0]);
-            out->children[1] = LittleFloat(in->children[1]);
+            out->children[0] = LittleLong(in->children[0]);
+            out->children[1] = LittleLong(in->children[1]);
 
         }
     }

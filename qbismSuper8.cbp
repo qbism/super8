@@ -46,25 +46,51 @@
 				<Option object_output="s_win32\Debug" />
 				<Option type="0" />
 				<Option compiler="gcc" />
-				<Option parameters="-game honey -heapsize 64000 +map saint" />
+				<Option parameters=" -heapsize 999000" />
 				<Compiler>
-					<Add option="-march=prescott" />
-					<Add option="-fexpensive-optimizations" />
-					<Add option="-O3" />
-					<Add option="-pg" />
+					<Add option="-march=pentium2" />
 					<Add option="-g" />
-					<Add option="-ftree-vectorize" />
 					<Add option="-DWIN32" />
-					<Add option="-DNDEBUG" />
+					<Add option="-DDEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_WIN32" />
-					<Add option="-DASMx86QUAKE" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory=".\dxsdk\sdk\inc" />
 				</ResourceCompiler>
 				<Linker>
-					<Add option="-pg -lgmon" />
+					<Add option="-static-libgcc" />
+					<Add library="winmm" />
+					<Add library="wsock32" />
+					<Add library="dinput" />
+					<Add library="dxguid" />
+				</Linker>
+				<ExtraCommands>
+					<Add before="version.bat" />
+				</ExtraCommands>
+			</Target>
+			<Target title="Release Win32 icore">
+				<Option output="..\..\quake\qbismS8_icore" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\..\quake" />
+				<Option object_output="s_win32\Release" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-march=corei7" />
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-Os" />
+					<Add option="-O3" />
+					<Add option="-w" />
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_WINDOWS" />
+					<Add option="-D_WIN32" />
+					<Add option="-DCURL_STATICLIB" />
+					<Add directory="." />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
 					<Add option="-static-libgcc" />
 					<Add library="winmm" />
 					<Add library="wsock32" />

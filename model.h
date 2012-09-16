@@ -154,8 +154,8 @@ typedef struct mnode_s
 	mplane_t	*plane;
 	struct mnode_s	*children[2];
 
-	int		firstsurface;  //qb:  BSP2, was unsigned short
-	int 	numsurfaces;  //qb:  BSP2, was unsigned short
+	unsigned int		firstsurface;  //qb:  BSP2, was unsigned short
+	unsigned int 	numsurfaces;  //qb:  BSP2, was unsigned short
 } mnode_t;
 
 
@@ -372,8 +372,8 @@ typedef struct model_s
 	int			numclipnodes;
     mclipnode_t	*clipnodes; //qbism:  johnfitz -- was dclipnode_t
 
-	unsigned short			nummarksurfaces; //qbism was int
-	msurface_t	**marksurfaces;
+	int    nummarksurfaces;
+	msurface_t	    **marksurfaces;
 
 	hull_t		hulls[MAX_MAP_HULLS];
 

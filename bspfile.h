@@ -164,7 +164,7 @@ typedef struct
 {
 	int			planenum;
 	int			children[2];	// negative numbers are -(leafs+1), not nodes
-	float		mins[3];		// for sphere culling
+	float		mins[3];
 	float		maxs[3];
 	unsigned short	firstface;
 	unsigned short	numfaces;	// counting both sides

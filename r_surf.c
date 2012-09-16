@@ -61,7 +61,7 @@ extern cvar_t r_stainfadeamount;
 
 #define	LMBLOCK_WIDTH		128
 #define	LMBLOCK_HEIGHT		128
-#define MAX_STAINMAPS		256// qbism was 64
+#define MAX_STAINMAPS		32000 //qb: debug 256// qbism was 64
 
 typedef unsigned char stmap;
 stmap stainmaps[MAX_STAINMAPS*LMBLOCK_WIDTH*LMBLOCK_HEIGHT];	//added to lightmap for added (hopefully) speed.
