@@ -76,7 +76,7 @@
 				</Linker>
 			</Target>
 			<Target title="Win32 Release iCore">
-				<Option output="..\qb_hmap2_icore" prefix_auto="1" extension_auto="1" />
+				<Option output="..\..\..\..\qe\q1tools\qb_hmap2_icore" prefix_auto="1" extension_auto="1" />
 				<Option object_output="Release" />
 				<Option type="1" />
 				<Option compiler="gcc" />

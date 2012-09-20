@@ -79,7 +79,6 @@
 					<Add option="-march=corei7" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-fexpensive-optimizations" />
-					<Add option="-Os" />
 					<Add option="-O3" />
 					<Add option="-w" />
 					<Add option="-DWIN32" />

@@ -337,6 +337,8 @@ SCR_Adjust
 void SCR_AdjustFOV (void)
 {
 // bound field of view //qbism change to 30 - 140
+    if (r_fisheye.value) //qb:  set it yourself, for now
+        return;
     if (scr_fov.value < 30)
         Cvar_Set ("fov","30");
     if (scr_fov.value > 140)

@@ -643,7 +643,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
 
         VectorCopy (vec3_origin, p->vel);
         p->die = cl.time + 2;
-         p->start_time = cl.time; // Manoel Kasimier
+        p->start_time = cl.time; // Manoel Kasimier
         switch (type)
         {
         case 0:	// rocket trail
@@ -794,7 +794,11 @@ void R_DrawParticles (void)
     VectorScale (vup, yscaleshrink, r_pup);
     VectorCopy (vpn, r_ppn);
 
-    frametime = fabs(cl.time - cl.oldtime); //DEMO_REWIND - qbism - Baker change (no, it is not supposed to be 'ctime')
+    if(r_fisheye.value)
+        frametime = fabs(cl.time - cl.oldtime)/(float)fviews.value; //qb: divide by # of fisheye views, or runs too fast.
+    else
+        frametime = fabs(cl.time - cl.oldtime); //DEMO_REWIND - qbism - Baker change (no, it is not supposed to be 'ctime')
+    // cl.oldtime = cl.time; //qb:  shouldn't this be reset each time it's touched?
     time3 = frametime * 17;
     time2 = frametime * 13; // 15;
     time1 = frametime * 10;
@@ -903,16 +907,16 @@ void R_DrawParticles (void)
             p->vel[2] -= grav * 8;
             break;
 
-		case pt_smoke:
-			p->alpha = 1;
-			p->vel[2] += grav;
-			break;
+        case pt_smoke:
+            p->alpha = 1;
+            p->vel[2] += grav;
+            break;
 
         case pt_decel:
-			p->alpha = 1;
-			for (i=0 ; i<3 ; i++)
-				p->vel[i] += p->vel[i]* -dvel;
-			break;
+            p->alpha = 1;
+            for (i=0 ; i<3 ; i++)
+                p->vel[i] += p->vel[i]* -dvel;
+            break;
 
         case pt_staticfade:
             p->alpha + frametime*p->alphavel;
@@ -921,11 +925,11 @@ void R_DrawParticles (void)
                 p->die = -1;
             break;
 
-		case pt_staticfadeadd:
-			p->alpha += frametime*p->alphavel;
-			if (p->alpha <= 0)
-				p->die = -1;
-			break;
+        case pt_staticfadeadd:
+            p->alpha += frametime*p->alphavel;
+            if (p->alpha <= 0)
+                p->die = -1;
+            break;
 
         case pt_sticky: //pt_blood in engoo... could be anything sticky
             VectorScale(p->vel, frametime, diff);

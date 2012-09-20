@@ -1355,7 +1355,7 @@ void R_AliasDrawModel (/* alight_t *plighting */) // Manoel Kasimier - edited
     // see if the bounding box lets us trivially reject, also sets trivial accept status
     if (!R_AliasCheckBBox ())
     {
-        currententity->reset_frame_interpolation = true;
+        //qb: debug- any bad side effects? - breaks interp w/ fisheye: currententity->reset_frame_interpolation = true;
         return;
     }
 

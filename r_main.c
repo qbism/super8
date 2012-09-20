@@ -307,7 +307,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_interpolation); // Manoel Kasimier - model interpolation
     Cvar_RegisterVariable (&r_wateralpha); // Manoel Kasimier - translucent water
     Cvar_RegisterVariable (&r_glassalpha); //qb: *glass
-   Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
+    Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
 //    Cvar_RegisterVariable (&r_sprite_addblend); // Manoel Kasimier
     Cvar_RegisterVariable (&r_shadowhack); //qbism- engoo shadowhack
     Cvar_RegisterVariable (&r_shadowhacksize); //qbism
@@ -632,8 +632,8 @@ void GrabColormap (void)  //qbism - fixed, was a little screwy
         frac = (float)l/(COLORLEVELS-1);
         frac = 1.05 - (frac * frac);  //qbism was 1.0.... boost!
         //rscaled = r_colmapred.value*cscale;
-       // gscaled = r_colmapgreen.value*cscale;
-       // bscaled = r_colmapblue.value*cscale;
+        // gscaled = r_colmapgreen.value*cscale;
+        // bscaled = r_colmapblue.value*cscale;
 
         for (c=0 ; c<256-PALBRIGHTS ; c++)
         {
@@ -1807,7 +1807,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
 
     R_SetupFrame ();
     currententity = &cl_entities[0];
-    R_PushDlights (cl.worldmodel->nodes);  //qbism - moved here from view.c
+        R_PushDlights (cl.worldmodel->nodes);  //qbism - moved here from view.c
 
 #ifdef PASSAGES
     SetVisibilityByPassages ();
@@ -1851,14 +1851,15 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
         se_time2 = Sys_DoubleTime (); // scan edges time
 //		de_time1 = se_time2; // draw entities time
     }
- //   R_DrawViewModel (true); qbism - move after particles
+//   R_DrawViewModel (true); qbism - move after particles
 
     if (r_dspeeds.value) // Manoel Kasimier
         de_time1 = Sys_DoubleTime (); // Manoel Kasimier - draw entities time
-    CL_UpdateTEnts (); // Manoel Kasimier
+        CL_UpdateTEnts (); // Manoel Kasimier
 
     R_SortAliasEntities(); //qbism from reckless
     R_DrawEntitiesOnList ();
+
 
     if (r_dspeeds.value)
     {
@@ -1924,24 +1925,23 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
 #endif // Manoel Kasimier - buffered video (bloody hack)
 
     V_SetContentsColor (r_viewleaf->contents);
+        if (r_timegraph.value)
+            R_TimeGraph ();
 
-    if (r_timegraph.value)
-        R_TimeGraph ();
+        if (r_aliasstats.value)
+            R_PrintAliasStats ();
 
-    if (r_aliasstats.value)
-        R_PrintAliasStats ();
+        if (r_speeds.value)
+            R_PrintTimes ();
 
-    if (r_speeds.value)
-        R_PrintTimes ();
+        if (r_dspeeds.value)
+            R_PrintDSpeeds ();
 
-    if (r_dspeeds.value)
-        R_PrintDSpeeds ();
+        if (r_reportsurfout.value && r_outofsurfaces)
+            Con_Printf ("Short %d surfaces\n", r_outofsurfaces);
 
-    if (r_reportsurfout.value && r_outofsurfaces)
-        Con_Printf ("Short %d surfaces\n", r_outofsurfaces);
-
-    if (r_reportedgeout.value && r_outofedges)
-        Con_Printf ("Short roughly %d edges\n", r_outofedges * 2 / 3);
+        if (r_reportedgeout.value && r_outofedges)
+            Con_Printf ("Short roughly %d edges\n", r_outofedges * 2 / 3);
 }
 
 /*

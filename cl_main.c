@@ -618,7 +618,7 @@ void CL_RelinkEntities (void)
             for (j=0 ; j<3 ; j++)
             {
                 delta[j] = ent->msg_origins[0][j] - ent->msg_origins[1][j];
-                if (delta[j] > 100 || delta[j] < -100)
+                if (delta[j] > 200 || delta[j] < -200) //qb: was 100 / -100
                     f = 1;		// assume a teleportation, not a motion
             }
 

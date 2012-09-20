@@ -79,6 +79,7 @@ extern cvar_t	r_clintensity;
 extern cvar_t	r_clcolorweight;
 
 extern cvar_t   r_fog; //qbism - fog!  not TOO bad...
+extern cvar_t   fviews; //qb: for model interpolation
 
 #define XCENTERING	(1.0 / 2.0)
 #define YCENTERING	(1.0 / 2.0)
@@ -319,7 +320,7 @@ void R_PrintTimes (void);
 void R_PrintDSpeeds (void);
 void R_AnimateLight (void);
 int R_LightPoint (vec3_t p);
-void R_SetupFrame (void);
+void R_SetupFrame (void); //qb: things to do once for fisheye
 void R_cshift_f (void);
 void R_EmitEdge (mvertex_t *pv0, mvertex_t *pv1);
 void R_ClipEdge (mvertex_t *pv0, mvertex_t *pv1, clipplane_t *clip);

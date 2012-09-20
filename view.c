@@ -887,7 +887,7 @@ void V_CalcRefdef (void)
     view->colormap = vid.colormap;
 
     // set up the refresh position
-	vec3_t kickangle; //qbism- v_gunkick from directq
+    vec3_t kickangle; //qbism- v_gunkick from directq
     VectorScale (cl.punchangle, v_gunkick.value, kickangle);
     if (v_gunkick.value) VectorAdd (r_refdef.viewangles, kickangle, r_refdef.viewangles);
 
@@ -1250,7 +1250,10 @@ void rendercopy(int *dest, int side) //qbism- added 'side'
 {
     int *p = (int*)vid.buffer;
     int x, y;
-    R_RenderView();
+    if (side == BOX_FRONT) //qb:  so lerp only happens once
+        R_RenderView();
+    else
+        R_RenderView();
     for(y = 0; y<vid.height; y++)
     {
         for(x = 0; x<(vid.width/4); x++,dest++) *dest = p[x];
@@ -1388,6 +1391,10 @@ void R_RenderView_Fisheye()
     int height = vid.height; //r_refdef.vrect.height;
     int scrsize = width*height;
     int fov = (int)ffov.value;
+    if ((int)fviews.value <1) //qb: just in case
+        fviews.value = 1;
+    else if ((int)fviews.value >6)
+        fviews.value = 6;
     int views = (int)fviews.value;
     double yaw = r_refdef.viewangles[YAW];
     double pitch = r_refdef.viewangles[PITCH];
