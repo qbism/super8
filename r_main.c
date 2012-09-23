@@ -1899,7 +1899,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
             {
                 xref = x+r_refdef.vrect.x;
                 level = (int)( *(pz + xref) * ditherfog[dither++ % DITHER_NUMRANDS]);
-                if (level < 32 && level >= 0)
+                if (level < 32 && level >= 1) //qb:  0 is sky.  Assumption is that mapper's sky selection looks appropriately foggy.
                     *(pbuf + xref) = fogmap[*(pbuf + xref) + (int)vid.colormap[fogindex + level*256]*256];
             }
         }
