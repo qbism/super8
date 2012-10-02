@@ -559,7 +559,7 @@ static void Test_Poll(void)
 
         MSG_BeginReading ();
         control = BigLong(*((int *)net_message.data));
-        MSG_ReadLong ("ReadLong Test_Poll1");
+        MSG_ReadLong ();
         if (control == -1)
             break;
         if ((control & (~NETFLAG_LENGTH_MASK)) !=  NETFLAG_CTL)
@@ -572,9 +572,9 @@ static void Test_Poll(void)
 
         playerNumber = MSG_ReadByte();
         Q_strcpy(name, MSG_ReadString());
-        colors = MSG_ReadLong ("ReadLong Test_Poll2");
-        frags = MSG_ReadLong ("ReadLong Test_Poll3");
-        connectTime = MSG_ReadLong ("ReadLong Test_Poll4");
+        colors = MSG_ReadLong ();
+        frags = MSG_ReadLong ();
+        connectTime = MSG_ReadLong ();
         Q_strcpy(address, MSG_ReadString());
 
         Con_Printf("%s\n  frags:%3i  colors:%u %u  time:%u\n  %s\n", name, frags, colors >> 4, colors & 0x0f, connectTime / 60, address);
@@ -692,7 +692,7 @@ static void Test2_Poll(void)
 
     MSG_BeginReading ();
     control = BigLong(*((int *)net_message.data));
-    MSG_ReadLong ("ReadLong Test2_Poll1");
+    MSG_ReadLong ();
     if (control == -1)
         goto Error;
     if ((control & (~NETFLAG_LENGTH_MASK)) !=  NETFLAG_CTL)
@@ -884,7 +884,7 @@ static qsocket_t *_Datagram_CheckNewConnections (void)
 
     MSG_BeginReading ();
     control = BigLong(*((int *)net_message.data));
-    MSG_ReadLong ("ReadLong _Datagram_CheckNewConnections");
+    MSG_ReadLong ();
     if (control == -1)
         return NULL;
     if ((control & (~NETFLAG_LENGTH_MASK)) !=  NETFLAG_CTL)
@@ -1170,7 +1170,7 @@ static void _Datagram_SearchForHosts (qboolean xmit)
 
         MSG_BeginReading ();
         control = BigLong(*((int *)net_message.data));
-        MSG_ReadLong ("ReadLong _Datagram_SearchForHosts");
+        MSG_ReadLong ();
         if (control == -1)
             continue;
         if ((control & (~NETFLAG_LENGTH_MASK)) !=  NETFLAG_CTL)
@@ -1317,7 +1317,7 @@ static qsocket_t *_Datagram_Connect (char *host)
                 MSG_BeginReading ();
 
                 control = BigLong(*((int *)net_message.data));
-                MSG_ReadLong ("ReadLong _Datagram_Connect");
+                MSG_ReadLong ();
                 if (control == -1)
                 {
                     ret = 0;
@@ -1371,7 +1371,7 @@ static qsocket_t *_Datagram_Connect (char *host)
     if (ret == CCREP_ACCEPT)
     {
         memcpy(&sock->addr, &sendaddr, sizeof(struct qsockaddr));
-        dfunc.SetSocketPort (&sock->addr, MSG_ReadLong ("ReadLong SetSocketPort"));
+        dfunc.SetSocketPort (&sock->addr, MSG_ReadLong ());
     }
     else
     {

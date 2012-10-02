@@ -629,12 +629,12 @@ void MSG_WriteAngle (sizebuf_t *sb, float f)
 // reading functions
 //
 int                     msg_readcount;
-char *msg_badread; //qbism was qboolean        msg_badread;
+qboolean        msg_badread;
 
 void MSG_BeginReading (void)
 {
     msg_readcount = 0;
-    msg_badread = NULL; //qbism- use to track if needed, see Msg_Long
+    msg_badread = false;
 }
 
 // returns -1 and sets msg_badread if no more characters are available
@@ -642,11 +642,11 @@ int MSG_ReadChar (void)
 {
     int     c;
 
-    if (msg_readcount+1 > net_message.cursize)
-    {
-        msg_badread = "ReadChar";
-        return -1;
-    }
+	if (msg_readcount+1 > net_message.cursize)
+	{
+		msg_badread = true;
+		return -1;
+	}
 
     c = (signed char)net_message.data[msg_readcount];
     msg_readcount++;
@@ -658,11 +658,11 @@ int MSG_ReadByte (void)
 {
     int     c;
 
-    if (msg_readcount+1 > net_message.cursize)
-    {
-        msg_badread = "ReadByte";
-        return -1;
-    }
+	if (msg_readcount+1 > net_message.cursize)
+	{
+		msg_badread = true;
+		return -1;
+	}
 
     c = (unsigned char)net_message.data[msg_readcount];
     msg_readcount++;
@@ -674,11 +674,11 @@ int MSG_ReadShort (void)
 {
     int     c;
 
-    if (msg_readcount+2 > net_message.cursize)
-    {
-        msg_badread = "ReadShort";
-        return -1;
-    }
+	if (msg_readcount+2 > net_message.cursize)
+	{
+		msg_badread = true;
+		return -1;
+	}
 
     c = (short)(net_message.data[msg_readcount]
                 + (net_message.data[msg_readcount+1]<<8));
@@ -688,15 +688,15 @@ int MSG_ReadShort (void)
     return c;
 }
 
-int MSG_ReadLong (char *callfunc)
+int MSG_ReadLong (void)
 {
     int     c;
 
-    if (msg_readcount+4 > net_message.cursize)
-    {
-        msg_badread = callfunc;
-        return -1;
-    }
+	if (msg_readcount+4 > net_message.cursize)
+	{
+		msg_badread = true;
+		return -1;
+	}
 
     c = net_message.data[msg_readcount]
         + (net_message.data[msg_readcount+1]<<8)
@@ -754,7 +754,7 @@ float MSG_ReadCoord (void)
 {
 
     if (current_protocol != PROTOCOL_NETQUAKE) //qbism extended coordinates - JTR
-        return MSG_ReadLong("MSG_ReadCoord") * (1.0/8);
+        return MSG_ReadLong() * (1.0/8);
     else
         return MSG_ReadShort() * (1.0/8);
 }
@@ -800,7 +800,7 @@ void *SZ_GetSpace (sizebuf_t *buf, int length)
             Sys_Error ("SZ_GetSpace: %i is > full buffer size", length);
 
         buf->overflowed = true;
-        Con_Printf ("SZ_GetSpace: overflow");
+        Con_Printf ("SZ_GetSpace: overflow\n");
         SZ_Clear (buf);
     }
 

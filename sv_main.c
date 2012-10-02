@@ -1151,11 +1151,11 @@ qboolean SV_SendClientDatagram (client_t *client)
     msg.maxsize = sizeof(buf);
     msg.cursize = 0;
 
-	//johnfitz -- if client is nonlocal, use smaller max size so packets aren't fragmented
-	//if (Q_strcmp (client->netconnection->address, "LOCAL") != 0)
-         if (svs.maxclients > 1) //qbism- any multiplayer, even LOCAL will fail over wifi
-		msg.maxsize = DATAGRAM_MTU;
-	//johnfitz
+//johnfitz -- if client is nonlocal, use smaller max size so packets aren't fragmented
+//if (Q_strcmp (client->netconnection->address, "LOCAL") != 0)
+    if (svs.maxclients > 1) //qbism- any multiplayer, even LOCAL will fail over wifi
+        msg.maxsize = DATAGRAM_MTU;
+//johnfitz
 
     MSG_WriteByte (&msg, svc_time);
     MSG_WriteFloat (&msg, sv.time);
@@ -1551,16 +1551,16 @@ void SV_SpawnServer (char *server)
     sv.paused = false;
 
     sv.time = 1.0;
- if (cls.state != ca_dedicated)
-   if( !R_LoadPalette(r_palette.string)) //qbism- load custom palette if it exists.
-        R_LoadPalette("palette"); //qbism- default to standard palette.
+    if (cls.state != ca_dedicated)
+        if( !R_LoadPalette(r_palette.string)) //qbism- load custom palette if it exists.
+            R_LoadPalette("palette"); //qbism- default to standard palette.
     Q_strcpy (sv.name, server);
     sprintf (sv.modelname,"maps/%s.bsp", server);
     sv.worldmodel = Mod_ForName (sv.modelname, false);
     if (!sv.worldmodel || (sv.worldmodel->numvertexes == -1)) // MrG - incorrect BSP version is no longer fatal - edited
     {
         sv.active = false;
-       Con_Printf ("Couldn't spawn server %s\n", sv.modelname); //qbism was Host_Error Manoel Kasimier - edited
+        Con_Printf ("Couldn't spawn server %s\n", sv.modelname); //qbism was Host_Error Manoel Kasimier - edited
         return;
     }
     sv.models[1] = sv.worldmodel;
@@ -1615,10 +1615,6 @@ void SV_SpawnServer (char *server)
 
 // create a baseline for more efficient communications
     SV_CreateBaseline ();
-
-    //qbism:  johnfitz -- warn if signon buffer larger than standard server can handle
-    if (sv.signon.cursize > 8000-2) //max size that will fit into 8000-sized client->message buffer with 2 extra bytes on the end
-        Con_DPrintf ("%i byte signon buffer exceeds standard limit of 7998.\n", sv.signon.cursize);
 
 // send serverinfo to all connected clients
     for (i=0,host_client = svs.clients ; i<svs.maxclients ; i++, host_client++)

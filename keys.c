@@ -88,8 +88,8 @@ keyname_t keynames[] =
 
 	{"INS", K_INS},
 	{"DEL", K_DEL},
-	{"PGDN", K_PGDN},
-	{"PGUP", K_PGUP},
+//qbism- not available for bind	{"PGDN", K_PGDN},
+//	{"PGUP", K_PGUP},
 	{"HOME", K_HOME},
 	{"END", K_END},
 

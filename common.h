@@ -102,13 +102,13 @@ void MSG_WriteCoord (sizebuf_t *sb, float f);
 void MSG_WriteAngle (sizebuf_t *sb, float f);
 
 extern	int			msg_readcount;
-extern	char	*msg_badread;  //qbism was qboolean - set if a read goes beyond end of message
+extern	qboolean	msg_badread;
 
 void MSG_BeginReading (void);
 int MSG_ReadChar (void);
 int MSG_ReadByte (void);
 int MSG_ReadShort (void);
-int MSG_ReadLong (char *callfunc);
+int MSG_ReadLong (void);
 float MSG_ReadFloat (void);
 char *MSG_ReadString (void);
 

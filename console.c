@@ -549,29 +549,29 @@ void Con_CenterPrintf (int linewidth, char *fmt, ...)
             Con_Printf ("%s\n", line);
     }
 }
+
 /*
 ==================
-Con_LogCenterPrint -- qbism:  johnfitz -- echo centerprint message to the console
+Con_LogCenterPrint - echo centerprint message to the console  //qb: from BJP
 ==================
 */
 void Con_LogCenterPrint (char *str)
 {
-    if (!Q_strcmp(str, con_lastcenterstring))
-        return; //ignore duplicates
+	if (!con_logcenterprint.value)
+		return;
 
-    if (cl.gametype == GAME_DEATHMATCH && con_logcenterprint.value != 2)
-        return; //don't log in deathmatch
+	if (!strcmp(str, con_lastcenterstring))
+		return; //ignore duplicates
 
-    Q_strcpy(con_lastcenterstring, str);
+	if (cl.gametype == GAME_DEATHMATCH && con_logcenterprint.value != 2)
+		return; //don't log in deathmatch
 
-    if (con_logcenterprint.value)
-    {
-        Con_Printf (Con_Quakebar(40));
-        Con_CenterPrintf (40, "%s\n", str);
-        Con_Printf (Con_Quakebar(40));
-        Con_ClearNotify ();
-    }
+	strcpy (con_lastcenterstring, str);
 
+	Con_Printf (Con_Quakebar(40));
+	Con_CenterPrintf (40, "%s\n", str);
+	Con_Printf (Con_Quakebar(40));
+	Con_ClearNotify ();
 }
 
 

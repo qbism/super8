@@ -7,14 +7,14 @@
 		<Option execution_dir="C:/qbismSuper8/qbS8src/s_win32/" />
 		<Option pch_mode="2" />
 		<Option default_target="Debug Win32" />
-		<Option compiler="gcc" />
+		<Option compiler="mingw32" />
 		<Build>
 			<Target title="Release Win32">
 				<Option output="../../quake/qbismS8" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="../../quake" />
 				<Option object_output="s_win32/Release" />
 				<Option type="0" />
-				<Option compiler="i686w64mingw32gcc" />
+				<Option compiler="mingw32" />
 				<Compiler>
 					<Add option="-march=pentium2" />
 					<Add option="-fomit-frame-pointer" />
@@ -46,7 +46,7 @@
 				<Option working_dir="../../quake" />
 				<Option object_output="s_win32/Debug" />
 				<Option type="0" />
-				<Option compiler="i686w64mingw32gcc" />
+				<Option compiler="mingw32" />
 				<Option parameters=" -heapsize 999000" />
 				<Compiler>
 					<Add option="-march=pentium2" />
@@ -75,7 +75,7 @@
 				<Option working_dir="../../quake" />
 				<Option object_output="s_win32/Release" />
 				<Option type="0" />
-				<Option compiler="i686w64mingw32gcc" />
+				<Option compiler="mingw32" />
 				<Compiler>
 					<Add option="-march=corei7" />
 					<Add option="-fomit-frame-pointer" />

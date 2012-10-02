@@ -343,7 +343,7 @@ void CL_ParseServerInfo (void)
 
 // parse protocol version number
     // Manoel Kasimier - 16-bit angles - edited - begin
-    current_protocol = MSG_ReadLong ("ReadLong CL_ParseServerInfo");
+    current_protocol = MSG_ReadLong ();
     if((current_protocol != PROTOCOL_NETQUAKE) && (current_protocol != PROTOCOL_QBS8)) // added
     {
         Con_Printf ("\n"); //becuase there's no newline after serverinfo print
@@ -723,7 +723,7 @@ void CL_ParseUpdate (int bits)
     {
         if (bits & U_EFFECTS2)
         {
-            ent->effects = MSG_ReadLong("CL_ParseUpdate"); //qbism
+            ent->effects = MSG_ReadLong();
             ent->baseline.effects = ent->effects;
         }
         else
@@ -913,7 +913,7 @@ void CL_ParseClientdata (void ) //qbism read bits in function similar to johnfit
     }
     // Manoel Kasimier - end
 
-    i = MSG_ReadLong ("ReadLong CL_ParseClientdata");
+    i = MSG_ReadLong ();
 
     if (cl.items != i)
     {
@@ -1088,7 +1088,7 @@ void CL_ParseStatic (void)
         int		bits;
 
         ent->alpha = ent->baseline.alpha; //qbism: finally figured this out.
-        bits = MSG_ReadLong("CL_ParseStatic");
+        bits = MSG_ReadLong();
 
         if (bits & U_SCALE)
             ent->scale2 = MSG_ReadFloat ();
@@ -1137,13 +1137,31 @@ void CL_ParseStaticSound (void)
 
     for (i=0 ; i<3 ; i++)
         org[i] = MSG_ReadCoord ();
-    if (current_protocol == PROTOCOL_QBS8)
-        sound_num = MSG_ReadShort ();  //qbism- some maps have lots of ambients.
-    else sound_num = MSG_ReadByte ();
+ //qb:  hopefully ambients are low number.  Removed for compatibility (Marcher)
+ //   if (current_protocol == PROTOCOL_QBS8)
+ //       sound_num = MSG_ReadShort ();
+ //   else
+    sound_num = MSG_ReadByte ();
     vol = MSG_ReadByte ();
     atten = MSG_ReadByte ();
 
+//	if (sound_num >= MAX_SOUNDS)
+//		Host_Error ("CL_ParseStaticSound: invalid sound (%d, max = %d", sound_num, MAX_SOUNDS);
+
     S_StaticSound (cl.sound_precache[sound_num], org, vol, atten);
+}
+
+static char *Svc_Name (int cmd)  //qb: from bjpquake
+{
+    if (cmd == -1)
+        return "none";
+
+    cmd &= 255;
+
+    if (cmd & 128)
+        return "fast update";
+
+    return svc_strings[cmd];
 }
 
 #define SHOWNET(x) if(cl_shownet.value==2)Con_Printf ("%3i:%s\n", msg_readcount-1, x);
@@ -1156,8 +1174,7 @@ CL_ParseServerMessage
 void CL_ParseServerMessage (void)
 {
     int			cmd;
-    int			i;
-    char		*str; //qbism:  johnfitz
+    int         i, lastpos;
     int			lastcmd=0; //qbism:  johnfitz
 
 //
@@ -1176,8 +1193,15 @@ void CL_ParseServerMessage (void)
 
     while (1)
     {
-        if (msg_badread)
-            Host_Error ("CL_ParseServerMessage: Bad server message from %s\n", msg_badread);
+		if (msg_badread)
+		{
+			char Str[512];
+
+			sprintf (Str, "CL_ParseServerMessage: insufficient data in service '%s', size %d", Svc_Name(cmd), msg_readcount - lastpos);
+			Host_Error (Str);
+		}
+
+        lastpos = msg_readcount;  //qb: from bjpquake
 
         cmd = MSG_ReadByte ();
 
@@ -1220,7 +1244,7 @@ void CL_ParseServerMessage (void)
 
         case svc_version:
             // Manoel Kasimier - 16-bit angles - edited - begin
-            current_protocol = MSG_ReadLong ("ReadLong CL_ParseServerMessage1");
+            current_protocol = MSG_ReadLong ();
             if((current_protocol != PROTOCOL_NETQUAKE)
                     && (current_protocol != PROTOCOL_QBS8)) // added
                 Host_Error ("CL_ParseServerMessage: Server is unknown protocol %i", current_protocol); //qbism
@@ -1239,13 +1263,8 @@ void CL_ParseServerMessage (void)
             break;
 
         case svc_centerprint:
-            //qbism:  johnfitz begin -- log centerprints to console
-            str = MSG_ReadString ();
-            SCR_CenterPrint (str);
-            Con_LogCenterPrint (str);
-            //qbism:  johnfitz end
+            SCR_CenterPrint (MSG_ReadString ());
             break;
-
 
         case svc_stufftext:
             Cbuf_AddText (MSG_ReadString ());
@@ -1389,7 +1408,7 @@ void CL_ParseServerMessage (void)
             i = MSG_ReadByte ();
             if (i < 0 || i >= MAX_CL_STATS)
                 Sys_Error ("svc_updatestat: %i is invalid", i);
-            cl.stats[i] = MSG_ReadLong ("ReadLong CL_ParseServerMessage2");
+            cl.stats[i] = MSG_ReadLong ();
             break;
 
         case svc_spawnstaticsound:
@@ -1424,12 +1443,8 @@ void CL_ParseServerMessage (void)
                 cl.intermission = 2;
             cl.completed_time = cl.time;
             vid.recalc_refdef = true;	// go to full screen
-            //qbism:  johnfitz -- log centerprints to console
-            str = MSG_ReadString ();
+            SCR_CenterPrint (MSG_ReadString ());
             Con_DPrintf("svc_finale: cl.intermission = 2\n");
-            SCR_CenterPrint (str);
-            Con_LogCenterPrint (str);
-            //qbism:  johnfitz
             break;
 
         case svc_cutscene:
@@ -1440,10 +1455,7 @@ void CL_ParseServerMessage (void)
                 cl.intermission = 3;
             cl.completed_time = cl.time;
             vid.recalc_refdef = true;	// go to full screen
-            //qbism:  johnfitz -- log centerprints to console
-            str = MSG_ReadString ();
-            SCR_CenterPrint (str);
-            Con_LogCenterPrint (str);
+            SCR_CenterPrint (MSG_ReadString ());
             break;
 
         case svc_sellscreen:

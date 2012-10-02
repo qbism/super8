@@ -81,9 +81,10 @@ void as3ReadFileSharedObject(const char* filename);
 
 #define	ON_EPSILON		0.1			// point on plane side epsilon
 
-#define	MAX_MSGLEN		32000 //qbism- 32767 Super8 max, 65535 per qsb - was 8000		// max length of a reliable message
-#define	MAX_DATAGRAM	32000 //qbism 32767 Super8 max, 32767 per qsb - was 1024		// max length of unreliable message
-#define	DATAGRAM_MTU	1400 //qbism from johnfitz- reduced value if connected to server
+#define	MAX_MSGLEN		32767 //qbism- 32767 Super8 max, 65535 per qsb - was 8000		// max length of a reliable message
+#define	MAX_DATAGRAM	32767 //max for wifi, 32767 Super8 max - was 1024		// max length of unreliable message
+#define	DATAGRAM_MTU	1400 //qb:  johnfitz -- if client is nonlocal
+
 //
 // per-level limits
 //
