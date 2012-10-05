@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	WINQUAKE_VERSION	7
 #define	LINUX_VERSION		0
 
+#define COMPATSTATSOUND 0 //qb: usually 0
 //define	PARANOID			// speed sapping error checking
 
 #define	GAMENAME	"id1"

@@ -1138,15 +1138,15 @@ void CL_ParseStaticSound (void)
     for (i=0 ; i<3 ; i++)
         org[i] = MSG_ReadCoord ();
  //qb:  hopefully ambients are low number.  Removed for compatibility (Marcher)
- //   if (current_protocol == PROTOCOL_QBS8)
- //       sound_num = MSG_ReadShort ();
- //   else
+  if (current_protocol != PROTOCOL_NETQUAKE && COMPATSTATSOUND)
+        sound_num = MSG_ReadShort ();
+    else
     sound_num = MSG_ReadByte ();
     vol = MSG_ReadByte ();
     atten = MSG_ReadByte ();
 
-//	if (sound_num >= MAX_SOUNDS)
-//		Host_Error ("CL_ParseStaticSound: invalid sound (%d, max = %d", sound_num, MAX_SOUNDS);
+	if (sound_num >= MAX_SOUNDS)
+		Host_Error ("CL_ParseStaticSound: invalid sound (%d, max = %d", sound_num, MAX_SOUNDS);
 
     S_StaticSound (cl.sound_precache[sound_num], org, vol, atten);
 }

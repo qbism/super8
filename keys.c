@@ -1015,13 +1015,13 @@ void Key_Event (int key, qboolean down)
 	}
 
 //
-// during demo playback, most keys bring up the main menu
+// during demo playback, most keys bring up the main menu  //qb: ...and that sucks
 //
-	if (cls.demoplayback && down && demokeys[key] && key_dest == key_game) // Manoel Kasimier - edited
-	{
-		M_ToggleMenu_f ();
-		return;
-	}
+//	if (cls.demoplayback && down && demokeys[key] && key_dest == key_game) // Manoel Kasimier - edited
+//	{
+//		M_ToggleMenu_f ();
+//		return;
+//	}
 
 //
 // if not a consolekey, send to the interpreter no matter what mode is

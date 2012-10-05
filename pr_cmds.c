@@ -697,8 +697,8 @@ void PF_ambientsound (void)
         Con_Printf ("ambient sound:  no precache: %s\n", samp);
         return;
     }
- /* qb: soundnum as byte for compatibility (Marcher) Ambients should be low number, anyway.
-   if (current_protocol == PROTOCOL_QBS8)
+ // qb: soundnum as byte for compatibility (Marcher) Ambients should be low number, anyway.
+   if (current_protocol != PROTOCOL_NETQUAKE && COMPATSTATSOUND)
     {
         if (soundnum >MAX_SOUNDS)
         {
@@ -706,8 +706,7 @@ void PF_ambientsound (void)
             return;
         }
     }
-    else*/
-    if (soundnum >256)
+    else if (soundnum >256)
     {
         Con_Printf ("ambient sound: soundnum >256.\n");
         return;
@@ -722,9 +721,9 @@ void PF_ambientsound (void)
     for (i=0 ; i<3 ; i++)
         MSG_WriteCoord(&sv.signon, pos[i]);
 
-   // if (current_protocol != PROTOCOL_NETQUAKE)
-   //     MSG_WriteShort (&sv.signon, soundnum); //qbism- more ambient sounds
-  //  else
+    if (current_protocol != PROTOCOL_NETQUAKE && COMPATSTATSOUND)
+        MSG_WriteShort (&sv.signon, soundnum); //qbism- more ambient sounds
+    else
     MSG_WriteByte (&sv.signon, soundnum);
     MSG_WriteByte (&sv.signon, vol*255);
     MSG_WriteByte (&sv.signon, attenuation*64);

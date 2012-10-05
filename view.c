@@ -34,6 +34,7 @@ cvar_t  ffov = {"ffov", "180", true};
 cvar_t  fviews = {"fviews", "6", true};
 cvar_t  r_fisheye = {"r_fisheye", "0", true}; //qbism added
 //qbism - Aardappel fisheye end
+cvar_t  r_fishaccel = {"r_fishaccel", "0", false}; //qb:  for cheeezy zoom effect
 
 cvar_t	scr_ofsx = {"scr_ofsx","0", false};
 cvar_t	scr_ofsy = {"scr_ofsy","0", true}; // Manoel Kasimier - saved in the config file - edited
@@ -75,6 +76,8 @@ cvar_t	cl_nobob = {"cl_nobob","0", true}; // Manoel Kasimier - cl_nobob
 float	v_dmg_time, v_dmg_roll, v_dmg_pitch;
 
 extern	int			in_forward, in_forward2, in_back;
+
+float fisheye_accel; //qb
 
 
 /*
@@ -945,7 +948,12 @@ void V_RenderView (void)
     }
 
     if (r_fisheye.value)
+    {
+        fisheye_accel += r_fishaccel.value;
+        ffov.value += fisheye_accel;
+        ffov.value = bound (30, ffov.value, 10000);
         R_RenderView_Fisheye ();//qbism Aardappel fisheye
+    }
     else
     {
         R_RenderView ();
@@ -1006,6 +1014,7 @@ void V_Init (void)
     Cvar_RegisterVariable (&fviews);
     Cvar_RegisterVariable (&r_fisheye); //qbism added
 //qbism Aardappel fisheye end
+    Cvar_RegisterVariable (&r_fishaccel); //qb
 }
 
 //qbism fisheye from Aardappel begin
