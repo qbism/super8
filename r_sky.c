@@ -238,37 +238,38 @@ Fog_Update
 update internal variables
 =============
 */
+
 void Fog_Update (float density, float red, float green, float blue, float time)
 {
-    //save previous settings for fade
-    if (time > 0)
-    {
-        //check for a fade in progress
-        if (fade_done > cl.time)
-        {
-            float f, d;
+	//save previous settings for fade
+	if (time > 0)
+	{
+		//check for a fade in progress
+		if (fade_done > cl.time)
+		{
+			float f, d;
 
-            f = (fade_done - cl.time) / fade_time;
-            old_density = f * old_density + (1.0 - f) * fog_density;
-            old_red = f * old_red + (1.0 - f) * fog_red;
-            old_green = f * old_green + (1.0 - f) * fog_green;
-            old_blue = f * old_blue + (1.0 - f) * fog_blue;
-        }
-        else
-        {
-            old_density = fog_density;
-            old_red = fog_red;
-            old_green = fog_green;
-            old_blue = fog_blue;
-        }
-    }
+			f = (fade_done - cl.time) / fade_time;
+			old_density = f * old_density + (1.0 - f) * fog_density;
+			old_red = f * old_red + (1.0 - f) * fog_red;
+			old_green = f * old_green + (1.0 - f) * fog_green;
+			old_blue = f * old_blue + (1.0 - f) * fog_blue;
+		}
+		else
+		{
+			old_density = fog_density;
+			old_red = fog_red;
+			old_green = fog_green;
+			old_blue = fog_blue;
+		}
+	}
 
-    fog_density = density;
-    fog_red = red;
-    fog_green = green;
-    fog_blue = blue;
-    fade_time = time;
-    fade_done = cl.time + time;
+	fog_density = density;
+	fog_red = red;
+	fog_green = green;
+	fog_blue = blue;
+	fade_time = time;
+	fade_done = cl.time + time;
 }
 
 /*
@@ -363,6 +364,7 @@ void ParseWorldspawn (void)
     char key[128], value[4096];
     char *data;
 
+    fog_density = 0.0;
     data = COM_Parse(cl.worldmodel->entities);
     if (!data)
         return; // error
@@ -390,7 +392,8 @@ void ParseWorldspawn (void)
         {
             sscanf(value, "%f %f %f %f", &fog_density, &fog_red, &fog_green, &fog_blue);
         }
-/*        if (!strcmp("skyboxsomething", key)) //qbism - add more keys?  Don't match commands or vars!
+        /*
+        if (!strcmp("skyboxsomething", key)) //qbism - add more keys?  Most maps using stuffcmd anyway.
         {
             sscanf(value, "%s", &r_skyname.value);
         }

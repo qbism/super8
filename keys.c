@@ -950,19 +950,19 @@ void Key_Event (int key, qboolean down)
 
 //qbism - DEMO_REWIND - Baker change
 // PGUP and PGDN rewind and fast-forward demos
-	if (cls.demoplayback && cls.demonum == -1 && !cls.timedemo && !cls.capturedemo)
+	if (cls.demoplayback /*&& cls.demonum == -1*/ && !cls.timedemo /* && !cls.capturedemo */) //qb: allow for anything but timedemo
 		if (key == K_PGUP || key == K_PGDN)
 			if (key_dest == key_game && down /* && cls.demospeed == 0 && cls.demorewind == false*/)
 			{
 				// During normal demoplayback, PGUP/PGDN will rewind and fast forward (if key_dest is game)
 				if (key == K_PGUP)
 				{
-					cls.demospeed = 5;
+					cls.demospeed = 4;
 					cls.demorewind =  false;
 				}
 				else if (key == K_PGDN)
 				{
-					cls.demospeed = 5;
+					cls.demospeed = 4;
 					cls.demorewind = true;
 				}
 				return; // If something is bound to it, do not process it.
@@ -1015,7 +1015,7 @@ void Key_Event (int key, qboolean down)
 	}
 
 //
-// during demo playback, most keys bring up the main menu  //qb: ...and that sucks
+// during demo playback, most keys bring up the main menu  //qb: not sure we want
 //
 //	if (cls.demoplayback && down && demokeys[key] && key_dest == key_game) // Manoel Kasimier - edited
 //	{

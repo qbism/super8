@@ -569,7 +569,7 @@ qboolean Host_FilterTime (float time)
 
 //qbism - fitzquake host_framerate + DEMO_REWIND Baker change
     frame_timescale = 1;
-    if (cls.demoplayback && cls.demospeed && !cls.timedemo && !cls.capturedemo && cls.demonum == -1)
+    if (cls.demoplayback && cls.demospeed && !cls.timedemo /* && !cls.capturedemo && cls.demonum == -1 */) //qb: allow for all but timedemo
     {
         host_frametime *= cls.demospeed;
         frame_timescale = cls.demospeed;

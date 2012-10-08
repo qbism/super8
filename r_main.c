@@ -261,11 +261,11 @@ void R_Init (void)
     Cmd_AddCommand ("pointfile", R_ReadPointFile_f);
     Cmd_AddCommand ("loadsky", R_LoadSky_f); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
     Cmd_AddCommand ("fog", Fog_FogCommand_f); // qbism- fog commands from FitzQuake
-    //set up global fog
+    //set up global fog defaults
     fog_density = 0.0;
-    fog_red = 0.3;
-    fog_green = 0.3;
-    fog_blue = 0.3;
+    fog_red = 0.17;
+    fog_green = 0.17;
+    fog_blue = 0.17;
     srand(8);  //leave nothing to chance.
     FogDitherInit();
     Cvar_RegisterVariable (&r_draworder);
