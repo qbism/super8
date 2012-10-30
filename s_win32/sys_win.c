@@ -111,7 +111,6 @@ int filelength (FILE *f)
 {
 	int		pos;
 	int		end;
-	int		t;
 
 	pos = ftell (f);
 	fseek (f, 0, SEEK_END);
@@ -141,7 +140,6 @@ int Sys_FileOpenRead (char *path, int *hndl)
 {
 	FILE	*f;
 	int		i, retval;
-	int		t;
 	i = findhandle ();
 
 	f = fopen(path, "rb");
@@ -164,7 +162,6 @@ int Sys_FileOpenWrite (char *path)
 {
 	FILE	*f;
 	int		i;
-	int		t;
 
 	i = findhandle ();
 
@@ -177,21 +174,18 @@ int Sys_FileOpenWrite (char *path)
 
 void Sys_FileClose (int handle)
 {
-	int		t;
-
 	fclose (sys_handles[handle]);
 	sys_handles[handle] = NULL;
 }
 
 void Sys_FileSeek (int handle, int position)
 {
-	int		t;
 	fseek (sys_handles[handle], position, SEEK_SET);
 }
 
 int Sys_FileRead (int handle, void *dest, int count)
 {
-	int		t, x;
+	int		x;
 
 	x = fread (dest, 1, count, sys_handles[handle]);
 	return x;
@@ -199,7 +193,7 @@ int Sys_FileRead (int handle, void *dest, int count)
 
 int Sys_FileWrite (int handle, void *data, int count)
 {
-	int		t, x;
+	int		x;
 	x = fwrite (data, 1, count, sys_handles[handle]);
 	return x;
 }
@@ -207,7 +201,7 @@ int Sys_FileWrite (int handle, void *data, int count)
 int	Sys_FileTime (char *path)
 {
 	FILE	*f;
-	int		t, retval;
+	int		retval;
 	f = fopen(path, "rb");
 
 	if (f)

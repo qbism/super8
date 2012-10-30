@@ -1341,6 +1341,7 @@ Host_Kill_f
 */
 void Host_Kill_f (void)
 {
+       float fl;  //qb: serverflags fix by mh
 	if (cmd_source == src_command)
 	{
 		Cmd_ForwardToServer ();
@@ -1356,9 +1357,14 @@ void Host_Kill_f (void)
 		return;
 	}
 
-	pr_global_struct->time = sv.time;
-	pr_global_struct->self = EDICT_TO_PROG(sv_player);
-	PR_ExecuteProgram (pr_global_struct->ClientKill);
+   fl = pr_global_struct->serverflags;
+
+   pr_global_struct->time = sv.time;
+   pr_global_struct->self = EDICT_TO_PROG (sv_player);
+   PR_ExecuteProgram (pr_global_struct->ClientKill);
+
+   pr_global_struct->serverflags = fl;
+   svs.serverflags = fl;
 }
 
 

@@ -384,32 +384,6 @@ void Sbar_DrawNum (int x, int y, int num, int digits, int color)
 		ptr++;
 	}
 }
-// Manoel Kasimier
-// modified from above function
-// centers number in digits' space
-void Draw_Num (int x, int y, int num, int digits, int color)
-{
-	char			str[12];
-	char			*ptr;
-	int				l, frame;
-
-	l = Sbar_itoa (num, str);
-	ptr = str;
-
-    x +=(digits-l)*12;
-
-	while (*ptr)
-	{
-		if (*ptr == '-')
-			frame = STAT_MINUS;
-		else
-			frame = *ptr -'0';
-
-		Draw_TransPic (x,y,sb_nums[color][frame]);
-		x += 24;
-		ptr++;
-	}
-}
 
 
 //=============================================================================
@@ -456,36 +430,6 @@ int	Sbar_ColorForMap (int m)
 {
 	return m < 128 ? m + 8 : m + 8;
 }
-
-/*
-===============
-Sbar_UpdateScoreboard
-===============
-*/
-void Sbar_UpdateScoreboard (void)
-{
-	int		i, k;
-	int		top, bottom;
-	scoreboard_t	*s;
-
-	Sbar_SortFrags ();
-
-// draw the text
-	memset (scoreboardtext, 0, sizeof(scoreboardtext));
-
-	for (i=0 ; i<scoreboardlines; i++)
-	{
-		k = fragsort[i];
-		s = &cl.scores[k];
-		sprintf (&scoreboardtext[i][1], "%3i %s", s->frags, s->name);
-
-		top = s->colors & 0xf0;
-		bottom = (s->colors & 15) <<4;
-		scoreboardtop[i] = Sbar_ColorForMap (top);
-		scoreboardbottom[i] = Sbar_ColorForMap (bottom);
-	}
-}
-
 
 
 /*
@@ -1186,7 +1130,7 @@ void Crosshair_Draw (int x, int y, int color)
 	int		pixel_value, pixel_color,
 			countx, county, xdest, ydest,
 			xmult=vid.width/min_vid_width/*320*/,
-			ymult=vid.height<480 ? vid.height/200 : vid.height/240; //qbism- need fixme? min_vid_height?
+			ymult=vid.height<480 ? vid.height/200 : vid.height/240; //qb: try me - xmult * (vid.height/vid.width);
 	byte	*pdest, num=crosshair.value-1;
 	pdest = vid.buffer + y*vid.rowbytes + x;
 

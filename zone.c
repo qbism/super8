@@ -608,15 +608,6 @@ void Cache_Report (void)
 	Con_DPrintf ("%4.1f megabyte data cache\n", (hunk_size - hunk_high_used - hunk_low_used) / (float)(1024*1024) );
 }
 
-/*
-============
-Cache_Compact
-
-============
-*/
-void Cache_Compact (void)
-{
-}
 
 /*
 ============
@@ -730,8 +721,6 @@ Memory_Init
 */
 void Memory_Init (void *buf, int size)
 {
-	int p;
-
 	hunk_base = buf;
 	hunk_size = size;
 	hunk_low_used = 0;
@@ -800,10 +789,7 @@ Q_strdup
 */
 void *Q_strdup (const char *str)
 {
-   char   *p;
-
-
-    char *d = (char *)(malloc (strlen (str) + 1)); // Allocate memory
+     char *d = (char *)(malloc (strlen (str) + 1)); // Allocate memory
     if (d != NULL)
         strcpy (d,str);                            // Copy string if okay
         else Sys_Error ("Q_strdup:  Not enough memory free");

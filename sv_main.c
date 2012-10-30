@@ -111,16 +111,6 @@ void SV_Init (void)
 }
 
 /*
-===============
-SV_IsPaused
-===============
-*/
-qboolean SV_IsPaused (void) //qbism from bjp
-{
-    return sv.paused || (svs.maxclients == 1 && key_dest != key_game);
-}
-
-/*
 =============================================================================
 
 EVENT MESSAGES
@@ -662,7 +652,6 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
     float	miss;
     edict_t	*ent;
     // Tomaz - QC Alpha Scale Glow Begin
-    float	alpha=1;
     float	scale=1;
     vec3_t	scalev= {0,0,0};
     float	glow_size=0;

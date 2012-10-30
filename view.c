@@ -1259,10 +1259,7 @@ void rendercopy(int *dest, int side) //qbism- added 'side'
 {
     int *p = (int*)vid.buffer;
     int x, y;
-    if (side == BOX_FRONT) //qb:  so lerp only happens once
-        R_RenderView();
-    else
-        R_RenderView();
+    R_RenderView();
     for(y = 0; y<vid.height; y++)
     {
         for(x = 0; x<(vid.width/4); x++,dest++) *dest = p[x];
@@ -1290,7 +1287,6 @@ void fisheyelookuptable(B **buf, int width, int height, B *scrp, double fov)
             double dx = x-width/2;
             double dy = -(y-height/2);
             double yaw = sqrt(dx*dx+dy*dy)*fov/((double)width);
-            double uy = dy/dx;
             double roll = -atan2(dy,dx);
             double sx = sin(yaw) * cos(roll);
             double sy = sin(yaw) * sin(roll);
@@ -1414,9 +1410,6 @@ void R_RenderView_Fisheye()
     static int pviews = -1;
     static B *scrbufs = NULL;
     static B **offs = NULL;
-    static int demonum = 0;
-    char framename[100];
-    //Con_Printf("renderfisheye: %d %d %d\n",vid.height,vid.width,vid.rowbytes);
 
     if(fov<1) fov = 1;
 
@@ -1460,15 +1453,5 @@ void R_RenderView_Fisheye()
     r_refdef.viewangles[PITCH] = pitch;
     r_refdef.viewangles[ROLL] = roll;
     renderlookup(offs,scrbufs);
-
-    /*
-    if(istimedemo) {
-      sprintf(framename,"anim/ani%05d.pcx",demonum++);
-      //Con_Printf("attempting to write %s\n",framename);
-      WritePCXfile(framename,vid.buffer,vid.width,vid.height,vid.rowbytes,host_basepal);
-    } else {
-      demonum = 0;
-    }
-    */
 };
 //qbism fisheye end

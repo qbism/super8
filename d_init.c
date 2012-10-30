@@ -52,28 +52,6 @@ void D_Init (void)
 }
 
 
-/*
-===============
-D_CopyRects
-===============
-*/
-void D_CopyRects (vrect_t *prects, int transparent)
-{
-
-// this function is only required if the CPU doesn't have direct access to the
-// back buffer, and there's some driver interface function that the driver
-// doesn't support and requires Quake to do in software (such as drawing the
-// console); Quake will then draw into wherever the driver points vid.buffer
-// and will call this function before swapping buffers
-
-    UNUSED(prects);
-    UNUSED(transparent);
-}
-
-
-
-
-
 
 /*
 ===============

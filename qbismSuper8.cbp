@@ -21,6 +21,7 @@
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-w" />
+					<Add option="-masm=intel" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
@@ -55,6 +56,7 @@
 					<Add option="-DDEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_WIN32" />
+					<Add option="-DCURL_STATICLIB" />
 				</Compiler>
 				<ResourceCompiler>
 					<Add directory="./dxsdk/sdk/inc" />

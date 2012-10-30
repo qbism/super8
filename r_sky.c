@@ -247,7 +247,7 @@ void Fog_Update (float density, float red, float green, float blue, float time)
 		//check for a fade in progress
 		if (fade_done > cl.time)
 		{
-			float f, d;
+			float f;
 
 			f = (fade_done - cl.time) / fade_time;
 			old_density = f * old_density + (1.0 - f) * fog_density;

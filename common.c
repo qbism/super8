@@ -1257,17 +1257,6 @@ char    *va(char *format, ...)
 }
 
 
-/// just for debugging
-int     memsearch (byte *start, int count, int search)
-{
-    int             i;
-
-    for (i=0 ; i<count ; i++)
-        if (start[i] == search)
-            return i;
-    return -1;
-}
-
 /*
 =============================================================================
 
@@ -1875,36 +1864,6 @@ int COM_AddGameDirectory (char *dir)
 	return success;
 }
 
-// BlackAura (09/08/2004) - Return the full path to a file
-// Returns 0 if file not found, 1 if file found
-// Path is returned in *path
-int COM_FindFilePath(char *filename, char *path)
-{
-    searchpath_t    *search;
-    int findtime;
-
-    if (!path)
-        Sys_Error ("COM_FindFilePath: path not set");
-
-    // Run through the search path
-    search = com_searchpaths;
-    for ( ; search ; search = search->next)
-    {
-        // We can only operate on files
-        if (!search->pack)
-        {
-            // check a file in the directory tree
-            sprintf (path, "%s/%s",search->filename, filename);
-
-            findtime = Sys_FileTime(path);
-            if (findtime != -1)
-                return 1;
-        }
-    }
-
-    Sys_Printf ("FindFile: can't find %s\n", filename);
-    return 0;
-}
 
 //qbism AddDir from bjp
 static void AddDir (qboolean Cond, char *basedir, char *gamedir, char *Dir)

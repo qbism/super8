@@ -191,18 +191,12 @@ CL_ParseLocalSoundPacket  //qbism
 */
 void CL_ParseLocalSoundPacket(void)
 {
-    int 	volume;
     int 	field_mask;
     int 	sound_num;
 
     field_mask = MSG_ReadByte();
 
-    if (field_mask & SND_VOLUME)
-        volume = MSG_ReadByte ();
-    else
-        volume = DEFAULT_SOUND_PACKET_VOLUME;
-
-    if (field_mask & SND_LARGESOUND)
+     if (field_mask & SND_LARGESOUND)
         sound_num = MSG_ReadShort();
     else sound_num = MSG_ReadByte();
 
@@ -325,8 +319,9 @@ void CL_ParseServerInfo (void)
     int		nummodels, numsounds;
     char	model_precache[MAX_MODELS][MAX_QPATH];
     char	sound_precache[MAX_SOUNDS][MAX_QPATH];
-
+#ifdef WEBDL
     char url[1024];  //qbism - R00k / Baker tute
+#endif
     qboolean success = false;
     char download_tempname[MAX_QPATH],download_finalname[MAX_QPATH];
     char folder[MAX_QPATH];
@@ -457,21 +452,12 @@ void CL_ParseServerInfo (void)
                 success = Web_Get(url, NULL, download_tempname, false, 600, 30, CL_WebDownloadProgress);
 
                 cls.download.web = false;
-
-                free(url);
-                free(name);
-                free(folder);
-
                 if (success)
                 {
                     Con_Printf("Web download succesful: %s\n", download_tempname);
 //Rename the .tmp file to the final precache filename
                     Q_snprintfz (download_finalname, MAX_OSPATH, "%s/%s", com_gamedir, model_precache[i]);
                     rename (download_tempname, download_finalname);
-
-                    free(download_tempname);
-                    free(download_finalname);
-
                     Cbuf_AddText (va("connect %u\n",net_hostport));//reconnect after each success
                     return;
                 }
@@ -481,9 +467,6 @@ void CL_ParseServerInfo (void)
                     Con_Printf( "Web download of %s failed\n", download_tempname );
                     return;
                 }
-
-                free(download_tempname);
-
                 if( cls.download.disconnect )//if the user type disconnect in the middle of the download
                 {
                     cls.download.disconnect = false;
@@ -532,19 +515,12 @@ void CL_ParseServerInfo (void)
 
                 cls.download.web = false;
 
-                free(url);
-                free(name);
-                free(folder);
-
                 if (success)
                 {
                     Con_Printf("Web download succesful: %s\n", download_tempname);
 //Rename the .tmp file to the final precache filename
                     Q_snprintfz (download_finalname, MAX_OSPATH, "%s/%s", com_gamedir, sound_precache[i]);
                     rename (download_tempname, download_finalname);
-
-                    free(download_tempname);
-                    free(download_finalname);
 
                     Cbuf_AddText (va("connect %u\n",net_hostport));//reconnect after each success
                     return;
@@ -556,9 +532,7 @@ void CL_ParseServerInfo (void)
                     return;
                 }
 
-                free(download_tempname);
-
-                if( cls.download.disconnect )//if the user type disconnect in the middle of the download
+                 if( cls.download.disconnect )//if the user type disconnect in the middle of the download
                 {
                     cls.download.disconnect = false;
                     CL_Disconnect_f();
@@ -1491,6 +1465,7 @@ void CL_ParseServerMessage (void)
         {
             byte s, e1, e2, d;
             int player;
+                //qb:  someday may use this vibrate info...
             s = MSG_ReadByte ();
             e1 = MSG_ReadByte ();
             e2 = MSG_ReadByte ();

@@ -562,16 +562,6 @@ qboolean VID_AllocBuffers (int width, int height)
 }
 
 
-void initFatalError (void)
-{
-    exit (EXIT_FAILURE);
-}
-
-
-void registerAllMemDrivers (void)
-{
-}
-
 
 void VID_InitModes (HINSTANCE hInstance)
 {
@@ -797,7 +787,6 @@ void VID_DestroyWindow (void)
 qboolean VID_SetWindowedMode (int modenum)
 {
     HDC				hdc;
-    int				lastmodestate;
     LONG			wlong;
 
     if (!windowed_mode_set)
@@ -812,7 +801,6 @@ qboolean VID_SetWindowedMode (int modenum)
     }
 
     VID_CheckModedescFixup (modenum);
-    lastmodestate = modestate;
     VID_DestroyWindow ();
 
     WindowRect.top = WindowRect.left = 0;
@@ -920,7 +908,6 @@ qboolean VID_SetWindowedMode (int modenum)
 qboolean VID_SetFullDIBMode (int modenum)
 {
     HDC				hdc;
-    int				lastmodestate;
     VID_DestroyWindow ();
 
     gdevmode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
@@ -931,7 +918,6 @@ qboolean VID_SetFullDIBMode (int modenum)
     if (ChangeDisplaySettings (&gdevmode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
         Sys_Error ("Couldn't set fullscreen DIB mode");
 
-    lastmodestate = modestate;
     modestate = MS_FULLDIB;
     vid_fulldib_on_focus_mode = modenum;
     WindowRect.top = WindowRect.left = 0;

@@ -235,7 +235,6 @@ void Cmd_StuffCmds_f (void)
 {
     extern cvar_t cmdline;
     char	cmds[256];
-    char	c;
     int		i, j, plus;
 
     plus = true;
@@ -670,8 +669,6 @@ Parses the given string into command line tokens.
 */
 void Cmd_TokenizeString (char *text)
 {
-    int      i;
-
     // the maximum com_token is 1024 so the command buffer will never be larger than this
     static char argbuf[MAX_ARGS * (1024 + 1)];
     char *currarg = argbuf;
@@ -1574,7 +1571,6 @@ char *Expand_Talk_Macros (char *string)
 	int		writepos = 0;
 	char	*insert_point;
 	char	letter;
-	int		i, match;
 
 	memset (modified_string, 0, sizeof(modified_string));
 

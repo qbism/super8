@@ -1188,7 +1188,6 @@ void R_ParticleBeam (vec3_t start, vec3_t end, int thecol)
             }
         }
 
-
         VectorAdd (start, vec, start);
     }
 }

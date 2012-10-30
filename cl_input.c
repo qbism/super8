@@ -313,12 +313,8 @@ float CL_KeyState (kbutton_t *key)
     }	// 1999-12-24 explicit brackets by Maddes
     if (impulseup && !impulsedown)
     {
-        // 1999-12-24 explicit brackets by Maddes
-        if (down)
-            val = 0;	//	I_Error ();
-        else
-            val = 0;	// released this frame
-    }	// 1999-12-24 explicit brackets by Maddes
+             val = 0;	// released this frame
+    }
     if (!impulsedown && !impulseup)
     {
         // 1999-12-24 explicit brackets by Maddes

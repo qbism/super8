@@ -887,11 +887,6 @@ FIXME: make work...
 scalar checkpos (entity, vector)
 =================
 */
-void PF_checkpos (void)
-{
-}
-
-//============================================================================
 
 byte	checkpvs[MAX_MAP_LEAFS/8];
 

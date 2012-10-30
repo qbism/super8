@@ -379,7 +379,7 @@ void R_AddDynamicLights (void)
     vec3_t		impact, local;
     vec3_t      origin_for_ent; //qbism- from inside3d post: mankrip - dynamic lights on moving brush models fix
     int			s, t;
-    int			i, tempcol;
+    int			i;
     int			smax, tmax;
     mtexinfo_t	*tex;
 
@@ -543,6 +543,7 @@ R_BuildLightMap
 Combine and scale multiple lightmaps into the 8.8 format in blocklights
 ===============
 */
+
 void R_BuildLightMap (void)
 {
     int			smax, tmax;
@@ -646,7 +647,6 @@ void R_BuildLightMap (void)
         blocklights[i] = t;
     }
 }
-
 
 /*
 ===============
@@ -790,7 +790,7 @@ R_DrawSurfaceBlock8_mip0
 void R_DrawSurfaceBlock8_mip0 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
-    int     color, staticolor, dynacolor; //qbism indexed lit
+    int     color; //qbism indexed lit
     unsigned char	pix, *psource, *prowdest;
     int dither; //qbism - fake randomish dither
 
@@ -847,7 +847,7 @@ R_DrawSurfaceBlock8_mip1
 void R_DrawSurfaceBlock8_mip1 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
-    int     colorstep, colortemp, color; //qbism indexed lit
+    int     color; //qbism indexed lit
     unsigned char	pix, *psource, *prowdest;
 
     psource = pbasesource;
@@ -903,7 +903,7 @@ R_DrawSurfaceBlock8_mip2
 void R_DrawSurfaceBlock8_mip2 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
-    int     colorstep, colortemp, color; //qbism indexed lit
+    int     color; //qbism indexed lit
     unsigned char	pix, *psource, *prowdest;
 
     psource = pbasesource;
@@ -959,7 +959,7 @@ R_DrawSurfaceBlock8_mip3
 void R_DrawSurfaceBlock8_mip3 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
-    int     colorstep, colortemp, color; //qbism indexed lit
+    int     color; //qbism indexed lit
     unsigned char	pix, *psource, *prowdest;
 
     psource = pbasesource;
@@ -1052,59 +1052,4 @@ void R_DrawSurfaceBlock16 (void)
 
     prowdestbase = prowdest;
 }
-
-
-//============================================================================
-
-/*
-================
-R_GenTurbTile
-================
-*/
-void R_GenTurbTile (pixel_t *pbasetex, void *pdest)
-{
-    int		*turb;
-    int		i, j, s, t;
-    byte	*pd;
-
-    turb = sintable + ((int)(cl.ctime*SPEED)&(CYCLE-1));//DEMO_REWIND - qbism - based on Baker change
-    pd = (byte *)pdest;
-
-    for (i=0 ; i<TILE_SIZE ; i++)
-    {
-        for (j=0 ; j<TILE_SIZE ; j++)
-        {
-            s = (((j << 16) + turb[i & (CYCLE-1)]) >> 16) & 63;
-            t = (((i << 16) + turb[j & (CYCLE-1)]) >> 16) & 63;
-            *pd++ = *(pbasetex + (t<<6) + s);
-        }
-    }
-}
-
-
-/*
-================
-R_GenTurbTile16
-================
-*/
-void R_GenTurbTile16 (pixel_t *pbasetex, void *pdest)
-{
-    int				*turb;
-    int				i, j, s, t;
-    unsigned short	*pd;
-
-    turb = sintable + ((int)(cl.time*SPEED)&(CYCLE-1));
-    pd = (unsigned short *)pdest;
-
-    for (i=0 ; i<TILE_SIZE ; i++)
-    {
-        for (j=0 ; j<TILE_SIZE ; j++)
-        {
-            s = (((j << 16) + turb[i & (CYCLE-1)]) >> 16) & 63;
-            t = (((i << 16) + turb[j & (CYCLE-1)]) >> 16) & 63;
-            *pd++ = d_8to16table[*(pbasetex + (t<<6) + s)];
-        }
-    }
-}
-
 

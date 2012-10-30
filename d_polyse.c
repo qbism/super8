@@ -1303,43 +1303,6 @@ void D_PolysetDrawSpans8_Metal (spanpackage_t *pspanpackage)
 }
 // Manoel Kasimier - EF_REFLECTIVE - end
 
-/*
-================
-D_PolysetFillSpans8
-================
-*/
-void D_PolysetFillSpans8 (spanpackage_t *pspanpackage)
-{
-    int				color;
-
-// FIXME: do z buffering
-
-    color = d_aflatcolor++;
-
-    while (1)
-    {
-        int		lcount;
-        byte	*lpdest;
-
-        lcount = pspanpackage->count;
-
-        if (lcount == -1)
-            return;
-
-        if (lcount)
-        {
-            lpdest = pspanpackage->pdest;
-
-            do
-            {
-                *lpdest++ = color;
-            }
-            while (--lcount);
-        }
-
-        pspanpackage++;
-    }
-}
 
 /*
 ================
