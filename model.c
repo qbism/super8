@@ -31,6 +31,7 @@ void Mod_LoadBrushModel (model_t *mod, void *buffer, loadedfile_t *fileinfo);	//
 //void Mod_LoadBrushModel (model_t *mod, void *buffer);
 void Mod_LoadAliasModel (model_t *mod, void *buffer);
 model_t *Mod_LoadModel (model_t *mod, qboolean crash);
+void Mod_ProcessLeafs (dleaf_t *in, int filelen);
 loadedfile_t *COM_LoadFile (char *path, int usehunk);
 
 byte	mod_novis[MAX_MAP_LEAFS/8];

@@ -70,6 +70,8 @@ void D_DrawSpans8 (espan_t *pspans);
 void D_DrawSpans16 (espan_t *pspans);
 void D_DrawSpans16_C (espan_t *pspans);  //qbism - up it to 16
 void D_DrawZSpans (espan_t *pspans);
+void D_DrawSpans16_Blend (espan_t *pspan);
+void D_DrawSpans16_BlendBackwards (espan_t *pspan);
 void Turbulent8 (espan_t *pspan);
 void D_SpriteDrawSpans (sspan_t *pspan);
 

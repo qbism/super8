@@ -318,7 +318,7 @@ void Con_Print (char *txt)
 #ifdef FLASH
     {
         AS3_Val as3Str = AS3_String(txt);
-        AS3_Trace(as3Str);
+        AS3_Trace(txt);
         AS3_Release(as3Str);
     }
 #endif

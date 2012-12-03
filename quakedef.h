@@ -308,6 +308,7 @@ void Host_ShutdownServer (qboolean crash);
 void COM_CreatePath (char *path);
 void Sys_InitDoubleTime (void);
 void COM_CreatePath (char *path);
+void LOC_LoadLocations (void);
 void Sys_InitDoubleTime (void);
 void History_Shutdown (void);
 void CRC_Init(unsigned short *crcvalue);
@@ -317,6 +318,7 @@ void SV_LocalSound (client_t *client, char *sample, char volume);
 int R_LoadPalette (char *name);
 void Fog_ParseServerMessage (void);
 qboolean R_LoadSkybox (char *name);
+void CL_Clear_Demos_Queue (void);
 
 extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output
 										//  an fullscreen DIB focus gain/loss
