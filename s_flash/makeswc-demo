@@ -3,8 +3,6 @@
 #make -j3 -f makeswc;
 
 SRCS= \
-	../nonintel.c \
-	../net_vcr.c \
 	../net_main.c \
 	../net_loop.c \
 	../net_dgrm.c \
@@ -25,7 +23,6 @@ SRCS= \
 	../d_part.c \
 	../d_modech.c \
 	../d_init.c \
-	../d_fill.c \
 	../d_edge.c \
 	../cvar.c \
 	../crc.c \
@@ -71,14 +68,13 @@ SRCS= \
 	../snd_dma.c \
 	../snd_mix.c \
 	../snd_mem.c \
-	../r_2d.c \
 	../draw.c \
 	../net_none.c
 
 SRCTYPE=c
 CC=gcc
 
-WARN= -Wall -Werror-implicit-function-declaration
+WARN= -Werror-implicit-function-declaration
 OUTPUT= quake
 CFLAGS= $(WARN) -DFLASH -DFLASHDEMO
 
@@ -94,11 +90,6 @@ endif
 #The reason we move the swc instead of compiling it directly to the destination lib folder,
 #is that it would prefix the folder names onto the namespace of the CLibInit class.
 OUTPUTFILE= $(OUTPUT).swc
-OUTPUTDIR= lib
-
-all: $(OBJDIR)/$(OUTPUTFILE)
-	@mkdir -p $(OUTPUTDIR)
-	cp $(OBJDIR)/$(OUTPUTFILE) $(OUTPUTDIR)/$(OUTPUTFILE)
 
 #make sure all the bullet directories are on the vpath, so we can make a list of .o files
 VPATH += $(dir $(SRCS))

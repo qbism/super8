@@ -39,7 +39,7 @@ package
 			var defaultTextFormat:TextFormat = new TextFormat("_sans", 16, 0xFFFFFF, true);
 			defaultTextFormat.align = TextFormatAlign.CENTER;
 			_infoText.defaultTextFormat = defaultTextFormat;		
-			_infoText.text = "OQplus Loading\n\qbismSuper8 flashQuake engine";
+			_infoText.text = "Loading\n\qbismSuper8 flashQuake engine";
 			_infoText.y = 200;
 			addChild(_infoText);
 			

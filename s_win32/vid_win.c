@@ -467,21 +467,39 @@ void VID_RememberWindowPos (void)
 VID_CheckWindowXY
 ================
 */
-void VID_CheckWindowXY (void)
-{
-    if ((int) vid_window_x.value > GetSystemMetrics (SM_CXSCREEN) - dd_window_width -10)  //qbism HACK - what is actual?
-        Cvar_SetValue ("vid_window_x", GetSystemMetrics (SM_CXSCREEN) - dd_window_width -15);
+    void VID_CheckWindowXY (void)
+    {
+       // mankrip - begin
+       RECT   rect;
 
-    if ((int) vid_window_y.value > GetSystemMetrics (SM_CYSCREEN) - dd_window_height -35)
-        Cvar_SetValue ("vid_window_y", GetSystemMetrics (SM_CYSCREEN) - dd_window_height -40);
+       if (GetWindowRect (mainwindow, &rect))
+       {
+          int         border,   titlebar;
+          // Baker - begin
+          WINDOWINFO windowinfo;
+          windowinfo.cbSize = sizeof (WINDOWINFO);
+          GetWindowInfo (mainwindow, &windowinfo); // Total client area.  Take window area and subtract client area, obv
+          // Baker - end
+          border = (rect.right - rect.left) - (windowinfo.rcClient.right - windowinfo.rcClient.left); // both borders; one on the left, and one on the right
+          titlebar = (rect.bottom - rect.top) - (windowinfo.rcClient.bottom - windowinfo.rcClient.top) - border; // title bar, without top and bottom borders
+          border /= 2; // convert to a single border
 
-    if ((int) vid_window_x.value < 0)
-        Cvar_SetValue ("vid_window_x", 0.0);
+          if (rect.right - rect.left > GetSystemMetrics (SM_CXSCREEN)) // window is wider than the screen (may happen due to window borders)
+             Cvar_SetValue ("vid_window_x", (float) (border * -1));
+          else if (rect.left < 0)
+             Cvar_SetValue ("vid_window_x", 0.0f);
+          else if (rect.right > GetSystemMetrics (SM_CXSCREEN))
+             Cvar_SetValue ("vid_window_x", (float) (GetSystemMetrics (SM_CXSCREEN) - (rect.right - rect.left)));
 
-    if ((int) vid_window_y.value < 0)
-        Cvar_SetValue ("vid_window_y", 0.0);
-}
-
+          if (rect.bottom - rect.top > GetSystemMetrics (SM_CYSCREEN)) // window is taller than the screen (may happen due to window borders)
+             Cvar_SetValue ("vid_window_y", (float) (-1 * (border + titlebar)));
+          else if (rect.top < 0)
+             Cvar_SetValue ("vid_window_y", 0.0f);
+          else if (rect.bottom > GetSystemMetrics (SM_CYSCREEN))
+             Cvar_SetValue ("vid_window_y", (float) (GetSystemMetrics (SM_CYSCREEN) - (rect.bottom - rect.top)));
+       }
+       // mankrip - end
+    }
 
 /*
 ================
@@ -1685,123 +1703,106 @@ void FlipScreen (vrect_t *rects)
 
 //qbism removed D_BeginDirectRect and D_EndDirectRect
 
-
-void VID_Update (vrect_t *rects)
-{
-    vrect_t	rect;
-    RECT	trect;
-
-    if (!vid_palettized && palette_changed)
+    void VID_Update (vrect_t *rects)
     {
-        palette_changed = false;
-        rect.x = 0;
-        rect.y = 0;
-        rect.width = vid.width;
-        rect.height = vid.height;
-        rect.pnext = NULL;
-        rects = &rect;
-    }
+       vrect_t   rect;
+       RECT   trect;
 
-    VID_CheckWindowXY ();  //qbism- put the check here, and nowhere else
-    if (firstupdate)
-    {
-        if (modestate == MS_WINDOWED)
-        {
-            GetWindowRect (hWndWinQuake, &trect);
+       if (!vid_palettized && palette_changed)
+       {
+          palette_changed = false;
+          rect.x = 0;
+          rect.y = 0;
+          rect.width = vid.width;
+          rect.height = vid.height;
+          rect.pnext = NULL;
+          rects = &rect;
+       }
 
-            if ((trect.left != (int) vid_window_x.value) ||
-                    (trect.top  != (int) vid_window_y.value))
-            {
-                if (COM_CheckParm ("-resetwinpos"))
-                {
-                    Cvar_SetValue ("vid_window_x", 0.0);
-                    Cvar_SetValue ("vid_window_y", 0.0);
-                }
-
-                SetWindowPos (hWndWinQuake, NULL, (int) vid_window_x.value,
-                              (int) vid_window_y.value, 0, 0,
-                              SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
-            }
-        }
-
-        if ((vid_default_mode_win.value != vid_default) &&
+       VID_CheckWindowXY (); //qbism- put the check here, and nowhere else
+       if (firstupdate)
+       {
+          if ((vid_default_mode_win.value != vid_default) &&
                 (!startwindowed || (vid_default_mode_win.value < MODE_FULLSCREEN_DEFAULT)))
-        {
-            firstupdate = 0;
+          {
+             firstupdate = 0;
 
-            if (COM_CheckParm ("-resetwinpos"))
-            {
+             if (COM_CheckParm ("-resetwinpos"))
+             {
                 Cvar_SetValue ("vid_window_x", 0.0);
                 Cvar_SetValue ("vid_window_y", 0.0);
-            }
+             }
 
-            if ((vid_default_mode_win.value < 0) ||
-                    (vid_default_mode_win.value >= nummodes))
-            {
-                Cvar_SetValue ("vid_default_mode_win", windowed_default);
-            }
+             if ((vid_default_mode_win.value < 0) ||
+                   (vid_default_mode_win.value >= nummodes))
+             {
+                Cvar_SetValue ("_vid_default_mode_win", windowed_default);
+             }
 
-            Cvar_SetValue ("vid_mode", vid_default_mode_win.value);
-        }
-    }
+             Cvar_SetValue ("vid_mode", vid_default_mode_win.value);
+          }
+       }
 
-    // We've drawn the frame; copy it to the screen
-    FlipScreen (rects);
+       // We've drawn the frame; copy it to the screen
+       FlipScreen (rects);
 
-    // check for a driver change
-    if ((vid_ddraw.value && !vid_usingddraw) || (!vid_ddraw.value && vid_usingddraw))
-    {
-        // reset the mode
-        force_mode_set = true;
-        VID_SetMode ((int) vid_mode.value, vid_curpal);
-        force_mode_set = false;
+       if (vid_testingmode)
+       {
+          if (realtime >= vid_testendtime)
+          {
+             VID_SetMode (vid_realmode, vid_curpal);
+             vid_testingmode = 0;
+          }
+       }
+       else
+       {
+          if ((int) vid_mode.value != vid_realmode)
+          {
+             VID_SetMode ((int) vid_mode.value, vid_curpal);
+             Cvar_SetValue ("vid_mode", (float) vid_modenum);
+             // so if mode set fails, we don't keep on
+             //  trying to set that mode
+             vid_realmode = vid_modenum;
+          }
+          // mankrip - begin
+          else if (vid_realmode == MODE_SETTABLE_WINDOW)
+          {
+             if (modelist[MODE_SETTABLE_WINDOW].width  != (int) vid_config_x.value
+             ||   modelist[MODE_SETTABLE_WINDOW].height != (int) vid_config_y.value
+                )
+                VID_SetMode (vid_realmode, vid_curpal);
+          }
+          // mankrip - end
+       }
 
-        // store back
-        if (vid_usingddraw)
-            Con_Printf ("loaded DirectDraw driver\n");
-        else Con_Printf ("loaded GDI driver\n");
-    }
-
-    if (vid_testingmode)
-    {
-        if (realtime >= vid_testendtime)
-        {
-            VID_SetMode (vid_realmode, vid_curpal);
-            vid_testingmode = 0;
-        }
-    }
-    else
-    {
-  if ((int) vid_mode.value != vid_realmode)
-        {
-            VID_SetMode ((int) vid_mode.value, vid_curpal);
-            Cvar_SetValue ("vid_mode", (float) vid_modenum);
-            // so if mode set fails, we don't keep on
-            //  trying to set that mode
-            vid_realmode = vid_modenum;
-        }
-    }
-
-    // handle the mouse state when windowed if that's changed
-    if (modestate == MS_WINDOWED)
-    {
-        if ((int) _windowed_mouse.value != windowed_mouse)
-        {
-            if (key_dest != key_menu && !cl.paused) // Manoel Kasimier - edited
-            {
+       // handle the mouse state when windowed if that's changed
+       if (modestate == MS_WINDOWED)
+       {
+          // mankrip - begin
+          // the window should be moved after VID_SetMode is run, not before
+          if (firstupdate)
+          {
+             GetWindowRect (mainwindow, &trect);
+             if ((trect.left != (int) vid_window_x.value)
+             ||   (trect.top  != (int) vid_window_y.value))
+                SetWindowPos (mainwindow, NULL, (int) vid_window_x.value, (int) vid_window_y.value, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
+          }
+          // mankrip - end
+          {
+             if (key_dest != key_menu && !cl.paused && !cls.demoplayback) // mankrip
+             {
                 IN_ActivateMouse ();
                 IN_HideMouse ();
-            }
-            else
-            {
+             }
+             else
+             {
                 IN_DeactivateMouse ();
                 IN_ShowMouse ();
-            }
+             }
 
-//			windowed_mouse = _windowed_mouse; //qbism -  Manoel Kasimier - edited
-        }
+          }
+       }
     }
-}
 
 
 //==========================================================================
@@ -2059,6 +2060,7 @@ LONG WINAPI MainWndProc (
         window_x = (int) LOWORD (lParam);
         window_y = (int) HIWORD (lParam);
         VID_UpdateWindowStatus ();
+        VID_CheckWindowXY ();  //qbism ... add here
 
         if ((modestate == MS_WINDOWED) && !in_mode_set && !Minimized)
             VID_RememberWindowPos ();
