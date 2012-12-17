@@ -498,7 +498,6 @@ void VID_CheckWindowXY (void)
             Cvar_SetValue ("vid_window_y", 0.0f);
         else if (rect.bottom > GetSystemMetrics (SM_CYSCREEN))
             Cvar_SetValue ("vid_window_y", (float) (GetSystemMetrics (SM_CYSCREEN) - (rect.bottom - rect.top)));
- SetWindowPos (mainwindow, NULL, (int) vid_window_x.value, (int) vid_window_y.value, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
     }
     // mankrip - end
 }
@@ -1700,8 +1699,7 @@ void VID_Update (vrect_t *rects)
         rect.pnext = NULL;
         rects = &rect;
     }
-    if (modestate == MS_WINDOWED)
-        VID_CheckWindowXY (); //qbism- put the check here, and nowhere else
+
     if (firstupdate)
     {
         if ((vid_default_mode_win.value != vid_default) &&
@@ -1718,10 +1716,33 @@ void VID_Update (vrect_t *rects)
             if ((vid_default_mode_win.value < 0) ||
                     (vid_default_mode_win.value >= nummodes))
             {
-                Cvar_SetValue ("_vid_default_mode_win", windowed_default);
+                Cvar_SetValue ("vid_default_mode_win", windowed_default);
             }
 
             Cvar_SetValue ("vid_mode", vid_default_mode_win.value);
+        }
+    }
+    // handle the mouse state when windowed if that's changed
+    if (modestate == MS_WINDOWED)
+    {
+        VID_CheckWindowXY (); //qbism- put the check here, and nowhere else
+        GetWindowRect (mainwindow, &trect);
+        if ((trect.left != (int) vid_window_x.value)
+                ||   (trect.top  != (int) vid_window_y.value))
+            SetWindowPos (mainwindow, NULL, (int) vid_window_x.value, (int) vid_window_y.value, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
+
+        {
+            if (key_dest != key_menu && !cl.paused && !cls.demoplayback) // mankrip
+            {
+                IN_ActivateMouse ();
+                IN_HideMouse ();
+            }
+            else
+            {
+                IN_DeactivateMouse ();
+                IN_ShowMouse ();
+            }
+
         }
     }
 
@@ -1756,36 +1777,7 @@ void VID_Update (vrect_t *rects)
         }
         // mankrip - end
     }
-
-    // handle the mouse state when windowed if that's changed
-    if (modestate == MS_WINDOWED)
-    {
-        // mankrip - begin
-        // the window should be moved after VID_SetMode is run, not before
-        if (firstupdate)
-        {
-            GetWindowRect (mainwindow, &trect);
-            if ((trect.left != (int) vid_window_x.value)
-                    ||   (trect.top  != (int) vid_window_y.value))
-                SetWindowPos (mainwindow, NULL, (int) vid_window_x.value, (int) vid_window_y.value, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
-        }
-        // mankrip - end
-        {
-            if (key_dest != key_menu && !cl.paused && !cls.demoplayback) // mankrip
-            {
-                IN_ActivateMouse ();
-                IN_HideMouse ();
-            }
-            else
-            {
-                IN_DeactivateMouse ();
-                IN_ShowMouse ();
-            }
-
-        }
-    }
 }
-
 
 //==========================================================================
 

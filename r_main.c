@@ -149,6 +149,7 @@ cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qbism
 cvar_t	r_clintensity = {"r_clintensity", "1.2", true}; //qbism
 cvar_t	r_clbaseweight = {"r_clbaseweight", "1.0", true}; //qbism- base pixel weight for color map blending
 cvar_t	r_clcolorweight= {"r_clcolorweight", "0.7", true}; //qbism- color weight for color map blending
+cvar_t	r_colmaprange= {"r_colmaprange", "1.3", true}; //qbism- colormap range for overbright
 
 cvar_t r_fog = {"r_fog", "1", true}; //qbism-  draw fog?
 
@@ -278,6 +279,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_clintensity); //qbism
     Cvar_RegisterVariable (&r_clbaseweight); //qbism
     Cvar_RegisterVariable (&r_clcolorweight); //qbism
+    Cvar_RegisterVariable (&r_colmaprange); //qbism
     Cvar_RegisterVariable (&r_fog); //qbism
     Cvar_RegisterVariable (&r_clearcolor);
     Cvar_RegisterVariable (&r_waterwarp);
@@ -630,7 +632,7 @@ void GrabColormap (void)  //qbism - fixed, was a little screwy
     for (l=0; l<COLORLEVELS; l++)
     {
         frac = (float)l/(COLORLEVELS-1);
-        frac = 1.05 - (frac * frac);  //qbism was 1.0.... boost!
+        frac = r_colmaprange.value - (frac );  //qbism was 1.0.... boost!
         //rscaled = r_colmapred.value*cscale;
         // gscaled = r_colmapgreen.value*cscale;
         // bscaled = r_colmapblue.value*cscale;

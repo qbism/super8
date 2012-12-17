@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
-		<Project filename="qbismSuper8.cbp" active="1" />
-		<Project filename="../../Q1sources/Makaqu1.4alpha/Sources/exe/s_win32/WinQuake.cbp" />
+		<Project filename="qbismSuper8.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

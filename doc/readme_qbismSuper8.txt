@@ -1,4 +1,4 @@
-Last updated 09/06/12
+Last updated 12/16/12
 
 qbism Super8 is an open source (GPL) 3D game engine with advanced yet intentionally retro 8-bit graphics for a crunchy pixelated look.  The source code is forked from Makaqu Quake with enhancements from other Quake engine projects, plus a few original ideas.  The goal is to expand the capabilities of authentic software-rendering without sacrificing performance.
 
@@ -11,6 +11,15 @@ Pgup and Pgdn keys fastforward and rewind demo during playback.
 Video can be captured any time during gameplay or demo playback, including fastforward and rewind.  Added these binds to make it handy:
 bind F7 capture_start
 bind F8 capture_stop
+
+Smooth fisheye warping:  r_fishaccel cvar.  It is the change to zoom velocity per frame.   For the Tormentarium video, the following binds zoom during demo playback:
+
+alias +fishin "r_fishaccel -1.0"
+alias -fishin "r_fishaccel 0.0"
+alias +fishout "r_fishaccel 1.0"
+alias -fishout "r_fishaccel 0.0"
+bind HOME +fishin
+bind END +fishout
 
 
 Features
@@ -83,7 +92,7 @@ bind F8 capture_stop
 
 Code credits
 ------------
-originally based on Makaqu 1.3 programmed by Manoel Kasimier
+Forked from Makaqu 1.3, programmed by Manoel Kasimier
 ToChriS Quake by Victor Luchitz
 FlashQuake port by Michael Rennie
 FlashProQuake port by Baker
