@@ -14,20 +14,21 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
+
 // sv_main.c -- server main program
 
 #include "quakedef.h"
-#include "version.h" //qbism - generated from bat
+#include "version.h" //qb - generated from bat
 
-int current_protocol = PROTOCOL_QBS8; //qbism
+int current_protocol = PROTOCOL_QBS8; //qb
 extern qboolean		pr_alpha_supported; //johnfitz
 extern cvar_t r_palette;
-extern	cvar_t	sv_novis; //qbism - from FQ via Mark V
+extern	cvar_t	sv_novis; //qb - from FQ via Mark V
 server_t		sv;
 server_static_t	svs;
 
-cvar_t  sv_progs = {"sv_progs", "progs.dat" }; //qbism: enginex
-char	localmodels[MAX_MODELS][6];			// inline model names for precache //qbism: was 5
+cvar_t  sv_progs = {"sv_progs", "progs.dat" }; //qb: enginex
+char	localmodels[MAX_MODELS][6];			// inline model names for precache //qb: was 5
 
 //============================================================================
 
@@ -36,7 +37,7 @@ cvar_t sv_qcexec = {"sv_qcexec","0", false, true}; // Manoel Kasimier - qcexec
 
 /*
 ===============
-SV_Protocol_f  //qbism:  fitzquake
+SV_Protocol_f  //qb:  fitzquake
 ===============
 */
 void SV_Protocol_f (void)
@@ -74,7 +75,7 @@ void SV_Init (void)
 {
     int		i;
     extern	cvar_t	sv_maxvelocity;
-    extern	cvar_t	sv_cheats;  //qbism
+    extern	cvar_t	sv_cheats;  //qb
     extern	cvar_t	sv_gravity;
     extern	cvar_t	sv_nostep;
     extern	cvar_t	sv_friction;
@@ -87,8 +88,8 @@ void SV_Init (void)
     extern	cvar_t	sv_aim;
     extern	cvar_t	sv_enable_use_button; // Manoel Kasimier - +USE fix
 
-    Cvar_RegisterVariable (&sv_progs); //qbism:  fitzquake
-    Cvar_RegisterVariable (&sv_cheats); //qbism
+    Cvar_RegisterVariable (&sv_progs); //qb:  fitzquake
+    Cvar_RegisterVariable (&sv_cheats); //qb
     Cvar_RegisterVariable (&sv_maxvelocity);
     Cvar_RegisterVariable (&sv_gravity);
     Cvar_RegisterVariable (&sv_friction);
@@ -99,12 +100,12 @@ void SV_Init (void)
     Cvar_RegisterVariable (&sv_idealpitchscale);
     Cvar_RegisterVariable (&sv_aim_h); // Manoel Kasimier - horizontal autoaim
     Cvar_RegisterVariable (&sv_aim);
-    Cvar_RegisterVariable (&sv_novis); //qbism - from FQ
+    Cvar_RegisterVariable (&sv_novis); //qb - from FQ
     Cvar_RegisterVariable (&sv_nostep);
     Cvar_RegisterVariable (&sv_enable_use_button); // Manoel Kasimier - +USE fix
     Cvar_RegisterVariable (&sv_qcexec); // Manoel Kasimier - qcexec
 
-    Cmd_AddCommand ("sv_protocol", &SV_Protocol_f); //qbism: johnfitz
+    Cmd_AddCommand ("sv_protocol", &SV_Protocol_f); //qb: johnfitz
 
     for (i=0 ; i<MAX_MODELS ; i++)
         sprintf (localmodels[i], "*%i", i);
@@ -167,19 +168,19 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, byte volume, flo
 {
     int         sound_num, field_mask, i, ent;
 
-//qbism - don't check volume range anymore, it's a byte
+//qb - don't check volume range anymore, it's a byte
 //   if (volume < 0 || volume > 255)
 
     if (attenuation < 0 || attenuation > 4)
     {
         Con_Printf ("SV_StartSound: attenuation = %g, max = %d\n", attenuation, 4);
-        return;  //qbism - return instead of error - bjp
+        return;  //qb - return instead of error - bjp
     }
 
     if (channel < 0 || channel > 7)
     {
         Con_Printf ("SV_StartSound: channel = %i, max = %d\n", channel, 7);
-        return;  //qbism - return instead of error - bjp
+        return;  //qb - return instead of error - bjp
     }
 
     if (sv.datagram.cursize > MAX_DATAGRAM-16)
@@ -204,7 +205,7 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, byte volume, flo
     if (attenuation != DEFAULT_SOUND_PACKET_ATTENUATION)
         field_mask |= SND_ATTENUATION;
 
-    //qbism:  johnfitz begin
+    //qb:  johnfitz begin
     if (ent >= 8192)
     {
         if (current_protocol == PROTOCOL_NETQUAKE)
@@ -212,14 +213,14 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, byte volume, flo
         else
             field_mask |= SND_LARGEENTITY;
     }
-    if (sound_num >= 256 || channel >= 8)  //qbism channel >7 is sys_error above
+    if (sound_num >= 256 || channel >= 8)  //qb channel >7 is sys_error above
     {
         if (current_protocol == PROTOCOL_NETQUAKE)
             return; //don't send any info protocol can't support
         else
             field_mask |= SND_LARGESOUND;
     }
-    //qbism:  johnfitz end
+    //qb:  johnfitz end
 
 // directed messages go only to the entity the are targeted on
     MSG_WriteByte (&sv.datagram, svc_sound);
@@ -229,7 +230,7 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, byte volume, flo
     if (field_mask & SND_ATTENUATION)
         MSG_WriteByte (&sv.datagram, attenuation*64);
 
-    //qbism:  johnfitz begin
+    //qb:  johnfitz begin
     if (field_mask & SND_LARGEENTITY)
     {
         MSG_WriteShort (&sv.datagram, ent);
@@ -241,13 +242,13 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, byte volume, flo
         MSG_WriteShort (&sv.datagram, sound_num);
     else
         MSG_WriteByte (&sv.datagram, sound_num);
-    //qbism:  johnfitz end
+    //qb:  johnfitz end
 
     for (i=0 ; i<3 ; i++)
         MSG_WriteCoord (&sv.datagram, entity->v.origin[i]+0.5*(entity->v.mins[i]+entity->v.maxs[i]));
 }
 
-/*  //qbism added SV_StartLocalSound
+/*  //qb added SV_StartLocalSound
 ==================
 SV_LocalSound
 Plays a local sound to a specific client, others can't hear it.
@@ -274,7 +275,7 @@ void SV_LocalSound (client_t *client, char *sample, char volume)
     if (volume != DEFAULT_SOUND_PACKET_VOLUME)
         field_mask |= SND_VOLUME;
 
-    if (sound_num >= 256)  //qbism channel >7 is sys_error above
+    if (sound_num >= 256)  //qb channel >7 is sys_error above
     {
         if (current_protocol == PROTOCOL_NETQUAKE)
             return; //don't send any info protocol can't support
@@ -315,7 +316,7 @@ void SV_SendServerinfo (client_t *client)
     char			**s;
     char			message[2048];
 
-    if (client->sendsignon == true)  //qbism - don't send serverinfo twice.
+    if (client->sendsignon == true)  //qb - don't send serverinfo twice.
     {
         Con_DPrintf ("Warning, attempted to send duplicate serverinfo.\n");
         return;
@@ -561,7 +562,7 @@ byte *SV_FatPVS (vec3_t org)
 /*
 ===============
 SV_FindTouchedLeafs
-qbism- 'Fix - Large Brushmodel Flickering/Not Visible' by MH elaborated by Reckless, from inside3d
+qb- 'Fix - Large Brushmodel Flickering/Not Visible' by MH elaborated by Reckless, from inside3d
 
 moved to here, deferred find until we hit actual sending to client, and
 added test vs client pvs in finding.
@@ -644,7 +645,7 @@ SV_WriteEntitiesToClient
 */
 void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 {
-    unsigned int	i;  //qbism
+    unsigned int	i;  //qb
     int		e;
     int		bits;
     byte	*pvs;
@@ -659,7 +660,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 
     // Tomaz - QC Alpha Scale Glow End
     float	frame_interval=0.1f; // Manoel Kasimier - QC frame_interval
-    int clentnum; //Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT //qbism
+    int clentnum; //Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT //qb
     eval_t *val; //Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT
 
 
@@ -685,7 +686,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 // ignore ents without visible models
                 if (!ent->v.modelindex || !pr_strings[ent->v.model])
                     continue;
-                //qbism based on Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT Start
+                //qb based on Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT Start
                 if ((val = GetEdictFieldValue(ent, "drawonlytoclient")) && val->edict && val->edict != clentnum)
                     continue;
 
@@ -696,7 +697,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
                 if ((!chase_active.value && (val = GetEdictFieldValue(ent, "exteriormodeltoclient"))) && val->edict == clentnum)
                     continue;
 
-                //qbism- 'Fix - Large Brushmodel Flickering/Not Visible' by MH elaborated by Reckless, from inside3d
+                //qb- 'Fix - Large Brushmodel Flickering/Not Visible' by MH elaborated by Reckless, from inside3d
                 // link to PVS leafs - deferred to here so that we can compare leafs that are touched to the PVS.
                 // this is less optimal on one hand as it now needs to be done separately for each client, rather than once
                 // only (covering all clients), but more optimal on the other as it only needs to hit one leaf and will
@@ -706,7 +707,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
                 SV_FindTouchedLeafs (ent, sv.worldmodel->nodes, pvs);
 
                 // if the entity didn't touch any leafs in the pvs don't send it to the client
-                if (!ent->touchleaf && !sv_novis.value) continue;//qbism - novis from FQ
+                if (!ent->touchleaf && !sv_novis.value) continue;//qb - novis from FQ
             }
 
 
@@ -751,7 +752,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             bits |= U_FRAME;
 
 
-        if ((current_protocol == PROTOCOL_QBS8) && (val = GetEdictFieldValue(ent, "modelflags")))  //qbism from DP
+        if ((current_protocol == PROTOCOL_QBS8) && (val = GetEdictFieldValue(ent, "modelflags")))  //qb from DP
         {
             i= (unsigned int)ent->v.effects;
             i |= ((unsigned int)val->_float & 0xff) << 24;
@@ -765,7 +766,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             // Manoel Kasimier - begin
             if (current_protocol == PROTOCOL_QBS8)
             {
-                ent->baseline.effects = ent->v.effects; //qbism reset baseline, also on client side.
+                ent->baseline.effects = ent->v.effects; //qb reset baseline, also on client side.
                 if (ent->v.effects >= 256)
                     bits |= U_EFFECTS2;
             }
@@ -774,14 +775,14 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 
         if (ent->baseline.modelindex != ent->v.modelindex)
             bits |= U_MODEL;
-        // Tomaz - QC Alpha Scale Glow Begin (qbism- modified)
+        // Tomaz - QC Alpha Scale Glow Begin (qb- modified)
         if (current_protocol == PROTOCOL_QBS8)
         {
             eval_t  *val;
             if (val = GetEdictFieldValue(ent, "alpha"))
             {
-                ent->alpha = ENTALPHA_ENCODE(val->_float); //qbism ent->alpha
-                //qbism:  fitzquake  don't send invisible entities unless they have effects
+                ent->alpha = ENTALPHA_ENCODE(val->_float); //qb ent->alpha
+                //qb:  fitzquake  don't send invisible entities unless they have effects
                 if (ent->alpha == ENTALPHA_ZERO && !ent->v.effects)
                     continue;
                 //johnfitz
@@ -895,7 +896,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
         {
             if (current_protocol == PROTOCOL_QBS8)
             {
-                if(bits & U_EFFECTS2) MSG_WriteLong(msg, ent->v.effects); //qbism changed for modelflags
+                if(bits & U_EFFECTS2) MSG_WriteLong(msg, ent->v.effects); //qb changed for modelflags
                 else MSG_WriteByte (msg, ent->v.effects);
             }
             // Manoel Kasimier - begin
@@ -924,9 +925,9 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             for (i=0 ; i<3 ; i++)
                 MSG_WriteFloat (msg, scalev[i]);
         if (bits & U_GLOW_SIZE)
-            MSG_WriteShort(msg, glow_size); //qbism - was writefloat
-        if (bits & U_GLOW_RED) //qbism
-            MSG_WriteByte(msg, glow_red);  //qbism, unlike Tomazquake, sending 0-255 RGB values
+            MSG_WriteShort(msg, glow_size); //qb - was writefloat
+        if (bits & U_GLOW_RED) //qb
+            MSG_WriteByte(msg, glow_red);  //qb, unlike Tomazquake, sending 0-255 RGB values
         if (bits & U_GLOW_GREEN)
             MSG_WriteByte(msg, glow_green);
         if (bits & U_GLOW_BLUE)
@@ -935,7 +936,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
     // Tomaz - QC Alpha Scale Glow End
     // Manoel Kasimier - QC frame_interval - begin
     if (bits & U_FRAMEINTERVAL)
-        if (current_protocol == PROTOCOL_QBS8)  //qbism
+        if (current_protocol == PROTOCOL_QBS8)  //qb
             MSG_WriteFloat(msg, frame_interval);
     // Manoel Kasimier - QC frame_interval - end
 }
@@ -1142,7 +1143,7 @@ qboolean SV_SendClientDatagram (client_t *client)
 
 //johnfitz -- if client is nonlocal, use smaller max size so packets aren't fragmented
 //if (Q_strcmp (client->netconnection->address, "LOCAL") != 0)
-    if (svs.maxclients > 1) //qbism- any multiplayer, even LOCAL will fail over wifi
+    if (svs.maxclients > 1) //qb- any multiplayer, even LOCAL will fail over wifi
         msg.maxsize = DATAGRAM_MTU;
 //johnfitz
 
@@ -1367,7 +1368,7 @@ void SV_CreateBaseline (void)
         if (entnum > 0 && entnum <= svs.maxclients)
         {
             svent->baseline.colormap = entnum;
-            svent->baseline.modelindex = SV_ModelIndex("progs/player.mdl");  //qbism FIXME if multiple player models
+            svent->baseline.modelindex = SV_ModelIndex("progs/player.mdl");  //qb FIXME if multiple player models
         }
         else
         {
@@ -1385,14 +1386,14 @@ void SV_CreateBaseline (void)
 
         if (current_protocol == PROTOCOL_QBS8)
         {
-            svent->baseline.alpha = svent->alpha;  //qbism
+            svent->baseline.alpha = svent->alpha;  //qb
             MSG_WriteShort (&sv.signon, svent->baseline.modelindex);
-            MSG_WriteByte (&sv.signon, svent->baseline.alpha); //qbism
+            MSG_WriteByte (&sv.signon, svent->baseline.alpha); //qb
         }
 
         else
         {
-            svent->baseline.alpha = ENTALPHA_DEFAULT; //qbism
+            svent->baseline.alpha = ENTALPHA_DEFAULT; //qb
             MSG_WriteByte (&sv.signon, svent->baseline.modelindex);
         }
 
@@ -1480,7 +1481,7 @@ void SV_SpawnServer (char *server)
         Cvar_Set ("hostname", "UNNAMED");
     scr_centertime_off = 0;
 
-    Con_Printf ("SpawnServer: %s\n",server); //qbism - change to con_printf
+    Con_Printf ("SpawnServer: %s\n",server); //qb - change to con_printf
     svs.changelevel_issued = false;		// now safe to issue another
 
 //
@@ -1541,15 +1542,15 @@ void SV_SpawnServer (char *server)
 
     sv.time = 1.0;
     if (cls.state != ca_dedicated)
-        if( !R_LoadPalette(r_palette.string)) //qbism- load custom palette if it exists.
-            R_LoadPalette("palette"); //qbism- default to standard palette.
+        if( !R_LoadPalette(r_palette.string)) //qb- load custom palette if it exists.
+            R_LoadPalette("palette"); //qb- default to standard palette.
     Q_strcpy (sv.name, server);
     sprintf (sv.modelname,"maps/%s.bsp", server);
     sv.worldmodel = Mod_ForName (sv.modelname, false);
     if (!sv.worldmodel || (sv.worldmodel->numvertexes == -1)) // MrG - incorrect BSP version is no longer fatal - edited
     {
         sv.active = false;
-        Con_Printf ("Couldn't spawn server %s\n", sv.modelname); //qbism was Host_Error Manoel Kasimier - edited
+        Con_Printf ("Couldn't spawn server %s\n", sv.modelname); //qb was Host_Error Manoel Kasimier - edited
         return;
     }
     sv.models[1] = sv.worldmodel;

@@ -14,13 +14,14 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
+
 // wad.c
 
 #include "quakedef.h"
 
 unsigned 	wad_numlumps;
 lumpinfo_t	*wad_lumps;
-byte		*wad_base = NULL; //qbism:  johnfitz -- set to null
+byte		*wad_base = NULL; //qb:  johnfitz -- set to null
 
 void SwapPic (qpic_t *pic);
 
@@ -37,22 +38,22 @@ Can safely be performed in place.
 */
 void W_CleanupName (char *in, char *out)
 {
-	int		i;
-	int		c;
+    int		i;
+    int		c;
 
-	for (i=0 ; i<16 ; i++ )
-	{
-		c = in[i];
-		if (!c)
-			break;
+    for (i=0 ; i<16 ; i++ )
+    {
+        c = in[i];
+        if (!c)
+            break;
 
-		if (c >= 'A' && c <= 'Z')
-			c += ('a' - 'A');
-		out[i] = c;
-	}
+        if (c >= 'A' && c <= 'Z')
+            c += ('a' - 'A');
+        out[i] = c;
+    }
 
-	for ( ; i< 16 ; i++ )
-		out[i] = 0;
+    for ( ; i< 16 ; i++ )
+        out[i] = 0;
 }
 
 
@@ -64,43 +65,43 @@ W_LoadWadFile
 */
 void W_LoadWadFile (char *filename)
 {
-	lumpinfo_t		*lump_p;
-	wadinfo_t		*header;
-	unsigned		i;
-	int				infotableofs;
-	loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
+    lumpinfo_t		*lump_p;
+    wadinfo_t		*header;
+    unsigned		i;
+    int				infotableofs;
+    loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
 
 // 2001-09-12 Returning information about loaded file by Maddes  start
-/*
-	wad_base = COM_LoadHunkFile (filename);
-	if (!wad_base)
-*/
-	fileinfo = COM_LoadHunkFile (filename);
-	if (!fileinfo)
+    /*
+    	wad_base = COM_LoadHunkFile (filename);
+    	if (!wad_base)
+    */
+    fileinfo = COM_LoadHunkFile (filename);
+    if (!fileinfo)
 // 2001-09-12 Returning information about loaded file by Maddes  end
-		Sys_Error ("W_LoadWadFile: couldn't load %s", filename);
-	wad_base = fileinfo->data;	// 2001-09-12 Returning information about loaded file by Maddes
+        Sys_Error ("W_LoadWadFile: couldn't load %s", filename);
+    wad_base = fileinfo->data;	// 2001-09-12 Returning information about loaded file by Maddes
 
-	header = (wadinfo_t *)wad_base;
+    header = (wadinfo_t *)wad_base;
 
-	if (header->identification[0] != 'W'
-	|| header->identification[1] != 'A'
-	|| header->identification[2] != 'D'
-	|| header->identification[3] != '2')
-		Sys_Error ("Wad file %s doesn't have WAD2 id\n",filename);
+    if (header->identification[0] != 'W'
+            || header->identification[1] != 'A'
+            || header->identification[2] != 'D'
+            || header->identification[3] != '2')
+        Sys_Error ("Wad file %s doesn't have WAD2 id\n",filename);
 
-	wad_numlumps = LittleLong(header->numlumps);
-	infotableofs = LittleLong(header->infotableofs);
-	wad_lumps = (lumpinfo_t *)(wad_base + infotableofs);
+    wad_numlumps = LittleLong(header->numlumps);
+    infotableofs = LittleLong(header->infotableofs);
+    wad_lumps = (lumpinfo_t *)(wad_base + infotableofs);
 
-	for (i=0, lump_p = wad_lumps ; i<wad_numlumps ; i++,lump_p++)
-	{
-		lump_p->filepos = LittleLong(lump_p->filepos);
-		lump_p->size = LittleLong(lump_p->size);
-		W_CleanupName (lump_p->name, lump_p->name);
-		if (lump_p->type == TYP_QPIC)
-			SwapPic ( (qpic_t *)(wad_base + lump_p->filepos));
-	}
+    for (i=0, lump_p = wad_lumps ; i<wad_numlumps ; i++,lump_p++)
+    {
+        lump_p->filepos = LittleLong(lump_p->filepos);
+        lump_p->size = LittleLong(lump_p->size);
+        W_CleanupName (lump_p->name, lump_p->name);
+        if (lump_p->type == TYP_QPIC)
+            SwapPic ( (qpic_t *)(wad_base + lump_p->filepos));
+    }
 }
 
 
@@ -111,41 +112,41 @@ W_GetLumpinfo
 */
 lumpinfo_t	*W_GetLumpinfo (char *name)
 {
-	int		i;
-	lumpinfo_t	*lump_p;
-	char	clean[16];
+    int		i;
+    lumpinfo_t	*lump_p;
+    char	clean[16];
 
-	W_CleanupName (name, clean);
+    W_CleanupName (name, clean);
 
-	for (lump_p=wad_lumps, i=0 ; i<wad_numlumps ; i++,lump_p++)
-	{
-		if (!Q_strcmp(clean, lump_p->name))
-			return lump_p;
-	}
+    for (lump_p=wad_lumps, i=0 ; i<wad_numlumps ; i++,lump_p++)
+    {
+        if (!Q_strcmp(clean, lump_p->name))
+            return lump_p;
+    }
 
-	Sys_Error ("W_GetLumpinfo: %s not found", name);
-	return NULL;
+    Sys_Error ("W_GetLumpinfo: %s not found", name);
+    return NULL;
 }
 
 void *W_GetLumpName (char *name)
 {
-	lumpinfo_t	*lump;
+    lumpinfo_t	*lump;
 
-	lump = W_GetLumpinfo (name);
+    lump = W_GetLumpinfo (name);
 
-	return (void *)(wad_base + lump->filepos);
+    return (void *)(wad_base + lump->filepos);
 }
 
 void *W_GetLumpNum (int num)
 {
-	lumpinfo_t	*lump;
+    lumpinfo_t	*lump;
 
-	if (num < 0 || num > wad_numlumps)
-		Sys_Error ("W_GetLumpNum: bad number: %i", num);
+    if (num < 0 || num > wad_numlumps)
+        Sys_Error ("W_GetLumpNum: bad number: %i", num);
 
-	lump = wad_lumps + num;
+    lump = wad_lumps + num;
 
-	return (void *)(wad_base + lump->filepos);
+    return (void *)(wad_base + lump->filepos);
 }
 
 /*
@@ -158,6 +159,6 @@ automatic byte swapping
 
 void SwapPic (qpic_t *pic)
 {
-	pic->width = LittleLong(pic->width);
-	pic->height = LittleLong(pic->height);
+    pic->width = LittleLong(pic->width);
+    pic->height = LittleLong(pic->height);
 }

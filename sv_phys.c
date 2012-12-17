@@ -14,6 +14,7 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
+
 // sv_phys.c
 
 #include "quakedef.h"
@@ -41,7 +42,7 @@ cvar_t	sv_stopspeed = {"sv_stopspeed","100"};
 cvar_t	sv_gravity = {"sv_gravity","800",false,true};
 cvar_t	sv_maxvelocity = {"sv_maxvelocity","2000"};
 cvar_t	sv_nostep = {"sv_nostep","0"};
-cvar_t	sv_novis = {"sv_novis","0", false, true}; //qbism - from FitzQuake
+cvar_t	sv_novis = {"sv_novis","0", false, true}; //qb - from FitzQuake
 
 #define	MOVE_EPSILON	0.01
 
@@ -349,7 +350,7 @@ SV_AddGravity
 
 ============
 */
-void SV_AddGravity (edict_t *ent) //qbism- gravity fix from mh
+void SV_AddGravity (edict_t *ent) //qb- gravity fix from mh
 {
    float   ent_gravity;
    eval_t   *val;
@@ -418,7 +419,7 @@ trace_t SV_PushEntity (edict_t *ent, vec3_t push)
 
 /*
 ============
-SV_PushMove  //qbism:  replaced w/ johnfitz function
+SV_PushMove  //qb:  replaced w/ johnfitz function
 
 ============
 */
@@ -430,9 +431,9 @@ void SV_PushMove (edict_t *pusher, float movetime)
     vec3_t		mins, maxs, move;
     vec3_t		entorig, pushorig;
     int			num_moved;
-    edict_t		**moved_edict; //qbism:  johnfitz -- dynamically allocate
-    vec3_t		*moved_from; //qbism:  johnfitz -- dynamically allocate
-    int			mark; //qbism:  johnfitz
+    edict_t		**moved_edict; //qb:  johnfitz -- dynamically allocate
+    vec3_t		*moved_from; //qb:  johnfitz -- dynamically allocate
+    int			mark; //qb:  johnfitz
 
     if (!pusher->v.velocity[0] && !pusher->v.velocity[1] && !pusher->v.velocity[2])
     {
@@ -455,11 +456,11 @@ void SV_PushMove (edict_t *pusher, float movetime)
     pusher->v.ltime += movetime;
     SV_LinkEdict (pusher, false);
 
-    //qbism:  johnfitz begin -- dynamically allocate
+    //qb:  johnfitz begin -- dynamically allocate
     mark = Hunk_LowMark ();
     moved_edict = Hunk_Alloc (sv.num_edicts*sizeof(edict_t *));
     moved_from = Hunk_Alloc (sv.num_edicts*sizeof(vec3_t));
-    //qbism:  johnfitz end
+    //qb:  johnfitz end
 
 // see if any solid entities are inside the final position
     num_moved = 0;
@@ -470,7 +471,7 @@ void SV_PushMove (edict_t *pusher, float movetime)
             continue;
         if (check->v.movetype == MOVETYPE_PUSH
                 || check->v.movetype == MOVETYPE_NONE
-                || check->v.movetype == MOVETYPE_FOLLOW //qbism: DP movetypes
+                || check->v.movetype == MOVETYPE_FOLLOW //qb: DP movetypes
                 || check->v.movetype == MOVETYPE_NOCLIP)
             continue;
 
@@ -542,11 +543,11 @@ void SV_PushMove (edict_t *pusher, float movetime)
                 VectorCopy (moved_from[i], moved_edict[i]->v.origin);
                 SV_LinkEdict (moved_edict[i], false);
             }
-            Hunk_FreeToLowMark (mark); //qbism:  johnfitz
+            Hunk_FreeToLowMark (mark); //qb:  johnfitz
             return;
         }
     }
-    Hunk_FreeToLowMark (mark); //qbism:  johnfitz
+    Hunk_FreeToLowMark (mark); //qb:  johnfitz
 }
 
 /*
@@ -1151,7 +1152,7 @@ SV_Physics_Follow
 Entities that are "stuck" to another entity
 =============
 */
-//qbism LHmovetypes begin.  Modified from DP to "normal" quake.
+//qb - LHmovetypes begin.  Modified from DP to "normal" quake.
 void SV_Physics_Follow (edict_t *ent)
 {
     vec3_t vf, vr, vu, angles, v;
@@ -1191,7 +1192,7 @@ void SV_Physics_Follow (edict_t *ent)
 }
 
 
-//qbism LHmovetypes end
+//qb LHmovetypes end
 
 /*
 =============
@@ -1286,7 +1287,7 @@ void SV_Physics_Toss (edict_t *ent)
 
 // add gravity
     if (ent->v.movetype != MOVETYPE_FLY
-            && ent->v.movetype != MOVETYPE_BOUNCEMISSILE //qbism
+            && ent->v.movetype != MOVETYPE_BOUNCEMISSILE //qb
             && ent->v.movetype != MOVETYPE_FLYMISSILE)
         SV_AddGravity (ent);
 
@@ -1304,7 +1305,7 @@ void SV_Physics_Toss (edict_t *ent)
     if (ent->v.movetype == MOVETYPE_BOUNCE)
         backoff = 1.5;
 
-    else if (ent->v.movetype == MOVETYPE_BOUNCEMISSILE) //qbism
+    else if (ent->v.movetype == MOVETYPE_BOUNCEMISSILE) //qb
         backoff = 2.0;
 
     else
@@ -1312,23 +1313,7 @@ void SV_Physics_Toss (edict_t *ent)
 
     ClipVelocity (ent->v.velocity, trace.plane.normal, ent->v.velocity, backoff);
 
-// stop if on ground
-/*
-   if (trace.plane.normal[2] > 0.7)
-    {
-        if (ent->v.velocity[2] < 60 || (ent->v.movetype != MOVETYPE_BOUNCE && ent->v.movetype != MOVETYPE_BOUNCEMISSILE))  //qbism
-//		if (ent->v.velocity[2] < 60 || ent->v.movetype != MOVETYPE_BOUNCE)
-        {
-            ent->v.flags = (int)ent->v.flags | FL_ONGROUND;
-            ent->v.groundentity = EDICT_TO_PROG(trace.ent);
-            VectorCopy (vec3_origin, ent->v.velocity);
-            VectorCopy (vec3_origin, ent->v.avelocity);
-        }
-    }
-*/
-
-
- // stop if on ground - qbism- per Baker/ Rook post on inside3d.com
+ // stop if on ground - qb- per Baker/ Rook post on inside3d.com
    //R00k: fixed by LordHavoc
    if (trace.plane.normal[2] > 0.5 && fabs(DotProduct(trace.plane.normal, ent->v.velocity)) < 15)//R00k changed so dm6 grenade ramp doesnt stick as much..
    {
@@ -1424,7 +1409,7 @@ void SV_Physics (void)
         {
             SV_LinkEdict (ent, true);	// force retouch even for stationary
         }
-//qbism changed to switch below
+//qb changed to switch below
         if (i > 0 && i <= svs.maxclients)
         {
             SV_Physics_Client (ent, i);

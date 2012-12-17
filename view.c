@@ -14,6 +14,7 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
+
 // view.c -- player eye positioning
 
 #include "quakedef.h"
@@ -28,13 +29,13 @@ when crossing a water boudnary.
 
 */
 
-//qbism - Aardappel fisheye begin
+//qb - Aardappel fisheye begin
 void R_RenderView_Fisheye();
 cvar_t  ffov = {"ffov", "180", true};
 cvar_t  fviews = {"fviews", "6", true};
-cvar_t  r_fisheye = {"r_fisheye", "0", true}; //qbism added
-//qbism - Aardappel fisheye end
+cvar_t  r_fisheye = {"r_fisheye", "0", true}; //qb added
 cvar_t  r_fishaccel = {"r_fishaccel", "0", false}; //qb:  for cheeezy zoom effect
+//qb - Aardappel fisheye end
 
 cvar_t	scr_ofsx = {"scr_ofsx","0", false};
 cvar_t	scr_ofsy = {"scr_ofsy","0", true}; // Manoel Kasimier - saved in the config file - edited
@@ -52,7 +53,7 @@ cvar_t	cl_bobup = {"cl_bobup","0.5", false};
 cvar_t	v_kicktime = {"v_kicktime", "0.5", false};
 cvar_t	v_kickroll = {"v_kickroll", "0.6", false};
 cvar_t	v_kickpitch = {"v_kickpitch", "0.6", false};
-cvar_t  v_gunkick = {"v_gunkick", "1", true}; //qbism - from directq
+cvar_t  v_gunkick = {"v_gunkick", "1", true}; //qb - from directq
 
 cvar_t	v_iyaw_cycle = {"v_iyaw_cycle", "2", false};
 cvar_t	v_iroll_cycle = {"v_iroll_cycle", "0.5", false};
@@ -67,7 +68,7 @@ cvar_t	crosshair = {"crosshair", "0", true};
 cvar_t	cl_crossx = {"cl_crossx", "0", false};
 cvar_t	cl_crossy = {"cl_crossy", "0", false};
 
-//qbism replace gl_polyblend with r_polyblend
+//qb replace gl_polyblend with r_polyblend
 cvar_t	r_polyblend = {"r_polyblend", "1", false}; // Manoel Kasimier - r_polyblend
 int	r_polyblend_old; // Manoel Kasimier - r_polyblend
 
@@ -127,7 +128,7 @@ float V_CalcBob (void)
     float	bob;
     float	cycle;
 
-    cycle = cl.ctime - (int)(cl.ctime/cl_bobcycle.value)*cl_bobcycle.value;//DEMO_REWIND - qbism - Baker change
+    cycle = cl.ctime - (int)(cl.ctime/cl_bobcycle.value)*cl_bobcycle.value;//DEMO_REWIND - qb - Baker change
     cycle /= cl_bobcycle.value;
     if (cycle < cl_bobup.value)
         cycle = M_PI * cycle / cl_bobup.value;
@@ -302,7 +303,7 @@ V_CheckGamma
 */
 qboolean V_CheckGamma (void)
 {
-//qbism- just always do it.
+//qb- just always do it.
 //   static float oldgammavalue;
 
 //   if (v_gamma.value == oldgammavalue)
@@ -430,7 +431,7 @@ void V_SetContentsColor (int contents)
     {
     case CONTENTS_EMPTY:
     case CONTENTS_SOLID:
-    case CONTENTS_SKY: //qbism: from johnfitz -- no blend in sky
+    case CONTENTS_SKY: //qb: from johnfitz -- no blend in sky
         cl.cshifts[CSHIFT_CONTENTS] = cshift_empty;
         break;
     case CONTENTS_LAVA:
@@ -559,12 +560,12 @@ void V_UpdatePalette (void)
         if (r_polyblend.value != 0) // Manoel Kasimier - r_polyblend
             for (j=0 ; j<NUM_CSHIFTS ; j++)
             {
-                shiftpercent = cl.cshifts[j].percent; //qbism
-                r += (shiftpercent*(cl.cshifts[j].destcolor[0]))>>8; //qbism - was (cl.cshifts[j].destcolor[0]-r)
+                shiftpercent = cl.cshifts[j].percent; //qb
+                r += (shiftpercent*(cl.cshifts[j].destcolor[0]))>>8; //qb - was (cl.cshifts[j].destcolor[0]-r)
                 g += (shiftpercent*(cl.cshifts[j].destcolor[1]))>>8;
                 b += (shiftpercent*(cl.cshifts[j].destcolor[2]))>>8;
             }
-        newpal[0] = gammatable[min(r, 255)];  //qbism - was just r
+        newpal[0] = gammatable[min(r, 255)];  //qb - was just r
         newpal[1] = gammatable[min(g, 255)];
         newpal[2] = gammatable[min(b, 255)];
         newpal += 3;
@@ -643,7 +644,7 @@ void CalcGunAngle (void)
     cl.viewent.angles[YAW] = r_refdef.viewangles[YAW] + yaw;
     cl.viewent.angles[PITCH] = - (r_refdef.viewangles[PITCH] + pitch);
 
-    cl.viewent.angles[ROLL] -= v_idlescale.value * sin(cl.ctime*v_iroll_cycle.value) * v_iroll_level.value;//DEMO_REWIND - qbism - Baker change
+    cl.viewent.angles[ROLL] -= v_idlescale.value * sin(cl.ctime*v_iroll_cycle.value) * v_iroll_level.value;//DEMO_REWIND - qb - Baker change
     cl.viewent.angles[PITCH] -= v_idlescale.value * sin(cl.ctime*v_ipitch_cycle.value) * v_ipitch_level.value;
     cl.viewent.angles[YAW] -= v_idlescale.value * sin(cl.ctime*v_iyaw_cycle.value) * v_iyaw_level.value;
 }
@@ -685,7 +686,7 @@ Idle swaying
 */
 void V_AddIdle (void)
 {
-    r_refdef.viewangles[ROLL] += v_idlescale.value * sin(cl.ctime*v_iroll_cycle.value) * v_iroll_level.value; //DEMO_REWIND - qbism - Baker change
+    r_refdef.viewangles[ROLL] += v_idlescale.value * sin(cl.ctime*v_iroll_cycle.value) * v_iroll_level.value; //DEMO_REWIND - qb - Baker change
     r_refdef.viewangles[PITCH] += v_idlescale.value * sin(cl.ctime*v_ipitch_cycle.value) * v_ipitch_level.value;
     r_refdef.viewangles[YAW] += v_idlescale.value * sin(cl.ctime*v_iyaw_cycle.value) * v_iyaw_level.value;
 }
@@ -890,7 +891,7 @@ void V_CalcRefdef (void)
     view->colormap = vid.colormap;
 
     // set up the refresh position
-    vec3_t kickangle; //qbism- v_gunkick from directq
+    vec3_t kickangle; //qb- v_gunkick from directq
     VectorScale (cl.punchangle, v_gunkick.value, kickangle);
     if (v_gunkick.value) VectorAdd (r_refdef.viewangles, kickangle, r_refdef.viewangles);
 
@@ -901,7 +902,6 @@ void V_CalcRefdef (void)
 
         steptime = cl.time - cl.oldtime;
         if (steptime < 0)
-//FIXME		I_Error ("steptime < 0");
             steptime = 0;
 
         oldz += steptime * 80;
@@ -934,7 +934,7 @@ void V_RenderView (void)
     if (con_forcedup)
         return;
 
-    R_LessenStains();  //qbism ftestain
+    R_LessenStains();  //qb ftestain
 
     if (cl.intermission)
     {
@@ -952,7 +952,7 @@ void V_RenderView (void)
         fisheye_accel += r_fishaccel.value;
         ffov.value += fisheye_accel;
         ffov.value = bound (30, ffov.value, 10000);
-        R_RenderView_Fisheye ();//qbism Aardappel fisheye
+        R_RenderView_Fisheye ();//qb Aardappel fisheye
     }
     else
     {
@@ -1004,20 +1004,20 @@ void V_Init (void)
     Cvar_RegisterVariable (&v_kicktime);
     Cvar_RegisterVariable (&v_kickroll);
     Cvar_RegisterVariable (&v_kickpitch);
-    Cvar_RegisterVariable (&v_gunkick); //qbism- from directq
+    Cvar_RegisterVariable (&v_gunkick); //qb- from directq
 
     BuildGammaTable (1.0);	// no gamma yet
     Cvar_RegisterVariable (&v_gamma);
 
-//qbism Aardappel fisheye begin
+//qb Aardappel fisheye begin
     Cvar_RegisterVariable (&ffov);
     Cvar_RegisterVariable (&fviews);
-    Cvar_RegisterVariable (&r_fisheye); //qbism added
-//qbism Aardappel fisheye end
+    Cvar_RegisterVariable (&r_fisheye); //qb added
     Cvar_RegisterVariable (&r_fishaccel); //qb
+//qb Aardappel fisheye end
 }
 
-//qbism fisheye from Aardappel begin
+//qb fisheye from Aardappel begin
 typedef unsigned char B;
 
 #define BOX_FRONT  0
@@ -1255,7 +1255,7 @@ void z_rot(struct my_coords *c, double roll)
     c->z = nz;
 }
 
-void rendercopy(int *dest, int side) //qbism- added 'side'
+void rendercopy(int *dest, int side) //qb- added 'side'
 {
     int *p = (int*)vid.buffer;
     int x, y;
@@ -1454,4 +1454,4 @@ void R_RenderView_Fisheye()
     r_refdef.viewangles[ROLL] = roll;
     renderlookup(offs,scrbufs);
 };
-//qbism fisheye end
+//qb fisheye end

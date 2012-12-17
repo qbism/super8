@@ -14,6 +14,7 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
+
 // world.c -- world query functions
 
 #include "quakedef.h"
@@ -274,7 +275,7 @@ void SV_UnlinkEdict (edict_t *ent)
 SV_TouchLinks
 ====================
 */
-//qbism SV_TouchLinks ported from mh
+//qb SV_TouchLinks ported from mh
 void SV_TouchLinks ( edict_t *ent, areanode_t *node )
 {
 	link_t		*l, *next;
@@ -435,8 +436,8 @@ VectorAdd (ent->v.origin, ent->v.maxs, ent->v.absmax);
 		ent->v.absmax[2] += 1;
 	}
 
-// link to PVS leafs - qbism - now checked in SV_WriteEntitiesToClient
-//qbism- 'Fix - Large Brushmodel Flickering/Not Visible' by MH elaborated by Reckless, from inside3d
+// link to PVS leafs - qb - now checked in SV_WriteEntitiesToClient
+//qb- 'Fix - Large Brushmodel Flickering/Not Visible' by MH elaborated by Reckless, from inside3d
 //	ent->num_leafs = 0;
 //	if (ent->v.modelindex)
 //		SV_FindTouchedLeafs (ent, sv.worldmodel->nodes);
@@ -489,7 +490,7 @@ SV_HullPointContents
 int SV_HullPointContents (hull_t *hull, int num, vec3_t p)
 {
 	float		d;
-	mclipnode_t	*node; //qbism:  johnfitz -- was dclipnode_t
+	mclipnode_t	*node; //qb:  johnfitz -- was dclipnode_t
 	mplane_t	*plane;
 
 	while (num >= 0)
@@ -575,7 +576,7 @@ SV_RecursiveHullCheck
 */
 qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p2f, vec3_t p1, vec3_t p2, trace_t *trace)
 {
-	mclipnode_t	*node; //qbism:  johnfitz -- was dclipnode_t
+	mclipnode_t	*node; //qb:  johnfitz -- was dclipnode_t
 	mplane_t	*plane;
 	float		t1, t2;
 	float		frac;
@@ -651,17 +652,6 @@ qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p2f, vec
 // move up to the node
 	if (!SV_RecursiveHullCheck (hull, node->children[side], p1f, midf, p1, mid, trace) )
 		return false;
-
-/* qbism - was ist sv_hullmodel??
-#ifdef PARANOID
-	if (SV_HullPointContents (sv_hullmodel, mid, node->children[side])
-	== CONTENTS_SOLID)
-	{
-		Con_Printf ("mid PointInHullSolid\n");
-		return false;
-	}
-#endif
-*/
 
 	if (SV_HullPointContents (hull, node->children[side^1], mid)
 	!= CONTENTS_SOLID)

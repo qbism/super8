@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 // snd_mix.c -- portable code to mix sounds for snd_dma.c
 
 #include "quakedef.h"
-#ifdef _WIN32 //qbism jqavi
+#ifdef _WIN32 //qb jqavi
 #include "s_win32/winquake.h"
 #include "s_win32/movie_avi.h"
 #endif
@@ -26,7 +26,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define DWORD	unsigned long
 #endif
 
-#define	PAINTBUFFER_SIZE	1024	//qbism- Dan: I had to double this value to support .2 paint ahead sfx
+#define	PAINTBUFFER_SIZE	1024	//qb- Dan: I had to double this value to support .2 paint ahead sfx
 portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];
 int		snd_scaletable[32][256];
 int 	*snd_p, snd_linear_count, snd_vol;
@@ -129,7 +129,7 @@ void S_TransferStereo16 (int endtime)
 		snd_p += snd_linear_count;
 		lpaintedtime += (snd_linear_count>>1);
 
-		#ifdef _WIN32 //qbism jqavi
+		#ifdef _WIN32 //qb jqavi
 		Movie_TransferStereo16 ();
 		#endif
 	}
