@@ -24,8 +24,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 int BestColor (int r, int g, int b, int start, int stop);
 
-extern cvar_t	r_shadowhack; //qbism- engoo shadowhack
-extern cvar_t   r_shadowhacksize; //qbism
+extern cvar_t	r_shadowhack; //qb: engoo shadowhack
+extern cvar_t   r_shadowhacksize; //qb:
 
 // these two are not intended to be set directly
 cvar_t	cl_name = {"_cl_name", "player", true};
@@ -48,9 +48,9 @@ cvar_t	m_side = {"m_side","0.8", true};
 cvar_t	m_look = {"m_look","1", true}; // Manoel Kasimier - m_look
 cvar_t	cutscene = {"cutscene", "1"}; // Nehahra
 
-#ifdef WEBDL    //qbism - sometimes works, needs more testing
-cvar_t cl_web_download = {"cl_web_download", "1", true}; //qbism - R00k / Baker tute
-cvar_t cl_web_download_url = {"cl_web_download_url", "http://qbism.com/_q1maps/", true};
+#ifdef WEBDL    //qb: sometimes works, needs more testing
+cvar_t cl_web_download = {"cl_web_download", "1", true}; //qb: R00k / Baker tute
+cvar_t cl_web_download_url = {"cl_web_download_url", "http://qb:.com/_q1maps/", true};
 #endif // WEBDL
 
 client_static_t	cls;
@@ -118,9 +118,9 @@ void CL_Disconnect (void)
 // stop sounds (especially looping!)
     S_StopAllSounds (true);
 
-#ifdef WEBDL    //qbism - sometimes works, needs more testing
+#ifdef WEBDL    //qb: sometimes works, needs more testing
 // We have to shut down webdownloading first
-    if( cls.download.web )  //qbism - R00k / Baker tute
+    if( cls.download.web )  //qb: R00k / Baker tute
     {
         cls.download.disconnect = true;
         return;
@@ -159,7 +159,7 @@ void CL_Disconnect (void)
 
     cls.demoplayback = cls.timedemo = false;
     cls.signon = 0;
-    cl.intermission = 0; //qbism DEBUG - works OK? from Baker: So critical.  SCR_UpdateScreen uses this.
+    cl.intermission = 0; //qb: DEBUG - works OK? from Baker: So critical.  SCR_UpdateScreen uses this.
     // Manoel Kasimier - begin
     Vibration_Stop (0);
     Vibration_Stop (1);
@@ -168,7 +168,7 @@ void CL_Disconnect (void)
 
 void CL_Disconnect_f (void)
 {
-    CL_Clear_Demos_Queue (); //qbism - from FQ Mark V - timedemo is a very intentional action
+    CL_Clear_Demos_Queue (); //qb: from FQ Mark V - timedemo is a very intentional action
     CL_Disconnect ();
     if (sv.active)
         Host_ShutdownServer (false);
@@ -200,7 +200,7 @@ void CL_EstablishConnection (char *host)
     cls.demonum = -1;			// not in the demo loop now
     cls.state = ca_connected;
     cls.signon = 0;				// need all the signon messages before playing
-    MSG_WriteByte (&cls.message, clc_nop); // ProQuake NAT Fix  //qbism thx to Baker
+    MSG_WriteByte (&cls.message, clc_nop); // ProQuake NAT Fix  //qb: thx to Baker
 }
 
 /*
@@ -369,7 +369,7 @@ dlight_t *CL_AllocDlight (int key)
             {
                 memset (dl, 0, sizeof(*dl));
                 dl->key = key;
-                dl->color = palmapnofb[60>>3][50>>3][12>>3];  //qbism dyncol - default  HACK
+                dl->color = palmapnofb[60>>3][50>>3][12>>3];  //qb: dyncol - default  HACK
                 return dl;
             }
         }
@@ -383,7 +383,7 @@ dlight_t *CL_AllocDlight (int key)
         {
             memset (dl, 0, sizeof(*dl));
             dl->key = key;
-            dl->color = palmapnofb[60>>3][50>>3][12>>3];  //qbism dyncol - default
+            dl->color = palmapnofb[60>>3][50>>3][12>>3];  //qb: dyncol - default
             return dl;
         }
     }
@@ -391,7 +391,7 @@ dlight_t *CL_AllocDlight (int key)
     dl = &cl_dlights[0];
     memset (dl, 0, sizeof(*dl));
     dl->key = key;
-    dl->color = palmapnofb[60>>3][50>>3][12>>3];  //qbism dyncol - default
+    dl->color = palmapnofb[60>>3][50>>3][12>>3];  //qb: dyncol - default
     return dl;
 }
 
@@ -408,7 +408,7 @@ void CL_DecayLights (void)
     dlight_t	*dl;
     float		time;
 
-    //DEMO_REWIND qbism - Baker change
+    //DEMO_REWIND qb: Baker change
     time = fabs(cl.time - cl.oldtime); // To make sure it stays forward oriented time
 
     dl = cl_dlights;
@@ -446,7 +446,7 @@ should be put at.
 */
 float	CL_LerpPoint (void)
 {
-    extern qboolean bumper_on;  //DEMO_REWIND qbism - Baker change
+    extern qboolean bumper_on;  //DEMO_REWIND qb: Baker change
 
     float	f, frac;
 
@@ -454,7 +454,7 @@ float	CL_LerpPoint (void)
 
     if (!f || cl_nolerp.value || cls.timedemo || sv.active)
     {
-        cl.time = cl.ctime = cl.mtime[0];  //DEMO_REWIND qbism - Baker change
+        cl.time = cl.ctime = cl.mtime[0];  //DEMO_REWIND qb: Baker change
         return 1;
     }
 
@@ -464,14 +464,14 @@ float	CL_LerpPoint (void)
         cl.mtime[1] = cl.mtime[0] - 0.1;
         f = 0.1;
     }
-    frac = (cl.ctime - cl.mtime[1]) / f;  //DEMO_REWIND qbism - Baker change
+    frac = (cl.ctime - cl.mtime[1]) / f;  //DEMO_REWIND qb: Baker change
 //Con_Printf ("frac: %f\n",frac);
     if (frac < 0)
     {
         if (frac < -0.01)
         {
-            SetPal(1);  //qbism - TODO - what does this do?
-            //DEMO_REWIND qbism - Baker change
+            SetPal(1);  //qb: TODO - what does this do?
+            //DEMO_REWIND qb: Baker change
             if (bumper_on)
             {
                 cl.ctime = cl.mtime[1];
@@ -485,7 +485,7 @@ float	CL_LerpPoint (void)
         if (frac > 1.01)
         {
             SetPal(2);
-            //DEMO_REWIND qbism - Baker change
+            //DEMO_REWIND qb: Baker change
             if (bumper_on)
                 cl.ctime = cl.mtime[0];
             else cl.time = cl.ctime = cl.mtime[0]; // Here is where we get foobar'd
@@ -544,7 +544,7 @@ void CL_RelinkEntities (void)
         }
     }
 
-    bobjrotate = anglemod(100*cl.ctime);//DEMO_REWIND_HARD_ANIMS_TIME qbism - Baker change
+    bobjrotate = anglemod(100*cl.ctime);//DEMO_REWIND_HARD_ANIMS_TIME qb: Baker change
 
 // start on the entity after the world
     for (i=1,ent=cl_entities+1 ; i<cl.num_entities ; i++,ent++)
@@ -558,7 +558,7 @@ void CL_RelinkEntities (void)
         }
 
 
-        if (r_shadowhack.value && !(ent->effects & EF_ADDITIVE) && !(ent->effects & EF_NODRAW)) //qbism- engoo
+        if (r_shadowhack.value && !(ent->effects & EF_ADDITIVE) && !(ent->effects & EF_NODRAW)) //qb: engoo
         {
             // We find our shadow size here
 
@@ -570,15 +570,15 @@ void CL_RelinkEntities (void)
             // Ok we have a shadow ready. allocate it and do it!!!!!
             else
             {
-                ent->shadowsize *= r_shadowhacksize.value; //qbism was 3.9
-                shadorigin = ent->model->maxs[2] - (ent->model->mins[2] *0.2); //qbism  was 1.25 - move darklight higher
-                //qbism- no better with bleed-through walls... R_AddStain(ent->origin, -60, ent->shadowsize, 3); //qbism a different way to shadowhack, needs it's own layer of stains.
+                ent->shadowsize *= r_shadowhacksize.value; //qb: was 3.9
+                shadorigin = ent->model->maxs[2] - (ent->model->mins[2] *0.2); //qb:  was 1.25 - move darklight higher
+                //qb: no better with bleed-through walls... R_AddStain(ent->origin, -60, ent->shadowsize, 3); //qb: a different way to shadowhack, needs it's own layer of stains.
 
 
                 if (ent->alpha > 0)
-                    shadpacity = 28 * ent->alpha; //qbism- made shadow darker, was 32
+                    shadpacity = 28 * ent->alpha; //qb: made shadow darker, was 32
                 else
-                    shadpacity = 28; //qbism was 32
+                    shadpacity = 28; //qb: was 32
 
                 dl = CL_AllocDlight (i);
                 VectorCopy (ent->origin,  dl->origin);
@@ -586,7 +586,7 @@ void CL_RelinkEntities (void)
                 dl->origin[2] -= shadorigin;
                 dl->radius = ent->shadowsize;
                 dl->die = cl.time + 0.001;
-                dl->dark = 1; //qbism- make it a light.... darklight.
+                dl->dark = 1; //qb: make it a light.... darklight.
             }
         }
 
@@ -624,7 +624,7 @@ void CL_RelinkEntities (void)
 
             // Manoel Kasimier - model interpolation - begin
             // interpolation should be reset in the event of a large delta
-            if (f >= 1)  //qbism was == 1
+            if (f >= 1)  //qb: was == 1
             {
                 ent->translate_start_time = 0;
                 ent->rotate_start_time    = 0;
@@ -667,7 +667,7 @@ void CL_RelinkEntities (void)
                 dl->radius = 200 + (rand()&31);
                 dl->minlight = 32;
                 dl->die = cl.time + 0.1;
-                dl->color = palmapnofb[32>>3][32>>3][40>>3]; //qbism dyncol  HACK
+                dl->color = palmapnofb[32>>3][32>>3][40>>3]; //qb: dyncol  HACK
             }
             if (ent->effects & EF_BRIGHTLIGHT)
             {
@@ -676,7 +676,7 @@ void CL_RelinkEntities (void)
                 dl->origin[2] += 16;
                 dl->radius = 400 + (rand()&31);
                 dl->die = cl.time + 0.001;
-                dl->color = palmapnofb[60>>3][50>>3][10>>3]; //qbism dyncol
+                dl->color = palmapnofb[60>>3][50>>3][10>>3]; //qb: dyncol
             }
             if (ent->effects & EF_DIMLIGHT)
             {
@@ -684,11 +684,11 @@ void CL_RelinkEntities (void)
                 VectorCopy (ent->origin,  dl->origin);
                 dl->radius = 200 + (rand()&31);
                 dl->die = cl.time + 0.001;
-                dl->color = palmapnofb[30>>3][20>>3][10>>3]; //qbism dyncol
+                dl->color = palmapnofb[30>>3][20>>3][10>>3]; //qb: dyncol
             }
 
         } // Manoel Kasimier
-        if (!(ent->effects & 0xFF800000))  //qbism based on DP model flags
+        if (!(ent->effects & 0xFF800000))  //qb: based on DP model flags
             ent->effects |= ent->model->flags;
 
         if (ent->effects) // Manoel Kasimier
@@ -697,7 +697,7 @@ void CL_RelinkEntities (void)
 // rotate binary objects locally
             if (ent->effects & EF_ROTATE)
             {
-//		ent->effects |= EF_REFLECTIVE; //qbism- test effect on rotating items
+//		ent->effects |= EF_REFLECTIVE; //qb: test effect on rotating items
                 ent->angles[1] = bobjrotate;
             }
             if (ent->effects & EF_GIB)
@@ -723,14 +723,14 @@ void CL_RelinkEntities (void)
         } // Manoel Kasimier
         // Tomaz - QC Glow
         if (ent->glow_size)
-            if (!(ent->effects & (EF_MUZZLEFLASH)))//qbism - |EF_BRIGHTLIGHT|EF_DIMLIGHT))) // Manoel Kasimier
+            if (!(ent->effects & (EF_MUZZLEFLASH)))//qb: |EF_BRIGHTLIGHT|EF_DIMLIGHT))) // Manoel Kasimier
             {
                 dl = CL_AllocDlight (i);
                 VectorCopy (ent->origin, dl->origin);
                 dl->radius = abs(ent->glow_size); // Manoel Kasimier - edited
                 dl->dark = (ent->glow_size < 0); // Manoel Kasimier
                 dl->die = cl.time + 0.001;
-                dl->color = palmapnofb[ent->glow_red >>3] [ent->glow_green >>3] [ent->glow_blue >>3]; //qbism dyncol
+                dl->color = palmapnofb[ent->glow_red >>3] [ent->glow_green >>3] [ent->glow_blue >>3]; //qb: dyncol
             }
 
         ent->forcelink = false;
@@ -775,7 +775,7 @@ int CL_ReadFromServer (void)
 
     cl.oldtime = cl.time;
     cl.time += host_frametime;
-    //DEMO_REWIND qbism - Baker change
+    //DEMO_REWIND qb: Baker change
 	if (!cls.demorewind || !cls.demoplayback)	// by joe
 		cl.ctime += host_frametime;
 	else
@@ -939,7 +939,7 @@ void CL_Init (void)
     Cvar_RegisterVariable (&lookspring);
     Cvar_RegisterVariable (&lookstrafe);
     Cvar_RegisterVariable (&sensitivity);
-    Cvar_RegisterVariable (&cl_maxfps); //qbism from qrack
+    Cvar_RegisterVariable (&cl_maxfps); //qb: from qrack
 
     Cvar_RegisterVariable (&m_pitch);
     Cvar_RegisterVariable (&m_yaw);
@@ -948,8 +948,8 @@ void CL_Init (void)
     Cvar_RegisterVariable (&m_look); // Manoel Kasimier - m_look
     Cvar_RegisterVariable (&cutscene); // Nehahra
 
-#ifdef WEBDL    //qbism - sometimes works, needs more testing
-    Cvar_RegisterVariable (&cl_web_download);  //qbism - R00k / Baker tute
+#ifdef WEBDL    //qb: sometimes works, needs more testing
+    Cvar_RegisterVariable (&cl_web_download);  //qb: R00k / Baker tute
     Cvar_RegisterVariable (&cl_web_download_url);
 #endif
 

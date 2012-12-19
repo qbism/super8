@@ -39,7 +39,7 @@ extern cvar_t r_light_vec_z;
 extern cvar_t r_light_style;
 // Manoel Kasimier - r_light_style - end
 
-extern cvar_t  r_fisheye; //qbism fisheye added
+extern cvar_t  r_fisheye; //qb: fisheye added
 extern cvar_t	scr_fov;
 
 extern cvar_t r_interpolation; // Manoel Kasimier - model interpolation
@@ -47,7 +47,7 @@ extern cvar_t r_wateralpha; // Manoel Kasimier - translucent water
 extern cvar_t r_glassalpha; //qb: *glass
 byte r_foundwater, r_drawwater; // Manoel Kasimier - translucent water
 extern byte       *alphamap, *additivemap, *fogmap; // Manoel Kasimier - transparencies
-extern byte       *lightcolormap;  //qbism light colors
+extern byte       *lightcolormap;  //qb: light colors
 
 typedef struct entity_s
 {
@@ -68,13 +68,13 @@ typedef struct entity_s
 	float					syncbase;		// for client-side animations
 	byte					*colormap;
 	int						effects;		// light, particals, etc
-	int						modelflags;		//qbism for DP model flag override
+	int						modelflags;		//qb: for DP model flag override
 	int						skinnum;		// for Alias models
 	int						visframe;		// last frame this entity was
 											//  found in an active leaf
 
 	int						dlightframe;	// dynamic lighting
-	//qbism - not used here...  int						dlightbits;
+	//qb: not used here...  int						dlightbits;
 
 // FIXME: could turn these into a union
 	int						trivial_accept;
@@ -83,7 +83,7 @@ typedef struct entity_s
 											//  not split
 	// Manoel Kasimier - model interpolation - begin
 	struct model_s			*lastmodel;
-	int			shadowsize;	//qbism- engoo// leilei - shadow size hack
+	int			shadowsize;	//qb: engoo// leilei - shadow size hack
 
 	qboolean				reset_frame_interpolation; // Manoel Kasimier
 	float                   frame_start_time;
@@ -101,16 +101,16 @@ typedef struct entity_s
 	// Manoel Kasimier - model interpolation - end
 	// Tomaz - QC Alpha Scale Glow Begin
 	byte					alpha;
-	float					scale_start_time;  //qbism fixme - also convert these to bytes (if kept...)
+	float					scale_start_time;  //qb: fixme - also convert these to bytes (if kept...)
 //	float					scale1;
 	float					scale2;
 	vec3_t                  scalev;
-	int	    	glow_size;  //qbism - changed to int (passed as short)
-	byte		glow_red;   //qbism - change to byte
+	int	    	glow_size;  //qb: changed to int (passed as short)
+	byte		glow_red;   //qb: change to byte
 	byte		glow_green;
 	byte		glow_blue;
 	// Tomaz - QC Alpha Scale Glow End
-	float distance; //qbism from reckless, depth sorting
+	float distance; //qb: from reckless, depth sorting
 } entity_t;
 
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
@@ -167,7 +167,7 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj, float aspect);
 void R_InitSky (struct texture_s *mt);	// called at level load
 void R_LoadSky (char *s); // Manoel Kasimier - skyboxes
 void LoadPCX (char *filename, byte **pic, int *width, int *height); // Manoel Kasimier - skyboxes
-void LoadTGA_as8bit (char *filename, byte **pic, int *width, int *height); // Manoel Kasimier //qbism- MK 1.4
+void LoadTGA_as8bit (char *filename, byte **pic, int *width, int *height); // Manoel Kasimier //qb: MK 1.4
 
 
 void R_AddEfrags (entity_t *ent);
@@ -200,6 +200,6 @@ void D_DeleteSurfaceCache (void);
 void D_InitCaches (void *buffer, int size);
 void R_SetVrect (vrect_t *pvrect, vrect_t *pvrectin, int lineadj);
 
-//qbism ftestain.  Could lightdelta be int ?
+//qb: ftestain.  Could lightdelta be int ?
 void R_AddStain(vec3_t org, float tint, float radius);
 void R_LessenStains(void);

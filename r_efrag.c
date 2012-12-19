@@ -38,7 +38,7 @@ vec3_t		r_emins, r_emaxs;
 
 entity_t	*r_addent;
 
-//qbism-  mh - extended efrags - begin
+//qb:  mh - extended efrags - begin
 #define EXTRA_EFRAGS   32
 
 void R_GetMoreEfrags (void)
@@ -125,7 +125,7 @@ void R_SplitEntityOnNode (mnode_t *node)
 		ef = cl.free_efrags;
 		if (!ef)
 		{
-         //qbism - mh - extended efrags - begin
+         //qb: mh - extended efrags - begin
          R_GetMoreEfrags ();
          ef = cl.free_efrags;
          // mh - extended efrags - end

@@ -127,7 +127,7 @@ void IN_MouseMove (usercmd_t *cmd)
 	if ( m_look.value && !(in_strafe.state & 1)) // Manoel Kasimier - m_look - edited
 	{
 		cl.viewangles[PITCH] += m_pitch.value * mouse_y;
-		cl.viewangles[PITCH] = bound(-89, cl.viewangles[PITCH], 89); //qbism
+		cl.viewangles[PITCH] = bound(-89, cl.viewangles[PITCH], 89); //qb:
 	}
 	else
 	{

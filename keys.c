@@ -23,7 +23,7 @@ key up events are sent even if in console mode
 */
 
 
-#define      HISTORY_FILE_NAME   "command_history.txt"  //qbism - Baker/ezQuake command history
+#define      HISTORY_FILE_NAME   "command_history.txt"  //qb: Baker/ezQuake command history
 #define		MAXCMDLINE	256
 #define      CMDLINES   32
 char   key_lines[CMDLINES][MAXCMDLINE];
@@ -88,7 +88,7 @@ keyname_t keynames[] =
 
 	{"INS", K_INS},
 	{"DEL", K_DEL},
-//qbism- not available for bind	{"PGDN", K_PGDN},
+//qb: not available for bind	{"PGDN", K_PGDN},
 //	{"PGUP", K_PGUP},
 	{"HOME", K_HOME},
 	{"END", K_END},
@@ -207,7 +207,7 @@ void Key_Console (int key)
 			Cmd_CompleteParameter (cmd, "*");
 		else
 		{	// command completion
-//qbism ALWAYS advanced completion.			if (cl_advancedcompletion.value)
+//qb: ALWAYS advanced completion.			if (cl_advancedcompletion.value)
 //			{
 				CompleteCommand ();
 //			}
@@ -318,7 +318,7 @@ void Key_Console (int key)
 
 //============================================================================
 
-#define MAX_CHAT_SIZE 45 //qbism - talk macro
+#define MAX_CHAT_SIZE 45 //qb: talk macro
 char chat_buffer[MAX_CHAT_SIZE];
 
 qboolean team_message = false;
@@ -698,7 +698,7 @@ void Key_WriteBindings (FILE *f)
 }
 
 // Added by VVD
-void History_Init (void)  //qbism- VVD/Baker/ezQuake- command history
+void History_Init (void)  //qb: VVD/Baker/ezQuake- command history
 {
     int i, c;
     FILE *hf;
@@ -733,7 +733,7 @@ void History_Init (void)  //qbism- VVD/Baker/ezQuake- command history
     }
 }
 
-void History_Shutdown (void)  //qbism- Baker/ezQuake- command history
+void History_Shutdown (void)  //qb: Baker/ezQuake- command history
 {
     int i;
     FILE *hf;
@@ -769,7 +769,7 @@ void Key_Init (void)
 {
 	int		i;
 
-    History_Init ();   //qbism- Baker/ezQuake- command history
+    History_Init ();   //qb: Baker/ezQuake- command history
 
 //
 // init ascii characters in console mode
@@ -948,7 +948,7 @@ void Key_Event (int key, qboolean down)
 		}
 	// Manoel Kasimier - on-screen keyboard - end
 
-//qbism - DEMO_REWIND - Baker change
+//qb: DEMO_REWIND - Baker change
 // PGUP and PGDN rewind and fast-forward demos
 	if (cls.demoplayback /*&& cls.demonum == -1*/ && !cls.timedemo /* && !cls.capturedemo */) //qb: allow for anything but timedemo
 		if (key == K_PGUP || key == K_PGDN)
@@ -1077,7 +1077,7 @@ void Key_Event (int key, qboolean down)
 		break;
 
     case key_game:
-     //qbism fixme/question- repercussions of this...   break;
+     //qb: fixme/question- repercussions of this...   break;
 	case key_console:
 		Key_Console (key);
 		break;

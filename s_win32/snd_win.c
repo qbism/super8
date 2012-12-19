@@ -25,7 +25,7 @@ HRESULT (WINAPI *pDirectSoundCreate)(GUID FAR *lpGUID, LPDIRECTSOUND FAR *lplpDS
 // 64K is > 1 second at 16-bit, 22050 Hz
 #define	WAV_BUFFERS				64
 #define	WAV_MASK				0x3F
-#define	WAV_BUFFER_SIZE			0x0800	//0x0400	//qbism- Dan East
+#define	WAV_BUFFER_SIZE			0x0800	//0x0400	//qb: Dan East
 #define SECONDARY_BUFFER_SIZE	0x10000
 
 typedef enum {SIS_SUCCESS, SIS_FAILURE, SIS_NOTAVAIL} sndinitstat;
@@ -64,7 +64,7 @@ LPDIRECTSOUNDBUFFER pDSBuf, pDSPBuf;
 
 HINSTANCE hInstDS;
 
-int SNDDMA_InitDirect (void); //qbism was qboolean
+int SNDDMA_InitDirect (void); //qb: was qboolean
 qboolean SNDDMA_InitWav (void);
 
 
@@ -178,7 +178,7 @@ SNDDMA_InitDirect
 Direct-Sound support
 ==================
 */
-int SNDDMA_InitDirect (void)  //qbism was sndinitstat
+int SNDDMA_InitDirect (void)  //qb: was sndinitstat
 {
 	DSBUFFERDESC	dsbuf;
 	DSBCAPS			dsbcaps;
@@ -194,9 +194,9 @@ int SNDDMA_InitDirect (void)  //qbism was sndinitstat
 
 	shm->channels = 2;
 	shm->samplebits = 16;
-	if (snd_speed.value < 11025) snd_speed.value = 11025; //qbism- bound snd_speed
+	if (snd_speed.value < 11025) snd_speed.value = 11025; //qb: bound snd_speed
 	if (snd_speed.value > 44100) snd_speed.value = 44100;
-	shm->speed = snd_speed.value; //qbism was 11025;
+	shm->speed = snd_speed.value; //qb: was 11025;
 
 	memset (&format, 0, sizeof(format));
 	format.wFormatTag = WAVE_FORMAT_PCM;

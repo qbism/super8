@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include<stdlib.h>
 #include<sys/types.h>
 
-extern int min_vid_width;  //qbism- Dan East
+extern int min_vid_width;  //qb: Dan East
 
 #ifdef _WIN32
 #define	NET_MENUS 1
@@ -30,7 +30,7 @@ extern int min_vid_width;  //qbism- Dan East
 cvar_t	savename = {"savename","QBS8____"}; // 8 uppercase characters
 
 
-//qbism - needed for Rikku2000 maplist, but not included w/ mingw
+//qb: needed for Rikku2000 maplist, but not included w/ mingw
 #ifndef FLASH
 int scandir(const char *dir, struct dirent ***namelist,
             int (*select)(const struct dirent *),
@@ -66,7 +66,7 @@ int scandir(const char *dir, struct dirent ***namelist,
   return(i);
 }
 
-//qbism - alphasort def is in dirent.h of alchemy (cygwin)
+//qb: alphasort def is in dirent.h of alchemy (cygwin)
 int alphasort(const struct dirent **a, const struct dirent **b) {
   return(strcmpi((*a)->d_name, (*b)->d_name));
 }
@@ -126,7 +126,7 @@ extern	cvar_t	d_mipscale;
 extern	cvar_t	r_polyblend;
 extern	cvar_t	sw_stipplealpha;
 //extern	cvar_t	r_sprite_addblend;
-extern	cvar_t	scr_fadecolor; //qbism -TODO- put this on menu
+extern	cvar_t	scr_fadecolor; //qb:TODO- put this on menu
 
 
 
@@ -166,7 +166,7 @@ extern	cvar_t	sbar_show_ammo;
 extern	cvar_t	sbar_show_bg;
 extern	cvar_t	sbar;
 
-extern cvar_t	scr_fov; //qbism
+extern cvar_t	scr_fov; //qb:
 
 void Crosshair_Start (int x, int y);
 void Host_WriteConfiguration (void);
@@ -181,7 +181,7 @@ enum
     m_main,
     m_singleplayer, m_load, m_save, m_loadsmall, m_savesmall,
     m_gameoptions,
-    m_maplist,  //qbism - Rikku2000 maplist
+    m_maplist,  //qb: Rikku2000 maplist
     m_options,
     m_setup,
     m_keys,
@@ -221,7 +221,7 @@ void M_Developer_f (void);
 void M_Help_f (void);
 void M_Quit_f (void);
 
-  //qbism - Rikku2000 maplist
+  //qb: Rikku2000 maplist
 void M_Menu_MapList_f (void);
 void M_MapList_Draw (void);
 void M_MapList_Key (int key);
@@ -855,8 +855,8 @@ void M_PopUp_Draw (void)
         M_Draw ();
         m_state = m_popup;
     }
-    //qbism M_DrawTextBox (56, (vid.height - 48) / 2, 24*8, 4*8);
-    M_PrintText (popup_message, 64, (vid.height + 8) / 2, 24, 4, ALIGN_CENTER); //qbism was vid.height - 32
+    //qb: M_DrawTextBox (56, (vid.height - 48) / 2, 24*8, 4*8);
+    M_PrintText (popup_message, 64, (vid.height + 8) / 2, 24, 4, ALIGN_CENTER); //qb: was vid.height - 32
 }
 
 void M_PopUp_Key (int key)
@@ -1012,7 +1012,7 @@ void M_Main_Key (int key)
 }
 
 //=============================================================================
-/* SINGLE PLAYER MENU */  //qbism- switched back to original menu
+/* SINGLE PLAYER MENU */  //qb: switched back to original menu
 
 #define	SINGLEPLAYER_ITEMS	3
 
@@ -1447,8 +1447,8 @@ void M_Save_Key (int k)
                         if (loadable[i] == false)
                         {
                             Cbuf_AddText (va ("save%s %s.%c%i%i\nmenu_main;menu_save%s\n", (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10, (m_state==m_savesmall)?"small":""));
-                            m_state = m_none; //qbism - exit this menu
-                            key_dest = key_game; //qbism
+                            m_state = m_none; //qb: exit this menu
+                            key_dest = key_game; //qb:
                         }
                               else
                             M_PopUp_f ((m_state==m_savesmall)?"Overwrite saved game?":"Overwrite saved state?", va ("save%s %s.%c%i%i\nmenu_main;menu_save%s\n",
@@ -1986,7 +1986,7 @@ void M_GameOptions_Key (int key)
 }
 
 //=============================================================================
-/* MAPLIST MENU */   //qbism - Rikku2000 maplist
+/* MAPLIST MENU */   //qb: Rikku2000 maplist
 
 #define MAX_FILE_LIST 15
 
@@ -3315,7 +3315,7 @@ void M_Audio_Key (int k)
 //=============================================================================
 /* VIDEO MENU */
 
-#define	VIDEO_ITEMS	18 //qbism
+#define	VIDEO_ITEMS	18 //qb:
 
 void M_Video_f (void)
 {
@@ -3340,7 +3340,7 @@ void M_Video_Draw (void)
 
     M_Print (16, y+=8, "           Video modes    ...");
     M_Print (16, y+=8, "    FOV- field of view");
-    M_DrawSlider (220, y, (scr_fov.value - 30.0) / 110.0); //qbism
+    M_DrawSlider (220, y, (scr_fov.value - 30.0) / 110.0); //qb:
     M_Print (16, y+=8, "            Brightness");
     M_DrawSlider (220, y, (1.0 - v_gamma.value) / 0.5);
     M_Print (16, y+=8, "            Status bar");
@@ -3379,11 +3379,11 @@ void M_Video_Draw (void)
 void M_Video_Change (int dir)
 {
     int c = m_cursor[m_state];
-    int i = 1; //qbism changed
+    int i = 1; //qb: changed
 
     S_LocalSound ("misc/menu3.wav");
 
-    if (c == i++) ChangeCVar("fov", scr_fov.value, dir * 5, 30, 140, false); //qbism
+    if (c == i++) ChangeCVar("fov", scr_fov.value, dir * 5, 30, 140, false); //qb:
     if (c == i++) ChangeCVar("gamma", v_gamma.value, dir * -0.05, 0.5, 1, true);
     if (c == i++) ChangeCVar("sbar", sbar.value, dir, 0, 4, true);
     if (c == i++) Cvar_SetValue ("sbar_show_bg", !sbar_show_bg.value);
@@ -3422,7 +3422,7 @@ void M_Video_Key (int k) // int key Edited by Manoel Kasimier
     else if (m_cursor[m_state] == 0 && m_inp_ok)
 
         M_VideoModes_f ();
-//qbism	else if (m_cursor[m_state] == 1 && m_inp_ok)
+//qb:	else if (m_cursor[m_state] == 1 && m_inp_ok)
     else if (m_inp_left)
         M_Video_Change (-1);
     else if (m_inp_right || m_inp_ok)
@@ -3698,7 +3698,7 @@ void M_Help_Key (int key)
 //=============================================================================
 /* QUIT MENU */
 
-char *quitMessage =  //qbism- show credits
+char *quitMessage =  //qb: show credits
     "Press Y to Quit.\n\
 Press N to Reconsider.\n\
 \n\

@@ -382,7 +382,7 @@ void Capture_Close (void)
 	qAVIFileExit ();
 }
 
-void Capture_WriteVideo (byte *pixel_buffer) //qbism - call from vid_win.c
+void Capture_WriteVideo (byte *pixel_buffer) //qb: call from vid_win.c
 {
     int	bufsize;
 	HRESULT	hr;

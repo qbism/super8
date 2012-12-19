@@ -93,7 +93,7 @@ char *Cvar_CompleteVariable (char *partial)
 }
 
 
-//qbism qrack command line begin
+//qb: qrack command line begin
 /*
 ============
 Cvar_CompleteCountPossible
@@ -115,7 +115,7 @@ int Cvar_CompleteCountPossible (char *partial)
 	return c;
 }
 
-//qbism qrack command line end
+//qb: qrack command line end
 
 /*
 ============

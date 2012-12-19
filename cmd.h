@@ -76,9 +76,9 @@ typedef enum
 
 extern	cmd_source_t	cmd_source;
 
-//qbism qrack begin
+//qb: qrack begin
 typedef struct direntry_s
-{ 
+{
 	int		type;	// 0 = file, 1 = dir, 2 = ".."
 	char		*name;
 	int		size;
@@ -95,7 +95,7 @@ extern	int		RDFlags;
 #define	RD_NOERASE		16	// to avoid deleting the filelist
 #define	RD_SKYBOX		32	// for skyboxes
 #define	RD_GAMEDIR		64	// for the "gamedir" command
-//qbism qrack end
+//qb: qrack end
 
 void	Cmd_Init (void);
 
@@ -107,11 +107,11 @@ void	Cmd_AddCommand (char *cmd_name, xcommand_t function);
 qboolean Cmd_Exists (char *cmd_name);
 // used by the cvar code to check for cvar / command name overlap
 
-//qbism qrack command line begin
+//qb: qrack command line begin
 char *COM_FileExtension (char *in);
 void Cmd_CompleteParameter (char *partial, char *attachment);
 void CompleteCommand (void);
-//qbism qrack command line end
+//qb: qrack command line end
 
 char 	*Cmd_CompleteAlias (char *partial); // Manoel Kasimier
 char 	*Cmd_CompleteCommand (char *partial);

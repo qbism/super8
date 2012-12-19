@@ -38,8 +38,8 @@ int				r_currentbkey;
 
 typedef enum {touchessolid, drawnode, nodrawnode} solidstate_t;
 
-#define MAX_BMODEL_VERTS	1000 //qbism was 500
-#define MAX_BMODEL_EDGES	3000 //qbism was 1000
+#define MAX_BMODEL_VERTS	1000 //qb: was 500
+#define MAX_BMODEL_EDGES	3000 //qb: was 1000
 
 static mvertex_t	*pbverts;
 static bedge_t		*pbedges;
@@ -436,7 +436,7 @@ void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags)
 		}
 	}
 }
-//qbism R_DepthSortBrushEntities R_SortBrushEntities from Reckless tute on inside3d
+//qb: R_DepthSortBrushEntities R_SortBrushEntities from Reckless tute on inside3d
 /*
 =============
 R_DepthSortBrushEntities
@@ -690,7 +690,7 @@ void R_RenderWorld (void)
 	clmodel = currententity->model;
 	r_pcurrentvertbase = clmodel->vertexes;
 
-	R_SortBrushEntities();  //qbism from reckless
+	R_SortBrushEntities();  //qb: from reckless
 	R_RecursiveWorldNode (clmodel->nodes, 15);
 	if (r_drawskybox) // Manoel Kasimier - skyboxes
 		R_EmitSkyBox (); // Manoel Kasimier - skyboxes

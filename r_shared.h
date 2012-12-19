@@ -25,8 +25,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define	MAXVERTS	16					// max points in a surface polygon
 #define MAXWORKINGVERTS	(MAXVERTS+4)	// max points in an intermediate
 										//  polygon (while processing)
-#define	MAXHEIGHT		1080 //qbism was 1024.  Why not more?
-#define	MAXWIDTH		1920 //qbism was 1280
+#define	MAXHEIGHT		1080 //qb: was 1024.  Why not more?
+#define	MAXWIDTH		1920 //qb: was 1280
 #define MAXDIMENSION	((MAXHEIGHT > MAXWIDTH) ? MAXHEIGHT : MAXWIDTH)
 
 #define SIN_BUFFER_SIZE	(MAXDIMENSION+CYCLE)
@@ -45,7 +45,7 @@ extern int		r_drawnpolycount;
 
 extern cvar_t	r_clearcolor;
 
-//qbism particle cvars
+//qb: particle cvars
 extern cvar_t r_part_scale;         //global particle scale
 extern cvar_t r_part_blob_count;    //quantity of particles for blob explosion
 extern cvar_t r_part_blob_time;     //life span of blob particles
@@ -66,12 +66,12 @@ extern	vec3_t	vpn, base_vpn;
 extern	vec3_t	vright, base_vright;
 extern	entity_t		*currententity;
 
-//qbism- increased to solve dropped faces in maps with large open spaces like ALK08DM
-#define NUMSTACKEDGES		8192  //qbism 8192 per qsb - was 2400
+//qb: increased to solve dropped faces in maps with large open spaces like ALK08DM
+#define NUMSTACKEDGES		8192  //qb: 8192 per qsb - was 2400
 #define	MINEDGES			NUMSTACKEDGES
-#define NUMSTACKSURFACES	8192  //qbism 8192 per qsb - was 800
+#define NUMSTACKSURFACES	8192  //qb: 8192 per qsb - was 800
 #define MINSURFACES			NUMSTACKSURFACES
-#define	MAXSPANS			8000 //qbism was 3000.
+#define	MAXSPANS			8000 //qb: was 3000.
 
 typedef struct espan_s
 {

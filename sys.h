@@ -23,7 +23,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 // returns the file size
 // return -1 if file is not present
 // the file should be in BINARY mode for stupid OSs that care
-int Sys_FileOpenAppend (char *path); //qbism - from mh FRIK_FILE tute
+int Sys_FileOpenAppend (char *path); //qb: from mh FRIK_FILE tute
 int Sys_FileOpenRead (char *path, int *hndl);
 
 int Sys_FileOpenWrite (char *path);

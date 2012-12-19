@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 // snd_dma.c -- main control for any streaming sound output device
 
 #include "quakedef.h"
-#ifdef _WIN32 //qbism jqavi
+#ifdef _WIN32 //qb: jqavi
 #include "s_win32/winquake.h"
 #include "s_win32/movie_avi.h"
 #endif
@@ -75,8 +75,8 @@ cvar_t ambient_level = {"ambient_level", "0.3"};
 cvar_t ambient_fade = {"ambient_fade", "100"};
 cvar_t snd_noextraupdate = {"snd_noextraupdate", "0"};
 cvar_t snd_show = {"snd_show", "0"};
-cvar_t snd_speed = {"snd_speed", "44100"};  //qbism
-cvar_t _snd_mixahead = {"_snd_mixahead", "0.2", true}; //qbism- Dan East was 0.1
+cvar_t snd_speed = {"snd_speed", "44100"};  //qb:
+cvar_t _snd_mixahead = {"_snd_mixahead", "0.2", true}; //qb: Dan East was 0.1
 cvar_t snd_stereo = {"snd_stereo", "1", true}; // Manoel Kasimier
 cvar_t snd_swapstereo = {"snd_swapstereo", "0", true}; // Manoel Kasimier
 
@@ -191,7 +191,7 @@ void S_Init (void)
 	Cvar_RegisterVariable(&ambient_fade);
 	Cvar_RegisterVariable(&snd_noextraupdate);
 	Cvar_RegisterVariable(&snd_show);
-	Cvar_RegisterVariable(&snd_speed);  //qbism
+	Cvar_RegisterVariable(&snd_speed);  //qb:
 	Cvar_RegisterVariable(&_snd_mixahead);
 	Cvar_RegisterVariable(&snd_swapstereo); // Manoel Kasimier
 	Cvar_RegisterVariable(&snd_stereo); // Manoel Kasimier
@@ -215,7 +215,7 @@ void S_Init (void)
 		//#ifdef FLASH
 		shm->speed = 44100; //Flash sampling rate is 44.1KHz
 		//#else
-		//		shm->speed = 22050; //qbism- let all be 44100
+		//		shm->speed = 22050; //qb: let all be 44100
 		//#endif
 		shm->channels = 2;
 		shm->samples = 32768;
@@ -648,7 +648,7 @@ void S_StaticSound (sfx_t *sfx, vec3_t origin, float vol, float attenuation)
 
 	if (sc->loopstart == -1)
 	{
-		Con_DPrintf ("Sound %s not looped\n", sfx->name); //qbism changed to Con_DPrintf
+		Con_DPrintf ("Sound %s not looped\n", sfx->name); //qb: changed to Con_DPrintf
 		return;
 	}
 
@@ -834,7 +834,7 @@ void GetSoundtime(void)
 	int		fullsamples;
 
 
-#ifdef _WIN32 //qbism jqavi
+#ifdef _WIN32 //qb: jqavi
 	if (Movie_GetSoundtime())
 		return;
 #endif
@@ -866,7 +866,7 @@ void S_ExtraUpdate (void)
 {
 
 #ifdef _WIN32
-	if (Movie_IsActive())  return;  //qbism jqavi
+	if (Movie_IsActive())  return;  //qb: jqavi
 	IN_Accumulate ();
 #endif
 

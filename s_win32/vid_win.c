@@ -14,7 +14,7 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
-// vid_win.c -- Win32 video driver  //qbism - directdraw driver by MH
+// vid_win.c -- Win32 video driver  //qb: directdraw driver by MH
 
 #include "../quakedef.h"
 #include "winquake.h"
@@ -24,9 +24,9 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 // true if the ddraw driver started up OK
 qboolean    vid_usingddraw = false;
-int	stretched; //qbism - added back
+int	stretched; //qb: added back
 
-int min_vid_width=320; //qbism- Dan East (for very low-res display)
+int min_vid_width=320; //qb: Dan East (for very low-res display)
 
 // main application window
 HWND hWndWinQuake = NULL;
@@ -50,7 +50,7 @@ static void Check_Gamma (void)
 
     for (i = 0; i < 256; i++)
     {
-        f = pow (i / 256.0, gamm);  //qbism- was (i + 1).  Don't increase black brightness.
+        f = pow (i / 256.0, gamm);  //qb: was (i + 1).  Don't increase black brightness.
         inf = f * 255 + 0.5;
 
         if (inf < 0) inf = 0;
@@ -114,7 +114,7 @@ void VID_CreateDDrawDriver (int width, int height, unsigned char *palette, unsig
     dd_window_width = width;
     dd_window_height = height;
 
-    vidbuf = (unsigned char *) Q_malloc (width * height); //qbism was malloc
+    vidbuf = (unsigned char *) Q_malloc (width * height); //qb: was malloc
     buffer[0] = vidbuf;
     rowbytes[0] = width;
 
@@ -328,7 +328,7 @@ qboolean		DDActive;
 
 #define MAX_MODE_LIST	30
 #define VID_ROW_SIZE	3
-#define VID_WINDOWED_MODES 3 //qbism
+#define VID_WINDOWED_MODES 3 //qb:
 
 extern int		Minimized;
 
@@ -356,10 +356,10 @@ viddef_t	vid;				// global video state
 #define MODE_WINDOWED			0
 #define MODE_SETTABLE_WINDOW	2
 #define NO_MODE					(MODE_WINDOWED - 1)
-#define MODE_FULLSCREEN_DEFAULT	(MODE_WINDOWED + VID_WINDOWED_MODES) //qbism was 3
+#define MODE_FULLSCREEN_DEFAULT	(MODE_WINDOWED + VID_WINDOWED_MODES) //qb: was 3
 
 // Note that 0 is MODE_WINDOWED
-cvar_t		vid_mode = {"vid_mode", "3", true}; //qbism was false
+cvar_t		vid_mode = {"vid_mode", "3", true}; //qb: was false
 // Note that 0 is MODE_WINDOWED
 cvar_t		vid_default_mode_win = {"vid_default_mode_win", "3", true};
 cvar_t		vid_wait = {"vid_wait", "1", true};
@@ -369,13 +369,13 @@ cvar_t		vid_stretch_by_2 = {"vid_stretch_by_2", "1", true};
 cvar_t		_windowed_mouse = {"_windowed_mouse", "1", true};
 cvar_t		vid_fullscreen_mode = {"vid_fullscreen_mode", "3", true};
 cvar_t		vid_windowed_mode = {"vid_windowed_mode", "0", true};
-cvar_t		vid_window_x = {"vid_window_x", "0", false}; //qbism was true
+cvar_t		vid_window_x = {"vid_window_x", "0", false}; //qb: was true
 cvar_t		vid_window_y = {"vid_window_y", "0", false};
 
 int			vid_modenum = NO_MODE;
 int			vid_testingmode, vid_realmode;
 double		vid_testendtime;
-int			vid_default = MODE_FULLSCREEN_DEFAULT; //qbism
+int			vid_default = MODE_FULLSCREEN_DEFAULT; //qb:
 static int	windowed_default;
 
 modestate_t	modestate = MS_UNINIT;
@@ -401,7 +401,7 @@ typedef struct
 } vmode_t;
 
 static vmode_t	modelist[MAX_MODE_LIST];
-static int		nummodes = VID_WINDOWED_MODES;	// reserve space for windowed mode  //qbism was 3
+static int		nummodes = VID_WINDOWED_MODES;	// reserve space for windowed mode  //qb: was 3
 
 static vmode_t	*pcurrentmode;
 
@@ -573,7 +573,7 @@ qboolean VID_AllocBuffers (int width, int height)
         d_pzbuffer = NULL;
     }
 
-    d_pzbuffer = Q_malloc (tbuffersize); //qbism was Z_Malloc
+    d_pzbuffer = Q_malloc (tbuffersize); //qb: was Z_Malloc
     vid_surfcache = (byte *) d_pzbuffer +
                     width * height * sizeof (*d_pzbuffer);
 
@@ -598,7 +598,7 @@ void VID_InitModes (HINSTANCE hInstance)
     wc.hCursor       = LoadCursor (NULL, IDC_ARROW);
     wc.hbrBackground = NULL;
     wc.lpszMenuName  = 0;
-    wc.lpszClassName = "qbismSuper8"; //qbism
+    wc.lpszClassName = "qbismSuper8";
 
     if (!RegisterClass (&wc))
         Sys_Error ("Couldn't register window class");
@@ -618,7 +618,7 @@ void VID_InitModes (HINSTANCE hInstance)
     modelist[1].fullscreen = 0;
 
     modelist[2].type = MS_WINDOWED;
-    modelist[2].width = 1280; //qbism
+    modelist[2].width = 1280; //qb:
     modelist[2].height = 720;
     strcpy (modelist[2].modedesc, "custom window");
     modelist[2].modenum = MODE_WINDOWED + 2;
@@ -627,20 +627,20 @@ void VID_InitModes (HINSTANCE hInstance)
     // automatically stretch the default mode up if > 640x480 desktop resolution
     hdc = GetDC (NULL);
 
-    for (i = VID_WINDOWED_MODES; i<nummodes; i++) //qbism FIXME - this gets stomped on.
+    for (i = VID_WINDOWED_MODES; i<nummodes; i++) //qb: FIXME - this gets stomped on.
     {
-        if ((modelist[i].width == GetDeviceCaps (hdc, HORZRES)) && (modelist[i].height == GetDeviceCaps (hdc, VERTRES)) && !startwindowed)  //qbism - do fullscreen as default.
+        if ((modelist[i].width == GetDeviceCaps (hdc, HORZRES)) && (modelist[i].height == GetDeviceCaps (hdc, VERTRES)) && !startwindowed)  //qb: do fullscreen as default.
         {
             vid_default = i;
             continue;
         }
     }
 
-    if ((GetDeviceCaps (hdc, HORZRES) > modelist[1].width) && !COM_CheckParm ("-noautostretch"))  //qbism - was 800
+    if ((GetDeviceCaps (hdc, HORZRES) > modelist[1].width) && !COM_CheckParm ("-noautostretch"))  //qb: was 800
     {
         windowed_default = MODE_WINDOWED + 2;
     }
-    else if ((GetDeviceCaps (hdc, HORZRES) > modelist[0].width) && !COM_CheckParm ("-noautostretch"))  //qbism - was 640
+    else if ((GetDeviceCaps (hdc, HORZRES) > modelist[0].width) && !COM_CheckParm ("-noautostretch"))  //qb: was 640
     {
         windowed_default = MODE_WINDOWED + 1;
     }
@@ -649,12 +649,12 @@ void VID_InitModes (HINSTANCE hInstance)
         windowed_default = MODE_WINDOWED;
     }
     ReleaseDC (NULL, hdc);
-    Cvar_SetValue("vid_fullscreen_mode", vid_default); //qbism
+    Cvar_SetValue("vid_fullscreen_mode", vid_default); //qb:
 }
 
 /*
 ================
-CenterWindow  //qbism - mh / Baker
+CenterWindow  //qb: mh / Baker
 ================
 */
 void CenterWindow (HWND hWndCenter)
@@ -717,8 +717,8 @@ void VID_GetDisplayModes (void)
 
         if ((devmode.dmPelsWidth <= MAXWIDTH) &&
                 (devmode.dmPelsHeight <= MAXHEIGHT) &&
-                (devmode.dmPelsWidth >= 320) && //qbism was 640
-                (devmode.dmPelsHeight >= 200) && //qbism was 480
+                (devmode.dmPelsWidth >= 320) && //qb: was 640
+                (devmode.dmPelsHeight >= 200) && //qb: was 480
                 (nummodes < MAX_MODE_LIST))
         {
             devmode.dmFields = DM_BITSPERPEL |
@@ -766,7 +766,7 @@ void VID_GetDisplayModes (void)
     if (nummodes == originalnummodes)
         Con_Printf ("No fullscreen DIB modes found\n");
 
-    /*qbism - was   if (nummodes != originalnummodes)
+    /*qb: was   if (nummodes != originalnummodes)
            vid_default = MODE_FULLSCREEN_DEFAULT;
        else Con_Printf ("No fullscreen DIB modes found\n");
            */
@@ -821,7 +821,7 @@ qboolean VID_SetWindowedMode (int modenum)
                        (
                            ExWindowStyle,
                            "qbismSuper8",
-                           "qbismSuper8", //qbism edited
+                           "qbismSuper8", //qb: edited
                            WindowStyle,
                            0, 0,
                            WindowRect.right - WindowRect.left,
@@ -863,7 +863,7 @@ qboolean VID_SetWindowedMode (int modenum)
 
     // position and show the DIB window
     //VID_CheckWindowXY ();
-    CenterWindow(hWndWinQuake); //qbism
+    CenterWindow(hWndWinQuake); //qb:
 
     if (force_minimized)
         ShowWindow (hWndWinQuake, SW_MINIMIZE);
@@ -875,11 +875,11 @@ qboolean VID_SetWindowedMode (int modenum)
 
     vid.numpages = 1;
 
-    if(DIBWidth >= 640 && vid_stretch_by_2.value && (DIBWidth%2 == 0))  //qbism - only if width is multiple of 2
+    if(DIBWidth >= 640 && vid_stretch_by_2.value && (DIBWidth%2 == 0))  //qb: only if width is multiple of 2
         stretched = 1;
     else stretched = 0;
-//	vid.maxwarpwidth = WARP_WIDTH; //qbism from Manoel Kasimier - hi-res waterwarp - removed
-//	vid.maxwarpheight = WARP_HEIGHT; //qbism from Manoel Kasimier - hi-res waterwarp - removed
+//	vid.maxwarpwidth = WARP_WIDTH; //qb: from Manoel Kasimier - hi-res waterwarp - removed
+//	vid.maxwarpheight = WARP_HEIGHT; //qb: from Manoel Kasimier - hi-res waterwarp - removed
     if (stretched )
     {
         vid.height = vid.conheight = DIBHeight/2;
@@ -891,8 +891,8 @@ qboolean VID_SetWindowedMode (int modenum)
         vid.width = vid.conwidth = DIBWidth;
     }
 
-    vid.maxwarpwidth = vid.width; //qbism from  Manoel Kasimier - hi-res waterwarp
-    vid.maxwarpheight = vid.height; //qbism from  Manoel Kasimier - hi-res waterwarp
+    vid.maxwarpwidth = vid.width; //qb: from  Manoel Kasimier - hi-res waterwarp
+    vid.maxwarpheight = vid.height; //qb: from  Manoel Kasimier - hi-res waterwarp
 
     vid.aspect = ((float) vid.height / (float) vid.width) *
                  (320.0 / 240.0);
@@ -947,13 +947,13 @@ qboolean VID_SetFullDIBMode (int modenum)
 
     // position and show the DIB window
     //VID_CheckWindowXY();
-    CenterWindow(hWndWinQuake); //qbism
+    CenterWindow(hWndWinQuake); //qb:
     UpdateWindow (hWndWinQuake);
 
     vid.numpages = 1;
-//	vid.maxwarpwidth = WARP_WIDTH; //qbism from Manoel Kasimier - hi-res waterwarp - removed
-//	vid.maxwarpheight = WARP_HEIGHT; //qbism from Manoel Kasimier - hi-res waterwarp - removed
-    if(DIBWidth >= 640 && vid_stretch_by_2.value && (DIBWidth%2 == 0))  //qbism
+//	vid.maxwarpwidth = WARP_WIDTH; //qb: from Manoel Kasimier - hi-res waterwarp - removed
+//	vid.maxwarpheight = WARP_HEIGHT; //qb: from Manoel Kasimier - hi-res waterwarp - removed
+    if(DIBWidth >= 640 && vid_stretch_by_2.value && (DIBWidth%2 == 0))  //qb:
         stretched = 1;
     else stretched = 0;
     if (stretched )
@@ -966,8 +966,8 @@ qboolean VID_SetFullDIBMode (int modenum)
         vid.height = vid.conheight = DIBHeight;
         vid.width = vid.conwidth = DIBWidth;
     }
-    vid.maxwarpwidth = vid.width; //qbism from  Manoel Kasimier - hi-res waterwarp
-    vid.maxwarpheight = vid.height; //qbism from  Manoel Kasimier - hi-res waterwarp
+    vid.maxwarpwidth = vid.width; //qb: from  Manoel Kasimier - hi-res waterwarp
+    vid.maxwarpheight = vid.height; //qb: from  Manoel Kasimier - hi-res waterwarp
     vid.aspect = ((float) vid.height / (float) vid.width) *
                  (320.0 / 240.0);
 
@@ -1153,7 +1153,7 @@ int VID_SetMode (int modenum, unsigned char *palette)
     vid_modenum = modenum;
     Cvar_SetValue ("vid_mode", (float) vid_modenum);
 
-    if (vid.width<320) min_vid_width=vid.width; //qbism- Dan East
+    if (vid.width<320) min_vid_width=vid.width; //qb: Dan East
     else min_vid_width=320;
 
     if (!VID_AllocBuffers (vid.width, vid.height))
@@ -1175,7 +1175,7 @@ int VID_SetMode (int modenum, unsigned char *palette)
 
     if (!force_minimized)
     {
-        CenterWindow(hWndWinQuake); //qbism
+        CenterWindow(hWndWinQuake); //qb:
 
         SetForegroundWindow (hWndWinQuake);
     }
@@ -1184,7 +1184,7 @@ int VID_SetMode (int modenum, unsigned char *palette)
     ClearAllStates ();
 
     if (!msg_suppress_1)
-        Con_Printf ("Video mode: %s\n", VID_GetModeDescription (vid_modenum));  //qbism edited
+        Con_Printf ("Video mode: %s\n", VID_GetModeDescription (vid_modenum));  //qb: edited
 
     VID_SetPalette (palette);
     in_mode_set = false;
@@ -1236,7 +1236,7 @@ void VID_SetPalette (unsigned char *palette)
                     p->peFlags = 255;
                 }
 
-                //qbism- no thanks.... colors[0].rgbRed = 0;
+                //qb: no thanks.... colors[0].rgbRed = 0;
                 //colors[0].rgbGreen = 0;
                 //colors[0].rgbBlue = 0;
                 colors[255].rgbRed = 0xff;
@@ -1297,13 +1297,13 @@ void VID_Init (unsigned char *palette)
 
         basenummodes = nummodes;
         VID_GetDisplayModes ();
-        VID_InitModes (global_hInstance); //qbism - move after VID_GetDisplayModes
+        VID_InitModes (global_hInstance); //qb: move after VID_GetDisplayModes
     }
 
     //vid.maxwarpwidth = WARP_WIDTH;
     //vid.maxwarpheight = WARP_HEIGHT;
-    vid.maxwarpwidth = vid.width; //qbism from  Manoel Kasimier - hi-res waterwarp
-    vid.maxwarpheight = vid.height; //qbism from  Manoel Kasimier - hi-res waterwarp
+    vid.maxwarpwidth = vid.width; //qb: from  Manoel Kasimier - hi-res waterwarp
+    vid.maxwarpheight = vid.height; //qb: from  Manoel Kasimier - hi-res waterwarp
     vid.colormap = host_colormap;
     vid.fullbright = 256 - LittleLong (*((int *) vid.colormap + 2048));
     vid_testingmode = 0;
@@ -1328,7 +1328,7 @@ void VID_Init (unsigned char *palette)
     if (firsttime) S_Init ();
     vid_initialized = true;
 //   force_mode_set = true;
-//qbism - not needed   VID_SetMode (vid_default, palette);
+//qb: not needed   VID_SetMode (vid_default, palette);
 //   force_mode_set = false;
     vid_realmode = vid_modenum;
     VID_SetPalette (palette);
@@ -1407,7 +1407,7 @@ void FlipScreen (vrect_t *rects)
                 ddsd.lPitch >>= 2;
 
                 // because we created a 32 bit backbuffer we need to copy from the 8 bit memory buffer to it before flipping
-                if (stretched) //qbism
+                if (stretched) //qb:
                 {
                     rects->height = DIBHeight;
                     rects->width = DIBWidth;
@@ -1415,7 +1415,7 @@ void FlipScreen (vrect_t *rects)
                     {
                         for (y = 0; y < DIBHeight; y++, dst += ddsd.lPitch)
                         {
-                            src += (vid.rowbytes * (y%2)); //qbism - only update every other row
+                            src += (vid.rowbytes * (y%2)); //qb: only update every other row
                             byte *psrc = src;
                             unsigned int *pdst = dst;
 
@@ -1447,7 +1447,7 @@ void FlipScreen (vrect_t *rects)
                     {
                         for (y = 0; y < DIBHeight; y++, dst += ddsd.lPitch)
                         {
-                            src += (vid.rowbytes * (y%2)); //qbism - only update every other row
+                            src += (vid.rowbytes * (y%2)); //qb: only update every other row
                             byte *psrc = src;
                             unsigned int *pdst = dst;
 
@@ -1471,7 +1471,7 @@ void FlipScreen (vrect_t *rects)
                     {
                         for (y = 0; y < DIBHeight; y++, dst += ddsd.lPitch)
                         {
-                            src += (vid.rowbytes * (y%2)); //qbism - only update every other row
+                            src += (vid.rowbytes * (y%2)); //qb: only update every other row
                             byte *psrc = src;
                             unsigned int *pdst = dst;
 
@@ -1682,7 +1682,7 @@ void FlipScreen (vrect_t *rects)
     }
 }
 
-//qbism removed D_BeginDirectRect and D_EndDirectRect
+//qb: removed D_BeginDirectRect and D_EndDirectRect
 
 void VID_Update (vrect_t *rects)
 {
@@ -1722,16 +1722,16 @@ void VID_Update (vrect_t *rects)
             Cvar_SetValue ("vid_mode", vid_default_mode_win.value);
         }
     }
-    // handle the mouse state when windowed if that's changed
-    if (modestate == MS_WINDOWED)
+    else
     {
-        VID_CheckWindowXY (); //qbism- put the check here, and nowhere else
-        GetWindowRect (mainwindow, &trect);
-        if ((trect.left != (int) vid_window_x.value)
-                ||   (trect.top  != (int) vid_window_y.value))
-            SetWindowPos (mainwindow, NULL, (int) vid_window_x.value, (int) vid_window_y.value, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
-
+        if (modestate == MS_WINDOWED) //qb: move check here and setwindowpos as dddraw hack
         {
+            VID_CheckWindowXY (); //qb: put the check here, and nowhere else
+            GetWindowRect (mainwindow, &trect);
+            if ((trect.left != (int) vid_window_x.value)
+                    ||   (trect.top  != (int) vid_window_y.value))
+                SetWindowPos (mainwindow, NULL, (int) vid_window_x.value, (int) vid_window_y.value, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW | SWP_DRAWFRAME);
+
             if (key_dest != key_menu && !cl.paused && !cls.demoplayback) // mankrip
             {
                 IN_ActivateMouse ();
@@ -1742,7 +1742,6 @@ void VID_Update (vrect_t *rects)
                 IN_DeactivateMouse ();
                 IN_ShowMouse ();
             }
-
         }
     }
 
@@ -1777,6 +1776,7 @@ void VID_Update (vrect_t *rects)
         }
         // mankrip - end
     }
+    // handle the mouse state when windowed if that's changed
 }
 
 //==========================================================================
@@ -2173,8 +2173,8 @@ LONG WINAPI MainWndProc (
     return lRet;
 }
 
-extern void M_Video_f (void); //qbism from Manoel Kasimier - edited
-//qbism extern void M_Menu_Options_f (void);
+extern void M_Video_f (void); //qb: from Manoel Kasimier - edited
+//qb: extern void M_Menu_Options_f (void);
 extern void M_Print (int cx, int cy, char *str);
 extern void M_PrintWhite (int cx, int cy, char *str);
 extern void M_DrawCharacter (int cx, int line, int num);
@@ -2210,12 +2210,12 @@ void VID_MenuDraw (void)
     vmode_t		*pv;
     modedesc_t	tmodedesc;
     p = Draw_CachePic ("gfx/vidmodes.lmp");
-    M_DrawTransPic ( (/*320*/ min_vid_width-p->width)/2, 4, p); //qbism from Manoel Kasimier + Dan East
+    M_DrawTransPic ( (/*320*/ min_vid_width-p->width)/2, 4, p); //qb: from Manoel Kasimier + Dan East
 
     for (i = 0; i < 3; i++)
     {
         ptr = VID_GetModeDescriptionMemCheck (i);
-        if (ptr == NULL) Sys_Error("VID_GetModeDescriptionMemCheck returns NULL"); //qbism
+        if (ptr == NULL) Sys_Error("VID_GetModeDescriptionMemCheck returns NULL"); //qb:
         modedescs[i].modenum = modelist[i].modenum;
         modedescs[i].desc = ptr;
         modedescs[i].iscur = 0;
@@ -2235,7 +2235,7 @@ void VID_MenuDraw (void)
         // we only have room for 15 fullscreen modes, so don't allow
         // 360-wide modes, because if there are 5 320-wide modes and
         // 5 360-wide modes, we'll run out of space
-        if (ptr) //qbism...but now don't care... && ((pv->width != 360) || 1)) //was COM_CheckParm("-allow360")))
+        if (ptr) //qb:...but now don't care... && ((pv->width != 360) || 1)) //was COM_CheckParm("-allow360")))
         {
             dup = 0;
 
@@ -2387,7 +2387,7 @@ void VID_MenuKey (int key)
     {
     case K_ESCAPE:
         S_LocalSound ("misc/menu1.wav");
-        M_Video_f ();  //qbism from Manoel Kasiemer - edited
+        M_Video_f ();  //qb: from Manoel Kasiemer - edited
 //		M_Menu_Options_f ();
         break;
     case K_LEFTARROW:
@@ -2501,7 +2501,7 @@ void VID_CheckModedescFixup (int mode)
 {
     int		x, y;
 
-//qbism - restore custom window mode #if 0
+//qb: restore custom window mode #if 0
     if (mode == MODE_SETTABLE_WINDOW)
     {
         x = (int) vid_config_x.value;

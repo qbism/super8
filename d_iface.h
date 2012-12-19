@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 //#define WARP_WIDTH		320
 //#define WARP_HEIGHT		200
 
-#define MAX_LBM_HEIGHT	1024 //qbism- 1024 per bjp, infinite per qsb - was 480
+#define MAX_LBM_HEIGHT	1024 //qb: 1024 per bjp, infinite per qsb - was 480
 
 typedef struct
 {
@@ -31,7 +31,7 @@ typedef struct
 typedef enum {
 	pt_static, pt_grav, pt_slowgrav, pt_fire, pt_explode, pt_explode2, pt_blob, pt_blob2,
 	pt_fastgrav, pt_smoke, pt_decel, pt_sticky, pt_staticfade, pt_staticfadeadd
-} ptype_t; //qbism -more particle types from engoo.  Changed some names to be more generic/descriptive
+} ptype_t; //qb:more particle types from engoo.  Changed some names to be more generic/descriptive
 
 
 // !!! if this is changed, it must be changed in d_ifacea.h too !!!
@@ -39,7 +39,7 @@ typedef struct particle_s
 {
 // driver-usable fields
 	vec3_t		org;
-	int		color; //qbism - was float
+	int		color; //qb: was float
 // drivers never touch the following fields
 	struct particle_s	*next;
 	vec3_t		vel;
@@ -139,15 +139,15 @@ extern vec3_t	r_pright, r_pup, r_ppn;
 
 
 void D_Aff8Patch (void *pcolormap);
-//qbism - removed       void D_BeginDirectRect (int x, int y, byte *pbitmap, int width, int height);
-//qbism - removed       void D_EndDirectRect (int x, int y, int width, int height);
+//qb: removed       void D_BeginDirectRect (int x, int y, byte *pbitmap, int width, int height);
+//qb: removed       void D_EndDirectRect (int x, int y, int width, int height);
 void D_PolysetDraw (void);
 void D_PolysetDraw_C (void); // Manoel Kasimier - transparencies
 void D_PolysetDrawFinalVerts (finalvert_t *fv, int numverts);
 void D_DrawParticle_C (particle_t *pparticle); // Manoel Kasimier - enabled C particle renderer
 void D_DrawParticle_66_C (particle_t *pparticle); // Manoel Kasimier - translucent particles
 void D_DrawParticle_33_C (particle_t *pparticle); // Manoel Kasimier - translucent particles
-//void D_DrawPoly (void); qbism this engine draws spans
+//void D_DrawPoly (void); qb: this engine draws spans
 void D_DrawSprite (void);
 void D_DrawSurfaces (void);
 void D_DrawZPoint (void);

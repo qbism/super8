@@ -35,7 +35,7 @@ typedef struct
 	pixel_t			*colormap;		// 256 * VID_GRADES size
 	unsigned short	*colormap16;	// 256 * VID_GRADES size
 	int				fullbright;		// index of first fullbright color
-	int     		rowbytes;	// may be > width if displayed in a window //qbism- signed per szo
+	int     		rowbytes;	// may be > width if displayed in a window //qb: signed per szo
 	int     		width;
 	int        		height;
 	float			aspect;		// width / height -- < 1 is taller than wide

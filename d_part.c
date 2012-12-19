@@ -51,7 +51,7 @@ void D_DrawParticle_33_C (particle_t *pparticle) // Manoel Kasimier
 
     izi = (int)(zi * 0x8000);
 
-    //qbism:  better pix calc from MK 1.4.  Code stripped down for square pixels and no aspect adjust.
+    //qb:  better pix calc from MK 1.4.  Code stripped down for square pixels and no aspect adjust.
     d_pix_shift = 8 - (int) ( ( (float) r_refdef.vrect.width) / ( (1.0f / 320.0f) * (float) vid.width));
     pix = (double) ( (int) ( (float) izi * fovscale * r_part_scale.value * ( (float) vid.width / 50.0)) >> d_pix_shift);
 

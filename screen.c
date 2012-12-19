@@ -22,9 +22,9 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "s_win32/movie_avi.h"
 #endif
 
-extern cvar_t scr_ofsx; //qbism
-extern cvar_t scr_ofsz; //qbism
-extern cvar_t sbar; //qbism
+extern cvar_t scr_ofsx; //qb:
+extern cvar_t scr_ofsz; //qb:
+extern cvar_t sbar; //qb:
 
 // only the refresh window will be updated unless these variables are flagged
 int			scr_copytop;
@@ -35,12 +35,12 @@ float		scr_conlines;		// lines of console to display
 
 float		oldfov; // edited
 cvar_t		scr_viewsize = {"viewsize","100", true};
-cvar_t		scr_fov = {"fov","91.25"};	// 10 - 170 //qbism 91.25 works best for fisheye
+cvar_t		scr_fov = {"fov","91.25"};	// 10 - 170 //qb: 91.25 works best for fisheye
 cvar_t		scr_conspeed = {"scr_conspeed","1000"};
 cvar_t		scr_showpause = {"showpause","1"};
 cvar_t		scr_centertime = {"scr_centertime","2"};
 cvar_t		scr_printspeed = {"scr_printspeed","16"}; // 8 // Manoel Kasimier - edited
-cvar_t      scr_fadecolor = {"scr_fadecolor","4", true};  //qbism - background color for fadescreen2
+cvar_t      scr_fadecolor = {"scr_fadecolor","4", true};  //qb: background color for fadescreen2
 
 qboolean	scr_initialized;		// ready to draw
 
@@ -318,12 +318,12 @@ void SCR_SizeDown_f (void)
 }
 
 
-void SCR_SbarUp_f (void)  //qbism
+void SCR_SbarUp_f (void)  //qb:
 {
     sbar.value +=1;
     if (sbar.value >5) sbar.value = 5;
 }
-void SCR_SbarDown_f (void)  //qbism
+void SCR_SbarDown_f (void)  //qb:
 {
     sbar.value -=1;
     if (sbar.value <0) sbar.value = 0;
@@ -337,15 +337,15 @@ SCR_Adjust
 */
 void SCR_AdjustFOV (void)
 {
-// bound field of view //qbism change to 30 - 140
+// bound field of view //qb: change to 30 - 140
     if (r_fisheye.value) //qb:  set it yourself, for now
         return;
     if (scr_fov.value < 30)
         Cvar_Set ("fov","30");
     if (scr_fov.value > 140)
         Cvar_Set ("fov","140");
-    scr_ofsx.value = (pow(scr_fov.value, 2)-8100)/1700; //qbism compensate view model position
-    scr_ofsz.value = (pow(scr_fov.value, 2)-8100)/2000;//qbism compensate view model position
+    scr_ofsx.value = (pow(scr_fov.value, 2)-8100)/1700; //qb: compensate view model position
+    scr_ofsz.value = (pow(scr_fov.value, 2)-8100)/2000;//qb: compensate view model position
     if (oldfov != scr_fov.value)
     {
         oldfov = scr_fov.value;
@@ -386,7 +386,7 @@ void SCR_Init (void)
     Cvar_RegisterVariable (&scr_conspeed);
     Cvar_RegisterVariable (&scr_centertime);
     Cvar_RegisterVariable (&scr_printspeed);
-    Cvar_RegisterVariable (&scr_fadecolor); //qbism
+    Cvar_RegisterVariable (&scr_fadecolor); //qb:
 
 //
 // register our commands
@@ -395,14 +395,14 @@ void SCR_Init (void)
     Cmd_AddCommand ("sizeup",SCR_SizeUp_f);
     Cmd_AddCommand ("sizedown",SCR_SizeDown_f);
 
-    Cmd_AddCommand ("sbarup",SCR_SbarUp_f);  //qbism
-    Cmd_AddCommand ("sbardown",SCR_SbarDown_f);  //qbism
+    Cmd_AddCommand ("sbarup",SCR_SbarUp_f);  //qb:
+    Cmd_AddCommand ("sbardown",SCR_SbarDown_f);  //qb:
 
     scr_ram = Draw_PicFromWad ("ram");
     scr_net = Draw_PicFromWad ("net");
 //	scr_turtle = Draw_PicFromWad ("turtle"); // Manoel Kasimier - removed
 
-#ifdef _WIN32 //qbism jqavi
+#ifdef _WIN32 //qb: jqavi
     Movie_Init ();
 #endif
 
@@ -425,7 +425,7 @@ void SCR_DrawNet (void)
     Draw_TransPic (scr_vrect.x+64, scr_vrect.y, scr_net); // Manoel Kasimier - edited
 }
 
-//qbism improved drawfps adapted from Proquake
+//qb: improved drawfps adapted from Proquake
 
 /* JPG - draw frames per second
 ==============
@@ -437,10 +437,10 @@ void SCR_DrawFPS (void)
     int x;
     static double last_realtime = 0.0;
     static int last_framecount = 0;
-    static float fps = 0; //qbism - let's see higher precision, better for tweaking
+    static float fps = 0; //qb: let's see higher precision, better for tweaking
     char st[10];
 
-    if (realtime - last_realtime > 2.0) //qbism - was 1, for better averaging
+    if (realtime - last_realtime > 2.0) //qb: was 1, for better averaging
     {
         fps = (host_framecount - last_framecount) / (realtime - last_realtime) + 1.0;
         last_framecount = host_framecount;
@@ -503,10 +503,10 @@ SCR_SetUpToDrawConsole
 */
 void SCR_SetUpToDrawConsole (void)
 {
-    float conspeed; //qbism from goldquake
+    float conspeed; //qb: from goldquake
     extern cvar_t	con_alpha; // Manoel Kasimier - transparent console
-    //qbism - from johnfitz -- let's hack away the problem of slow console when host_timescale is <0
-// DEMO_REWIND - qbism - Baker change
+    //qb: from johnfitz -- let's hack away the problem of slow console when host_timescale is <0
+// DEMO_REWIND - qb: Baker change
     extern float frame_timescale;
     float timescale;
 
@@ -528,7 +528,7 @@ void SCR_SetUpToDrawConsole (void)
     else
         scr_conlines = 0;				// none visible
 
-    timescale = (host_timescale.value > 0) ? host_timescale.value : 1; //qbism - DEMO_REWIND by Baker - johnfitz -- timescale
+    timescale = (host_timescale.value > 0) ? host_timescale.value : 1; //qb: DEMO_REWIND by Baker - johnfitz -- timescale
 
     conspeed = scr_conspeed.value * (vid.height / 200.0f) * host_frametime;
 	if (cls.timedemo || cls.capturedemo)
@@ -536,7 +536,7 @@ void SCR_SetUpToDrawConsole (void)
 
     if (scr_conlines < scr_con_current)
     {
-        scr_con_current -= scr_conspeed.value*host_frametime/frame_timescale; //qbism - DEMO_REWIND by Baker - johnfitz -- timescale
+        scr_con_current -= scr_conspeed.value*host_frametime/frame_timescale; //qb: DEMO_REWIND by Baker - johnfitz -- timescale
 
         if (scr_conlines > scr_con_current)
             scr_con_current = scr_conlines;
@@ -544,7 +544,7 @@ void SCR_SetUpToDrawConsole (void)
     }
     else if (scr_conlines > scr_con_current)
     {
-        scr_con_current += scr_conspeed.value*host_frametime/frame_timescale; //qbism - DEMO_REWIND by Baker - johnfitz -- timescale
+        scr_con_current += scr_conspeed.value*host_frametime/frame_timescale; //qb: DEMO_REWIND by Baker - johnfitz -- timescale
         if (scr_conlines < scr_con_current)
             scr_con_current = scr_conlines;
     }
@@ -615,11 +615,11 @@ typedef struct
 
 /*
 =============
-LoadTGA //qbism- MK 1.4a
+LoadTGA //qb: MK 1.4a
 =============
 */
 
-#pragma pack(push,1) //qbism - thanks to Spike
+#pragma pack(push,1) //qb: thanks to Spike
 typedef struct //_TargaHeader
 {
     char			id_length, colormap_type, image_type;
@@ -930,7 +930,7 @@ SCR_ScreenShot_f
 */
 void SCR_ScreenShot_f (void)
 {
-#ifndef FLASH // qbism
+#ifndef FLASH //qb:
     int     i;
     char		pcxname[80];
     char		checkname[MAX_OSPATH];
@@ -938,7 +938,7 @@ void SCR_ScreenShot_f (void)
 //
 // find a file name to save it to
 //
-    Q_strcpy(pcxname,"qbs8_000.pcx"); //qbism screenshots dir
+    Q_strcpy(pcxname,"qbs8_000.pcx"); //qb: screenshots dir
 
     for (i=0 ; i<=999 ; i++)
     {
@@ -1200,7 +1200,7 @@ void SCR_UpdateScreen (void)
     }
     else
     {
-        //qbism removed	SCR_DrawRam ();
+        //qb: removed	SCR_DrawRam ();
         SCR_DrawNet ();
         //	SCR_DrawTurtle (); // Manoel Kasimier - removed
         SCR_DrawPause ();
@@ -1218,7 +1218,7 @@ void SCR_UpdateScreen (void)
 
     V_UpdatePalette ();
 
-#ifdef _WIN32 //qbism jqavi
+#ifdef _WIN32 //qb: jqavi
     Movie_UpdateScreen ();
 #endif
 

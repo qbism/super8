@@ -229,7 +229,7 @@ surfcache_t *D_CacheSurface (msurface_t *surface, int miplevel)
 //
 	cache = surface->cachespots[miplevel];
 
-	if (cache && !cache->dlight && surface->dlightframe != r_framecount && surface->shadowframe != r_framecount //qbism- engoo shadowhack
+	if (cache && !cache->dlight && surface->dlightframe != r_framecount && surface->shadowframe != r_framecount //qb: engoo shadowhack
 			&& cache->texture == r_drawsurf.texture
 			&& cache->lightadj[0] == r_drawsurf.lightadj[0]
 			&& cache->lightadj[1] == r_drawsurf.lightadj[1]
@@ -258,7 +258,7 @@ surfcache_t *D_CacheSurface (msurface_t *surface, int miplevel)
 		cache->mipscale = surfscale;
 	}
 
-	if (surface->dlightframe == r_framecount || surface->shadowframe == r_framecount ) //qbism- engoo shadowhack
+	if (surface->dlightframe == r_framecount || surface->shadowframe == r_framecount ) //qb: engoo shadowhack
 		cache->dlight = 1;
 	else
 		cache->dlight = 0;

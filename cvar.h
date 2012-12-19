@@ -78,9 +78,9 @@ float	Cvar_VariableValue (char *var_name);
 char	*Cvar_VariableString (char *var_name);
 // returns an empty string if not defined
 
-//qbism qrack command line begin
+//qb: qrack command line begin
 int Cvar_CompleteCountPossible (char *partial);		// by joe
-//qbism qrack command line end
+//qb: qrack command line end
 
 char 	*Cvar_CompleteVariable (char *partial);
 // attempts to match a partial variable name for command line completion

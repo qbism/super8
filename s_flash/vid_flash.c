@@ -22,7 +22,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 viddef_t	vid;				// global video state
 
-/*qbism- surcache size formula from D_SurfaceCacheForRes
+/*qb: surcache size formula from D_SurfaceCacheForRes
 
 	size = SURFCACHE_SIZE_AT_320X200; which is 600x1024 = 614400
 	pix = width*height;
@@ -31,12 +31,12 @@ viddef_t	vid;				// global video state
 */
 
 
-#define SURFCACHE_SIZE_AT_768X400	1344000 //qbism was 640X480
-#define SURFCACHE_SIZE_AT_640X360	1113600 //qbism
+#define SURFCACHE_SIZE_AT_768X400	1344000 //qb: was 640X480
+#define SURFCACHE_SIZE_AT_640X360	1113600 //qb:
 
 #define	BASEWIDTH	640
 #define	BASEHEIGHT	360
-int min_vid_width = BASEWIDTH; //qbism
+int min_vid_width = BASEWIDTH; //qb:
 byte	vid_buffer[BASEWIDTH*BASEHEIGHT];
 short	zbuffer[BASEWIDTH*BASEHEIGHT];
 byte	surfcache[SURFCACHE_SIZE_AT_640X360];
@@ -91,7 +91,7 @@ void	VID_Init (unsigned char *palette)
 
 	d_pzbuffer = zbuffer;
 	D_InitCaches (surfcache, sizeof(surfcache));
-	vid.recalc_refdef = 1; //qbism calculate fovscale
+	vid.recalc_refdef = 1; //qb: calculate fovscale
 }
 
 void	VID_Shutdown (void)

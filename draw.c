@@ -20,7 +20,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 
-extern	cvar_t	scr_fadecolor; //qbism
+extern	cvar_t	scr_fadecolor; //qb:
 
 typedef struct
 {
@@ -107,7 +107,7 @@ Draw_Init
 ===============
 */
 
-byte menumap[256][16];	//qbism- from Engoo- Used for menu backgrounds and simple colormod
+byte menumap[256][16];	//qb: from Engoo- Used for menu backgrounds and simple colormod
 
 
 void Draw_Init (void)
@@ -123,7 +123,7 @@ void Draw_Init (void)
     r_rectdesc.ptexbytes = draw_backtile->data;
     r_rectdesc.rowbytes = draw_backtile->width;
 
-    // qbism- from Engoo- Make the menu background table
+    // qb: from Engoo- Make the menu background table
 	// This has been extended to allow 16 others via r_menucolors
 	for (i=0 ; i<256 ; i++)
 	{
@@ -782,12 +782,12 @@ void Draw_ConsoleBackground (int lines)
                 src = conback->data + v*conback->width;
                 // Manoel Kasimier - hi-res console background - edited - end
                 f = 0;
-                for (x=0 ; x<vid.conwidth ; x++) //qbism - get rid of x4
+                for (x=0 ; x<vid.conwidth ; x++) //qb: get rid of x4
                 {
                     dest[x] = alphamap[src[f>>16] + dest[x]*256];
                     f += fstep;
                 }
-                /*qbism - get rid of x4
+                /*qb: get rid of x4
                 				for (x=0 ; x<vid.conwidth ; x+=4)
                 				{
                 					dest[x] = alphamap[src[f>>16] + dest[x]*256];
@@ -808,7 +808,7 @@ void Draw_ConsoleBackground (int lines)
                 src = conback->data + v*conback->width;
                 // Manoel Kasimier - hi-res console background - edited - end
                 f = 0;
-                for (x=0 ; x<vid.conwidth ; x++) //qbism - get rid of x4
+                for (x=0 ; x<vid.conwidth ; x++) //qb: get rid of x4
                 {
                     dest[x] = alphamap[src[f>>16] + dest[x]*256];
                     f += fstep;
@@ -827,7 +827,7 @@ void Draw_ConsoleBackground (int lines)
                 else
                 {
                     f = 0;
-                    for (x=0 ; x<vid.conwidth ; x++) //qbism - get rid of x4
+                    for (x=0 ; x<vid.conwidth ; x++) //qb: get rid of x4
                     {
                         dest[x] = src[f>>16];
                         f += fstep;
@@ -849,7 +849,7 @@ void Draw_ConsoleBackground (int lines)
             //	fstep = 320*0x10000/vid.conwidth; // removed
             for (x=0 ; x<vid.conwidth ; x++)
             {
-                pusdest[x] = d_8to16table[src[f>>16]]; //qbism - get rid of x4
+                pusdest[x] = d_8to16table[src[f>>16]]; //qb: get rid of x4
                 f += fstep;
             }
         }
@@ -1082,7 +1082,7 @@ Draw_FadeScreen
 
 ================
 */
-void Draw_FadeScreen (void)  //qbism- from engoo
+void Draw_FadeScreen (void)  //qb: from engoo
 {
 	int			x,y;
 	byte		*pbuf;

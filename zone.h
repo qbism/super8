@@ -117,13 +117,13 @@ void *Cache_Alloc (cache_user_t *c, int size, char *name);
 void Cache_Report (void);
 
 
-//qbism jqavi begin
+//qb: jqavi begin
 void *Q_malloc (size_t size);         // joe
 void *Q_calloc (size_t n);
 void *Q_realloc (void *ptr, size_t size);
 void *Q_strdup (const char *str);
-//qbism jqavi end
+//qb: jqavi end
 
-//qbism qrack begin
+//qb: qrack begin
 #define Q_free(ptr) if(ptr) { free(ptr); ptr = NULL; }
-//qbism qrack end
+//qb: qrack end

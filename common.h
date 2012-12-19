@@ -223,12 +223,12 @@ struct cache_user_s;
 
 extern	char	com_gamedir[MAX_OSPATH];
 
-//qbism qrack begin
+//qb: qrack begin
 extern	char	com_basedir[MAX_OSPATH];	// by joe
 
 searchpath_t	*com_searchpaths;
 
-//qbism qrack end
+//qb: qrack end
 
 
 void COM_WriteFile (char *filename, void *data, int len);
@@ -265,7 +265,7 @@ void M_PopUp_f (char *s, char *cmd);
 void M_RefreshSaveList (void);
 // Manoel Kasimier - end
 
-//qbism jqavi begin
+//qb: jqavi begin
 #ifdef _WIN32
 #define   vsnprintf _vsnprintf
 #endif
@@ -274,6 +274,6 @@ void Q_strncpyz (char *dest, char *src, size_t size);
 void Q_snprintfz (char *dest, size_t size, char *fmt, ...);
 
 void COM_ForceExtension (char *path, char *extension);
-//qbism jqavi end
+//qb: jqavi end
 
-void COM_GetFolder (char *in, char *out);//qbism- R00k /Baker tute
+void COM_GetFolder (char *in, char *out);//qb: R00k /Baker tute

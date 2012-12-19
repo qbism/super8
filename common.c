@@ -399,7 +399,7 @@ float Q_atof (char *str)
 }
 
 
-//qbism jqavi begin
+//qb: jqavi begin
 void Q_strncpyz (char *dest, char *src, size_t size)
 {
     Q_strncpy (dest, src, size - 1);
@@ -442,7 +442,7 @@ void COM_ForceExtension (char *path, char *extension)
 
     strncat (path, extension, MAX_OSPATH);
 }
-//qbism jqavi end
+//qb: jqavi end
 
 /*
 ============================================================================
@@ -563,7 +563,7 @@ void MSG_WriteShort (sizebuf_t *sb, int c)
     byte    *buf;
 
 #ifdef PARANOID
-    if (c < ((short)0x8000) || c > (unsigned short)0xffff)  //qbism - some are unsigned
+    if (c < ((short)0x8000) || c > (unsigned short)0xffff)  //qb: some are unsigned
         Sys_Error ("MSG_WriteShort: range error %i", c);
 #endif
 
@@ -608,7 +608,7 @@ void MSG_WriteString (sizebuf_t *sb, char *s)
 
 void MSG_WriteCoord (sizebuf_t *sb, float f)
 {
-    if (current_protocol != PROTOCOL_NETQUAKE) //qbism extended coordinates by JTR
+    if (current_protocol != PROTOCOL_NETQUAKE) //qb: extended coordinates by JTR
         MSG_WriteLong (sb, (int)(f*8));
     else
         MSG_WriteShort (sb, (int)(f*8));
@@ -618,7 +618,7 @@ void MSG_WriteCoord (sizebuf_t *sb, float f)
 void MSG_WriteAngle (sizebuf_t *sb, float f)
 {
     // Manoel Kasimier - 16-bit angles - begin
-    if (current_protocol != PROTOCOL_NETQUAKE)  //qbism - modified for multiple protocols
+    if (current_protocol != PROTOCOL_NETQUAKE)  //qb: modified for multiple protocols
         MSG_WriteShort (sb, (int)(f*65536.0/360.0) & 65535);// MSG_WriteFloat(sb, f);
     else
         // Manoel Kasimier - 16-bit angles - end
@@ -753,7 +753,7 @@ float MSG_ReadCoord (void)
 
 {
 
-    if (current_protocol != PROTOCOL_NETQUAKE) //qbism extended coordinates - JTR
+    if (current_protocol != PROTOCOL_NETQUAKE) //qb: extended coordinates - JTR
         return MSG_ReadLong() * (1.0/8);
     else
         return MSG_ReadShort() * (1.0/8);
@@ -886,7 +886,7 @@ char *COM_FileExtension (char *in)
 
 /*
 ============
-COM_GetFolder //qbism - R00k / Baker tute
+COM_GetFolder //qb: R00k / Baker tute
 ============
 */
 void COM_GetFolder (char *in, char *out)
@@ -1012,7 +1012,7 @@ skipwhite:
     }
 
 // parse single characters
-	if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'') //qbism - Baker - IP port
+	if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'') //qb: Baker - IP port
   //if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
     {
         com_token[len] = c;
@@ -1182,7 +1182,7 @@ void COM_InitArgv (int argc, char **argv)
         rogue = true;
         standard_quake = false;
     }
- //qbism- drake and quoth support
+ //qb: drake and quoth support
     if (COM_CheckParm ("-hipnotic") || COM_CheckParm ("-quoth"))
     {
         hipnotic = true;
@@ -1306,7 +1306,7 @@ typedef struct
 */ // 2001-09-12 Returning from which searchpath a file was loaded by Maddes
 char    com_cachedir[MAX_OSPATH];
 char    com_gamedir[MAX_OSPATH];
-char	com_basedir[MAX_OSPATH]; //qbism from qrack
+char	com_basedir[MAX_OSPATH]; //qb: from qrack
 /* // 2001-09-12 Returning from which searchpath a file was loaded by Maddes
 typedef struct searchpath_s
 {
@@ -1688,7 +1688,7 @@ loadedfile_t *COM_LoadFile (char *path, int usehunk)
     fileinfo->path = foundpath;	// 2001-09-12 Returning from which searchpath a file was loaded by Maddes
 // 2001-09-12 Returning information about loaded file by Maddes  end
 
-    //Draw_BeginDisc ();  //qbism removed
+    //Draw_BeginDisc ();  //qb: removed
     Sys_FileRead (h, buf, len);
     COM_CloseFile (h);
     //Draw_EndDisc ();
@@ -1830,7 +1830,7 @@ int COM_AddGameDirectory (char *dir)
     searchpath_t    *search;
     pack_t                  *pak;
     char                    pakfile[MAX_OSPATH];
-	int success =0; //qbism pocketquake- to appease embedded vc++
+	int success =0; //qb: pocketquake- to appease embedded vc++
 
     strcpy (com_gamedir, dir);
 
@@ -1845,7 +1845,7 @@ int COM_AddGameDirectory (char *dir)
 //
 // add any pak files in the format pak0.pak pak1.pak, ...
 //
-    for (i=0 ; i<99 ; i++) // Manoel Kasimier - edited  //qbism - go up to 99, was 64
+    for (i=0 ; i<99 ; i++) // Manoel Kasimier - edited  //qb: go up to 99, was 64
     {
         sprintf (pakfile, "%s/pak%i.pak", dir, i);
         pak = COM_LoadPackFile (pakfile);
@@ -1865,7 +1865,7 @@ int COM_AddGameDirectory (char *dir)
 }
 
 
-//qbism AddDir from bjp
+//qb: AddDir from bjp
 static void AddDir (qboolean Cond, char *basedir, char *gamedir, char *Dir)
 {
 	if (Cond && Q_strcmp(gamedir, Dir))
@@ -1874,7 +1874,7 @@ static void AddDir (qboolean Cond, char *basedir, char *gamedir, char *Dir)
 
 /*
 ================
-COM_InitFilesystem  //qbism from bjp
+COM_InitFilesystem  //qb: from bjp
 ================
 */
 
@@ -1927,7 +1927,7 @@ void COM_InitFilesystem (void)
 	if (i && i < com_argc-1)
 		strncpy (gamedir, com_argv[i+1], sizeof(gamedir) - 1);
 
-	i = COM_CheckParm ("-sndspeed");  //qbism- from Darkplaces
+	i = COM_CheckParm ("-sndspeed");  //qb: from Darkplaces
 	if (i && i < com_argc-1)
 			snd_speed.value = Q_atoi (com_argv[i+1]);
 
@@ -1935,11 +1935,11 @@ void COM_InitFilesystem (void)
 // start up with GAMENAME by default (id1)
 //
 	AddDir (true, basedir, gamedir, GAMENAME);
-//qbism- not supported	AddDir (nehahra, basedir, gamedir, "nehahra"); // Add Nehahra
+//qb: not supported	AddDir (nehahra, basedir, gamedir, "nehahra"); // Add Nehahra
 	AddDir (COM_CheckParm ("-rogue"), basedir, gamedir, "rogue");
 	AddDir (COM_CheckParm ("-hipnotic"), basedir, gamedir, "hipnotic");
 	AddDir (COM_CheckParm ("-quoth"), basedir, gamedir, "quoth");
-    AddDir (COM_CheckParm ("-drake"), basedir, gamedir, "drake"); //qbism added
+    AddDir (COM_CheckParm ("-drake"), basedir, gamedir, "drake"); //qb: added
 
 //
 // -game <gamedir>

@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "quakedef.h"
 
 //Dan East:
-extern int min_vid_width; //qbism- Dan East
+extern int min_vid_width; //qb: Dan East
 
 #define STAT_MINUS		10	// num frame for '-' stats digit
 qpic_t		*sb_nums[2][11];
@@ -469,7 +469,7 @@ void Sbar_SoloScoreboard (int x, int y, int vertical) // default 0, -48, 0
 	units = seconds - 10*tens;
 	sprintf (str,"Time :%3i:%i%i", minutes, tens, units);
 //*/// Manoel Kasimier
-	sprintf (str,"Time: %s", timetos((int)cl.ctime)); // Manoel Kasimier - qbism - altered for DEMO_REWIND - Baker
+	sprintf (str,"Time: %s", timetos((int)cl.ctime)); // Manoel Kasimier - qb: altered for DEMO_REWIND - Baker
 	if (vertical)
 		Sbar_DrawString (x, y - 16, str);
 	else

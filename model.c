@@ -36,7 +36,7 @@ loadedfile_t *COM_LoadFile (char *path, int usehunk);
 
 byte	mod_novis[MAX_MAP_LEAFS/8];
 
-#define	MAX_MOD_KNOWN	2048 //qbism was 256
+#define	MAX_MOD_KNOWN	2048 //qb: was 256
 model_t	mod_known[MAX_MOD_KNOWN];
 int		mod_numknown;
 
@@ -302,7 +302,7 @@ model_t *Mod_LoadModel (model_t *mod, qboolean crash)
         if (crash)
             Sys_Error ("Mod_LoadModel: %s not found", mod->name); //was "Mod_NumForName"
 
-        Con_DPrintf ("Mod_LoadModel: %s not found",mod->name);  //qbism- list all not found, in debug mode.
+        Con_DPrintf ("Mod_LoadModel: %s not found",mod->name);  //qb: list all not found, in debug mode.
         return NULL;
     }
     buf = (unsigned *)fileinfo->data;	// 2001-09-12 Returning information about loaded file by Maddes
@@ -391,7 +391,7 @@ void Mod_LoadTextures (lump_t *l)
     m->nummiptex = LittleLong (m->nummiptex);
 
     loadmodel->numtextures = m->nummiptex;
-    loadmodel->textures = Hunk_AllocName (m->nummiptex * sizeof(*loadmodel->textures) , "modtex1"); //qbism per bjp, was loadname
+    loadmodel->textures = Hunk_AllocName (m->nummiptex * sizeof(*loadmodel->textures) , "modtex1"); //qb: per bjp, was loadname
 
     for (i=0 ; i<m->nummiptex ; i++)
     {
@@ -407,7 +407,7 @@ void Mod_LoadTextures (lump_t *l)
         if ( (mt->width & 15) || (mt->height & 15) )
             Sys_Error ("Texture %s is not 16 aligned", mt->name);
         pixels = mt->width*mt->height/64*85;
-        tx = Hunk_AllocName (sizeof(texture_t) +pixels, "modtex1"); //qbism per bjp, was loadname
+        tx = Hunk_AllocName (sizeof(texture_t) +pixels, "modtex1"); //qb: per bjp, was loadname
         loadmodel->textures[i] = tx;
 
         memcpy (tx->name, mt->name, sizeof(tx->name));
@@ -524,7 +524,7 @@ void Mod_LoadTextures (lump_t *l)
 Mod_LoadLighting
 =================
 */
-void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
+void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
 {
     int		i, j, k;
     int		r, g, b;
@@ -544,8 +544,8 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
     {
         strcpy(litname, loadmodel->name);
         COM_StripExtension(loadmodel->name, litname);
-        COM_DefaultExtension(litname, ".lit");    //qbism- indexed colored
-        fileinfo = COM_LoadFile(litname,0); //qbism- don't load into hunk
+        COM_DefaultExtension(litname, ".lit");    //qb: indexed colored
+        fileinfo = COM_LoadFile(litname,0); //qb: don't load into hunk
         if (fileinfo && ((l->filelen*3 +8) == fileinfo->filelen))
         {
             Con_DPrintf("%s loaded from %s\n", litname, fileinfo->path->pack ? fileinfo->path->pack->filename : fileinfo->path->filename);
@@ -556,7 +556,7 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
                 i = LittleLong(((int *)data)[1]);
                 if (i == 1)
                 {
-                    loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
+                    loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qb: need some padding
                     k=8;
                     out = loadmodel->colordata;
                     lout = loadmodel->lightdata;
@@ -565,7 +565,7 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
                         r = data[k++];
                         g = data[k++];
                         b = data[k++];
-                        weight= r_clintensity.value/(1+r+b+g);  //qbism- flatten out the color
+                        weight= r_clintensity.value/(1+r+b+g);  //qb: flatten out the color
                         wlout = *lout*(1-r_clintensity.value);
                         *out++ = BestColor((int)(r*r*weight)+wlout, (int)(g*g*weight)+wlout, (int)(b*b*weight)+wlout, 0, 254);
                         *lout++ = max((r+g+b)/3, *lout);  //avoid large differences if colored lights don't align w/ standard.
@@ -579,12 +579,12 @@ void Mod_LoadLighting (lump_t *l)  //qbism- colored lit load modified from Engoo
             else
                 Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
         }
-        //qbism- no lit.  Still need to have something.
-        loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
-        memset (loadmodel->colordata, 1, l->filelen+18);  //qbism- fill w/ color index
+        //qb: no lit.  Still need to have something.
+        loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qb: need some padding
+        memset (loadmodel->colordata, 1, l->filelen+18);  //qb: fill w/ color index
     }
 
-    /*   loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qbism- need some padding
+    /*   loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qb: need some padding
        out = loadmodel->colordata;
        lout = loadmodel->lightdata;
        for(i=0 ; i < sizeof(loadmodel->lightdata); i++)
@@ -966,7 +966,7 @@ void Mod_LoadFaces (lump_t *l)
         else
         {
             out->samples = loadmodel->lightdata + i;
-            out->colorsamples = loadmodel->colordata + i; //qbism
+            out->colorsamples = loadmodel->colordata + i; //qb:
 
         }
         Mod_FlagFaces(out);
@@ -1021,12 +1021,12 @@ void Mod_LoadNodes (lump_t *l)
         p = LittleLong(in->planenum);
         out->plane = loadmodel->planes + p;
 
-        out->firstsurface = (unsigned short)LittleShort (in->firstface); //qbism:  from johnfitz -- explicit cast as unsigned short
-        out->numsurfaces = (unsigned short)LittleShort (in->numfaces); //qbism:  johnfitz -- explicit cast as unsigned short
+        out->firstsurface = (unsigned short)LittleShort (in->firstface); //qb:  from johnfitz -- explicit cast as unsigned short
+        out->numsurfaces = (unsigned short)LittleShort (in->numfaces); //qb:  johnfitz -- explicit cast as unsigned short
 
         for (j=0 ; j<2 ; j++)
         {
-            //qbism:  johnfitz begin -- hack to handle nodes > 32k, adapted from darkplaces
+            //qb:  johnfitz begin -- hack to handle nodes > 32k, adapted from darkplaces
             p = (unsigned short)LittleShort(in->children[j]);
             if (p < count)
                 out->children[j] = loadmodel->nodes + p;
@@ -1041,7 +1041,7 @@ void Mod_LoadNodes (lump_t *l)
                     out->children[j] = (mnode_t *)(loadmodel->leafs); //map it to the solid leaf
                 }
             }
-            //qbism:  johnfitz end
+            //qb:  johnfitz end
         }
     }
     Mod_SetParent (loadmodel->nodes, NULL);	// sets nodes and leafs
@@ -1069,7 +1069,7 @@ void Mod_ProcessLeafs (dleaf_t *in, int filelen)
     count = filelen / sizeof(*in);
     out = Hunk_AllocName ( count*sizeof(*out), "USE_LEAF");
 // 2001-12-28 .VIS support by Maddes end
-//qbism: check leafs limit from johnfitz
+//qb: check leafs limit from johnfitz
     if (count > 32767)
         Host_Error ("Mod_LoadLeafs: %i leafs exceeds limit of 32767.\n", count);
     loadmodel->leafs = out;
@@ -1084,8 +1084,8 @@ void Mod_ProcessLeafs (dleaf_t *in, int filelen)
         p = LittleLong(in->contents);
         out->contents = p;
         out->firstmarksurface = loadmodel->marksurfaces +
-                                (unsigned short)LittleShort(in->firstmarksurface); //qbism: johnfitz -- unsigned short
-        out->nummarksurfaces = (unsigned short)LittleShort(in->nummarksurfaces); //qbism: johnfitz -- unsigned short
+                                (unsigned short)LittleShort(in->firstmarksurface); //qb: johnfitz -- unsigned short
+        out->nummarksurfaces = (unsigned short)LittleShort(in->nummarksurfaces); //qb: johnfitz -- unsigned short
         p = LittleLong(in->visofs);
         if (p == -1)
             out->compressed_vis = NULL;
@@ -1106,7 +1106,7 @@ Mod_LoadClipnodes
 void Mod_LoadClipnodes (lump_t *l)
 {
     dclipnode_t *in;
-    mclipnode_t *out; //qbism:  johnfitz -- was dclipnode_t
+    mclipnode_t *out; //qb:  johnfitz -- was dclipnode_t
     int			i, count;
     hull_t		*hull;
 
@@ -1147,18 +1147,18 @@ void Mod_LoadClipnodes (lump_t *l)
     {
         out->planenum = LittleLong(in->planenum);
 
-        //qbism:  johnfitz -- bounds check
+        //qb:  johnfitz -- bounds check
         if (out->planenum < 0 || out->planenum >= loadmodel->numplanes)
             Host_Error ("Mod_LoadClipnodes: planenum out of bounds");
 
-        //qbism:  johnfitz begin -- support clipnodes > 32k
+        //qb:  johnfitz begin -- support clipnodes > 32k
         out->children[0] = (unsigned short)LittleShort(in->children[0]);
         out->children[1] = (unsigned short)LittleShort(in->children[1]);
         if (out->children[0] >= count)
             out->children[0] -= 65536;
         if (out->children[1] >= count)
             out->children[1] -= 65536;
-        //qbism:  johnfitz end
+        //qb:  johnfitz end
     }
 }
 
@@ -1173,7 +1173,7 @@ Duplicate the drawing hull structure as a clipping hull
 void Mod_MakeHull0 (void)
 {
     mnode_t		*in, *child;
-    mclipnode_t *out; //qbism:  johnfitz -- was dclipnode_t
+    mclipnode_t *out; //qb:  johnfitz -- was dclipnode_t
     int			i, j, count;
     hull_t		*hull;
 
@@ -1224,7 +1224,7 @@ void Mod_LoadMarksurfaces (lump_t *l)
 
     for ( i=0 ; i<count ; i++)
     {
-        j = (unsigned short)LittleShort(in[i]); //qbism:  johnfitz -- explicit cast as unsigned short
+        j = (unsigned short)LittleShort(in[i]); //qb:  johnfitz -- explicit cast as unsigned short
         if (j >= loadmodel->numsurfaces)
             Sys_Error ("Mod_ParseMarksurfaces: bad surface number");
         out[i] = loadmodel->surfaces + j;
@@ -1375,7 +1375,7 @@ void Mod_LoadSubmodels (lump_t *l)
         out->numfaces = LittleLong (in->numfaces);
     }
 
-    //qbism: johnfitz -- check world visleafs -- adapted from bjp
+    //qb: johnfitz -- check world visleafs -- adapted from bjp
     out = loadmodel->submodels;
 
     if (out->visleafs > MAX_MAP_LEAFS)
@@ -1941,7 +1941,7 @@ void Mod_LoadAliasModel (model_t *mod, void *buffer)
                         (LittleLong (pinmodel->numframes) - 1) *
                         sizeof (pheader->frames[0]));
 
-    //qbism from DP-  convert model flags to EF flags (MF_ROCKET becomes EF_ROCKET, etc)
+    //qb: from DP-  convert model flags to EF flags (MF_ROCKET becomes EF_ROCKET, etc)
     i = LittleLong (pinmodel->flags);
     mod->flags = ((i & 255) << 24) | (i & 0x00FFFF00);
 

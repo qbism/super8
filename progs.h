@@ -33,14 +33,14 @@ typedef struct edict_s
 {
 	qboolean	free;
 	link_t		area;				// linked to a division node or leaf
-   qboolean      touchleaf;      // true if the ent touches a leaf in the pvs //qbism Fix - Large Brushmodel Flickering/Not Visible
+   qboolean      touchleaf;      // true if the ent touches a leaf in the pvs //qb: Fix - Large Brushmodel Flickering/Not Visible
 
 	int			num_leafs;
 	short		leafnums[MAX_ENT_LEAFS];
 
 	entity_state_t	baseline;
-	byte	alpha;				//qbism:  johnfitz -- hack to support alpha since it's not part of entvars_t
-    float last_grav; //qbism - mh gravity fix from inside3d
+	byte	alpha;				//qb:  johnfitz -- hack to support alpha since it's not part of entvars_t
+    float last_grav; //qb: mh gravity fix from inside3d
     int grav_frame;
 
 	float		freetime;			// sv.time when the object was freed

@@ -28,7 +28,7 @@ typedef struct
 	dfunction_t		*f;
 } prstack_t;
 
-#define	MAX_STACK_DEPTH		32 //qbism - enough?  was 32
+#define	MAX_STACK_DEPTH		32 //qb: enough?  was 32
 prstack_t	pr_stack[MAX_STACK_DEPTH];
 int			pr_depth;
 
@@ -380,7 +380,7 @@ void PR_ExecuteProgram (func_t fnum)
 
 	f = &pr_functions[fnum];
 
-	runaway = 1000000;  //qbism - bump up, was 100000;
+	runaway = 1000000;  //qb: bump up, was 100000;
 	pr_trace = false;
 
 // make a stack frame

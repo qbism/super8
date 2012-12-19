@@ -32,7 +32,7 @@ void R_AnimateLight (void)
 //
 // light animations
 // 'm' is normal light, 'a' is no light, 'z' is double bright
-	i = (int)(cl.ctime*10);  //DEMO_REWIND_HARD_ANIMS_TIME qbism - Baker change
+	i = (int)(cl.ctime*10);  //DEMO_REWIND_HARD_ANIMS_TIME qb: Baker change
 	for (j=0 ; j<MAX_LIGHTSTYLES ; j++)
 	{
 		if (!cl_lightstyle[j].length)
@@ -61,20 +61,20 @@ DYNAMIC LIGHTS
 R_MarkLights
 =============
 */
-void R_MarkLights (dlight_t *light, int num, mnode_t *node)  //qbism- adapted from MH tute - increased dlights
+void R_MarkLights (dlight_t *light, int num, mnode_t *node)  //qb: adapted from MH tute - increased dlights
 {
    mplane_t   *splitplane;
    float      dist;
    msurface_t   *surf;
    int         i;
-   vec3_t      origin_for_ent; //qbism- i3d: mankrip - dynamic lights on moving brush models fix
+   vec3_t      origin_for_ent; //qb: i3d: mankrip - dynamic lights on moving brush models fix
 
    if (node->contents < 0)
       return;
 
    splitplane = node->plane;
-   VectorSubtract (light->origin, currententity->origin, origin_for_ent); //qbism- i3d: mankrip - dynamic lights on moving brush models fix
-   dist = DotProduct (origin_for_ent, splitplane->normal) - splitplane->dist; //qbism- i3d mankrip - dynamic lights on moving brush models fix - edited
+   VectorSubtract (light->origin, currententity->origin, origin_for_ent); //qb: i3d: mankrip - dynamic lights on moving brush models fix
+   dist = DotProduct (origin_for_ent, splitplane->normal) - splitplane->dist; //qb: i3d mankrip - dynamic lights on moving brush models fix - edited
 
    if (dist > light->radius)
    {
@@ -112,12 +112,12 @@ void R_MarkLights (dlight_t *light, int num, mnode_t *node)  //qbism- adapted fr
 R_PushDlights
 =============
 */
-void R_PushDlights (mnode_t *headnode)  //qbism- from MH tute - increased dlights
+void R_PushDlights (mnode_t *headnode)  //qb: from MH tute - increased dlights
 {
    int i;
    dlight_t *l = cl_dlights;
 
-   //qbism - moved to r_main // currententity = &cl_entities[0]; // mankrip - dynamic lights on moving brush models fix
+   //qb: moved to r_main // currententity = &cl_entities[0]; // mankrip - dynamic lights on moving brush models fix
    for (i = 0; i < MAX_DLIGHTS; i++, l++)
    {
       if (l->die < cl.time || (l->radius <= 0))
@@ -237,7 +237,7 @@ int RecursiveLightPoint (mnode_t *node, vec3_t start, vec3_t end)
 	return RecursiveLightPoint (node->children[!side], mid, end);
 }
 
-int blendedlightpoint = 0; //qbism interpolate light point
+int blendedlightpoint = 0; //qb: interpolate light point
 
 int R_LightPoint (vec3_t p)
 {
@@ -259,7 +259,7 @@ int R_LightPoint (vec3_t p)
 	if (r < r_refdef.ambientlight)
 		r = r_refdef.ambientlight;
 
-    blendedlightpoint = (blendedlightpoint*7 + r) /8; //qbism - quicky soften of bright/dark transitions
+    blendedlightpoint = (blendedlightpoint*7 + r) /8; //qb: quicky soften of bright/dark transitions
 
 	return blendedlightpoint;
 }

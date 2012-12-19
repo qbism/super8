@@ -1,5 +1,5 @@
 
-    #ifdef WEBDL    //qbism - sometimes works, needs more testing
+    #ifdef WEBDL    //qb: sometimes works, needs more testing
 
     #include <windows.h>
     #include <wininet.h>

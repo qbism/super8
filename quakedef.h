@@ -62,7 +62,7 @@ void as3ReadFileSharedObject(const char* filename);
 
 #define UNUSED(x)	(x = x)	// for pesky compiler / lint warnings
 
-#define	MINIMUM_MEMORY	0x800000	// qbism- was 0x550000
+#define	MINIMUM_MEMORY	0x800000	// qb: was 0x550000
 #define	MINIMUM_MEMORY_LEVELPAK	(MINIMUM_MEMORY + 0x100000)
 
 #define MAX_NUM_ARGVS	50
@@ -77,12 +77,12 @@ void as3ReadFileSharedObject(const char* filename);
 #define	ROLL	2
 
 
-#define	MAX_QPATH		96		//qbism was 64 //max length of a quake game pathname
-#define	MAX_OSPATH		160		//qbism was 128 //max length of a filesystem pathname
+#define	MAX_QPATH		96		//qb: was 64 //max length of a quake game pathname
+#define	MAX_OSPATH		160		//qb: was 128 //max length of a filesystem pathname
 
 #define	ON_EPSILON		0.1			// point on plane side epsilon
 
-#define	MAX_MSGLEN		32767 //qbism- 32767 Super8 max, 65535 per qsb - was 8000		// max length of a reliable message
+#define	MAX_MSGLEN		32767 //qb: 32767 Super8 max, 65535 per qsb - was 8000		// max length of a reliable message
 #define	MAX_DATAGRAM	32767 //max for wifi, 32767 Super8 max - was 1024		// max length of unreliable message
 #define	DATAGRAM_MTU	1400 //qb:  johnfitz -- if client is nonlocal
 
@@ -90,17 +90,17 @@ void as3ReadFileSharedObject(const char* filename);
 // per-level limits
 //
 
-#define	MAX_EDICTS		8192			// qbism 8192 per qsb - was 600.    More than 8192 requires protocol change.
+#define	MAX_EDICTS		8192			//qb: 8192 per qsb - was 600.    More than 8192 requires protocol change.
 #define	MAX_LIGHTSTYLES	64
-#define	MAX_MODELS		2048	//qbism 4096 per qsb, protocol was changed.
-#define	MAX_SOUNDS		2048	//qbism 4096 per qsb, was 256, protocol has been changed.
+#define	MAX_MODELS		2048	//qb: 4096 per qsb, protocol was changed.
+#define	MAX_SOUNDS		2048	//qb: 4096 per qsb, was 256, protocol has been changed.
 
 #define	SAVEGAME_COMMENT_LENGTH	39
 
 #define	MAX_STYLESTRING	64
 
-#define COLORLEVELS 64 //qbism - number of color map levels. 64.
-#define PALBRIGHTS 32 //qbism - number of fullbrights at end of palette. 32.
+#define COLORLEVELS 64 //qb: number of color map levels. 64.
+#define PALBRIGHTS 32 //qb: number of fullbrights at end of palette. 32.
 
 //
 // stats are integers communicated to the client by the server
@@ -133,7 +133,7 @@ void as3ReadFileSharedObject(const char* filename);
 #define	IT_ROCKET_LAUNCHER		32
 #define	IT_LIGHTNING			64
 //#define IT_SUPER_LIGHTNING      128
-//#define IT_HOOK  qbism- from ROOk
+//#define IT_HOOK  qb: from ROOk
 #define IT_SHELLS               256
 #define IT_NAILS                512
 #define IT_ROCKETS              1024
@@ -191,13 +191,13 @@ void as3ReadFileSharedObject(const char* filename);
 
 //===========================================
 
-//qbism- stain fade types defines
+//qb: stain fade types defines
 #define FADE_STAIN      1
 #define FADE_SHADOW     2
 #define FADE_SLIMETRAIL 3
 
 
-#define	MAX_SCOREBOARD		64 //qbism - per bjp, was 16
+#define	MAX_SCOREBOARD		64 //qb: per bjp, was 16
 #define	MAX_SCOREBOARDNAME	32
 
 #include "common.h"
@@ -211,15 +211,15 @@ typedef struct
 {
 	vec3_t	origin;
 	vec3_t	angles;
-    unsigned short 	modelindex; //qbism - johnfitz -- was int
+    unsigned short 	modelindex; //qb: johnfitz -- was int
 	unsigned short 	frame; //johnfitz -- was int
 	unsigned char 	colormap; //johnfitz -- was int
 	unsigned char 	skin; //johnfitz -- was int
 	int		effects;
-	byte   alpha; //qbism
-	unsigned short nodrawtoclient; //qbism Team Xlink DP_SV_NODRAWTOCLIENT
+	byte   alpha; //qb:
+	unsigned short nodrawtoclient; //qb: Team Xlink DP_SV_NODRAWTOCLIENT
     unsigned short drawonlytoclient; //Team Xlink DP_SV_DRAWONLYTOCLIENT
-	unsigned short exteriormodeltoclient; //qbism
+	unsigned short exteriormodeltoclient; //qb:
 } entity_state_t;
 
 
@@ -304,7 +304,7 @@ void Host_Quit_f (void);
 void Host_ClientCommands (char *fmt, ...);
 void Host_ShutdownServer (qboolean crash);
 
-//qbism add declarations
+//qb: add declarations
 void COM_CreatePath (char *path);
 void Sys_InitDoubleTime (void);
 void COM_CreatePath (char *path);
@@ -326,7 +326,7 @@ extern int			current_skill;		// skill level for currently loaded level (in case
 										//  the user changes the cvar while the level is
 										//  running, this reflects the level actually in use)
 
-extern int stretched; //qbism - video stretch, also used by pcx and avi capture.
+extern int stretched; //qb: video stretch, also used by pcx and avi capture.
 
 extern qboolean		isDedicated;
 
@@ -347,12 +347,12 @@ extern	double	host_org_frametime;
 extern	cvar_t	host_timescale;
 
 
-extern	cvar_t vid_mode; //qbism
-extern	cvar_t snd_speed; //qbism
-extern int current_protocol; //qbism
+extern	cvar_t vid_mode; //qb:
+extern	cvar_t snd_speed; //qb:
+extern int current_protocol; //qb:
 
-#ifdef WEBDL    //qbism - sometimes works, needs more testing
-extern cvar_t cl_web_download; //qbism - R00k / Baker tute
+#ifdef WEBDL    //qb: sometimes works, needs more testing
+extern cvar_t cl_web_download; //qb: R00k / Baker tute
 extern cvar_t cl_web_download_url;
 
 extern int Web_Get( const char *url, const char *referer, const char *name, int resume,

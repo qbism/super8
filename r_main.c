@@ -28,9 +28,9 @@ void		*colormap;
 //alight_t	r_viewlighting = {128, 192, viewlightvec}; // Manoel Kasimier - changed alias models lighting - removed
 float		r_time1;
 int			r_numallocatededges;
-//qbism remove     qboolean	r_drawpolys;
-//qbism remove     qboolean	r_drawculledpolys;
-//qbism remove     qboolean	r_worldpolysbacktofront;
+//qb: remove     qboolean	r_drawpolys;
+//qb: remove     qboolean	r_drawculledpolys;
+//qb: remove     qboolean	r_worldpolysbacktofront;
 qboolean	r_recursiveaffinetriangles = true;
 int			r_pixbytes = 1;
 float		r_aliasuvscale = 1.0;
@@ -48,7 +48,7 @@ int			r_maxsurfsseen, r_maxedgesseen, r_cnumsurfs;
 qboolean	r_surfsonstack;
 int			r_clipflags;
 
-//qbism - from engoo
+//qb: from engoo
 // COLOR Translation stuff
 // Came straight out of image.c of Quake2 tools
 
@@ -91,7 +91,7 @@ float	xOrigin, yOrigin;
 mplane_t	screenedge[4];
 
 byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
-float ditherfog[DITHER_NUMRANDS]; //qbism - pseudorandom dither
+float ditherfog[DITHER_NUMRANDS]; //qb: pseudorandom dither
 //
 // refresh flags
 //
@@ -128,7 +128,7 @@ void R_MarkLeaves (void);
 cvar_t	r_draworder = {"r_draworder","0"};
 cvar_t	r_speeds = {"r_speeds","0"};
 
-//qbism fte stain cvars
+//qb: fte stain cvars
 cvar_t r_stainfadeamount = {"r_stainfadeamount", "1"};
 cvar_t r_stainfadetime = {"r_stainfadetime", "1"};
 cvar_t r_stains = {"r_stains", "0.75"}; //zero to one
@@ -145,13 +145,13 @@ cvar_t	r_dspeeds = {"r_dspeeds","0"};
 cvar_t	r_drawflat = {"r_drawflat", "0"};
 cvar_t	r_ambient = {"r_ambient", "0"};
 
-cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qbism
-cvar_t	r_clintensity = {"r_clintensity", "1.2", true}; //qbism
-cvar_t	r_clbaseweight = {"r_clbaseweight", "1.0", true}; //qbism- base pixel weight for color map blending
-cvar_t	r_clcolorweight= {"r_clcolorweight", "0.7", true}; //qbism- color weight for color map blending
-cvar_t	r_colmaprange= {"r_colmaprange", "1.3", true}; //qbism- colormap range for overbright
+cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qb:
+cvar_t	r_clintensity = {"r_clintensity", "1.2", true}; //qb:
+cvar_t	r_clbaseweight = {"r_clbaseweight", "1.0", true}; //qb: base pixel weight for color map blending
+cvar_t	r_clcolorweight= {"r_clcolorweight", "0.7", true}; //qb: color weight for color map blending
+cvar_t	r_colmaprange= {"r_colmaprange", "1.3", true}; //qb: colormap range for overbright
 
-cvar_t r_fog = {"r_fog", "1", true}; //qbism-  draw fog?
+cvar_t r_fog = {"r_fog", "1", true}; //qb:  draw fog?
 
 cvar_t	r_reportsurfout = {"r_reportsurfout", "0"};
 cvar_t	r_maxsurfs = {"r_maxsurfs", "0"};
@@ -161,9 +161,9 @@ cvar_t	r_maxedges = {"r_maxedges", "0"};
 cvar_t	r_numedges = {"r_numedges", "0"};
 cvar_t	r_aliastransadj = {"r_aliastransadj", "100"};
 
-cvar_t	r_colmapred = {"r_colmapred", "0"};  //qbism - boost overall light tint for colormap.
-cvar_t	r_colmapblue = {"r_colmapblue", "0"};  //qbism - boost overall light tint for colormap.
-cvar_t	r_colmapgreen = {"r_colmapgreen", "0"};  //qbism - boost overall light tint for colormap.
+cvar_t	r_colmapred = {"r_colmapred", "0"};  //qb: boost overall light tint for colormap.
+cvar_t	r_colmapblue = {"r_colmapblue", "0"};  //qb: boost overall light tint for colormap.
+cvar_t	r_colmapgreen = {"r_colmapgreen", "0"};  //qb: boost overall light tint for colormap.
 
 //cvar_t	r_letterbox = {"r_letterbox","0"}; // Manoel Kasimier - r_letterbox
 // Manoel Kasimier - changed alias models lighting - begin
@@ -177,7 +177,7 @@ cvar_t	r_glassalpha = {"r_wateralpha","0.3333", true}; //qb: *glass
 cvar_t	r_shadowhack = {"r_shadowhack", "0", false};
 cvar_t	r_shadowhacksize = {"r_shadowhacksize", "2.7", true};
 
-//qbism- particle cvars
+//qb: particle cvars
 cvar_t  r_part_scale = {"r_part_scale", "1.0", true};
 cvar_t  r_part_blob_count = {"r_part_blob_count", "256", true};
 cvar_t  r_part_blob_time = {"r_part_blob_time", "0.2", true};
@@ -242,7 +242,7 @@ void FogDitherInit(void)
 }
 
 
-void R_LoadPalette_f (void); //qbism - load an alternate palette
+void R_LoadPalette_f (void); //qb: load an alternate palette
 void R_LoadSky_f (void); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 void R_Init (void)
 {
@@ -254,14 +254,14 @@ void R_Init (void)
     r_stack_start = (byte *)&dummy;
 #endif
 
-    MakeMy15to8(); //qbism - engoo doesn't use it yet, so might as well
+    MakeMy15to8(); //qb: engoo doesn't use it yet, so might as well
     R_InitTurb ();
 
     Cmd_AddCommand ("loadpalette", R_LoadPalette_f);
     Cmd_AddCommand ("timerefresh", R_TimeRefresh_f);
     Cmd_AddCommand ("pointfile", R_ReadPointFile_f);
     Cmd_AddCommand ("loadsky", R_LoadSky_f); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
-    Cmd_AddCommand ("fog", Fog_FogCommand_f); // qbism- fog commands from FitzQuake
+    Cmd_AddCommand ("fog", Fog_FogCommand_f); // qb: fog commands from FitzQuake
     //set up global fog defaults
     fog_density = 0.0;
     fog_red = 0.17;
@@ -275,12 +275,12 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_graphheight);
     Cvar_RegisterVariable (&r_drawflat);
     Cvar_RegisterVariable (&r_ambient);
-    Cvar_RegisterVariable (&r_coloredlights); //qbism
-    Cvar_RegisterVariable (&r_clintensity); //qbism
-    Cvar_RegisterVariable (&r_clbaseweight); //qbism
-    Cvar_RegisterVariable (&r_clcolorweight); //qbism
-    Cvar_RegisterVariable (&r_colmaprange); //qbism
-    Cvar_RegisterVariable (&r_fog); //qbism
+    Cvar_RegisterVariable (&r_coloredlights); //qb:
+    Cvar_RegisterVariable (&r_clintensity); //qb:
+    Cvar_RegisterVariable (&r_clbaseweight); //qb:
+    Cvar_RegisterVariable (&r_clcolorweight); //qb:
+    Cvar_RegisterVariable (&r_colmaprange); //qb:
+    Cvar_RegisterVariable (&r_fog); //qb:
     Cvar_RegisterVariable (&r_clearcolor);
     Cvar_RegisterVariable (&r_waterwarp);
     Cvar_RegisterVariable (&r_fullbright);
@@ -294,7 +294,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_reportedgeout);
     Cvar_RegisterVariable (&r_maxedges);
 
-    Cvar_RegisterVariable (&r_colmapred); //qbism
+    Cvar_RegisterVariable (&r_colmapred); //qb:
     Cvar_RegisterVariable (&r_colmapblue);
     Cvar_RegisterVariable (&r_colmapgreen);
 
@@ -311,15 +311,15 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_glassalpha); //qb: *glass
     Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
 //    Cvar_RegisterVariable (&r_sprite_addblend); // Manoel Kasimier
-    Cvar_RegisterVariable (&r_shadowhack); //qbism- engoo shadowhack
-    Cvar_RegisterVariable (&r_shadowhacksize); //qbism
+    Cvar_RegisterVariable (&r_shadowhack); //qb: engoo shadowhack
+    Cvar_RegisterVariable (&r_shadowhacksize); //qb:
 
-    //qbism ftestain cvars
+    //qb: ftestain cvars
     Cvar_RegisterVariable(&r_stains);
     Cvar_RegisterVariable(&r_stainfadetime);
     Cvar_RegisterVariable(&r_stainfadeamount);
 
-    //qbism particle cvars
+    //qb: particle cvars
     Cvar_RegisterVariable(&r_part_scale);
     Cvar_RegisterVariable(&r_part_blob_count);
     Cvar_RegisterVariable(&r_part_blob_time);
@@ -332,8 +332,8 @@ void R_Init (void)
     Cvar_RegisterVariable(&r_part_explo2_vel);
     Cvar_RegisterVariable(&r_part_sticky_time);
 
-    Cvar_SetValue ("r_maxedges", (float) 100000); //NUMSTACKEDGES //qbism was 60000
-    Cvar_SetValue ("r_maxsurfs", (float) 100000); //NUMSTACKSURFACES //qbism was 60000
+    Cvar_SetValue ("r_maxedges", (float) 100000); //NUMSTACKEDGES //qb: was 60000
+    Cvar_SetValue ("r_maxsurfs", (float) 100000); //NUMSTACKSURFACES //qb: was 60000
 
     view_clipplanes[0].leftedge = true;
     view_clipplanes[1].rightedge = true;
@@ -397,7 +397,7 @@ void CL_ParseEntityLump (char *entdata)
         }
         // Manoel Kasimier - end
         // more checks here..
-        if (Q_strcmp (key, "palette") == 0) //qbism- use palette field in worldspawn.
+        if (Q_strcmp (key, "palette") == 0) //qb: use palette field in worldspawn.
         {
             Cbuf_AddText(va("wait;loadpalette %s\n", value));
             return;
@@ -422,7 +422,7 @@ COLORMAP GRABBING
 =============================================================================
 */
 
-//qbism - 15to8 stealed from engoo.
+//qb: 15to8 stealed from engoo.
 
 void MakeMy15to8()
 {
@@ -446,7 +446,7 @@ void MakeMy15to8()
 
 /*
 ===============
-BestColor - qbism- from qlumpy
+BestColor - qb: from qlumpy
 ===============
 */
 int BestColor (int r, int g, int b, int start, int stop)
@@ -463,7 +463,7 @@ int BestColor (int r, int g, int b, int start, int stop)
 //
 // let any color go to 0 as a last resort
 //
-    bestdistortion = ( (int)r + (int)g + (int)b )*2; //qbism  ( (int)r*r + (int)g*g + (int)b*b )*2;
+    bestdistortion = ( (int)r + (int)g + (int)b )*2; //qb:  ( (int)r*r + (int)g*g + (int)b*b )*2;
     bestcolor = 0;
 
     pal = host_basepal + start*3;
@@ -473,7 +473,7 @@ int BestColor (int r, int g, int b, int start, int stop)
         dg = abs(g - (int)pal[1]);
         db = abs(b - (int)pal[2]);
         pal += 3;
-        distortion = dr + dg + db; //qbism - more weight on value.  dr*dr + dg*dg + db*db;
+        distortion = dr + dg + db; //qb: more weight on value.  dr*dr + dg*dg + db*db;
         if (distortion < bestdistortion)
         {
             if (!distortion)
@@ -488,7 +488,7 @@ int BestColor (int r, int g, int b, int start, int stop)
 }
 
 
-void GrabAlphamap (void) //qbism- based on Engoo
+void GrabAlphamap (void) //qb: based on Engoo
 {
     int c,l, r,g,b;
     float ay, ae;
@@ -510,7 +510,7 @@ void GrabAlphamap (void) //qbism- based on Engoo
     }
 }
 
-void GrabFogmap (void) //qbism- yet another lookup
+void GrabFogmap (void) //qb: yet another lookup
 {
     int c,l, r,g,b;
     float ay, ae;
@@ -531,7 +531,7 @@ void GrabFogmap (void) //qbism- yet another lookup
 }
 
 
-void GrabLightcolormap (void) //qbism- for colored lighting, fullbrights show through
+void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show through
 {
     int c,l, r,g,b;
     float rl, gl, bl;
@@ -577,7 +577,7 @@ void GrabLightcolormap (void) //qbism- for colored lighting, fullbrights show th
 
 
 
-void GrabAdditivemap (void) //qbism- based on Engoo
+void GrabAdditivemap (void) //qb: based on Engoo
 {
     int c,l, red, green, blue;
     float ay, ae;
@@ -603,7 +603,7 @@ void GrabAdditivemap (void) //qbism- based on Engoo
 
 /*
 ==============
-GrabColormap - qbism- from qlumpy
+GrabColormap - qb: from qlumpy
 
 filename COLORMAP levels fullbrights
 the first map is an identiy 0-255
@@ -612,7 +612,7 @@ the remaining maps are evenly spread
 fullbright colors start at the top of the palette.
 ==============
 */
-void GrabColormap (void)  //qbism - fixed, was a little screwy
+void GrabColormap (void)  //qb: fixed, was a little screwy
 {
     int		l, c, red, green, blue;
     float	frac, cscale, fracscaled;
@@ -632,7 +632,7 @@ void GrabColormap (void)  //qbism - fixed, was a little screwy
     for (l=0; l<COLORLEVELS; l++)
     {
         frac = (float)l/(COLORLEVELS-1);
-        frac = r_colmaprange.value - (frac );  //qbism was 1.0.... boost!
+        frac = r_colmaprange.value - (frac );  //qb: was 1.0.... boost!
         //rscaled = r_colmapred.value*cscale;
         // gscaled = r_colmapgreen.value*cscale;
         // bscaled = r_colmapblue.value*cscale;
@@ -675,10 +675,10 @@ MIPTEX GRABBING
 
 /*
 =============
-AveragePixels  qbism- from qlumpy
+AveragePixels  qb: from qlumpy
 =============
 */
-/*qbism- to do, or not...
+/*qb: to do, or not...
 
 byte	pixdata[256];
 int		d_red, d_green, d_blue;
@@ -802,7 +802,7 @@ filename MIP x y width height
 must be multiples of sixteen
 ==============
 */
-/*qbism- to do, or not...
+/*qb: to do, or not...
 void GrabMip (void)
 {
 	int             x,y,xl,yl,xh,yh,w,h;
@@ -895,7 +895,7 @@ R_LoadPalette
 ===============
 */
 
-int R_LoadPalette (char *name) //qbism - load an alternate palette
+int R_LoadPalette (char *name) //qb: load an alternate palette
 {
     loadedfile_t	*fileinfo;
     char	pathname[MAX_QPATH];
@@ -909,7 +909,7 @@ int R_LoadPalette (char *name) //qbism - load an alternate palette
         return 0;
     }
     memcpy (host_basepal, fileinfo->data, 768);
-    //qbism - if color 255 (transparent) isn't the default color, use it for lighting tint.
+    //qb: if color 255 (transparent) isn't the default color, use it for lighting tint.
     if ((host_basepal[765] != 159) && (host_basepal[766] != 91) && (host_basepal[767] != 83))
     {
         r_colmapred.value = host_basepal[765];
@@ -938,7 +938,7 @@ int R_LoadPalette (char *name) //qbism - load an alternate palette
 R_LoadPalette_f
 ===============
 */
-void R_LoadPalette_f (void) //qbism - load an alternate palette
+void R_LoadPalette_f (void) //qb: load an alternate palette
 {
     if (Cmd_Argc() != 2)
     {
@@ -965,8 +965,8 @@ void R_NewMap (void)
     CL_ParseEntityLump (cl.worldmodel->entities); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
     r_viewleaf = NULL;
     R_ClearParticles ();
-    R_BuildLightmaps(); //qbism ftestain
-    ParseWorldspawn (); //qbism- based on Fitzquake
+    R_BuildLightmaps(); //qb: ftestain
+    ParseWorldspawn (); //qb: based on Fitzquake
     R_InitSkyBox (); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
     r_cnumsurfs = r_maxsurfs.value;
 
@@ -1008,7 +1008,7 @@ void R_NewMap (void)
 
     r_dowarpold = false;
     r_viewchanged = false;
-    V_BonusFlash_f(); //qbism- hack to remove cshift hangover, plus looks good on respawn.  Is there a better place for this?
+    V_BonusFlash_f(); //qb: hack to remove cshift hangover, plus looks good on respawn.  Is there a better place for this?
 
 #ifdef PASSAGES
     CreatePassages ();
@@ -1143,7 +1143,7 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj, float aspect)
     r_refdef.aliasvrectbottom = r_refdef.aliasvrect.y +
                                 r_refdef.aliasvrect.height;
 
-//qbism: Aardappel fisheye
+//qb: Aardappel fisheye
     if(r_fisheye.value)
     {
         pixelAspect = (float)r_refdef.vrect.height/(float)r_refdef.vrect.width;
@@ -1508,7 +1508,7 @@ int R_BmodelCheckBBox (model_t *clmodel, float *minmaxs)
 }
 
 
-//qbism R_DepthSortAliasEntities and R_SortAliasEntities from reckless
+//qb: R_DepthSortAliasEntities and R_SortAliasEntities from reckless
 /*
 =============
 R_DepthSortAliasEntities
@@ -1637,7 +1637,7 @@ void R_DrawBEntitiesOnList (void)
                 // calculate dynamic lighting for bmodel if it's not an
                 // instanced model
                 if (clmodel->firstmodelsurface != 0)
-                    R_PushDlights (clmodel->nodes + clmodel->hulls[0].firstclipnode); //qbism - from MH
+                    R_PushDlights (clmodel->nodes + clmodel->hulls[0].firstclipnode); //qb: from MH
 
                 r_pefragtopnode = NULL;
 
@@ -1764,11 +1764,11 @@ r_refdef must be set before the first call
 ================
 */
 
-void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and stereo.
+void R_RenderView (void) //qb: so can only setup frame once, for fisheye and stereo.
 {
     int		dummy;
     int		delta;
-    //qbism - for fog
+    //qb: for fog
     int			x, y, level, fogindex, dither, xref;
     float   density_factor;
     byte		*pbuf;
@@ -1780,7 +1780,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     //This causes problems for Flash when not using -O3
 #if !defined(FLASH)
     delta = (byte *)&dummy - r_stack_start;
-    if (delta < -0x10000 || delta > 0x10000) //qbism was 10000. D_SQ_calloc is 0x10000.  Does it matter?
+    if (delta < -0x10000 || delta > 0x10000) //qb: was 10000. D_SQ_calloc is 0x10000.  Does it matter?
         Sys_Error ("R_RenderView: called without enough stack");
 #endif
 
@@ -1808,7 +1808,7 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
 
     R_SetupFrame ();
     currententity = &cl_entities[0];
-        R_PushDlights (cl.worldmodel->nodes);  //qbism - moved here from view.c
+        R_PushDlights (cl.worldmodel->nodes);  //qb: moved here from view.c
 
 #ifdef PASSAGES
     SetVisibilityByPassages ();
@@ -1852,13 +1852,13 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
         se_time2 = Sys_DoubleTime (); // scan edges time
 //		de_time1 = se_time2; // draw entities time
     }
-//   R_DrawViewModel (true); qbism - move after particles
+//   R_DrawViewModel (true); qb: move after particles
 
     if (r_dspeeds.value) // Manoel Kasimier
         de_time1 = Sys_DoubleTime (); // Manoel Kasimier - draw entities time
         CL_UpdateTEnts (); // Manoel Kasimier
 
-    R_SortAliasEntities(); //qbism from reckless
+    R_SortAliasEntities(); //qb: from reckless
     R_DrawEntitiesOnList ();
 
 
@@ -1881,17 +1881,17 @@ void R_RenderView (void) //qbism- so can only setup frame once, for fisheye and 
     }
     // Manoel Kasimier - translucent water - end
 
-    R_DrawViewModel (true); //qbism draw after particles.  it's worth the overdraw.
+    R_DrawViewModel (true); //qb: draw after particles.  it's worth the overdraw.
     R_DrawViewModel (false); // Manoel Kasimier
 
-    //qbism- originally based on Makaqu 1.3 fog.  added global fog, dithering, optimizing
+    //qb: originally based on Makaqu 1.3 fog.  added global fog, dithering, optimizing
     static float previous_fog_density;
     if (fog_density && r_fog.value)
     {
         dither=0;
         if(previous_fog_density != fog_density)
             FogDitherInit(); //dither includes density factor, so regenerate when it changes
-        fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3]; //qbism -fractional value, bright fog is harsh
+        fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3]; //qb:fractional value, bright fog is harsh
         for (y=0 ; y<r_refdef.vrect.height; y++)
         {
             pbuf = r_warpbuffer + d_scantable[y+r_refdef.vrect.y];

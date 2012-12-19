@@ -27,7 +27,7 @@ int		d_scantable[MAXHEIGHT];
 short	*zspantable[MAXHEIGHT];
 
 //Dan East:
-extern int min_vid_width;  //qbism- Dan East
+extern int min_vid_width;  //qb: Dan East
 /*
 ================
 D_ViewChanged
@@ -59,7 +59,7 @@ void D_ViewChanged (void)
     if (d_pix_min < 1)
         d_pix_min = 1;
 
-    d_pix_max = (int)((float)r_refdef.vrect.width / (320.0 / 24.0) + 0.5)* r_part_scale.value;  //qbism 24 was 4, bigger particles
+    d_pix_max = (int)((float)r_refdef.vrect.width / (320.0 / 24.0) + 0.5)* r_part_scale.value;  //qb: 24 was 4, bigger particles
     d_pix_max = (int)((float)d_pix_max*fovscale); // Manoel Kasimier - FOV-based scaling - fix
     if (d_pix_max < 1)
         d_pix_max = 1;

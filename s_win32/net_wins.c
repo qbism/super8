@@ -16,7 +16,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
 // net_wins.c
 
-#include "winsock.h" //qbism- Dan East
+#include "winsock.h" //qb: Dan East
 
 #include "../quakedef.h"
 #include "winquake.h"
@@ -75,8 +75,8 @@ void WINS_GetLocalAddress()
 		return;
 
 	blocktime = Sys_DoubleTime();
-	//qbism- removed in Sockets 2- WSASetBlockingHook(BlockingHook);
-	local = gethostbyname(buff); //qbism- Dan East
+	//qb: removed in Sockets 2- WSASetBlockingHook(BlockingHook);
+	local = gethostbyname(buff); //qb: Dan East
 	//local = pgethostbyname(buff);
 	//WSAUnhookBlockingHook();
 	if (local == NULL)
@@ -360,10 +360,10 @@ int WINS_CheckNewConnections (void)
 	if (net_acceptsocket == -1)
 		return -1;
 
-	//qbism - via FQ Mark V - From ProQuake: - fix for zero-sized packet bug by changing > to >=
+	//qb: via FQ Mark V - From ProQuake: - fix for zero-sized packet bug by changing > to >=
 	//if (precvfrom (net_acceptsocket, buf, sizeof(buf), MSG_PEEK, NULL, NULL) >= 0)
 
-	ioctlsocket(net_acceptsocket, FIONREAD, &nBytesAvailable); //qbism - from SB, pocketQuake - is this better?
+	ioctlsocket(net_acceptsocket, FIONREAD, &nBytesAvailable); //qb: from SB, pocketQuake - is this better?
 	if (nBytesAvailable > 0)
 	{
 		return net_acceptsocket;
@@ -489,7 +489,7 @@ int WINS_GetSocketAddr (int socket, struct qsockaddr *addr)
 
 int WINS_GetNameFromAddr (struct qsockaddr *addr, char *name)
 {
-	/* qbism - via FQ Mark V - From ProQuake: "commented this out because it's slow and completely useless"
+	/* qb: via FQ Mark V - From ProQuake: "commented this out because it's slow and completely useless"
 	hostentry = pgethostbyaddr ((char *)&((struct sockaddr_in *)addr)->sin_addr, sizeof(struct in_addr), AF_INET);
 	if (hostentry)
 	{

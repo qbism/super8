@@ -31,7 +31,7 @@ sfx_t			*cl_sfx_ric1;
 sfx_t			*cl_sfx_ric2;
 sfx_t			*cl_sfx_ric3;
 sfx_t			*cl_sfx_r_exp3;
-//qbism Q2 implosion and rail sfx - todo?
+//qb: Q2 implosion and rail sfx - todo?
 sfx_t			*cl_sfx_imp;
 sfx_t			*cl_sfx_rail;
 
@@ -49,7 +49,7 @@ void CL_InitTEnts (void)
 	cl_sfx_ric2 = S_PrecacheSound ("weapons/ric2.wav");
 	cl_sfx_ric3 = S_PrecacheSound ("weapons/ric3.wav");
 	cl_sfx_r_exp3 = S_PrecacheSound ("weapons/r_exp3.wav");
-//qbism implosion and rail sfx
+//qb: implosion and rail sfx
 	cl_sfx_imp = S_PrecacheSound ("shambler/sattck1.wav");
 	cl_sfx_rail = S_PrecacheSound ("weapons/lstart.wav");
 }
@@ -75,7 +75,7 @@ void CL_ParseBeam (model_t *m)
 	end[0] = MSG_ReadCoord ();
 	end[1] = MSG_ReadCoord ();
 	end[2] = MSG_ReadCoord ();
-	R_AddStain(end, 80, 12); //qbism ftestain
+	R_AddStain(end, 80, 12); //qb: ftestain
 
 // override any beam with the same entity
 	for (i=0, b=cl_beams ; i< MAX_BEAMS ; i++, b++)
@@ -114,7 +114,7 @@ void CL_ParseTEnt (void)
 {
 	int		type;
 	vec3_t	pos;
-	vec3_t	endpos; //qbism for railtrail
+	vec3_t	endpos; //qb: for railtrail
 	dlight_t	*dl;
 	int		rnd;
 	int		colorStart, colorLength;
@@ -127,7 +127,7 @@ void CL_ParseTEnt (void)
 		pos[1] = MSG_ReadCoord ();
 		pos[2] = MSG_ReadCoord ();
 		R_RunParticleEffect (pos, vec3_origin, 20, 30);
-		R_AddStain(pos, -20, 11); //qbism ftestain
+		R_AddStain(pos, -20, 11); //qb: ftestain
 		S_StartSound (-1, 0, cl_sfx_wizhit, pos, 1, 1);
 		break;
 
@@ -136,7 +136,7 @@ void CL_ParseTEnt (void)
 		pos[1] = MSG_ReadCoord ();
 		pos[2] = MSG_ReadCoord ();
 		R_RunParticleEffect (pos, vec3_origin, 226, 20);
-		R_AddStain(pos, -20, 15); //qbism ftestain
+		R_AddStain(pos, -20, 15); //qb: ftestain
 		S_StartSound (-1, 0, cl_sfx_knighthit, pos, 1, 1);
 		break;
 
@@ -146,7 +146,7 @@ void CL_ParseTEnt (void)
 		pos[2] = MSG_ReadCoord ();
 
 		R_RunParticleEffect (pos, vec3_origin, 0, 10);
-		R_AddStain(pos, -30, 10); //qbism ftestain
+		R_AddStain(pos, -30, 10); //qb: ftestain
 
 		if ( rand() % 5 )
 			S_StartSound (-1, 0, cl_sfx_tink1, pos, 1, 1);
@@ -166,7 +166,7 @@ void CL_ParseTEnt (void)
 		pos[1] = MSG_ReadCoord ();
 		pos[2] = MSG_ReadCoord ();
 		R_RunParticleEffect (pos, vec3_origin, 0, 20);
-		R_AddStain(pos, -30, 10); //qbism ftestain
+		R_AddStain(pos, -30, 10); //qb: ftestain
 
 		if ( rand() % 5 )
 			S_StartSound (-1, 0, cl_sfx_tink1, pos, 1, 1);
@@ -187,7 +187,7 @@ void CL_ParseTEnt (void)
 		pos[1] = MSG_ReadCoord ();
 		pos[2] = MSG_ReadCoord ();
 		R_RunParticleEffect (pos, vec3_origin, 0, 20);
-		R_AddStain(pos, -40, 12); //qbism ftestain
+		R_AddStain(pos, -40, 12); //qb: ftestain
 		break;
 
 	case TE_EXPLOSION:			// rocket explosion
@@ -200,9 +200,9 @@ void CL_ParseTEnt (void)
 		dl->radius = 350;
 		dl->die = cl.time + 0.5;
 		dl->decay = 300;
-		dl->color = (byte)BestColor(50, 50, 22, 0, 222); //qbism dyncol
+		dl->color = (byte)BestColor(50, 50, 22, 0, 222); //qb: dyncol
 		S_StartSound (-1, 0, cl_sfx_r_exp3, pos, 1, 1);
-		R_AddStain(pos, -30, 45); //qbism ftestain
+		R_AddStain(pos, -30, 45); //qb: ftestain
 
 		break;
 
@@ -213,7 +213,7 @@ void CL_ParseTEnt (void)
 		R_BlobExplosion (pos);
 
 		S_StartSound (-1, 0, cl_sfx_r_exp3, pos, 1, 1);
-		R_AddStain(pos, -20, 60); //qbism ftestain
+		R_AddStain(pos, -20, 60); //qb: ftestain
 		break;
 
 	case TE_LIGHTNING1:				// lightning bolts
@@ -260,12 +260,12 @@ void CL_ParseTEnt (void)
 		dl->radius = 350;
 		dl->die = cl.time + 0.5;
 		dl->decay = 300;
-		dl->color = colorStart; //qbism dyncol
+		dl->color = colorStart; //qb: dyncol
 		S_StartSound (-1, 0, cl_sfx_r_exp3, pos, 1, 1);
-		R_AddStain(pos, -30, 50); //qbism ftestain
+		R_AddStain(pos, -30, 50); //qb: ftestain
 		break;
 
-//qbism Quake 2 implosion and railtrail
+//qb: Quake 2 implosion and railtrail
 /*	case TE_IMPLOSION:
 		pos[0] = MSG_ReadCoord ();
 		pos[1] = MSG_ReadCoord ();
@@ -329,7 +329,7 @@ CL_UpdateTEnts
 */
 void CL_UpdateTEnts (void)
 {
-	int			i, j; //qbism:  johnfitz -- use j instead of using i twice, so we don't corrupt memory
+	int			i, j; //qb:  johnfitz -- use j instead of using i twice, so we don't corrupt memory
 	beam_t		*b;
 	vec3_t		dist, org;
 	float		d;
@@ -339,7 +339,7 @@ void CL_UpdateTEnts (void)
 
 	num_temp_entities = 0;
 
-	srand ((int) (cl.ctime * 1000)); //qbism - Baker - DEMO_REWIND_HARD_ANIMS_TIME, johnfitz -- freeze beams when paused
+	srand ((int) (cl.ctime * 1000)); //qb: Baker - DEMO_REWIND_HARD_ANIMS_TIME, johnfitz -- freeze beams when paused
 
 // update lightning
 	for (i=0, b=cl_beams ; i< MAX_BEAMS ; i++, b++)
@@ -396,7 +396,7 @@ void CL_UpdateTEnts (void)
 		#if !defined(FLASH)
 			pitch = /*(int)*/ (atan2(dist[2], forward) * 180 / M_PI); // Manoel Kasimier - edited
 		#else
-			pitch = (myAtan2(dist[2], forward) * 180 / M_PI); //qbism added
+			pitch = (myAtan2(dist[2], forward) * 180 / M_PI); //qb: added
 		#endif
 			if (pitch < 0)
 				pitch += 360;

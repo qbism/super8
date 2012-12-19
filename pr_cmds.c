@@ -43,14 +43,14 @@ char *pr_extensions[] =
     "DP_GFX_SKYBOX",
     // Manoel Kasimier - end
 
-    //qbism added extensions begin
+    //qb: added extensions begin
     "DP_MOVETYPEBOUNCEMISSILE",
     "DP_MOVETYPEFOLLOW",
     "DP_SV_MODELFLAGS_AS_EFFECTS ",
     "DP_ENT_EXTERIORMODELTOCLIENT",
     "DP_SV_NODRAWTOCLIENT",  //based on Team Xlink
     "DP_SV_DRAWONLYTOCLIENT",  //based on Team Xlink
-    //qbism added extensions end
+    //qb: added extensions end
 
 //	"DP_REGISTERCVAR",	// 2001-09-18 New BuiltIn Function: cvar_create() by Maddes
     "DP_QC_CHANGEPITCH",// 2001-09-16 Quake 2 builtin functions by id/Maddes
@@ -618,7 +618,7 @@ void PF_vectoangles (void)
 #if !defined(FLASH)
         pitch = (atan2(value1[2], forward) * 180 / M_PI);
 #else
-        pitch = (myAtan2(value1[2], forward) * 180 / M_PI); //qbism added
+        pitch = (myAtan2(value1[2], forward) * 180 / M_PI); //qb: added
 #endif
         if (pitch < 0)
             pitch += 360;
@@ -722,7 +722,7 @@ void PF_ambientsound (void)
         MSG_WriteCoord(&sv.signon, pos[i]);
 
     if (current_protocol != PROTOCOL_NETQUAKE && COMPATSTATSOUND)
-        MSG_WriteShort (&sv.signon, soundnum); //qbism- more ambient sounds
+        MSG_WriteShort (&sv.signon, soundnum); //qb: more ambient sounds
     else
     MSG_WriteByte (&sv.signon, soundnum);
     MSG_WriteByte (&sv.signon, vol*255);
@@ -771,7 +771,7 @@ void PF_sound (void)
 }
 
 
-//qbism - plays sound to an individual client... I hear voices...
+//qb: plays sound to an individual client... I hear voices...
 void PF_localsound (void)
 {
     char		*sample;
@@ -1808,13 +1808,13 @@ void PF_makestatic (void)
     {
         if (val = GetEdictFieldValue(ent, "alpha"))
         {
-            ent->alpha = ENTALPHA_ENCODE(val->_float); //qbism ent->alpha
-            //qbism:  fitzquake  don't send invisible entities unless they have effects
+            ent->alpha = ENTALPHA_ENCODE(val->_float); //qb: ent->alpha
+            //qb:  fitzquake  don't send invisible entities unless they have effects
             if (ent->alpha == ENTALPHA_ZERO && !ent->v.effects)
                 return;
         }
         MSG_WriteShort (&sv.signon, SV_ModelIndex(pr_strings + ent->v.model));
-        MSG_WriteByte (&sv.signon, ent->alpha); //qbism
+        MSG_WriteByte (&sv.signon, ent->alpha); //qb:
     }
     else MSG_WriteByte (&sv.signon, SV_ModelIndex(pr_strings + ent->v.model));
 
@@ -2220,7 +2220,7 @@ PF_fopen
 float fopen (string,float)
 =================
 */
-void PF_fopen (void) //qbism - updated from mh FRIK_FILE tute
+void PF_fopen (void) //qb: updated from mh FRIK_FILE tute
 {
     char *p = G_STRING(OFS_PARM0);
     int fmode = G_FLOAT (OFS_PARM1);
@@ -2716,7 +2716,7 @@ ebfs_builtin_t pr_ebfs_builtins[] =
     {  47, "nextent", PF_nextent },
     {  48, "particle", PF_particle },
     {  49, "ChangeYaw", PF_changeyaw },
-    {  50, "localsound", PF_localsound }, //qbism - plays an S_LocalSound
+    {  50, "localsound", PF_localsound }, //qb: plays an S_LocalSound
     {  51, "vectoangles", PF_vectoangles },
 
     {  52, "WriteByte", PF_WriteByte },

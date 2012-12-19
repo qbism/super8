@@ -52,7 +52,7 @@ HULL BOXES
 
 
 static	hull_t		box_hull;
-static	mclipnode_t	box_clipnodes[6]; //qbism:  johnfitz -- was dclipnode_t
+static	mclipnode_t	box_clipnodes[6]; //qb:  johnfitz -- was dclipnode_t
 static	mplane_t	box_planes[6];
 
 /*

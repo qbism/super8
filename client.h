@@ -44,10 +44,10 @@ typedef struct
 typedef struct
 {
     int		destcolor[3];
-    float		percent;		// 0-256  //qbism - was int.  float for higher precision (thanks mh)
+    float		percent;		// 0-256  //qb: was int.  float for higher precision (thanks mh)
 } cshift_t;
 
-//qbism- from engoo... leilei - shadowhack
+//qb: from engoo... leilei - shadowhack
 typedef struct
 {
     vec3_t	origin;
@@ -73,17 +73,17 @@ typedef struct
 
 #define	SIGNONS		4			// signon messages to receive before connected
 
-//qbism- put all these defines in one spot
-#define	MAX_DLIGHTS		64 //qbism 128 per qsb, was 32
-#define	MAX_SHADOWS		64 //qbism - Engoo shadowhack
-#define	MAX_BEAMS	256 //qbism 256 per qsb - was 24
+//qb: put all these defines in one spot
+#define	MAX_DLIGHTS		64 //qb: 128 per qsb, was 32
+#define	MAX_SHADOWS		64 //qb: Engoo shadowhack
+#define	MAX_BEAMS	256 //qb: 256 per qsb - was 24
 #define	MAX_MAPSTRING	2048
 #define	MAX_DEMOS		8
 #define	MAX_DEMONAME	16
-#define	MAX_EFRAGS		2048//qbism was 640
-#define	MAX_TEMP_ENTITIES	512 //qbism 1024 per qsb - was 64			// lightning bolts, etc
-#define	MAX_STATIC_ENTITIES	512 //qbism 1024 per qsb - was 128	// torches, etc
-#define	MAX_VISEDICTS	2048  //1024 per Fitzquake, qbism was 256
+#define	MAX_EFRAGS		2048//qb: was 640
+#define	MAX_TEMP_ENTITIES	512 //qb: 1024 per qsb - was 64			// lightning bolts, etc
+#define	MAX_STATIC_ENTITIES	512 //qb: 1024 per qsb - was 128	// torches, etc
+#define	MAX_VISEDICTS	2048  //qb: 1024 per Fitzquake, was 256
 
 
 typedef struct
@@ -95,7 +95,7 @@ typedef struct
     float	minlight;			// don't add when contributing less
     int		key;
     qboolean    dark;			// subtracts light instead of adding
-    byte     color;     //qbism- indexed colored dynamic light
+    byte     color;     //qb: indexed colored dynamic light
 } dlight_t;
 
 typedef struct
@@ -114,7 +114,7 @@ typedef enum
 } cactive_t;
 
 
-#ifdef WEBDL    //qbism - sometimes works, needs more testing
+#ifdef WEBDL    //qb: sometimes works, needs more testing
 typedef struct
 {
     qboolean web;
@@ -158,10 +158,10 @@ typedef struct
     int			signon;			// 0 to SIGNONS
     struct qsocket_s	*netcon;
     sizebuf_t	message;		// writing buffer to send to server
-    qboolean   capturedemo; //qbism jqavi
+    qboolean   capturedemo; //qb: jqavi
 
-#ifdef WEBDL    //qbism - sometimes works, needs more testing
-    download_t download; //qbism - R00k / Baker tute
+#ifdef WEBDL    //qb: sometimes works, needs more testing
+    download_t download; //qb: R00k / Baker tute
 #endif
 
 } client_static_t;
@@ -228,7 +228,7 @@ typedef struct
     double		oldtime;		// previous cl.time, time-oldtime is used
     // to decay light values and smooth step ups
 
-    double		ctime; //DEMO_REWIND - qbism - based on Baker change
+    double		ctime; //DEMO_REWIND - qb: based on Baker change
 
     float		last_received_message;	// (realtime) for net trouble icon
 
@@ -255,7 +255,7 @@ typedef struct
 // frag scoreboard
     scoreboard_t	*scores;		// [cl.maxclients]
 
-	vec3_t			death_location;		//qbism -talk macro via FQ Mark V - used for %d formatting
+	vec3_t			death_location;		//qb:talk macro via FQ Mark V - used for %d formatting
 
 } client_state_t;
 
@@ -284,7 +284,7 @@ extern	cvar_t	cl_vibration; // Manoel Kasimier
 extern	cvar_t	cl_showfps;	// 2001-11-31 FPS display by QuakeForge/Muff
 extern	cvar_t	cl_shownet;
 extern	cvar_t	cl_nolerp;
-extern	cvar_t	cl_maxfps; //qbism from qrack
+extern	cvar_t	cl_maxfps; //qb: from qrack
 
 extern	cvar_t	cl_pitchdriftspeed;
 extern	cvar_t	lookspring;

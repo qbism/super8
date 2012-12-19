@@ -73,10 +73,10 @@ static aedge_t	aedges[12] =
 
 #define NUMVERTEXNORMALS	162
 
-//qbism- dumped from r_2d.c (deleted)
+//qb: dumped from r_2d.c (deleted)
 cvar_t	r_interpolation = {"r_interpolation", "1"}; // Manoel Kasimier - model interpolation
 cvar_t	sw_stipplealpha = {"sw_stipplealpha","0", true};
-/* qbism - alias models show through completely- cvar_t	r_sprite_addblend = {"r_sprite_addblend","0", true}; */
+/* qb: alias models show through completely- cvar_t	r_sprite_addblend = {"r_sprite_addblend","0", true}; */
 
 cvar_t		scr_left	= {"scr_left",	"1", true};
 cvar_t		scr_right	= {"scr_right",	"1", true};
@@ -589,16 +589,16 @@ void R_AliasSetUpBlendedTransform (int trivial_accept)
 // TODO: could cache lazily, stored in the entity
 
     // orientation interpolation (Euler angles, yuck!)
-    timepassed = (float)cl.ctime - currententity->rotate_start_time; // edited //DEMO_REWIND - qbism - based on Baker change
+    timepassed = (float)cl.ctime - currententity->rotate_start_time; // edited //DEMO_REWIND - qb: based on Baker change
     if (currententity->rotate_start_time == 0 || timepassed > 1)
     {
-        currententity->rotate_start_time = (float)cl.ctime; // edited //DEMO_REWIND - qbism - based on Baker change
+        currententity->rotate_start_time = (float)cl.ctime; // edited //DEMO_REWIND - qb: based on Baker change
         VectorCopy (currententity->angles, currententity->angles1);
         VectorCopy (currententity->angles, currententity->angles2);
     }
     if (!VectorCompare (currententity->angles, currententity->angles2))
     {
-        currententity->rotate_start_time = (float)cl.ctime; // edited //DEMO_REWIND - qbism - based on Baker change
+        currententity->rotate_start_time = (float)cl.ctime; // edited //DEMO_REWIND - qb: based on Baker change
         VectorCopy (currententity->angles2, currententity->angles1);
         VectorCopy (currententity->angles, currententity->angles2);
         lerp = 0;
@@ -614,17 +614,17 @@ void R_AliasSetUpBlendedTransform (int trivial_accept)
     AngleVectors (t, alias_forward, alias_right, alias_up);
 
     // positional interpolation
-    timepassed = (float)cl.ctime - currententity->translate_start_time; // edited //DEMO_REWIND - qbism - based on Baker change
+    timepassed = (float)cl.ctime - currententity->translate_start_time; // edited //DEMO_REWIND - qb: based on Baker change
 
     if (currententity->translate_start_time == 0 || timepassed > 1)
     {
-        currententity->translate_start_time = (float)cl.ctime; // edited //DEMO_REWIND - qbism - based on Baker change
+        currententity->translate_start_time = (float)cl.ctime; // edited //DEMO_REWIND - qb: based on Baker change
         VectorCopy (currententity->origin, currententity->origin1);
         VectorCopy (currententity->origin, currententity->origin2);
     }
     if (!VectorCompare (currententity->origin, currententity->origin2))
     {
-        currententity->translate_start_time = (float)cl.ctime; // edited //DEMO_REWIND - qbism - based on Baker change
+        currententity->translate_start_time = (float)cl.ctime; // edited //DEMO_REWIND - qb: based on Baker change
         VectorCopy (currententity->origin2, currententity->origin1);
         VectorCopy (currententity->origin, currententity->origin2);
         lerp = 0;
@@ -1042,7 +1042,7 @@ void R_AliasSetupLighting (/*alight_t *plighting*/) // Manoel Kasimier - edited
 }
 
 
-void R_AliasSetupLighting_new () //qbism - a hybrid of MK's version.
+void R_AliasSetupLighting_new () //qb: a hybrid of MK's version.
 {
     // Manoel Kasimier - Model interpolation - begin
 
@@ -1169,7 +1169,7 @@ void R_AliasSetupFrame (void)
         numframes = paliasgroup->numframes;
         fullinterval = pintervals[numframes-1];
 
-        time = cl.time + currententity->syncbase;//DEMO_REWIND - qbism - Baker change
+        time = cl.time + currententity->syncbase;//DEMO_REWIND - qb: Baker change
 
 //
 // when loading in Mod_LoadAliasGroup, we guaranteed all interval values
@@ -1191,7 +1191,7 @@ void R_AliasSetupFrame (void)
     }
     currententity->pose1 = currententity->pose2 = pose;
     currententity->framegroup1 = currententity->framegroup2 = paliasgroup; // Manoel Kasimier - edited
-    currententity->frame_start_time = (float)cl.ctime;//DEMO_REWIND - qbism - based on Baker change
+    currententity->frame_start_time = (float)cl.ctime;//DEMO_REWIND - qb: based on Baker change
     // Manoel Kasimier - model interpolation - end
 }
 
@@ -1241,7 +1241,7 @@ void R_AliasSetupBlendedFrame (void)
         pintervals = (float *)((byte *)paliashdr + paliasgroup->intervals);
         numframes = paliasgroup->numframes;
         fullinterval = pintervals[numframes-1];
-        time = (float)cl.ctime + currententity->syncbase;//DEMO_REWIND - qbism - based on Baker change
+        time = (float)cl.ctime + currententity->syncbase;//DEMO_REWIND - qb: based on Baker change
         targettime = time - ((int)(time / fullinterval)) * fullinterval;
         for (pose=0 ; pose<(numframes-1) ; pose++)
         {
@@ -1270,7 +1270,7 @@ void R_AliasSetupBlendedFrame (void)
             e->framegroup2 = paliasgroup; // Manoel Kasimier
             e->pose2 = pose;
 
-            e->frame_start_time = (float)cl.ctime;//DEMO_REWIND - qbism - based on Baker change
+            e->frame_start_time = (float)cl.ctime;//DEMO_REWIND - qb: based on Baker change
             blend = 0;
         }
         else
@@ -1280,7 +1280,7 @@ void R_AliasSetupBlendedFrame (void)
     {
         e->pose1 = e->pose2 = pose;
         e->lastmodel = e->model;
-        e->frame_start_time = (float)cl.ctime;//DEMO_REWIND - qbism - based on Baker change
+        e->frame_start_time = (float)cl.ctime;//DEMO_REWIND - qb: based on Baker change
         e->framegroup1 = e->framegroup2 = paliasgroup; // Manoel Kasimier - edited
         blend = 0;
     }

@@ -14,10 +14,10 @@ See the GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
-#include "version.h" //qbism - displayed on demo playback
+#include "version.h" //qb: displayed on demo playback
 #include "quakedef.h"
 
-//qbism jqavi - JoeQuake avi from Baker tutorial
+//qb: jqavi - JoeQuake avi from Baker tutorial
 #ifdef _WIN32
 #include "s_win32/movie_avi.h"
 #endif
@@ -26,7 +26,7 @@ extern cvar_t r_palette;
 
 void CL_FinishTimeDemo (void);
 
-//DEMO_REWIND qbism-  Baker change
+//DEMO_REWIND qb:  Baker change
 typedef struct framepos_s
 {
 	long				baz;
@@ -53,7 +53,7 @@ read from the demo file.
 ==============================================================================
 */
 
-//qbism - added from proquake 3.50
+//qb: added from proquake 3.50
 //plus Baker single player fix http://forums.inside3d.com/viewtopic.php?t=4567
 // JPG 1.05 - support for recording demos after connecting to the server
 byte	demo_head[3][MAX_MSGLEN];
@@ -80,10 +80,10 @@ void CL_StopPlayback (void)
     if (cls.timedemo)
         CL_FinishTimeDemo ();
 
-#ifdef _WIN32 //qbism jqavi
+#ifdef _WIN32 //qb: jqavi
     Movie_StopPlayback ();
 #endif
-    current_protocol = PROTOCOL_QBS8; //qbism- revert back to standard protocol
+    current_protocol = PROTOCOL_QBS8; //qb: revert back to standard protocol
 }
 
 /* JPG - need to fix up the demo message
@@ -156,7 +156,7 @@ void CL_WriteDemoMessage (void)
     fflush (cls.demofile);
 }
 
-//DEMO_REWIND qbism - Baker change
+//DEMO_REWIND qb: Baker change
 void PushFrameposEntry (long fbaz)
 {
 	framepos_t	*newf;
@@ -197,12 +197,12 @@ int CL_GetMessage (void)
     int		r, i;
     float	f;
 
-	if (cl.paused & 2) //PAUSE_DEMO - qbism - Baker change
+	if (cl.paused & 2) //PAUSE_DEMO - qb: Baker change
 		return 0;
 
     if	(cls.demoplayback)
     {
-        //DEMO_REWIND qbism - Baker change
+        //DEMO_REWIND qb: Baker change
 		if (start_of_demo && cls.demorewind)
 			return 0;
 
@@ -222,7 +222,7 @@ int CL_GetMessage (void)
                 if (host_framecount == cls.td_startframe + 1)
                     cls.td_starttime = realtime;
             }
-            //DEMO_REWIND qbism - Baker change
+            //DEMO_REWIND qb: Baker change
 			else if (!cls.demorewind && cl.ctime <= cl.mtime[0])
 				return 0;		// don't need another message yet
 			else if (cls.demorewind && cl.ctime >= cl.mtime[0])
@@ -253,7 +253,7 @@ int CL_GetMessage (void)
             CL_StopPlayback ();
             return 0;
         }
-//DEMO_REWIND qbism - Baker change
+//DEMO_REWIND qb: Baker change
 		// joe: get out framestack's top entry
 		if (cls.demorewind /*&& !cl.intermission*/)
 		{
@@ -349,7 +349,7 @@ void CL_Stop_f (void)
     Con_Printf ("Completed demo\n");
 }
 
-void CL_Clear_Demos_Queue (void) //qbism - from FQ Mark V
+void CL_Clear_Demos_Queue (void) //qb: from FQ Mark V
 {
 	int i;
 	for (i = 0;i < MAX_DEMOS; i ++)	// Clear demo loop queue
@@ -362,7 +362,7 @@ void CL_Clear_Demos_Queue (void) //qbism - from FQ Mark V
 ====================
 CL_UpdateDemoStat
 
-qbism - from MH improvement to 'record any time'
+qb: from MH improvement to 'record any time'
 ====================
 */
 void CL_UpdateDemoStat (int stat)
@@ -432,7 +432,7 @@ void CL_Record_f (void)
         track = -1;
 
     sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
-    CL_Clear_Demos_Queue (); //qbism - from FQ Mark V timedemo is a very intentional action
+    CL_Clear_Demos_Queue (); //qb: from FQ Mark V timedemo is a very intentional action
 //
 // start the map up
 //
@@ -546,7 +546,7 @@ void CL_PlayDemo_f (void)
 //
     CL_Disconnect ();
 
-    //DEMO_REWIND qbism - Baker change
+    //DEMO_REWIND qb: Baker change
 	// Revert
 	cls.demorewind = false;
 	cls.demospeed = 0; // 0 = Don't use
@@ -587,8 +587,8 @@ void CL_PlayDemo_f (void)
         cls.forcetrack = -cls.forcetrack;
 // ZOID, fscanf is evil
 //	fscanf (cls.demofile, "%i\n", &cls.forcetrack);
-    if( !R_LoadPalette(r_palette.string)) //qbism- load custom palette if it exists.
-        R_LoadPalette("palette"); //qbism- default to standard palette.
+    if( !R_LoadPalette(r_palette.string)) //qb: load custom palette if it exists.
+        R_LoadPalette("palette"); //qb: default to standard palette.
 }
 
 /*
@@ -629,10 +629,10 @@ void CL_TimeDemo_f (void)
         Con_Printf ("timedemo <demoname> : gets demo speeds\n");
         return;
     }
-	if (key_dest != key_game) //qbism - close console from FQ Mark V
+	if (key_dest != key_game) //qb: close console from FQ Mark V
 		key_dest = key_game;
 
-	CL_Clear_Demos_Queue (); //qbism - from FQ Mark V - timedemo is a very intentional action
+	CL_Clear_Demos_Queue (); //qb: from FQ Mark V - timedemo is a very intentional action
     CL_PlayDemo_f ();
 
 // cls.td_starttime will be grabbed at the second frame of the demo, so

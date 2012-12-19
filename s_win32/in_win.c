@@ -45,7 +45,7 @@ POINT		current_pos;
 int			mouse_x, mouse_y, old_mouse_x, old_mouse_y, mx_accum, my_accum;
 
 static qboolean	restore_spi;
-static int		originalmouseparms[3], newmouseparms[3] = {0, 0, 0}; //qbism was 0,0,1 = keep mouse accel if not directx
+static int		originalmouseparms[3], newmouseparms[3] = {0, 0, 0}; //qb: was 0,0,1 = keep mouse accel if not directx
 
 unsigned int uiWheelMessage;
 qboolean	mouseactive;
@@ -716,7 +716,7 @@ void IN_MouseMove (usercmd_t *cmd)
     if ( m_look.value && !(in_strafe.state & 1)) // Manoel Kasimier - m_look - edited
     {
         cl.viewangles[PITCH] += m_pitch.value * mouse_y/fovscale; // Manoel Kasimier - FOV-based scaling - edited
-        cl.viewangles[PITCH] = bound(-89, cl.viewangles[PITCH], 89); //qbism
+        cl.viewangles[PITCH] = bound(-89, cl.viewangles[PITCH], 89); //qb:
     }
     else
     {
@@ -1238,5 +1238,5 @@ void IN_JoyMove (usercmd_t *cmd)
     }
 
     // bounds check pitch
-    cl.viewangles[PITCH] = bound(-89, cl.viewangles[PITCH], 89); //qbism
+    cl.viewangles[PITCH] = bound(-89, cl.viewangles[PITCH], 89); //qb:
 }

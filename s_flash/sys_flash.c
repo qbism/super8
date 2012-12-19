@@ -29,7 +29,7 @@ FILE IO
 ===============================================================================
 */
 
-#define MAX_HANDLES             64 //qbism was 10
+#define MAX_HANDLES             64 //qb: was 10
 FILE    *sys_handles[MAX_HANDLES];
 
 int             findhandle (void)
@@ -61,7 +61,7 @@ int filelength (FILE *f)
 	return end;
 }
 
-int Sys_FileOpenAppend (char *path) //qbism - mh FRIK_FILE tute
+int Sys_FileOpenAppend (char *path) //qb: mh FRIK_FILE tute
 {
    FILE   *f;
    int      i;
@@ -194,7 +194,7 @@ void Sys_Quit (void)
 
 double _as3Time;
 
-double Sys_DoubleTime (void) //qbism was Sys_FloatTime
+double Sys_DoubleTime (void) //qb: was Sys_FloatTime
 {
 	return _as3Time;
 }
@@ -371,7 +371,7 @@ AS3_Val swcWriteSoundData(void *data, AS3_Val args)
 
 AS3_Val swcKey(void *data, AS3_Val args)
 {
-#ifndef FLASHDEMO //qbism disable input for flash demo-mode-only
+#ifndef FLASHDEMO //qb: disable input for flash demo-mode-only
 	int key, charCode, state;
 
 	AS3_ArrayValue(args, "IntType,IntType,IntType", &key, &charCode, &state);
@@ -394,7 +394,7 @@ AS3_Val swcKey(void *data, AS3_Val args)
 extern float mouse_x, mouse_y;
 AS3_Val swcDeltaMouse(void *data, AS3_Val args)
 {
-	#ifndef FLASHDEMO //qbism disable input for flash demo-mode-only
+	#ifndef FLASHDEMO //qb: disable input for flash demo-mode-only
 	int deltaX, deltaY;
 	AS3_ArrayValue(args, "IntType,IntType", &deltaX, &deltaY);
 

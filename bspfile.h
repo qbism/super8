@@ -23,14 +23,14 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define	MAX_MAP_MODELS		256
 #define	MAX_MAP_BRUSHES		4096
 
-#define	MAX_MAP_ENTITIES	2048 //qbism was 1024
+#define	MAX_MAP_ENTITIES	2048 //qb: was 1024
 
 #define	MAX_MAP_ENTSTRING	65536
 
 
 #define	MAX_MAP_NODES		32767		// because negative shorts are contents
-//qbism not used, see mclipnode_t // #define	MAX_MAP_CLIPNODES	32767		//
-#define	MAX_MAP_LEAFS		32767 //qbism was 8192
+//qb: not used, see mclipnode_t // #define	MAX_MAP_CLIPNODES	32767		//
+#define	MAX_MAP_LEAFS		32767 //qb: was 8192
 #define	MAX_MAP_VERTS		65535
 #define	MAX_MAP_FACES		65535
 #define	MAX_MAP_TEXINFO		4096

@@ -269,7 +269,7 @@ void D_DrawSurfaces (void)
             // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
             else if (s->flags & SURF_DRAWSKYBOX)
             {
-                extern byte	r_skypixels[6][1024*1024]; //qbism- increased to 1024x1024
+                extern byte	r_skypixels[6][1024*1024]; //qb: increased to 1024x1024
 
                 pface = s->data;
                 miplevel = 0;

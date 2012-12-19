@@ -18,7 +18,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 #include "r_local.h"
-#ifdef _WIN32 //qbism jqavi
+#ifdef _WIN32 //qb: jqavi
 #include "s_win32/movie_avi.h"
 #endif
 
@@ -61,13 +61,13 @@ client_t	*host_client;			// current client
 jmp_buf 	host_abortserver;
 
 byte		*host_basepal;
-byte		*host_colormap;//qbism
-byte        *alphamap, *additivemap, *fogmap; //qbism moved here
-byte        *lightcolormap; //qbism
+byte		*host_colormap;//qb:
+byte        *alphamap, *additivemap, *fogmap; //qb: moved here
+byte        *lightcolormap; //qb:
 
 cvar_t	r_skyalpha = {"r_skyalpha","0.5"}; //0.6 Manoel Kasimier - translucent sky
 
-cvar_t  r_palette =  {"r_palette", "s8pal", true}; //qbism- the default palette to load
+cvar_t  r_palette =  {"r_palette", "s8pal", true}; //qb: the default palette to load
 
 cvar_t	host_framerate = {"host_framerate","0"};	// set for slow motion
 cvar_t	host_speeds = {"host_speeds","0"};			// set for running times
@@ -180,7 +180,7 @@ void	Host_FindMaxClients (void)
             svs.maxclients = Q_atoi (com_argv[i+1]);
         }
         else
-            svs.maxclients = 16;  //qbism was 8
+            svs.maxclients = 16;  //qb: was 8
     }
     else
         cls.state = ca_disconnected;
@@ -193,16 +193,16 @@ void	Host_FindMaxClients (void)
         if (i != (com_argc - 1))
             svs.maxclients = Q_atoi (com_argv[i+1]);
         else
-            svs.maxclients = 16;  //qbism was 8
+            svs.maxclients = 16;  //qb: was 8
     }
     if (svs.maxclients < 1)
-        svs.maxclients = 16;  //qbism was 8
+        svs.maxclients = 16;  //qb: was 8
     else if (svs.maxclients > MAX_SCOREBOARD)
         svs.maxclients = MAX_SCOREBOARD;
 
     svs.maxclientslimit = svs.maxclients;
     if (svs.maxclientslimit < 4)
-        svs.maxclientslimit = 16;  //qbism was 4
+        svs.maxclientslimit = 16;  //qb: was 4
     svs.clients = Hunk_AllocName (svs.maxclientslimit*sizeof(client_t), "clients");
 
     if (svs.maxclients > 1)
@@ -246,11 +246,11 @@ void Host_InitLocal (void)
     // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
     Cvar_RegisterVariable (&r_skyalpha); // Manoel Kasimier - translucent sky
 
-    Cvar_RegisterVariable (&r_palette); // qbism - default palette
+    Cvar_RegisterVariable (&r_palette); // qb: default palette
 
     Cvar_RegisterVariable (&host_framerate);
     Cvar_RegisterVariable (&host_speeds);
-    Cvar_RegisterVariable (&host_timescale); //qbism - from johnfitz
+    Cvar_RegisterVariable (&host_timescale); //qb: from johnfitz
 
     Cvar_RegisterVariable (&sys_ticrate);
     Cvar_RegisterVariable (&serverprofile);
@@ -544,7 +544,7 @@ Returns false if the time is too short to run a frame
 ===================
 */
 
-float frame_timescale = 1.0f; //DEMO_REWIND - qbism - Baker change
+float frame_timescale = 1.0f; //DEMO_REWIND - qb: Baker change
 
 qboolean Host_FilterTime (float time)
 {
@@ -558,7 +558,7 @@ qboolean Host_FilterTime (float time)
     if (!cls.timedemo && realtime - oldrealtime < 1.0/fps)
         return false;		// framerate is too high
 
-#ifdef _WIN32 //qbism jqavi
+#ifdef _WIN32 //qb: jqavi
     if (Movie_IsActive())
         host_frametime = Movie_FrameTime ();
     else
@@ -567,7 +567,7 @@ qboolean Host_FilterTime (float time)
 	host_frametime = realtime - oldrealtime;
 	oldrealtime = realtime;
 
-//qbism - fitzquake host_framerate + DEMO_REWIND Baker change
+//qb: fitzquake host_framerate + DEMO_REWIND Baker change
     frame_timescale = 1;
     if (cls.demoplayback && cls.demospeed && !cls.timedemo /* && !cls.capturedemo && cls.demonum == -1 */) //qb: allow for all but timedemo
     {
@@ -611,7 +611,7 @@ void Host_GetConsoleCommands (void)
 
 /*
 ==================
-Host_ServerFrame //qbism- framerate independent physics from mh
+Host_ServerFrame //qb: framerate independent physics from mh
 
 ==================
 */
@@ -661,7 +661,7 @@ void _Host_Frame (float time)
     // keep the random time dependent
     rand ();
 
-//qbism per mh - run input before possible host_filtertime return, improves responsiveness
+//qb: per mh - run input before possible host_filtertime return, improves responsiveness
 // get new key events
     Sys_SendKeyEvents ();
 
@@ -784,7 +784,7 @@ void Host_Frame (float time)
 //============================================================================
 
 
-void Palette_Init (void) //qbism - idea from Engoo
+void Palette_Init (void) //qb: idea from Engoo
 {
     char path[128];
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
@@ -801,7 +801,7 @@ void Palette_Init (void) //qbism - idea from Engoo
 
     host_basepal = fileinfo->data;
 
-//qbism - colormap, alphamap, and addivemap are generated
+//qb: colormap, alphamap, and addivemap are generated
     host_colormap = Q_malloc(256*COLORLEVELS);
     GrabColormap();
     {
@@ -814,7 +814,7 @@ void Palette_Init (void) //qbism - idea from Engoo
     fogmap = Q_malloc(256*256);
     GrabFogmap();
     lightcolormap = Q_malloc(256*256);
-    //qbism- need to do this AFTER r_init.... GrabLightcolormap();
+    //qb: need to do this AFTER r_init.... GrabLightcolormap();
 
     additivemap = Q_malloc(256*256);
     GrabAdditivemap();
@@ -855,7 +855,7 @@ void Host_Init (quakeparms_t *parms)
     Con_Init ();
     V_Init ();
     Chase_Init ();
-//    Host_InitVCR (parms);  //qbism deleted
+//    Host_InitVCR (parms);  //qb: deleted
     COM_Init (parms->basedir);
     Host_InitLocal ();
     W_LoadWadFile ("gfx.wad");
@@ -873,7 +873,7 @@ void Host_Init (quakeparms_t *parms)
 
     if (cls.state != ca_dedicated)
     {
-        Palette_Init ();  //qbism
+        Palette_Init ();  //qb:
 
 #ifndef _WIN32 // on non win32, mouse comes before video for security reasons
         IN_Init ();
@@ -895,14 +895,14 @@ void Host_Init (quakeparms_t *parms)
 #ifdef _WIN32 // on non win32, mouse comes before video for security reasons
         IN_Init ();
 #endif
-        GrabLightcolormap(); //qbism
+        GrabLightcolormap(); //qb:
     }
 
     Con_DPrintf ("\n"); // Manoel Kasimier
 
     //SCR_Adjust(); // Manoel Kasimier - screen positioning
-    //M_Credits_f(); // Manoel Kasimier //qbism: go straight to demo
-    Cbuf_InsertText ("exec quake.rc\n"); //qbism: go straight to demo
+    //M_Credits_f(); // Manoel Kasimier //qb: go straight to demo
+    Cbuf_InsertText ("exec quake.rc\n"); //qb: go straight to demo
 
     Hunk_AllocName (0, "-HOST_HUNKLEVEL-");
     host_hunklevel = Hunk_LowMark ();
@@ -935,7 +935,7 @@ void Host_Shutdown(void)
     // keep Con_Printf from trying to update the screen
     scr_disabled_for_loading = true;
     Host_WriteConfiguration ();
-    if (con_initialized) History_Shutdown (); //qbism- Baker/ezQuake- command history
+    if (con_initialized) History_Shutdown (); //qb: Baker/ezQuake- command history
     CDAudio_Shutdown ();
     NET_Shutdown ();
     S_Shutdown();

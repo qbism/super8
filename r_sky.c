@@ -63,14 +63,14 @@ void R_SetSkyFrame (void)
     s2 = iskyspeed2 / g;
     temp = SKYSIZE * s1 * s2;
 
-    skytime = cl.ctime - ((int)(cl.ctime / temp) * temp);//DEMO_REWIND - qbism - translated to SW from GL Baker change
+    skytime = cl.ctime - ((int)(cl.ctime / temp) * temp);//DEMO_REWIND - qb: translated to SW from GL Baker change
 }
 
 // Manoel Kasimier - skyboxes - begin
 // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 extern	mtexinfo_t		r_skytexinfo[6];
 extern	qboolean		r_drawskybox;
-byte					r_skypixels[6][1024*1024]; //qbism- up to 1024x1024
+byte					r_skypixels[6][1024*1024]; //qb: up to 1024x1024
 texture_t				r_skytextures[6];
 char					skyname[MAX_QPATH];
 
@@ -92,7 +92,7 @@ qboolean R_LoadSkybox (char *name)
     }
 
 //  the same skybox we are using now
-//  qbism- on second thought, msy be a reason to reload it.   if (!Q_strcmp (name, skyname)) //qbism was stricmp
+//  qb: on second thought, msy be a reason to reload it.   if (!Q_strcmp (name, skyname)) //qb: was stricmp
 //  return true;
 
 
@@ -104,16 +104,16 @@ qboolean R_LoadSkybox (char *name)
 #ifdef __linux__
         snprintf (pathname, sizeof(pathname), "gfx/env/%s%s.pcx\0", skyname, suf[r_skysideimage[i]]); // Manoel Kasimier - edited
 #else
-        Q_snprintfz (pathname, sizeof(pathname), "gfx/env/%s%s.pcx\0", skyname, suf[r_skysideimage[i]]); //qbism- Q_snprintfz
+        Q_snprintfz (pathname, sizeof(pathname), "gfx/env/%s%s.pcx\0", skyname, suf[r_skysideimage[i]]); //qb: Q_snprintfz
 #endif
         LoadPCX (pathname, &pic, &width, &height);
 
         if (!pic)
         {
 #ifdef __linux__
-            snprintf (pathname, sizeof(pathname), "gfx/env/%s%s.tga\0", skyname, suf[r_skysideimage[i]]); //qbism- MK 1.4a
+            snprintf (pathname, sizeof(pathname), "gfx/env/%s%s.tga\0", skyname, suf[r_skysideimage[i]]); //qb: MK 1.4a
 #else
-            Q_snprintfz (pathname, sizeof(pathname), "gfx/env/%s%s.tga\0", skyname, suf[r_skysideimage[i]]); //qbism- MK 1.4a
+            Q_snprintfz (pathname, sizeof(pathname), "gfx/env/%s%s.tga\0", skyname, suf[r_skysideimage[i]]); //qb: MK 1.4a
 #endif
             LoadTGA_as8bit (pathname, &pic, &width, &height);
             if (!pic)
@@ -122,14 +122,14 @@ qboolean R_LoadSkybox (char *name)
 #ifdef __linux__
                 snprintf (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); // Manoel Kasimier - edited
 #else
-                Q_snprintfz (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); //qbism- Q_snprintfz
+                Q_snprintfz (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); //qb: Q_snprintfz
 
 #endif
                 LoadPCX (pathname, &pic, &width, &height);
 
                 if (!pic)
                 {
-                    Sys_Error ("Couldn't load sky, and\ncouldn't load default sky texture %s\n", pathname);  //qbism no sky = crash, so exit gracefully
+                    Sys_Error ("Couldn't load sky, and\ncouldn't load default sky texture %s\n", pathname);  //qb: no sky = crash, so exit gracefully
                     return false;
                 }
             }
@@ -143,14 +143,14 @@ qboolean R_LoadSkybox (char *name)
 #ifdef __linux__
             snprintf (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); // Manoel Kasimier - edited
 #else
-            Q_snprintfz (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); //qbism- Q_snprintfz
+            Q_snprintfz (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); //qb: Q_snprintfz
 
 #endif
             LoadPCX (pathname, &pic, &width, &height);
 
             if (!pic)
             {
-                Sys_Error ("Couldn't load sky, and\ncouldn't load default sky texture %s\n", pathname);  //qbism no sky = crash, so exit gracefully
+                Sys_Error ("Couldn't load sky, and\ncouldn't load default sky texture %s\n", pathname);  //qb: no sky = crash, so exit gracefully
                 return false;
             }
         }
@@ -166,7 +166,7 @@ qboolean R_LoadSkybox (char *name)
         {
             extern vec3_t box_256_vecs[6][2];
             extern vec3_t box_512_vecs[6][2];
-            extern vec3_t box_1024_vecs[6][2]; //qbism added
+            extern vec3_t box_1024_vecs[6][2]; //qb: added
             extern msurface_t *r_skyfaces;
 
             if (width == 1024)
@@ -217,7 +217,7 @@ void R_LoadSky_f (void)
 // Manoel Kasimier - skyboxes - end
 
 
-//qbism - fog commands from FitzQuake, simplified
+//qb: fog commands from FitzQuake, simplified
 //==============================================================================
 //
 //  GLOBAL FOG
@@ -393,7 +393,7 @@ void ParseWorldspawn (void)
             sscanf(value, "%f %f %f %f", &fog_density, &fog_red, &fog_green, &fog_blue);
         }
         /*
-        if (!strcmp("skyboxsomething", key)) //qbism - add more keys?  Most maps using stuffcmd anyway.
+        if (!strcmp("skyboxsomething", key)) //qb: add more keys?  Most maps using stuffcmd anyway.
         {
             sscanf(value, "%s", &r_skyname.value);
         }

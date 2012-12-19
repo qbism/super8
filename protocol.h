@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 // protocol.h -- communications protocols
 
 #define	PROTOCOL_NETQUAKE	15
-#define PROTOCOL_QBS8  8888 //qbism
+#define PROTOCOL_QBS8  8888 //qb:
 
 // if the high bit of the servercmd is set, the low bits are fast update flags:
 #define	U_MOREBITS  	(1<<0)
@@ -36,25 +36,25 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define	U_COLORMAP	    (1<<11)
 #define	U_SKIN		    (1<<12)
 #define	U_EFFECTS	    (1<<13)
-#define	U_LONGENTITY	(1<<14) //qbism - this is the last protocol 15 bit
+#define	U_LONGENTITY	(1<<14) //qb: this is the last protocol 15 bit
 #define U_EXTEND1		(1<<15)
 
 #define U_ALPHA			(1<<16) // 1 byte, uses ENTALPHA_ENCODE, not sent if equal to baseline
 #define U_FRAME2		(1<<17) // 1 byte, this is .frame & 0xFF00 (second byte)
 #define U_MODEL2		(1<<18) // 1 byte, this is .modelindex & 0xFF00 (second byte)
-#define U_GLOW_SIZE 	(1<<19) // short, -250 to 250.  qbism - from Tomazquake
-#define U_GLOW_GREEN	(1<<21) //qbism - 1 byte, 0 to 1 maps to 0 to 255
-#define U_GLOW_RED		(1<<20) //qbism - 1 byte
-#define U_GLOW_GREEN	(1<<21) //qbism - 1 byte
-#define U_GLOW_BLUE 	(1<<22) //qbism - 1 byte
+#define U_GLOW_SIZE 	(1<<19) // short, -250 to 250.  qb: from Tomazquake
+#define U_GLOW_GREEN	(1<<21) //qb: 1 byte, 0 to 1 maps to 0 to 255
+#define U_GLOW_RED		(1<<20) //qb: 1 byte
+#define U_GLOW_GREEN	(1<<21) //qb: 1 byte
+#define U_GLOW_BLUE 	(1<<22) //qb: 1 byte
 #define U_EXTEND2		(1<<23) // another byte to follow
 
-#define U_EFFECTS2		(1<<24) // qbism- jump up to 4 bytes for DP effects
+#define U_EFFECTS2		(1<<24) // qb: jump up to 4 bytes for DP effects
 #define U_FRAMEINTERVAL	(1<<25) // Manoel Kasimier - QC frame_interval
 #define U_VIEWMODEL		(1<<26) // attachs the model to the view (origin and angles become relative to it), only shown to owner, a more powerful alternative to .weaponmodel and such
 #define U_EXTERIORMODEL	(1<<27) // causes this model to not be drawn when using a first person view (third person will draw it, first person will not)
-#define U_SCALE 		(1<<28) //qbism - from Tomazquake
-#define U_SCALEV       	(1<<29) //qbism - from Tomazquake
+#define U_SCALE 		(1<<28) //qb: from Tomazquake
+#define U_SCALEV       	(1<<29) //qb: from Tomazquake
 //open              	(1<<30)
 //open              	(1<<31)
 
@@ -74,7 +74,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define	SU_ARMOR		(1<<13)
 #define	SU_WEAPON		(1<<14)
 
-//qbism- from johnfitz -- PROTOCOL_FITZQUAKE -- new bits
+//qb: from johnfitz -- PROTOCOL_FITZQUAKE -- new bits
 #define SU_EXTEND1		(1<<15) // another byte to follow
 #define SU_WEAPON2		(1<<16) // 1 byte, this is .weaponmodel & 0xFF00 (second byte)
 #define SU_ARMOR2		(1<<17) // 1 byte, this is .armorvalue & 0xFF00 (second byte)
@@ -98,7 +98,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define	SND_ATTENUATION	(1<<1)		// a byte
 #define	SND_LOOPING		(1<<2)		// a long
 
-//qbism:  johnfitz begin
+//qb:  johnfitz begin
 // -- new bits
 #define	SND_LARGEENTITY	(1<<3)	// a short + byte (instead of just a short)
 #define	SND_LARGESOUND	(1<<4)	// a short soundindex (instead of a byte)
@@ -117,7 +117,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define ENTALPHA_TOSAVE(a)	(((a)==ENTALPHA_DEFAULT)?0.0f:(((a)==ENTALPHA_ZERO)?-1.0f:((float)(a)-1)/(254))) //server convert to float for savegame
 //johnfitz
 
-//qbism:  johnfitz end
+//qb:  johnfitz end
 
 // defaults for clientinfo messages
 #define	DEFAULT_VIEWHEIGHT	22
@@ -193,8 +193,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define svc_fog					41	// [byte] density [byte] red [byte] green [byte] blue [float] time
 //johnfitz
 
-#define svc_localsound      48  //qbism play sound to a single client, S_LocalSound
-#define	svc_say				49	//qbism TTS [string] null terminated string
+#define svc_localsound      48  //qb: play sound to a single client, S_LocalSound
+#define	svc_say				49	//qb: TTS [string] null terminated string
 
 #define svc_letterbox		60	// Manoel Kasimier - svc_letterbox
 #define svc_vibrate			61	// Manoel Kasimier
@@ -231,7 +231,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define TE_BEAM				13
 // PGM 01/21/97
 
-//qbism- TODO additional TE events
+//qb: TODO additional TE events
 //#define TE_IMPLOSION		14
 #define TE_RAILTRAIL		15
 

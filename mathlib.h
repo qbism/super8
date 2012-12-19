@@ -39,7 +39,7 @@ extern	int nanmask;
 #define VectorSubtract(a,b,c) {c[0]=a[0]-b[0];c[1]=a[1]-b[1];c[2]=a[2]-b[2];}
 #define VectorAdd(a,b,c) {c[0]=a[0]+b[0];c[1]=a[1]+b[1];c[2]=a[2]+b[2];}
 #define VectorCopy(a,b) {b[0]=a[0];b[1]=a[1];b[2]=a[2];}
-#define VectorClear(a) {((a)[0]=(a)[1]=(a)[2]=0);}  //qbism - from engoo
+#define VectorClear(a) {((a)[0]=(a)[1]=(a)[2]=0);}  //qb: from engoo
 
 
 void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc);
@@ -99,4 +99,4 @@ float	anglemod(float a);
 #endif
 // 2001-11-15 DarkPlaces general builtin functions by LordHavoc  end
 
-#define Q_rint(x) ((x) > 0 ? (int)((x) + 0.5) : (int)((x) - 0.5)) //qbism jqavi -todo- use elsewhere? look at jq and fitzq
+#define Q_rint(x) ((x) > 0 ? (int)((x) + 0.5) : (int)((x) - 0.5)) //qb: jqavi -todo- use elsewhere? look at jq and fitzq

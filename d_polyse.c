@@ -575,7 +575,7 @@ void D_PolysetCalcGradients_C (int skinwidth) // Manoel Kasimier - transparencie
 
 
 
-#if 0 //qbism 1 for gelmap test
+#if 0 //qb: 1 for gelmap test
 byte gelmap[256];
 void InitGel (byte *palette)
 {

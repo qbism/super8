@@ -38,7 +38,7 @@ pixel_t			*cacheblock;
 int				cachewidth;
 pixel_t			*d_viewbuffer;
 short			*d_pzbuffer;
-int	             d_zrowbytes; //qbism - signed per szo
+int	             d_zrowbytes; //qb: signed per szo
 int	             d_zwidth;
 
 

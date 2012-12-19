@@ -25,7 +25,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define BMODEL_FULLY_CLIPPED	0x10 // value returned by R_BmodelCheckBBox ()
 									 //  if bbox is trivially rejected
 
-#define FRAME_DELTA (1.0 / 72.0) //qbism - constant physics framerate
+#define FRAME_DELTA (1.0 / 72.0) //qb: constant physics framerate
 
 //===========================================================================
 // viewmodel lighting
@@ -74,11 +74,11 @@ extern cvar_t	r_skyalpha; // Manoel Kasimier - translucent sky
 extern cvar_t	sw_stipplealpha; // Manoel Kasimier
 //extern cvar_t	r_sprite_addblend; // Manoel Kasimier
 
-extern cvar_t	r_coloredlights; //qbism - at last!
+extern cvar_t	r_coloredlights; //qb: at last!
 extern cvar_t	r_clintensity;
 extern cvar_t	r_clcolorweight;
 
-extern cvar_t   r_fog; //qbism - fog!  not TOO bad...
+extern cvar_t   r_fog; //qb: fog!  not TOO bad...
 extern cvar_t   fviews; //qb: for model interpolation
 
 #define XCENTERING	(1.0 / 2.0)
@@ -92,7 +92,7 @@ extern cvar_t   fviews; //qb: for model interpolation
 
 #define	DIST_NOT_SET	98765
 
-#define DITHER_NUMRANDS 3947 //qbism- number of random floats for fog dithering
+#define DITHER_NUMRANDS 3947 //qb: number of random floats for fog dithering
 
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
 typedef struct clipplane_s
@@ -191,7 +191,7 @@ extern int			vstartscan;
 extern fixed16_t	sadjust, tadjust;
 extern fixed16_t	bbextents, bbextentt;
 
-#define MAXBVERTINDEXES	4096 //qbism was 1000	// new clipped vertices when clipping bmodels
+#define MAXBVERTINDEXES	4096 //qb: was 1000	// new clipped vertices when clipping bmodels
 								//  to the world BSP
 extern mvertex_t	*r_ptverts, *r_ptvertsmax;
 
@@ -212,13 +212,13 @@ extern int			numbtofpolys;
 extern btofpoly_t	*pbtofpolys;
 
 void	R_InitTurb (void);
-//qbism remove all this     void	R_ZDrawSubmodelPolys (model_t *clmodel);
+//qb: remove all this     void	R_ZDrawSubmodelPolys (model_t *clmodel);
 
 //=========================================================
 // Alias models
 //=========================================================
 
-#define MAXALIASVERTS		4096 	//qbism 65535 per qsb - was 1024
+#define MAXALIASVERTS		4096 	//qb: 65535 per qsb - was 1024
 #define ALIAS_Z_CLIP_PLANE	5
 
 extern int				numverts;
@@ -250,7 +250,7 @@ void R_InitParticles (void);
 void R_ClearParticles (void);
 void R_ReadPointFile_f (void);
 
-void R_PushDlights (struct mnode_s *headnode); //qbism - moved from render.h
+void R_PushDlights (struct mnode_s *headnode); //qb: moved from render.h
 
 extern int		r_amodels_drawn;
 extern edge_t	*auxedges;
@@ -294,22 +294,22 @@ extern mleaf_t	*r_viewleaf, *r_oldviewleaf;
 extern vec3_t	r_emins, r_emaxs;
 extern mnode_t	*r_pefragtopnode;
 extern int		r_clipflags;
-//qbism - silly!  extern int		r_dlightframecount;
+//qb: silly!  extern int		r_dlightframecount;
 extern qboolean	r_fov_greater_than_90;
-byte *pointcolormap; //qbism palettized color
+byte *pointcolormap; //qb: palettized color
 
-//qbism - fog
+//qb: fog
 extern float fog_density, fog_red, fog_green, fog_blue;
 extern float old_density, old_red, old_green, old_blue;
 extern float fade_time; //duration of fade
 extern float fade_done; //time when fade will be done
 void GrabFogmap (void);
 
-void R_BuildLightmaps(void); //qbism ftestain
-void GrabAlphamap (void); //qbism
-void GrabAdditivemap (void); //qbism
-void GrabColormap (void); //qbism
-void V_BonusFlash_f (void);  //qbism - add prototype to appease Cygwin (swc compiling)
+void R_BuildLightmaps(void); //qb: ftestain
+void GrabAlphamap (void); //qb:
+void GrabAdditivemap (void); //qb:
+void GrabColormap (void); //qb:
+void V_BonusFlash_f (void);  //qb: add prototype to appease Cygwin (swc compiling)
 
 
 void R_StoreEfrags (efrag_t **ppefrag);
@@ -329,6 +329,6 @@ void R_MarkLights (dlight_t *light, int bit, mnode_t *node);
 void R_InitSkyBox (void); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 qboolean R_LoadSkybox (char *name); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 
-int BestColor (int r, int g, int b, int start, int stop); //qbism
+int BestColor (int r, int g, int b, int start, int stop); //qb:
 
-void Fog_FogCommand_f (void); //qbism
+void Fog_FogCommand_f (void); //qb:

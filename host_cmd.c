@@ -17,15 +17,15 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 
-#include "version.h" //qbism - generate from bat
+#include "version.h" //qb: generate from bat
 
 
 extern cvar_t	pausable;
 
 int	current_skill;
 
-cvar_t sv_cheats = {"sv_cheats", "0"};//qbism sv_cheats similar to DP
-qboolean allowcheats = false; //qbism sv_cheat similar to DP
+cvar_t sv_cheats = {"sv_cheats", "0"};//qb: sv_cheats similar to DP
+qboolean allowcheats = false; //qb: sv_cheat similar to DP
 
 void Mod_Print (void);
 
@@ -333,7 +333,7 @@ void Host_Map_f (void)
 
 	if (cmd_source != src_command)
 		return;
-	CL_Clear_Demos_Queue (); //qbism - from FQ Mark V - timedemo is a very intentional action
+	CL_Clear_Demos_Queue (); //qb: from FQ Mark V - timedemo is a very intentional action
 
 	CL_Disconnect ();
 	Host_ShutdownServer(false);
@@ -397,11 +397,11 @@ void Host_Changelevel_f (void)
 		return;
 	}
 
-	//qbism:  johnfitz begin -- check for client having map before anything else //qbism
+	//qb:  johnfitz begin -- check for client having map before anything else //qb:
 	sprintf (level, "maps/%s.bsp", Cmd_Argv(1));
 	if (COM_OpenFile (level, &i, NULL) == -1)
 		Host_Error ("cannot find map %s", level);
-	//qbism:  johnfitz end
+	//qb:  johnfitz end
 
 	SV_SaveSpawnparms ();
 	Q_strcpy (level, Cmd_Argv(1));
@@ -541,7 +541,7 @@ void Host_SavegameComment (char *text)
 
 	for (i=0 ; i<SAVEGAME_COMMENT_LENGTH ; i++)
 		text[i] = ' ';
-	memcpy (text, cl.levelname, min(strlen(cl.levelname),22)); //qbism- johnfitz -- only copy 22 chars.
+	memcpy (text, cl.levelname, min(strlen(cl.levelname),22)); //qb: johnfitz -- only copy 22 chars.
 	sprintf (kills,"kills:%3i/%3i", cl.stats[STAT_MONSTERS], cl.stats[STAT_TOTALMONSTERS]);
 	memcpy (text+22, kills, Q_strlen(kills));
 	// convert space to _ to make stdio happy
@@ -1063,12 +1063,12 @@ void Host_Name_f (void)
 
 void Host_Version_f (void)
 {
-	Con_Printf ("Version %s\n", BUILDVERSION);  //qbism - changed to integer to match build #
+	Con_Printf ("Version %s\n", BUILDVERSION);  //qb: changed to integer to match build #
 	Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
 }
 
 
-//qbism TTS?
+//qb: TTS?
 void SV_ClientSayf (char *fmt, ...)
 {
 	va_list		argptr;
@@ -1139,7 +1139,7 @@ void Host_Say(qboolean teamonly)
 		if (teamplay.value && teamonly && client->edict->v.team != save->edict->v.team)
 			continue;
 		host_client = client;
-		SV_ClientSayf("%s", text); //qbism TTS
+		SV_ClientSayf("%s", text); //qb: TTS
 	}
 	host_client = save;
 
@@ -1375,7 +1375,7 @@ Host_Pause_f
 */
 void Host_Pause_f (void)
 {
- //PAUSE_DEMO - qbism - Baker change
+ //PAUSE_DEMO - qb: Baker change
 	if (cls.demonum == -1) // Don't allow startdemos to be paused
 		cl.paused ^= 2;		// to handle demo-pause
 
@@ -1557,9 +1557,9 @@ void Host_Spawn_f (void)
 	// with a permanent head tilt
 	ent = EDICT_NUM( 1 + (host_client - svs.clients) );
 	MSG_WriteByte (&host_client->message, svc_setangle);
-	sendangle = sv.loadgame ? ent->v.v_angle : ent->v.angles; //qbism -mh view angle save
+	sendangle = sv.loadgame ? ent->v.v_angle : ent->v.angles; //qb:mh view angle save
 	for (i=0 ; i < 2 ; i++)
-		MSG_WriteAngle (&host_client->message, sendangle[i]); //qbism -mh view angle save
+		MSG_WriteAngle (&host_client->message, sendangle[i]); //qb:mh view angle save
 	MSG_WriteAngle (&host_client->message, 0 );
 
 	SV_WriteClientdataToMessage (sv_player, &host_client->message);

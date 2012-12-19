@@ -25,7 +25,7 @@ cvar_t	chase_up = {"chase_up", "16", true}; // Manoel Kasimier - edited
 cvar_t	chase_right = {"chase_right", "0", true};
 cvar_t	chase_active = {"chase_active", "0", true}; // Manoel Kasimier - edited
 
-cvar_t  chase_roll = {"chase_roll", "0", true};  //qbism:  custom chase by frag.machine
+cvar_t  chase_roll = {"chase_roll", "0", true};  //qb:  custom chase by frag.machine
 cvar_t  chase_yaw = {"chase_yaw", "180", true};
 cvar_t  chase_pitch = {"chase_pitch", "45", true};
 
@@ -41,7 +41,7 @@ void Chase_Init (void)
     Cvar_RegisterVariable (&chase_up);
     Cvar_RegisterVariable (&chase_right);
     Cvar_RegisterVariable (&chase_active);
-    Cvar_RegisterVariable (&chase_roll); //qbism custom chase
+    Cvar_RegisterVariable (&chase_roll); //qb: custom chase
     Cvar_RegisterVariable (&chase_yaw);
     Cvar_RegisterVariable (&chase_pitch);
 }
@@ -57,7 +57,7 @@ void TraceLine (vec3_t start, vec3_t end, vec3_t impact)
 }
 
 
-void Chase_Update (void)  //qbism-  custom chase by frag.machine
+void Chase_Update (void)  //qb:  custom chase by frag.machine
 {
     int     i;
     float   dist;

@@ -18,7 +18,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 #include "r_local.h"
-#include "d_local.h" //qbism ftestain
+#include "d_local.h" //qb: ftestain
 
 extern shadow_t		cl_shadows[MAX_SHADOWS];
 
@@ -32,7 +32,7 @@ void			*prowdestbase;
 unsigned char	*pbasesource;
 int				surfrowbytes;	// used by ASM files
 unsigned		*r_lightptr;
-unsigned		*r_colorptr; //qbism
+unsigned		*r_colorptr; //qb:
 int				r_stepback;
 int				r_lightwidth;
 int				r_numhblocks, r_numvblocks;
@@ -52,16 +52,16 @@ static void	(*surfmiptable[4])(void) =
 };
 
 unsigned		blocklights[18*18];
-unsigned		blockcolors[18*18]; //qbism
+unsigned		blockcolors[18*18]; //qb:
 
-//qbism ftestain begin
+//qb: ftestain begin
 extern cvar_t r_stains;
 extern cvar_t r_stainfadetime;
 extern cvar_t r_stainfadeamount;
 
 #define	LMBLOCK_WIDTH		128
 #define	LMBLOCK_HEIGHT		128
-#define MAX_STAINMAPS		32000 //qb: debug 256// qbism was 64
+#define MAX_STAINMAPS		32000 //qb: was 64
 
 typedef unsigned char stmap;
 stmap stainmaps[MAX_STAINMAPS*LMBLOCK_WIDTH*LMBLOCK_HEIGHT];	//added to lightmap for added (hopefully) speed.
@@ -362,7 +362,7 @@ void R_BuildLightmaps(void)
         R_CreateSurfaceLightmap(surf);
     }
 }
-//qbism ftestain end
+//qb: ftestain end
 
 
 /*
@@ -377,7 +377,7 @@ void R_AddDynamicLights (void)
     int			sd, td;
     float		dist, rad, minlight;
     vec3_t		impact, local;
-    vec3_t      origin_for_ent; //qbism- from inside3d post: mankrip - dynamic lights on moving brush models fix
+    vec3_t      origin_for_ent; //qb: from inside3d post: mankrip - dynamic lights on moving brush models fix
     int			s, t;
     int			i;
     int			smax, tmax;
@@ -390,11 +390,11 @@ void R_AddDynamicLights (void)
 
     for (lnum=0 ; lnum<MAX_DLIGHTS ; lnum++)
     {
-        if (!(surf->dlightbits[lnum >> 5] & (1 << (lnum & 31)))) continue;  //qbism from MH
+        if (!(surf->dlightbits[lnum >> 5] & (1 << (lnum & 31)))) continue;  //qb: from MH
 
         rad = cl_dlights[lnum].radius;
-        VectorSubtract (cl_dlights[lnum].origin, currententity->origin, origin_for_ent); //qbism- from inside3d post:   mankrip - dynamic lights on moving brush models fix
-        dist = DotProduct (origin_for_ent, surf->plane->normal) - //qbism- from inside3d post:   mankrip - dynamic lights on moving brush models fix - edited
+        VectorSubtract (cl_dlights[lnum].origin, currententity->origin, origin_for_ent); //qb: from inside3d post:   mankrip - dynamic lights on moving brush models fix
+        dist = DotProduct (origin_for_ent, surf->plane->normal) - //qb: from inside3d post:   mankrip - dynamic lights on moving brush models fix - edited
                surf->plane->dist;
         rad -= fabs(dist);
         minlight = cl_dlights[lnum].minlight;
@@ -403,7 +403,7 @@ void R_AddDynamicLights (void)
         minlight = rad - minlight;
 
         for (i=0 ; i<3 ; i++)
-            impact[i] = origin_for_ent[i] -  //qbism- from inside3d post:   mankrip - dynamic lights on moving brush models fix - edited
+            impact[i] = origin_for_ent[i] -  //qb: from inside3d post:   mankrip - dynamic lights on moving brush models fix - edited
                         surf->plane->normal[i]*dist;
         {
             surf->plane->normal[i]*dist;
@@ -453,7 +453,7 @@ void R_AddDynamicLights (void)
     }
 }
 
-void R_AddShadows (void) //qbism - engoo shadowhack
+void R_AddShadows (void) //qb: engoo shadowhack
 {
     msurface_t *surf;
     int			lnum;
@@ -550,7 +550,7 @@ void R_BuildLightMap (void)
     int			t;
     int			i, size;
     byte		*lightmap;
-    byte		*colormap;  //qbism indexed colored
+    byte		*colormap;  //qb: indexed colored
     unsigned	scale;
     int			maps;
     msurface_t	*surf;
@@ -562,7 +562,7 @@ void R_BuildLightMap (void)
     size = smax*tmax;
     lightmap = surf->samples;
     if (r_coloredlights.value)
-        colormap = surf->colorsamples; //qbism
+        colormap = surf->colorsamples; //qb:
 
     if (r_fullbright.value || !cl.worldmodel->lightdata)
     {
@@ -586,11 +586,11 @@ void R_BuildLightMap (void)
             {
                 blocklights[i] += lightmap[i] * scale;
                 if (r_coloredlights.value)
-                    blockcolors[i] = colormap[i]; //qbism
+                    blockcolors[i] = colormap[i]; //qb:
             }
             lightmap += size;	// skip to next lightmap
             if (r_coloredlights.value)
-                colormap += size;	//qbism skip to next colormap
+                colormap += size;	//qb: skip to next colormap
         }
 
 // add all the dynamic lights
@@ -606,7 +606,7 @@ void R_BuildLightMap (void)
 
 
 
-//qbism ftestains begin
+//qb: ftestains begin
     if (surf->stained)
     {
         stmap *stain;
@@ -634,7 +634,7 @@ void R_BuildLightMap (void)
         }
         return;
     }
-//qbism ftestains end
+//qb: ftestains end
 
 // bound, invert, and shift
     for (i=0 ; i<size ; i++)
@@ -669,7 +669,7 @@ texture_t *R_TextureAnimation (texture_t *base)
     if (!base->anim_total)
         return base;
 
-    reletive = (int)(cl.ctime*10) % base->anim_total; //DEMO_REWIND - qbism - Baker change
+    reletive = (int)(cl.ctime*10) % base->anim_total; //DEMO_REWIND - qb: Baker change
 
     count = 0;
     while (base->anim_min > reletive || base->anim_max <= reletive)
@@ -760,7 +760,7 @@ void R_DrawSurface (void)
     for (u=0 ; u<r_numhblocks; u++)
     {
         r_lightptr = blocklights + u;
-        r_colorptr = blockcolors + u; //qbism
+        r_colorptr = blockcolors + u; //qb:
 
         prowdestbase = pcolumndest;
 
@@ -779,7 +779,7 @@ void R_DrawSurface (void)
 
 //=============================================================================
 
-byte dithercolor[] =  //qbism
+byte dithercolor[] =  //qb:
 { 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1,0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1};
 
 /*
@@ -790,9 +790,9 @@ R_DrawSurfaceBlock8_mip0
 void R_DrawSurfaceBlock8_mip0 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
-    int     color; //qbism indexed lit
+    int     color; //qb: indexed lit
     unsigned char	pix, *psource, *prowdest;
-    int dither; //qbism - fake randomish dither
+    int dither; //qb: fake randomish dither
 
     psource = pbasesource;
     prowdest = prowdestbase;
@@ -807,7 +807,7 @@ void R_DrawSurfaceBlock8_mip0 (void)
         lightleftstep = (r_lightptr[0] - lightleft) >> 4;
         lightrightstep = (r_lightptr[1] - lightright) >> 4;
 
-        r_colorptr += r_lightwidth; //qbism indexed colored
+        r_colorptr += r_lightwidth; //qb: indexed colored
 
         for (i=0 ; i<16 ; i++)
         {
@@ -820,7 +820,7 @@ void R_DrawSurfaceBlock8_mip0 (void)
                 pix = psource[b];
                 if (r_coloredlights.value)
                 {
-                    color = r_colorptr[dithercolor[(dither++)%41]];  //qbism - just to get a random-ish dither pattern
+                    color = r_colorptr[dithercolor[(dither++)%41]];  //qb: just to get a random-ish dither pattern
                     prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                 }
                 else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
@@ -847,7 +847,7 @@ R_DrawSurfaceBlock8_mip1
 void R_DrawSurfaceBlock8_mip1 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
-    int     color; //qbism indexed lit
+    int     color; //qb: indexed lit
     unsigned char	pix, *psource, *prowdest;
 
     psource = pbasesource;
@@ -863,7 +863,7 @@ void R_DrawSurfaceBlock8_mip1 (void)
         lightleftstep = (r_lightptr[0] - lightleft) >> 3;
         lightrightstep = (r_lightptr[1] - lightright) >> 3;
 
-        r_colorptr += r_lightwidth; //qbism indexed colored
+        r_colorptr += r_lightwidth; //qb: indexed colored
 
         for (i=0 ; i<8 ; i++)
         {
@@ -903,7 +903,7 @@ R_DrawSurfaceBlock8_mip2
 void R_DrawSurfaceBlock8_mip2 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
-    int     color; //qbism indexed lit
+    int     color; //qb: indexed lit
     unsigned char	pix, *psource, *prowdest;
 
     psource = pbasesource;
@@ -919,7 +919,7 @@ void R_DrawSurfaceBlock8_mip2 (void)
         lightleftstep = (r_lightptr[0] - lightleft) >> 2;
         lightrightstep = (r_lightptr[1] - lightright) >> 2;
 
-        r_colorptr += r_lightwidth; //qbism indexed colored
+        r_colorptr += r_lightwidth; //qb: indexed colored
 
         for (i=0 ; i<4 ; i++)
         {
@@ -959,7 +959,7 @@ R_DrawSurfaceBlock8_mip3
 void R_DrawSurfaceBlock8_mip3 (void)
 {
     int				v, i, b, lightstep, lighttemp, light;
-    int     color; //qbism indexed lit
+    int     color; //qb: indexed lit
     unsigned char	pix, *psource, *prowdest;
 
     psource = pbasesource;
@@ -975,7 +975,7 @@ void R_DrawSurfaceBlock8_mip3 (void)
         lightleftstep = (r_lightptr[0] - lightleft) >> 1;
         lightrightstep = (r_lightptr[1] - lightright) >> 1;
 
-        r_colorptr += r_lightwidth; //qbism indexed colored
+        r_colorptr += r_lightwidth; //qb: indexed colored
 
         for (i=0 ; i<2 ; i++)
         {

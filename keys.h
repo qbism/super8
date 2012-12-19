@@ -137,10 +137,10 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #endif
 // Manoel Kasimier - for testing purposes - end
 
-//qbism qrack command line begin
+//qb: qrack command line begin
 #define	MAXCMDLINE		256
 
-//qbism qrack command line end
+//qb: qrack command line end
 
 typedef enum {key_game, key_console, key_message, key_menu} keydest_t;
 

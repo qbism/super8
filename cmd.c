@@ -21,7 +21,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "stdio.h"
 
 #ifdef FLASH
-#undef _WIN32 //qbism FIXME - how to not def _win32 in CodeBlocks
+#undef _WIN32 //qb: FIXME - how to not def _win32 in CodeBlocks
 #endif
 
 #ifdef _WIN32
@@ -32,7 +32,7 @@ void Cmd_ForwardToServer (void);
 
 #define	MAX_ALIAS_NAME	32
 
-//qbism qrack complete command begin
+//qb: qrack complete command begin
 extern	char	key_lines[64][MAXCMDLINE];
 extern	int	edit_line;
 extern	int	key_linepos;
@@ -41,7 +41,7 @@ static	char	compl_common[MAX_FILELENGTH];
 static	int	compl_len;
 static	int	compl_clen;
 
-//qbism qrack complete command end
+//qb: qrack complete command end
 
 typedef struct cmdalias_s
 {
@@ -200,7 +200,7 @@ void Cbuf_Execute (void)
 
         // execute the command line
         Cmd_ExecuteString (line, src_command);
-        //Con_DPrintf("Cmd_ExecuteString: %s \n", line);  //qbism qc parse debug
+        //Con_DPrintf("Cmd_ExecuteString: %s \n", line);  //qb: qc parse debug
 
         if (cmd_wait)
         {
@@ -222,7 +222,7 @@ SCRIPT COMMANDS
 
 /*
 ===============
-Cmd_StuffCmds_f //qbism- from Fitzquake, brilliant!
+Cmd_StuffCmds_f //qb: from Fitzquake, brilliant!
 -- johnfitz -- rewritten to read the "cmdline" cvar, for use with dynamic mod loading
 
 Adds command line parameters as script statements
@@ -471,7 +471,7 @@ static	cmd_function_t	*cmd_functions;		// possible commands to execute
 Cvar_List_f   -- johnfitz
 ============
 */
-void Cvar_List_f (void) //qbism- from Fitzquake
+void Cvar_List_f (void) //qb: from Fitzquake
 {
     cvar_t	*cvar;
     char 	*partial;
@@ -517,7 +517,7 @@ void Cvar_List_f (void) //qbism- from Fitzquake
 CmdList_f  -- johnfitz
 ============
 */
-void Cmd_List_f (void) //qbism- from Fitzquake
+void Cmd_List_f (void) //qb: from Fitzquake
 {
     cmd_function_t	*cmd;
     char 			*partial;
@@ -558,7 +558,7 @@ void Cmd_List_f (void) //qbism- from Fitzquake
 Cmd_Unalias_f -- johnfitz
 ===============
 */
-void Cmd_Unalias_f (void) //qbism- from Fitzquake
+void Cmd_Unalias_f (void) //qb: from Fitzquake
 {
     cmdalias_t	*a, *prev;
 
@@ -590,7 +590,7 @@ void Cmd_Unalias_f (void) //qbism- from Fitzquake
 Cmd_Unaliasall_f -- johnfitz
 ===============
 */
-void Cmd_Unaliasall_f (void) //qbism- from Fitzquake
+void Cmd_Unaliasall_f (void) //qb: from Fitzquake
 {
     cmdalias_t	*blah;
 
@@ -614,7 +614,7 @@ void Cmd_Init (void)
     // register our commands
     //
 
-    Cmd_AddCommand ("cmdlist", Cmd_List_f);	// qbism- these from  Fitzquake
+    Cmd_AddCommand ("cmdlist", Cmd_List_f);	// qb: these from  Fitzquake
     Cmd_AddCommand ("unalias", Cmd_Unalias_f);
     Cmd_AddCommand ("unaliasall", Cmd_Unaliasall_f);
     Cmd_AddCommand ("cvarlist", Cvar_List_f);
@@ -662,7 +662,7 @@ char		*Cmd_Args (void)
 
 /*
 ============
-Cmd_TokenizeString //qbism- remove zone
+Cmd_TokenizeString //qb: remove zone
 
 Parses the given string into command line tokens.
 ============
@@ -779,7 +779,7 @@ char *Cmd_CompleteCommand (char *partial)
     return NULL;
 }
 
-//qbism qrack command line begin
+//qb: qrack command line begin
 
 /*
 ============
@@ -830,7 +830,7 @@ static void CompareParams (void)
 static void PrintEntries (void);
 void EraseDirEntries (void);
 
-//qbism qrack list maps begin
+//qb: qrack list maps begin
 static qboolean CheckRealBSP (char *bspname)
 {
     if (!Q_strcmp(bspname, "b_batt0.bsp") ||
@@ -952,7 +952,7 @@ ReadDir			-- by joe
 int	num_files = 0;
 void ReadDir (char *path, char *the_arg)
 {
-    //qbism FIXME for other ports: windows only
+    //qb: FIXME for other ports: windows only
 #ifdef _WIN32
     HANDLE		h;
     WIN32_FIND_DATA	fd;
@@ -1302,7 +1302,7 @@ void Cmd_CompleteParameter (char *partial, char *attachment)
         pak_files = 0;
 
         READDIR_ALL_PATH(param);
-        /* qbism omit
+        /* qb: omit
         if (!Q_strcmp(param + Q_strlen(param)-3, "tga"))
         {
         Q_strncpyz (param2, param, Q_strlen(param)-3);
@@ -1346,7 +1346,7 @@ void Cmd_CompleteParameter (char *partial, char *attachment)
     key_lines[edit_line][key_linepos] = 0;
 }
 
-//qbism qrack end
+//qb: qrack end
 
 /*
 ============
@@ -1394,7 +1394,7 @@ void	Cmd_ExecuteString (char *text, cmd_source_t src)
 
 }
 
-//qbism - talk macros and location begin - from Baker's FQ Mark V
+//qb: talk macros and location begin - from Baker's FQ Mark V
 #define MAX_LOCATIONS 64
 typedef struct
 {
@@ -1607,7 +1607,7 @@ char *Expand_Talk_Macros (char *string)
 	modified_string[writepos] = 0; // Null terminate the copy
 	return modified_string;
 }
-//qbism - talk macros and location end
+//qb: talk macros and location end
 
 
 /*
@@ -1635,7 +1635,7 @@ void Cmd_ForwardToServer (void)
         SZ_Print (&cls.message, " ");
     }
 
-    //qbism - talk macro begin
+    //qb: talk macro begin
     if (Cmd_Argc() > 1 && (Q_strcasecmp(Cmd_Argv(0), "say") == 0 || !Q_strcasecmp(Cmd_Argv(0), "say_team") == 0) )
 	{
 		char *new_text = Expand_Talk_Macros (Cmd_Args());  // Func also writes out the new message
@@ -1643,7 +1643,7 @@ void Cmd_ForwardToServer (void)
 		SZ_Print (&cls.message, new_text);
 		return;
 	}
-	else //qbism - talk macro end
+	else //qb: talk macro end
     if (Cmd_Argc() > 1)
         SZ_Print (&cls.message, Cmd_Args());
     else

@@ -35,7 +35,7 @@ BRUSH MODELS
 
 ==============================================================================
 */
-/*qbism - moved to model effects
+/*qb: moved to model effects
 #define	EF_ROCKET	1			// leave a trail
 #define	EF_GRENADE	2			// leave a trail
 #define	EF_GIB		4			// leave a trail
@@ -111,12 +111,12 @@ typedef struct msurface_s
 	int			visframe;		// should be drawn when node is crossed
 
 	int			dlightframe;
-	int			dlightbits[(MAX_DLIGHTS + 31) >> 5];  //qbism from MH - increase max_dlights
-	int			lightmaptexturenum;  //qbism ftestain
-	int			light_s, light_t;	//qbism ftestain lightmap coordinates
-	qboolean    stained; //qbism ftestain
+	int			dlightbits[(MAX_DLIGHTS + 31) >> 5];  //qb: from MH - increase max_dlights
+	int			lightmaptexturenum;  //qb: ftestain
+	int			light_s, light_t;	//qb: ftestain lightmap coordinates
+	qboolean    stained; //qb: ftestain
 
-	int			shadowframe; //qbism- engoo shadowhack
+	int			shadowframe; //qb: engoo shadowhack
 	int			shadowbits;
 
 	mplane_t	*plane;
@@ -136,7 +136,7 @@ typedef struct msurface_s
 // lighting info
 	byte		styles[MAXLIGHTMAPS];
 	byte		*samples;		// [numstyles*surfsize]
-	byte		*colorsamples;		//qbism [numstyles*surfsize]
+	byte		*colorsamples;		//qb: [numstyles*surfsize]
 
 } msurface_t;
 
@@ -175,23 +175,23 @@ typedef struct mleaf_s
 	efrag_t		*efrags;
 
 	msurface_t	**firstmarksurface;
-	unsigned short			nummarksurfaces;  //qbism was int
+	unsigned short			nummarksurfaces;  //qb: was int
 	int			key;			// BSP sequence number for leaf's contents
 	byte		ambient_sound_level[NUM_AMBIENTS];
 } mleaf_t;
 
-//qbism:  johnfitz begin -- for clipnodes>32k
+//qb:  johnfitz begin -- for clipnodes>32k
 typedef struct mclipnode_s
 {
 	int			planenum;
 	int			children[2]; // negative numbers are contents
 } mclipnode_t;
-//qbism:  johnfitz end
+//qb:  johnfitz end
 
 // !!! if this is changed, it must be changed in asm_i386.h too !!!
 typedef struct
 {
-	mclipnode_t	*clipnodes; //qbism:  johnfitz -- was dclipnode_t
+	mclipnode_t	*clipnodes; //qb:  johnfitz -- was dclipnode_t
 	mplane_t	*planes;
 	int			firstclipnode;
 	int			lastclipnode;
@@ -317,7 +317,7 @@ typedef enum {mod_brush, mod_sprite, mod_alias} modtype_t;
 typedef struct
 {
 	char	searchpath[MAX_OSPATH];
-} loadinfo_t; //qbism - model search path, from FQ Mark V
+} loadinfo_t; //qb: model search path, from FQ Mark V
 
 typedef struct model_s
 {
@@ -367,7 +367,7 @@ typedef struct model_s
 	int			*surfedges;
 
 	int			numclipnodes;
-    mclipnode_t	*clipnodes; //qbism:  johnfitz -- was dclipnode_t
+    mclipnode_t	*clipnodes; //qb:  johnfitz -- was dclipnode_t
 
 	int    nummarksurfaces;
 	msurface_t	    **marksurfaces;
@@ -379,15 +379,15 @@ typedef struct model_s
 
 	byte		*visdata;
 	byte		*lightdata;
-	byte		*colordata; //qbism indexed colored
+	byte		*colordata; //qb: indexed colored
 	byte		*entities;
 
-    loadinfo_t	loadinfo;  //qbism - model search path
+    loadinfo_t	loadinfo;  //qb: model search path
 //
 // additional model data
 //
 	cache_user_t	cache;		// only access through Mod_Extradata
-	int				dontshadow;  //qbism- shadowhack from engoo
+	int				dontshadow;  //qb: shadowhack from engoo
 } model_t;
 
 //============================================================================

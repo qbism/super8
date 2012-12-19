@@ -26,7 +26,7 @@ int 		con_linewidth;
 
 float		con_cursorspeed = 4;
 
-#define		CON_TEXTSIZE	1024*64  //was 16384  qbism 262144 per qsb
+#define		CON_TEXTSIZE	1024*64  //was 16384  qb: 262144 per qsb
 
 qboolean 	con_forcedup;		// because no entities to refresh
 
@@ -38,7 +38,7 @@ char		*con_text=0;
 
 cvar_t		con_notifytime = {"con_notifytime","3"};		//seconds
 cvar_t		con_alpha = {"con_alpha","0.5"}; // Manoel Kasimier - transparent console
-cvar_t		con_logcenterprint = {"con_logcenterprint", "1"}; //qbism:  from johnfitz
+cvar_t		con_logcenterprint = {"con_logcenterprint", "1"}; //qb:  from johnfitz
 
 #define	NUM_CON_TIMES 4
 float		con_times[NUM_CON_TIMES];	// realtime time the line was generated
@@ -53,7 +53,7 @@ extern	char	key_lines[32][MAXCMDLINE];
 extern	int		edit_line;
 extern	int		key_linepos;
 
-char		con_lastcenterstring[1024]; //qbism:  johnfitz
+char		con_lastcenterstring[1024]; //qb:  johnfitz
 qboolean	con_initialized;
 
 int			con_notifylines;		// scan lines to clear for notify lines
@@ -203,7 +203,7 @@ void Con_CheckResize (void)
         Con_ClearNotify ();
     }
 
-    //qbism con_backscroll = 0;	Enhanced scrollback [Fett]
+    //qb: con_backscroll = 0;	Enhanced scrollback [Fett]
 
 
     con_current = con_totallines - 1;
@@ -275,7 +275,7 @@ void Con_Init (void)
 //
     Cvar_RegisterVariable (&con_notifytime);
     Cvar_RegisterVariable (&con_alpha); // Manoel Kasimier - transparent console
-    Cvar_RegisterVariable (&con_logcenterprint); //qbism- from johnfitz
+    Cvar_RegisterVariable (&con_logcenterprint); //qb: from johnfitz
 
     Cmd_AddCommand ("toggleconsole", Con_ToggleConsole_f);
     Cmd_AddCommand ("messagemode", Con_MessageMode_f);
@@ -292,7 +292,7 @@ Con_Linefeed
 */
 void Con_Linefeed (void)
 {
-    if (con_backscroll)	con_backscroll++; //qbism Enhanced scrollback [Fett]
+    if (con_backscroll)	con_backscroll++; //qb: Enhanced scrollback [Fett]
     con_x = 0;
     con_current++;
     memset (&con_text[(con_current%con_totallines)*con_linewidth]
@@ -487,7 +487,7 @@ void Con_DPrintf (char *fmt, ...)
 
 /*
 ==================
-Con_Printf //qbism was safeprint... now all are safeprint
+Con_Printf //qb: was safeprint... now all are safeprint
 
 Okay to call even when the screen can't be updated
 ==================
@@ -504,14 +504,14 @@ void Con_Printf (char *fmt, ...)
 
     temp = scr_disabled_for_loading;
     scr_disabled_for_loading = true;
-    Con_Printf_P ("%s", msg); //qbism make all safeprints
+    Con_Printf_P ("%s", msg); //qb: make all safeprints
     scr_disabled_for_loading = temp;
 }
 
 
 /*
 ================
-Con_CenterPrintf -- qbism:  johnfitz -- pad each line with spaces to make it appear centered
+Con_CenterPrintf -- qb:  johnfitz -- pad each line with spaces to make it appear centered
 ================
 */
 void Con_CenterPrintf (int linewidth, char *fmt, ...)
@@ -704,7 +704,7 @@ void Con_DrawConsole (int lines, qboolean drawinput)
     int				rows;
     char			*text;
     int				j;
-    int	sb; //qbism Enhanced scrollback [Fett]
+    int	sb; //qb: Enhanced scrollback [Fett]
 
 
 
@@ -721,15 +721,15 @@ void Con_DrawConsole (int lines, qboolean drawinput)
 
     rows = ((lines-16)>>3) +1;		// rows of text to draw // Manoel Kasimier - edited
     y = lines - 16 - (rows<<3);	// may start slightly negative
-    //qbism Enhanced scrollback [Fett] begin
+    //qb: Enhanced scrollback [Fett] begin
     if (con_backscroll)
         sb=2;
     else
         sb=0;
     // Enhanced scrollback [Fett] end
 
-    //qbism for (i= con_current - rows + 1 ; i<=con_current ; i++, y+=8 )
-    for (i= con_current - rows + 1 ; i<=con_current - sb ; i++, y+=8) //qbism Enhanced scrollback [Fett]
+    //qb: for (i= con_current - rows + 1 ; i<=con_current ; i++, y+=8 )
+    for (i= con_current - rows + 1 ; i<=con_current - sb ; i++, y+=8) //qb: Enhanced scrollback [Fett]
 
     {
         j = i - con_backscroll;
@@ -740,7 +740,7 @@ void Con_DrawConsole (int lines, qboolean drawinput)
         for (x=0 ; x<con_linewidth ; x++)
             Draw_Character ( (x+1)<<3, y, text[x]);
     }
-    //qbism Enhanced scrollback [Fett] begin
+    //qb: Enhanced scrollback [Fett] begin
     if (sb)	// are we scrolled back?
     {
         y+=8; // skip a line

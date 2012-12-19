@@ -54,12 +54,12 @@ int unreliableMessagesSent = 0;
 int unreliableMessagesReceived = 0;
 
 cvar_t	net_messagetimeout = {"net_messagetimeout","300"};
-cvar_t	net_connecttimeout = {"net_connecttimeout","10"};	//qbism - Baker net fix - From ProQuake - qkick/qflood protection
+cvar_t	net_connecttimeout = {"net_connecttimeout","10"};	//qb: Baker net fix - From ProQuake - qkick/qflood protection
 cvar_t	hostname = {"hostname", "UNNAMED"};
 
 qboolean	configRestored = false;
 
-//qbism - nuke the serial and modem finally.  Nothing to see here, folks.  Move along...
+//qb: nuke the serial and modem finally.  Nothing to see here, folks.  Move along...
 
 // these two macros are to make the code more readable
 #define sfunc	net_drivers[sock->driver]
@@ -520,7 +520,7 @@ int	NET_GetMessage (qsocket_t *sock)
 			NET_Close(sock);
 			return -1;
 		}
-        //qbism - Baker net fix - From ProQuake: qflood/qkick protection
+        //qb: Baker net fix - From ProQuake: qflood/qkick protection
 		if (net_time - sock->lastMessageTime > net_connecttimeout.value && sv.active &&
 			host_client && sock == host_client->netconnection && !strcmp(host_client->name, "unconnected"))
 		{
@@ -750,7 +750,7 @@ void NET_Init (void)
 	SZ_Alloc (&net_message, NET_MAXMESSAGE);
 
 	Cvar_RegisterVariable (&net_messagetimeout);
-	Cvar_RegisterVariable (&net_connecttimeout); //qbism - Baker - network fix
+	Cvar_RegisterVariable (&net_connecttimeout); //qb: Baker - network fix
 	Cvar_RegisterVariable (&hostname);
 
 	Cmd_AddCommand ("slist", NET_Slist_f);

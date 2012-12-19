@@ -17,13 +17,13 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 // winquake.h: Win32-specific Quake header file
 
 #include <windows.h>
-//qbism already defined in windows.h  #define WM_MOUSEWHEEL                   0x020A
+//qb: already defined in windows.h  #define WM_MOUSEWHEEL                   0x020A
 
 #ifndef SERVERONLY
 #include <ddraw.h>
 #include <dsound.h>
 #ifndef GLQUAKE
-//#include <mgraph.h> qbism- gone! mh vid_win.c
+//#include <mgraph.h> qb: gone! mh vid_win.c
 #endif
 #endif
 
@@ -78,7 +78,7 @@ extern HWND		hwnd_dialog;
 
 extern HANDLE	hinput, houtput;
 
-extern cvar_t   capture_hack;  //qbism
+extern cvar_t   capture_hack;  //qb:
 extern float    hack_ctr;
 
 void IN_UpdateClipCursor (void);

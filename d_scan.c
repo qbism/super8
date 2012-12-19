@@ -68,7 +68,7 @@ void D_WarpScreen (void)
 				(int)((float)u * wratio * w / (w + AMP2 * 2));
 	}
 
-	turb = intsintable + ((int)(cl.ctime*SPEED)&(CYCLE-1)); //DEMO_REWIND - qbism - Baker change (ctime)
+	turb = intsintable + ((int)(cl.ctime*SPEED)&(CYCLE-1)); //DEMO_REWIND - qb: Baker change (ctime)
 	dest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
 
 	for (v=0 ; v<scr_vrect.height ; v++, dest += vid.rowbytes)
@@ -76,11 +76,11 @@ void D_WarpScreen (void)
 		col = &column[turb[v]];
 		row = &rowptr[v];
 
-		for (u=0 ; u<scr_vrect.width ; u++) //qbism was +=4
+		for (u=0 ; u<scr_vrect.width ; u++) //qb: was +=4
 		{
 			dest[u] = row[turb[u]][col[u]];
 		}
-/*qbism - why?
+/*qb: why?
 		for (u=0 ; u<scr_vrect.width ; u+=4)
 		{
 			dest[u+0] = row[turb[u+0]][col[u+0]];
@@ -366,25 +366,25 @@ static int tdivzorig, tdivzstepv, tdivzstepu, tdivzstepu_fix;
 static int d_zistepu_fxp, d_zistepv_fxp, d_ziorigin_fxp;
 static int zistepu_fix;
 
-// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 )
-void D_DrawSpans16_C (espan_t *pspan) //qbism up it from 8 to 16.  This + unroll = big speed gain!
+//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
+void D_DrawSpans16_C (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll = big speed gain!
 {
    int         count, spancount;
    byte      *pbase, *pdest;
    fixed16_t   s, t, snext, tnext, sstep, tstep;
    float      sdivz, tdivz, zi, z, du, dv, spancountminus1;
-   float      sdivzstepu, tdivzstepu, zistepu; // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 )
+   float      sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
 
    sstep = 0;   // keep compiler happy
    tstep = 0;   // ditto
 
    pbase = (byte *)cacheblock;
 
-   // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+   //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
    sdivzstepu = d_sdivzstepu * 16;
    tdivzstepu = d_tdivzstepu * 16;
    zistepu = d_zistepu * 16;
-   // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+   //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
    do
    {
@@ -420,31 +420,31 @@ void D_DrawSpans16_C (espan_t *pspan) //qbism up it from 8 to 16.  This + unroll
       {
          // calculate s/z, t/z, zi->fixed s and t at far end of span,
          // calculate s and t steps across span by shifting
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
          sdivz += sdivzstepu;
          tdivz += tdivzstepu;
          zi += zistepu;
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
          z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
 
          snext = (int) (sdivz * z) + sadjust;
          if (snext > bbextents)
             snext = bbextents;
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
          else if (snext <= 16)
             snext = 16;   // prevent round-off error on <0 steps causing overstepping & running off the edge of the texture
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
          tnext = (int) (tdivz * z) + tadjust;
          if (tnext > bbextentt)
             tnext = bbextentt;
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
          else if (tnext < 16)
             tnext = 16;   // guard against round-off error on <0 steps
 
          sstep = (snext - s) >> 4;
          tstep = (tnext - t) >> 4;
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
          // Manoel Kasimier - begin
          pdest += 16;
@@ -477,27 +477,27 @@ void D_DrawSpans16_C (espan_t *pspan) //qbism up it from 8 to 16.  This + unroll
          // calculate s/z, t/z, zi->fixed s and t at last pixel in span (so can't step off polygon),
          // clamp, calculate s and t steps across span by division, biasing steps low so we don't run off the texture
          spancountminus1 = (float)(spancount - 1);
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
          sdivz += d_sdivzstepu * spancountminus1;
          tdivz += d_tdivzstepu * spancountminus1;
          zi += d_zistepu * spancountminus1;
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
          z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
          snext = (int)(sdivz * z) + sadjust;
          if (snext > bbextents)
             snext = bbextents;
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
          else if (snext < 16)
             snext = 16;   // prevent round-off error on <0 steps from causing overstepping & running off the edge of the texture
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
          tnext = (int)(tdivz * z) + tadjust;
          if (tnext > bbextentt)
             tnext = bbextentt;
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
          else if (tnext < 16)
             tnext = 16;   // guard against round-off error on <0 steps
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
          if (spancount > 1)
          {
@@ -505,8 +505,8 @@ void D_DrawSpans16_C (espan_t *pspan) //qbism up it from 8 to 16.  This + unroll
             tstep = (tnext - t) / (spancount - 1);
          }
 
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-         //qbism- Duff's Device loop unroll per mh.
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+         //qb: Duff's Device loop unroll per mh.
          pdest += spancount;
          switch (spancount)
          {
@@ -528,7 +528,7 @@ void D_DrawSpans16_C (espan_t *pspan) //qbism up it from 8 to 16.  This + unroll
             case  1: pdest[ -1] = pbase[(s >> 16) + (t >> 16) * cachewidth]; s += sstep; t += tstep;
             break;
          }
-         // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+         //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
       }
 
    } while ( (pspan = pspan->pnext) != NULL);
@@ -543,7 +543,7 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
 	byte		*pbase, *pdest;
 	fixed16_t	s, t, snext, tnext, sstep, tstep;
 	float		sdivz, tdivz, zi, z, du, dv, spancountminus1; // zi = z interpolation?; du = decimal u; dv = decimal v
-	float		sdivzstepu, tdivzstepu, zistepu; // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 )
+	float		sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
 	int			izi, izistep; // mankrip
 	short		*pz; // mankrip
 
@@ -552,11 +552,11 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
 
 	pbase = (byte *)cacheblock;
 
-	// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+	//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 	sdivzstepu = d_sdivzstepu * 16;
 	tdivzstepu = d_tdivzstepu * 16;
 	zistepu = d_zistepu * 16;
-	// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+	//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
 	// mankrip - begin
 	// we count on FP exceptions being turned off to avoid range problems
@@ -598,31 +598,31 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
 		{
 			// calculate s/z, t/z, zi->fixed s and t at far end of span,
 			// calculate s and t steps across span by shifting
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 			sdivz += sdivzstepu;
 			tdivz += tdivzstepu;
 			zi += zistepu;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 			z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
 
 			snext = (int) (sdivz * z) + sadjust;
 			if (snext > bbextents)
 				snext = bbextents;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 			else if (snext <= 16)
 				snext = 16;   // prevent round-off error on <0 steps causing overstepping & running off the edge of the texture
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
 			tnext = (int) (tdivz * z) + tadjust;
 			if (tnext > bbextentt)
 				tnext = bbextentt;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 			else if (tnext < 16)
 				tnext = 16;   // guard against round-off error on <0 steps
 
 			sstep = (snext - s) >> 4;
 			tstep = (tnext - t) >> 4;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
 			// mankrip - begin
 			pdest += 16;
@@ -656,27 +656,27 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
 			// calculate s/z, t/z, zi->fixed s and t at last pixel in span (so can't step off polygon),
 			// clamp, calculate s and t steps across span by division, biasing steps low so we don't run off the texture
 			spancountminus1 = (float)(spancount - 1);
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 			sdivz += d_sdivzstepu * spancountminus1;
 			tdivz += d_tdivzstepu * spancountminus1;
 			zi += d_zistepu * spancountminus1;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 			z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
 			snext = (int)(sdivz * z) + sadjust;
 			if (snext > bbextents)
 				snext = bbextents;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 			else if (snext < 16)
 				snext = 16;   // prevent round-off error on <0 steps from causing overstepping & running off the edge of the texture
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
 			tnext = (int)(tdivz * z) + tadjust;
 			if (tnext > bbextentt)
 				tnext = bbextentt;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 			else if (tnext < 16)
 				tnext = 16;   // guard against round-off error on <0 steps
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
 			if (spancount > 1)
 			{
@@ -684,7 +684,7 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
 				tstep = (tnext - t) / (spancount - 1);
 			}
 
-			//qbism- Duff's Device loop unroll per mh.
+			//qb: Duff's Device loop unroll per mh.
 			pdest += spancount;
 			// mankrip - begin
 			pz += spancount;
@@ -719,7 +719,7 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
 	byte		*pbase, *pdest;
 	fixed16_t	s, t, snext, tnext, sstep, tstep;
 	float		sdivz, tdivz, zi, z, du, dv, spancountminus1; // zi = z interpolation?; du = decimal u; dv = decimal v
-	float		sdivzstepu, tdivzstepu, zistepu; // qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 )
+	float		sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
 	int			izi, izistep; // mankrip
 	short		*pz; // mankrip
 
@@ -728,11 +728,11 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
 
 	pbase = (byte *)cacheblock;
 
-	// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+	//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 	sdivzstepu = d_sdivzstepu * 16;
 	tdivzstepu = d_tdivzstepu * 16;
 	zistepu = d_zistepu * 16;
-	// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+	//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
 	// mankrip - begin
 	// we count on FP exceptions being turned off to avoid range problems
@@ -774,31 +774,31 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
 		{
 			// calculate s/z, t/z, zi->fixed s and t at far end of span,
 			// calculate s and t steps across span by shifting
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 			sdivz += sdivzstepu;
 			tdivz += tdivzstepu;
 			zi += zistepu;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 			z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
 
 			snext = (int) (sdivz * z) + sadjust;
 			if (snext > bbextents)
 				snext = bbextents;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 			else if (snext <= 16)
 				snext = 16;   // prevent round-off error on <0 steps causing overstepping & running off the edge of the texture
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
 			tnext = (int) (tdivz * z) + tadjust;
 			if (tnext > bbextentt)
 				tnext = bbextentt;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 			else if (tnext < 16)
 				tnext = 16;   // guard against round-off error on <0 steps
 
 			sstep = (snext - s) >> 4;
 			tstep = (tnext - t) >> 4;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
 			// mankrip - begin
 			pdest += 16;
@@ -832,27 +832,27 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
 			// calculate s/z, t/z, zi->fixed s and t at last pixel in span (so can't step off polygon),
 			// clamp, calculate s and t steps across span by division, biasing steps low so we don't run off the texture
 			spancountminus1 = (float)(spancount - 1);
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 			sdivz += d_sdivzstepu * spancountminus1;
 			tdivz += d_tdivzstepu * spancountminus1;
 			zi += d_zistepu * spancountminus1;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 			z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
 			snext = (int)(sdivz * z) + sadjust;
 			if (snext > bbextents)
 				snext = bbextents;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 			else if (snext < 16)
 				snext = 16;   // prevent round-off error on <0 steps from causing overstepping & running off the edge of the texture
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
 			tnext = (int)(tdivz * z) + tadjust;
 			if (tnext > bbextentt)
 				tnext = bbextentt;
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
 			else if (tnext < 16)
 				tnext = 16;   // guard against round-off error on <0 steps
-			// qbism ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+			//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
 			if (spancount > 1)
 			{
@@ -860,7 +860,7 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
 				tstep = (tnext - t) / (spancount - 1);
 			}
 
-			//qbism- Duff's Device loop unroll per mh.
+			//qb: Duff's Device loop unroll per mh.
 			pdest += spancount;
 			// mankrip - begin
 			pz += spancount;

@@ -23,7 +23,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "../conproc.h"
 
 #define MINIMUM_WIN_MEMORY		0x0880000
-#define MAXIMUM_WIN_MEMORY		0x4000000  // qbism - was 0x1000000 (16MB)
+#define MAXIMUM_WIN_MEMORY		0x4000000  // qb: was 0x1000000 (16MB)
 
 #define CONSOLE_ERROR_TIMEOUT	60.0	// # of seconds to wait on Sys_Error running
 										//  dedicated before exiting
@@ -88,7 +88,7 @@ FILE IO
 ===============================================================================
 */
 
-#define	MAX_HANDLES		64 // qbism 100 per QSB - was 10
+#define	MAX_HANDLES		64 //qb: 100 per QSB - was 10
 FILE	*sys_handles[MAX_HANDLES];
 
 int		findhandle (void)
@@ -120,7 +120,7 @@ int filelength (FILE *f)
 }
 
 
-int Sys_FileOpenAppend (char *path) //qbism - mh FRIK_FILE tute
+int Sys_FileOpenAppend (char *path) //qb: mh FRIK_FILE tute
 {
    FILE   *f;
    int      i;
@@ -244,7 +244,7 @@ void Sys_MakeCodeWriteable (unsigned long startaddr, unsigned long length)
 }
 
 
-//qbism remove Sys_SetFPCW, Sys_PushFPCW_SetHigh, Sys_PopFPCW, MaskExceptions
+//qb: remove Sys_SetFPCW, Sys_PushFPCW_SetHigh, Sys_PopFPCW, MaskExceptions
 
 
 /*
@@ -320,7 +320,7 @@ void Sys_Error (char *error, ...)
 	vsprintf (text, error, argptr);
 	va_end (argptr);
 
-	if (isDedicated)  //qbism - or developer, or debug also?
+	if (isDedicated)  //qb: or developer, or debug also?
 	{
 		va_start (argptr, error);
 		vsprintf (text, error, argptr);
@@ -334,7 +334,7 @@ void Sys_Error (char *error, ...)
 		WriteFile (houtput, text4, strlen (text4), &dummy, NULL);
 
 
-		starttime = Sys_DoubleTime (); //qbism more accurate name, was floattime
+		starttime = Sys_DoubleTime (); //qb: more accurate name, was floattime
 		sc_return_on_enter = true;	// so Enter will get us out of here
 
 		while (!Sys_ConsoleInput () &&
@@ -481,7 +481,7 @@ double Sys_DoubleTime (void)
 
 /*
 ================
-Sys_InitDoubleTime  //qbism- was floattime
+Sys_InitDoubleTime  //qb: was floattime
 ================
 */
 void Sys_InitDoubleTime (void)
@@ -708,7 +708,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 
 		if (hwnd_dialog)
 		{
-            //qbism - really center window - Baker change
+            //qb: really center window - Baker change
 			RECT workarea;
 			if (SystemParametersInfo (SPI_GETWORKAREA, 0, &workarea, 0) && GetWindowRect (hwnd_dialog, &rect) && AdjustWindowRectEx(&rect, 0, FALSE, 0))
 			{
@@ -724,7 +724,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 					SWP_NOZORDER | SWP_NOSIZE
 				 );
 			}
-        /*qbism - was
+        /*qb: was
 			{
 				if (rect.left > (rect.top * 2))
 				{

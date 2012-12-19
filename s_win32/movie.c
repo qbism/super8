@@ -39,10 +39,10 @@ float	hack_ctr;
 
 static qboolean OnChange_capture_dir (cvar_t *var, char *string);
 
-cvar_t   capture_codec   = {"capture_codec", "XVID", true}; //qbism jqavi, change to XVID default
+cvar_t   capture_codec   = {"capture_codec", "XVID", true}; //qb: jqavi, change to XVID default
 
 cvar_t	capture_fps	= {"capture_fps", "30.0", true};
-//qbism - removed, broken.... cvar_t	capture_console	= {"capture_console", "1", true};
+//qb: removed, broken.... cvar_t	capture_console	= {"capture_console", "1", true};
 cvar_t	capture_hack	= {"capture_hack", "0", true};
 cvar_t	capture_mp3	= {"capture_mp3", "0", true};
 cvar_t	capture_mp3_kbps = {"capture_mp3_kbps", "192", true};
@@ -56,8 +56,8 @@ qboolean Movie_IsActive (void)
 	if ((/*!capture_console.value && */ scr_con_current > 0) || scr_drawloading)
 		return false;
 
-	//qbism - from FQ Mark V - Never capture the console if capturedemo is running
-	//qbism - ...but might want to capture console, such as tutorial vid.
+	//qb: from FQ Mark V - Never capture the console if capturedemo is running
+	//qb: ...but might want to capture console, such as tutorial vid.
 	//if (cls.capturedemo && scr_con_current > 0)
 	//	return false;
 
@@ -67,12 +67,12 @@ qboolean Movie_IsActive (void)
 
 void Movie_Start_f (void)
 {
-    char	name[MAX_OSPATH], path[256]; //qbism jqavi was MAX_FILELENGTH
+    char	name[MAX_OSPATH], path[256]; //qb: jqavi was MAX_FILELENGTH
     int     i;
 
-    if (Cmd_Argc() != 2) //qbism - autogenerate file name if none is given.
+    if (Cmd_Argc() != 2) //qb: autogenerate file name if none is given.
     {
-        Q_strcpy(name,"qbs8_000.avi"); //qbism screenshots dir
+        Q_strcpy(name,"qbs8_000.avi"); //qb: screenshots dir
 
         for (i=0 ; i<=999 ; i++)
         {
@@ -108,7 +108,7 @@ void Movie_Start_f (void)
     }
 
     movie_is_capturing = Capture_Open (path);
-    V_UpdatePalette (); //qbism just in case
+    V_UpdatePalette (); //qb: just in case
 }
 
 void Movie_Stop (void)
@@ -134,7 +134,7 @@ void Movie_Stop_f (void)
     Con_Printf ("Stopped capturing\n");
 }
 
-void Movie_CaptureDemo_f (void)  //qbism - with additional enhancement from FQ Mark V
+void Movie_CaptureDemo_f (void)  //qb: with additional enhancement from FQ Mark V
 {
     if (Cmd_Argc() != 2)
     {
@@ -178,7 +178,7 @@ void Movie_Init (void)
     Cmd_AddCommand ("capture_stop", Movie_Stop_f);
     Cmd_AddCommand ("capturedemo", Movie_CaptureDemo_f);
 
-    //qbism jqavi per Baker tute
+    //qb: jqavi per Baker tute
     Cvar_RegisterVariable (&capture_codec);
     Cvar_RegisterVariable (&capture_fps);
     Cvar_RegisterVariable (&capture_hack);
@@ -212,10 +212,10 @@ double Movie_FrameTime (void)
 }
 
 
-void Movie_UpdateScreen (void)  //qbism - add stretch and gamma to capture
+void Movie_UpdateScreen (void)  //qb: add stretch and gamma to capture
 {
     int	i, j, k, rowp;
-    int r,g,b; //qbism
+    int r,g,b; //qb:
     byte	*buffer, *p;
 
     if (!Movie_IsActive())
@@ -245,7 +245,7 @@ void Movie_UpdateScreen (void)  //qbism - add stretch and gamma to capture
                 rowp = i * vid.rowbytes;
                 for (j = 0 ; j < vid.width ; j++)
                 {
-                    r = gammatable[host_basepal[vid.buffer[rowp]*3+2]];  //qbism- gamma lookup
+                    r = gammatable[host_basepal[vid.buffer[rowp]*3+2]];  //qb: gamma lookup
                     g = gammatable[host_basepal[vid.buffer[rowp]*3+1]];
                     b = gammatable[host_basepal[vid.buffer[rowp]*3+0]];
                     *p++ = r;
@@ -267,7 +267,7 @@ void Movie_UpdateScreen (void)  //qbism - add stretch and gamma to capture
             rowp = i * vid.rowbytes;
             for (j = 0 ; j < vid.width ; j++)
             {
-                r = gammatable[host_basepal[vid.buffer[rowp]*3+2]];  //qbism- gamma lookup
+                r = gammatable[host_basepal[vid.buffer[rowp]*3+2]];  //qb: gamma lookup
                 g = gammatable[host_basepal[vid.buffer[rowp]*3+1]];
                 b = gammatable[host_basepal[vid.buffer[rowp]*3+0]];
                 rowp++;

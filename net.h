@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 // net.h -- quake's interface to the networking layer
 
 #ifdef FLASH
-#undef _WIN32  //qbism FIXME- possible to NOT def _WIN32 in CodeBlocks?
+#undef _WIN32  //qb: FIXME- possible to NOT def _WIN32 in CodeBlocks?
 #endif
 
 struct qsockaddr
@@ -29,7 +29,7 @@ struct qsockaddr
 
 #define	NET_NAMELEN			64
 
-#define NET_MAXMESSAGE		32767 //qbism 65535 per qsb, was 8192
+#define NET_MAXMESSAGE		32767 //qb: 65535 per qsb, was 8192
 #define NET_HEADERSIZE		(2 * sizeof(unsigned int))
 #define NET_DATAGRAMSIZE	(MAX_DATAGRAM + NET_HEADERSIZE)
 

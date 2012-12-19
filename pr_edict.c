@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 
-qboolean		pr_alpha_supported; //qbism- from Fitzquake
+qboolean		pr_alpha_supported; //qb: from Fitzquake
 
 dprograms_t		*progs;
 dfunction_t		*pr_functions;
@@ -150,7 +150,7 @@ edict_t *ED_Alloc (void)
     }
 
     if (i == MAX_EDICTS)
-        Host_Error ("ED_Alloc: no free edicts (max_edicts is %i)", MAX_EDICTS); //qbism- from Fitzquake -- was Sys_Error
+        Host_Error ("ED_Alloc: no free edicts (max_edicts is %i)", MAX_EDICTS); //qb: from Fitzquake -- was Sys_Error
 
     sv.num_edicts++;
     e = EDICT_NUM(i);
@@ -182,7 +182,7 @@ void ED_Free (edict_t *ed)
     VectorCopy (vec3_origin, ed->v.angles);
     ed->v.nextthink = -1;
     ed->v.solid = 0;
-    ed->alpha = ENTALPHA_DEFAULT; //qbism
+    ed->alpha = ENTALPHA_DEFAULT; //qb:
 
     ed->freetime = sv.time;
 }
@@ -578,7 +578,7 @@ void ED_Write (FILE *f, edict_t *ed)
         fprintf (f, "}\n");
         return;
     }
-    //qbism - remove reduced saves here, getting "closing brace without data" on some big maps.
+    //qb: remove reduced saves here, getting "closing brace without data" on some big maps.
     for (i=1 ; i<progs->numfielddefs ; i++)
     {
         d = &pr_fielddefs[i];
@@ -600,7 +600,7 @@ void ED_Write (FILE *f, edict_t *ed)
         fprintf (f,"\"%s\"\n", PR_UglyValueString(d->type, (eval_t *)v));
     }
 
-    //qbism- from johnfitz -- save entity alpha manually when progs.dat doesn't know about alpha
+    //qb: from johnfitz -- save entity alpha manually when progs.dat doesn't know about alpha
     if (!pr_alpha_supported && ed->alpha != ENTALPHA_DEFAULT)
         fprintf (f,"\"alpha\" \"%f\"\n", ENTALPHA_TOSAVE(ed->alpha));
     //johnfitz
@@ -854,7 +854,7 @@ qboolean	ED_ParseEpair (void *base, ddef_t *key, char *s)
         def = ED_FindField (s);
         if (!def)
         {
-            //qbism:  johnfitz -- HACK -- supress error becuase fog/sky fields might not be mentioned in defs.qc
+            //qb:  johnfitz -- HACK -- supress error becuase fog/sky fields might not be mentioned in defs.qc
             if (strncmp(s, "sky", 3) && strcmp(s, "fog"))
                 Con_DPrintf ("Can't find field %s\n", s);
             return false;
@@ -970,7 +970,7 @@ char *ED_ParseEdict (char *data, edict_t *ent)
         key = ED_FindField (keyname);
         if (!key)
         {
-            //qbism:  johnfitz -- HACK -- suppress error becuase fog/sky/alpha fields might not be mentioned in defs.qc
+            //qb:  johnfitz -- HACK -- suppress error becuase fog/sky/alpha fields might not be mentioned in defs.qc
             if (strncmp(keyname, "sky", 3) && strcmp(keyname, "fog") && strcmp(keyname, "alpha"))
                 Con_DPrintf ("\"%s\" is not a field\n", keyname);
             continue;
@@ -1295,7 +1295,7 @@ void PR_LoadProgs (void)
         pr_globaldefs[i].ofs = LittleShort (pr_globaldefs[i].ofs);
         pr_globaldefs[i].s_name = LittleLong (pr_globaldefs[i].s_name);
     }
-    pr_alpha_supported = false; //qbism- from Fitzquake
+    pr_alpha_supported = false; //qb: from Fitzquake
 
     for (i=0 ; i<progs->numfielddefs ; i++)
     {
@@ -1305,7 +1305,7 @@ void PR_LoadProgs (void)
         pr_fielddefs[i].ofs = LittleShort (pr_fielddefs[i].ofs);
         pr_fielddefs[i].s_name = LittleLong (pr_fielddefs[i].s_name);
 
-        ////qbism- from Fitzquake-- detect alpha support in progs.dat
+        ////qb: from Fitzquake-- detect alpha support in progs.dat
         if (!strcmp(pr_strings + pr_fielddefs[i].s_name,"alpha"))
             pr_alpha_supported = true;
 

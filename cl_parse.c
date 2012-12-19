@@ -72,8 +72,8 @@ char *svc_strings[] =
     "svc_skybox", // [string] skyname
     "", // 38
     "", // 39
-    "svc_bf", // 40  qbism- bonus flash, from Fitzquake protocol
-    "svc_fog", // 41 qbism- fog, from Fitzquake protocol
+    "svc_bf", // 40  qb: bonus flash, from Fitzquake protocol
+    "svc_fog", // 41 qb: fog, from Fitzquake protocol
     "", // 42
     "", // 43
     "", // 44
@@ -152,7 +152,7 @@ void CL_ParseStartSoundPacket(void)
     else
         attenuation = DEFAULT_SOUND_PACKET_ATTENUATION;
 
-    //qbism: johnfitz begin
+    //qb: johnfitz begin
     if (field_mask & SND_LARGEENTITY)
     {
         ent = (unsigned short) MSG_ReadShort ();
@@ -172,9 +172,9 @@ void CL_ParseStartSoundPacket(void)
 
     if (sound_num >= MAX_SOUNDS)
         Host_Error ("CL_ParseStartSoundPacket: %i > MAX_SOUNDS", sound_num);
-    //qbism: johnfitz end
+    //qb: johnfitz end
 
-    if (ent > MAX_EDICTS) //qbism:  johnfitz -- no more MAX_EDICTS
+    if (ent > MAX_EDICTS) //qb:  johnfitz -- no more MAX_EDICTS
         Host_Error ("CL_ParseStartSoundPacket: ent = %i", ent);
 
     for (i=0 ; i<3 ; i++)
@@ -186,7 +186,7 @@ void CL_ParseStartSoundPacket(void)
 
 /*
 ==================
-CL_ParseLocalSoundPacket  //qbism
+CL_ParseLocalSoundPacket  //qb:
 ==================
 */
 void CL_ParseLocalSoundPacket(void)
@@ -218,7 +218,7 @@ void CL_KeepaliveMessage (void)
     static float lastmsg;
     int		    ret;
     sizebuf_t	old;
-    byte		olddata[16384]; //qbism- was 8192, could overrun as discovered by mh
+    byte		olddata[16384]; //qb: was 8192, could overrun as discovered by mh
 
     if (sv.active)
         return;		// no need if server is local
@@ -266,16 +266,16 @@ void CL_KeepaliveMessage (void)
     SZ_Clear (&cls.message);
 }
 
-#ifdef WEBDL    //qbism - sometimes works, needs more testing
+#ifdef WEBDL    //qb: sometimes works, needs more testing
 /*
 =====================
-CL_WebDownloadProgress //qbism - R00k / Baker tute
+CL_WebDownloadProgress //qb: R00k / Baker tute
 Callback function for webdownloads.
 Since Web_Get only returns once it's done, we have to do various things here:
 Update download percent, handle input, redraw UI and send net packets.
 =====================
 */
-//qbism - neither version seems to work.
+//qb: neither version seems to work.
 /*static int CL_WebDownloadProgress( double percent )
 {
     static double time, oldtime, newtime;
@@ -320,7 +320,7 @@ void CL_ParseServerInfo (void)
     char	model_precache[MAX_MODELS][MAX_QPATH];
     char	sound_precache[MAX_SOUNDS][MAX_QPATH];
 #ifdef WEBDL
-    char url[1024];  //qbism - R00k / Baker tute
+    char url[1024];  //qb: R00k / Baker tute
 #endif
     qboolean success = false;
     char download_tempname[MAX_QPATH],download_finalname[MAX_QPATH];
@@ -328,7 +328,7 @@ void CL_ParseServerInfo (void)
     char name[MAX_QPATH];
     extern int net_hostport;
 
-    byte	tmp[256]; //qbism- for Dan East pocketquake
+    byte	tmp[256]; //qb: for Dan East pocketquake
 
     Con_DPrintf ("Serverinfo packet received.\n");
 //
@@ -379,7 +379,7 @@ void CL_ParseServerInfo (void)
     //Con_Printf("\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n");
     Con_Printf ("%c%s\n", 2, str);
 
-//qbism:  johnfitz -- tell user which protocol this is
+//qb:  johnfitz -- tell user which protocol this is
     Con_Printf ("Using protocol %i\n", current_protocol);
 
 //
@@ -429,8 +429,8 @@ void CL_ParseServerInfo (void)
         cl.model_precache[i] = Mod_ForName (model_precache[i], false);
         if (cl.model_precache[i] == NULL)
         {
-#ifdef WEBDL    //qbism - sometimes works, needs more testing
-            if (cl_web_download.value && cl_web_download_url.string) //qbism - R00k / Baker tute
+#ifdef WEBDL    //qb: sometimes works, needs more testing
+            if (cl_web_download.value && cl_web_download_url.string) //qb: R00k / Baker tute
             {
 //Create the FULL path where the file should be written
                 Q_snprintfz (download_tempname, MAX_OSPATH, "%s/%s.tmp", com_gamedir, model_precache[i]);
@@ -490,8 +490,8 @@ void CL_ParseServerInfo (void)
         cl.sound_precache[i] = S_PrecacheSound (sound_precache[i]);
         if (cl.sound_precache[i] == NULL)
         {
-#ifdef WEBDL    //qbism - sometimes works, needs more testing
-            if (cl_web_download.value && cl_web_download_url.string) //qbism - R00k / Baker tute
+#ifdef WEBDL    //qb: sometimes works, needs more testing
+            if (cl_web_download.value && cl_web_download_url.string) //qb: R00k / Baker tute
             {
 //Create the FULL path where the file should be written
                 Q_snprintfz (download_tempname, MAX_OSPATH, "%s/%s.tmp", com_gamedir, sound_precache[i]);
@@ -540,7 +540,7 @@ void CL_ParseServerInfo (void)
                 }
             }
 #endif
-            //qbism - normally just ignore missing sounds
+            //qb: normally just ignore missing sounds
         }
         CL_KeepaliveMessage ();
     }
@@ -548,7 +548,7 @@ void CL_ParseServerInfo (void)
 // local state
     cl_entities[0].model = cl.worldmodel = cl.model_precache[1];
     vibration_update[0] = vibration_update[1] = false; // Manoel Kasimier
-    LOC_LoadLocations ();	//qbism - talk macro - Read a location file
+    LOC_LoadLocations ();	//qb: talk macro - Read a location file
 
     R_NewMap ();
 
@@ -577,7 +577,7 @@ void CL_ParseUpdate (int bits)
     qboolean	forcelink;
     entity_t	*ent;
     int			num;
-#ifdef GLQUAKE  //qbism - TODO can use this?  SKIN
+#ifdef GLQUAKE  //qb: TODO can use this?  SKIN
     int			skin;
 #endif
 
@@ -649,7 +649,7 @@ void CL_ParseUpdate (int bits)
         }
         else
             forcelink = true;	// hack to make null model players work
-#ifdef GLQUAKE  //qbism - TODO can use this?  SKIN
+#ifdef GLQUAKE  //qb: TODO can use this?  SKIN
         if (num > 0 && num <= cl.maxclients)
             R_TranslatePlayerSkin (num - 1);
 #endif
@@ -673,7 +673,7 @@ void CL_ParseUpdate (int bits)
         ent->colormap = cl.scores[i-1].translations;
     }
 
-#ifdef GLQUAKE  //qbism - TODO can use this?  SKIN
+#ifdef GLQUAKE  //qb: TODO can use this?  SKIN
     if (bits & U_SKIN)
         skin = MSG_ReadByte();
     else
@@ -741,9 +741,9 @@ void CL_ParseUpdate (int bits)
         ent->msg_angles[0][2] = ent->baseline.angles[2];
     // Tomaz - QC Alpha Scale Glow Begin
     if (bits & U_ALPHA)
-        ent->alpha = MSG_ReadByte(); //qbism- converted to byte
+        ent->alpha = MSG_ReadByte(); //qb: converted to byte
     else
-        ent->alpha = ent->baseline.alpha; //qbism was ent->alpha = 1.0f;
+        ent->alpha = ent->baseline.alpha; //qb: was ent->alpha = 1.0f;
 
     if (bits & U_SCALE)
         ent->scale2 = MSG_ReadFloat();
@@ -758,12 +758,12 @@ void CL_ParseUpdate (int bits)
         ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
 
     if (bits & U_GLOW_SIZE)
-        ent->glow_size = MSG_ReadShort();  //qbism- was readfloat
+        ent->glow_size = MSG_ReadShort();  //qb: was readfloat
     else
         ent->glow_size = 0;
     // Tomaz - QC Alpha Scale Glow End
 
-    if (bits & U_GLOW_RED) //qbism
+    if (bits & U_GLOW_RED) //qb:
         ent->glow_red = MSG_ReadByte();
     else
         ent->glow_red = 0;
@@ -811,7 +811,7 @@ void CL_ParseBaseline (entity_t *ent)
     if (current_protocol == PROTOCOL_QBS8)
     {
         ent->baseline.modelindex = MSG_ReadShort ();
-        ent->baseline.alpha = MSG_ReadByte(); //qbism: johnfitz -- PROTOCOL_FITZQUAKE
+        ent->baseline.alpha = MSG_ReadByte(); //qb: johnfitz -- PROTOCOL_FITZQUAKE
     }
     else
     {
@@ -839,12 +839,12 @@ CL_ParseClientdata
 Server information pertaining to this client only
 ==================
 */
-void CL_ParseClientdata (void ) //qbism read bits in function similar to johnfitz
+void CL_ParseClientdata (void ) //qb: read bits in function similar to johnfitz
 {
     int		i, j, bits;
     float newpunchangle, oldpunchangle = Length(cl.punchangle); // Manoel Kasimier
 
-    bits = (unsigned short)MSG_ReadShort (); //qbism:  johnfitz -- read bits here instead of in CL_ParseServerMessage()
+    bits = (unsigned short)MSG_ReadShort (); //qb:  johnfitz -- read bits here instead of in CL_ParseServerMessage()
 
     if (bits & SU_VIEWHEIGHT)
         cl.viewheight = MSG_ReadChar ();
@@ -1007,7 +1007,7 @@ void CL_NewTranslation (int slot)
     memcpy (dest, vid.colormap, sizeof(cl.scores[slot].translations));
     top = cl.scores[slot].colors & 0xf0;
     bottom = (cl.scores[slot].colors &15)<<4;
-#ifdef GLQUAKE  //qbism - TODO can use this?  SKIN
+#ifdef GLQUAKE  //qb: TODO can use this?  SKIN
     R_TranslatePlayerSkin (slot);
 #endif
 
@@ -1061,7 +1061,7 @@ void CL_ParseStatic (void)
     {
         int		bits;
 
-        ent->alpha = ent->baseline.alpha; //qbism: finally figured this out.
+        ent->alpha = ent->baseline.alpha; //qb: finally figured this out.
         bits = MSG_ReadLong();
 
         if (bits & U_SCALE)
@@ -1149,7 +1149,7 @@ void CL_ParseServerMessage (void)
 {
     int			cmd;
     int         i, lastpos;
-    int			lastcmd=0; //qbism:  johnfitz
+    int			lastcmd=0; //qb:  johnfitz
 
 //
 // if recording demos, copy the message out
@@ -1200,7 +1200,7 @@ void CL_ParseServerMessage (void)
         switch (cmd)
         {
         default:
-            Host_Error ("CL_ParseServerMessage: Illegible server message, previous was %s\n", svc_strings[lastcmd]); //qbism:  johnfitz -- added svc_strings[lastcmd]
+            Host_Error ("CL_ParseServerMessage: Illegible server message, previous was %s\n", svc_strings[lastcmd]); //qb:  johnfitz -- added svc_strings[lastcmd]
             break;
 
         case svc_nop:
@@ -1221,7 +1221,7 @@ void CL_ParseServerMessage (void)
             current_protocol = MSG_ReadLong ();
             if((current_protocol != PROTOCOL_NETQUAKE)
                     && (current_protocol != PROTOCOL_QBS8)) // added
-                Host_Error ("CL_ParseServerMessage: Server is unknown protocol %i", current_protocol); //qbism
+                Host_Error ("CL_ParseServerMessage: Server is unknown protocol %i", current_protocol); //qb:
             // Manoel Kasimier - 16-bit angles - edited - end
             break;
 
@@ -1232,7 +1232,7 @@ void CL_ParseServerMessage (void)
             Con_Printf ("%s", MSG_ReadString ());
             break;
 
-        case svc_say:  //qbism svc_say TODO - find a simple TTS library...
+        case svc_say:  //qb: svc_say TODO - find a simple TTS library...
             Con_Printf ("%s", MSG_ReadString ());
             break;
 
@@ -1279,7 +1279,7 @@ void CL_ParseServerMessage (void)
             S_StopSound(i>>3, i&7);
             break;
 
-        case svc_localsound:  //qbism
+        case svc_localsound:  //qb:
             CL_ParseLocalSoundPacket();
             break;
 
@@ -1354,7 +1354,7 @@ void CL_ParseServerMessage (void)
             if (i <= cls.signon)
                 Host_Error ("Received signon %i when at %i", i, cls.signon);
             cls.signon = i;
-            //qbism:  similar to johnfitz
+            //qb:  similar to johnfitz
             if (i == 2)
             {
                 if (cl.num_statics > 128)
@@ -1364,7 +1364,7 @@ void CL_ParseServerMessage (void)
             CL_SignonReply ();
             break;
 
-        case svc_killedmonster: //DEMO_REWIND qbism - by Baker, typical for all stats
+        case svc_killedmonster: //DEMO_REWIND qb: by Baker, typical for all stats
             if (cls.demoplayback && cls.demorewind)
                 cl.stats[STAT_MONSTERS]--;
             else
@@ -1404,7 +1404,7 @@ void CL_ParseServerMessage (void)
                 cl.intermission = 0;
             else
                 cl.intermission = 1;
-            //cl.completed_time = cl.time;//qbism: intermission bugfix -- by joe
+            //cl.completed_time = cl.time;//qb: intermission bugfix -- by joe
             cl.completed_time = cl.mtime[0];
             vid.recalc_refdef = true;	// go to full screen
             break;
@@ -1436,7 +1436,7 @@ void CL_ParseServerMessage (void)
             Cmd_ExecuteString ("help", src_command);
             break;
 
-            //qbism - not sure why it took me so long to add these... johnfitz -- new svc types
+            //qb: not sure why it took me so long to add these... johnfitz -- new svc types
         case svc_skybox:
             R_LoadSky (MSG_ReadString());
             break;

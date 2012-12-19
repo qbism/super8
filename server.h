@@ -61,7 +61,7 @@ typedef struct
 	byte		reliable_datagram_buf[MAX_DATAGRAM];
 
 	sizebuf_t	signon;
-	byte		signon_buf[MAX_MSGLEN-2]; //qbism:  johnfitz -- was 8192, now uses MAX_MSGLEN
+	byte		signon_buf[MAX_MSGLEN-2]; //qb:  johnfitz -- was 8192, now uses MAX_MSGLEN
 } server_t;
 
 
@@ -116,10 +116,10 @@ typedef struct client_s
 #define	MOVETYPE_NOCLIP			8
 #define	MOVETYPE_FLYMISSILE		9		// extra size to monsters
 #define	MOVETYPE_BOUNCE			10
-//qbism LHmovetypes begin.  These were ifdef Q2, plus LH improvements.
+//qb: LHmovetypes begin.  These were ifdef Q2, plus LH improvements.
 #define MOVETYPE_BOUNCEMISSILE	11		// bounce w/o gravity
 #define MOVETYPE_FOLLOW			12		// track movement of aiment
-//qbism LHmovetypes end
+//qb: LHmovetypes end
 
 // edict->solid values
 #define	SOLID_NOT				0		// no interaction with other objects
@@ -141,7 +141,7 @@ typedef struct client_s
 #define	FL_FLY					1
 #define	FL_SWIM					2
 //#define	FL_GLIMPSE				4
-//#define	FL_CONVEYOR				4  //qbism- open slot
+//#define	FL_CONVEYOR				4  //qb: open slot
 #define	FL_CLIENT				8
 #define	FL_INWATER				16
 #define	FL_MONSTER				32
@@ -152,32 +152,32 @@ typedef struct client_s
 #define	FL_PARTIALGROUND		1024	// not all corners are valid
 #define	FL_WATERJUMP			2048	// player jumping out of water
 #define	FL_JUMPRELEASED			4096	// for jump debouncing
-//qbism TODO how many
+//qb: TODO how many
 
 // entity effects
-//qbism TODO clean this up, add/delete effects
+//qb: TODO clean this up, add/delete effects
 
 #define	EF_BRIGHTFIELD			1
 #define	EF_MUZZLEFLASH 			2
 #define	EF_BRIGHTLIGHT 			4
 #define	EF_DIMLIGHT 			8
 #define	EF_NODRAW				16
-#define EF_ADDITIVE				32		// LordHavoc: Additive Rendering (qbism: looks ghostly!)
-//#define EF_RED				64		//qbism- would be nice eventually + EF_GREEN
+#define EF_ADDITIVE				32		// LordHavoc: Additive Rendering (qb: looks ghostly!)
+//#define EF_RED				64		//qb: would be nice eventually + EF_GREEN
 //#define EF_BLUE				128
 #define	EF_REFLECTIVE			256		// LordHavoc: shiny metal objects :)
 #define EF_FULLBRIGHT			512		// LordHavoc: fullbright
 //#define EF_FLAME				1024	// LordHavoc: on fire
 //#define EF_STARDUST			2048	// LordHavoc: showering sparks
 #define EF_NOSHADOW				4096	// LordHavoc: does not cast a shadow
-#define EF_DARKFIELD			8192	// qbism
-//#define EF_DARKLIGHT			// qbism darklight is just a negative radius
+#define EF_DARKFIELD			8192	//qb:
+//#define EF_DARKLIGHT			//qb: darklight is just a negative radius
 
-//qbism changed these to occupy 'unused' slots based on DP standard
+//qb: changed these to occupy 'unused' slots based on DP standard
 #define EF_SHADOW				131072	// Manoel Kasimier - EF_SHADOW
 #define EF_CELSHADING			262144	// Manoel Kasimier - EF_CELSHADING
 
-//qbism add modelflags as effects
+//qb: add modelflags as effects
 #define EF_NOMODELFLAGS			8388608		// indicates the model's .effects should be ignored (allows overriding them)
 #define EF_ROCKET				16777216	// leave a trail
 #define EF_GRENADE				33554432	// leave a trail

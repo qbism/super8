@@ -18,8 +18,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "quakedef.h"
 #include "r_local.h"
 
-#define MAX_PARTICLES 8192	//qbism 16383 per qsb, was 2048	// default max # of particles at one time
-#define ABSOLUTE_MIN_PARTICLES	1024 //qbism per qsb - was 512	//no fewer no matter the command line
+#define MAX_PARTICLES 8192	//qb: 16383 per qsb, was 2048	// default max # of particles at one time
+#define ABSOLUTE_MIN_PARTICLES	1024 //qb: per qsb - was 512	//no fewer no matter the command line
 
 extern cvar_t	sv_gravity;
 
@@ -392,7 +392,7 @@ void R_BlobExplosion (vec3_t org)
     }
 }
 
-//qbism - schtuff below this line is based on Engoo particles.
+//qb: schtuff below this line is based on Engoo particles.
 //--------------------------------------------------------------------
 /*
 ===============
@@ -648,7 +648,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
         {
         case 0:	// rocket trail
 
-            if ((rand()&35) < 1)  //qbism -added occasional falling ash
+            if ((rand()&35) < 1)  //qb:added occasional falling ash
             {
                 p->type = pt_grav;
                 p->color = 32;
@@ -681,11 +681,11 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             for (j=0 ; j<3 ; j++)
             {
                 p->org[j] = start[j] + ((rand()&6)-3);
-                p->vel[j] = (float)((rand()%24)-12); //qbism- add scatter velocity, for wall sticking
+                p->vel[j] = (float)((rand()%24)-12); //qb: add scatter velocity, for wall sticking
 
             }
             p->type = pt_sticky;
-            p->die = cl.time + r_part_sticky_time.value; //qbism - stick around
+            p->die = cl.time + r_part_sticky_time.value; //qb: stick around
             p->start_time = cl.time; // Manoel Kasimier
             break;
 
@@ -797,7 +797,7 @@ void R_DrawParticles (void)
     if(r_fisheye.value)
         frametime = fabs(cl.time - cl.oldtime)/(float)fviews.value; //qb: divide by # of fisheye views, or runs too fast.
     else
-        frametime = fabs(cl.time - cl.oldtime); //DEMO_REWIND - qbism - Baker change (no, it is not supposed to be 'ctime')
+        frametime = fabs(cl.time - cl.oldtime); //DEMO_REWIND - qb: Baker change (no, it is not supposed to be 'ctime')
     // cl.oldtime = cl.time; //qb:  shouldn't this be reset each time it's touched?
     time3 = frametime * 17;
     time2 = frametime * 13; // 15;
@@ -972,7 +972,7 @@ void R_DrawParticles (void)
     }
 }
 
-////qbism - below this line is sadly not used yet /////////
+////qb: below this line is sadly not used yet /////////
 
 /*
 ===============

@@ -106,7 +106,7 @@ channel_t *SND_PickChannel(int entnum, int entchannel);
 void SND_Spatialize(channel_t *ch);
 
 // initializes cycling through a DMA buffer and returns information on it
-int SNDDMA_Init(void); //qbism was qboolean, type conflict
+int SNDDMA_Init(void); //qb: was qboolean, type conflict
 
 // gets the current DMA position
 int SNDDMA_GetDMAPos(void);
@@ -118,8 +118,8 @@ void SNDDMA_Shutdown(void);
 // User-setable variables
 // ====================================================================
 
-#define	MAX_CHANNELS			512 //qbism 512 per qsb was 128
-#define	MAX_DYNAMIC_CHANNELS	128 //qbism 128 per qsb was 8
+#define	MAX_CHANNELS			512 //qb: 512 per qsb was 128
+#define	MAX_DYNAMIC_CHANNELS	128 //qb: 128 per qsb was 8
 
 
 extern	channel_t   channels[MAX_CHANNELS];

@@ -514,7 +514,7 @@ void NET_Stats_f (void)
 }
 
 
-void Strip_Port (char *ch)  //qbism - Baker - IP port
+void Strip_Port (char *ch)  //qb: Baker - IP port
 {
 	if (ch = strchr(ch, ':'))
 	{
@@ -922,8 +922,8 @@ static qsocket_t *_Datagram_CheckNewConnections (void)
             }
             // it's somebody coming back in from a crash/disconnect
             // so close the old qsocket and let their retry get them back in
-            //qbism - Baker - network fix   NET_Close(s);
-            //qbism - Baker - network fix   return NULL;
+            //qb: Baker - network fix   NET_Close(s);
+            //qb: Baker - network fix   return NULL;
         }
     }
 
@@ -1276,7 +1276,7 @@ qsocket_t *Datagram_Connect (char *host)
 {
     qsocket_t *ret = NULL;
 
-    Strip_Port(host); //qbism - Baker - IP port
+    Strip_Port(host); //qb: Baker - IP port
 
     for (net_landriverlevel = 0; net_landriverlevel < net_numlandrivers; net_landriverlevel++)
         if (net_landrivers[net_landriverlevel].initialized)

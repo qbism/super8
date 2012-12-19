@@ -106,7 +106,7 @@ vec3_t	box_512_vecs[6][2] = {
 };
 // Manoel Kasimier - hi-res skyboxes - end
 
-// qbism even bigger box
+//qb: even bigger box
 vec3_t	box_1024_vecs[6][2] = {
 	{	{0,-4,0}, {-4,0,0} },
 	{ {0,4,0}, {0,0,-4} },
@@ -582,7 +582,7 @@ void R_RenderFace (msurface_t *fa, int clipflags)
 	if ((fa->flags & SURF_DRAWSKY) && r_drawskybox)
 	{
 		//R_EmitSkyBox ();
-		return; //qbism - Is there a cheap way to hide faces that are behind sky faces but facing view.  Crazy mappers!
+		return; //qb: Is there a cheap way to hide faces that are behind sky faces but facing view.  Crazy mappers!
 	}
 	// Manoel Kasimier - skyboxes - end
 
