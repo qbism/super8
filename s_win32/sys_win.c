@@ -421,6 +421,49 @@ void Sys_Quit (void)
 Sys_DoubleTime
 ================
 */
+//qb:  MH Improved Timer from inside3d.com
+    double Sys_DoubleTime (void)
+    {
+       static qboolean firsttime = true;
+       static __int64 qpcfreq = 0;
+       static __int64 currqpccount = 0;
+       static __int64 lastqpccount = 0;
+       static double qpcfudge = 0;
+       DWORD currtime = 0;
+       static DWORD lasttime = 0;
+       static DWORD starttime = 0;
+
+       if (firsttime)
+       {
+          timeBeginPeriod (1);
+          starttime = lasttime = timeGetTime ();
+          QueryPerformanceFrequency ((LARGE_INTEGER *) &qpcfreq);
+          QueryPerformanceCounter ((LARGE_INTEGER *) &lastqpccount);
+          firsttime = false;
+          return 0;
+       }
+
+       // get the current time from both counters
+       currtime = timeGetTime ();
+       QueryPerformanceCounter ((LARGE_INTEGER *) &currqpccount);
+
+       if (currtime != lasttime)
+       {
+          // requery the frequency in case it changes (which it can on multicore machines)
+          QueryPerformanceFrequency ((LARGE_INTEGER *) &qpcfreq);
+
+          // store back times and calc a fudge factor as timeGetTime can overshoot on a sub-millisecond scale
+          qpcfudge = ((double) (currqpccount - lastqpccount) / (double) qpcfreq) - ((double) (currtime - lasttime) * 0.001);
+          lastqpccount = currqpccount;
+          lasttime = currtime;
+       }
+       else qpcfudge = 0;
+
+       // the final time is the base from timeGetTime plus an addition from QPC
+       return ((double) (currtime - starttime) * 0.001) + ((double) (currqpccount - lastqpccount) / (double) qpcfreq) + qpcfudge;
+    }
+
+/* qb: old
 double Sys_DoubleTime (void)
 {
 	static int			sametimecount;
@@ -477,7 +520,7 @@ double Sys_DoubleTime (void)
 
     return curtime;
 }
-
+*/
 
 /*
 ================

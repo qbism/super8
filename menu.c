@@ -34,41 +34,43 @@ cvar_t	savename = {"savename","QBS8____"}; // 8 uppercase characters
 #ifndef FLASH
 int scandir(const char *dir, struct dirent ***namelist,
             int (*select)(const struct dirent *),
-            int (*compar)(const struct dirent **, const struct dirent **)) {
-  DIR *d;
-  struct dirent *entry;
-  register int i=0;
-  size_t entrysize;
+            int (*compar)(const struct dirent **, const struct dirent **))
+{
+    DIR *d;
+    struct dirent *entry;
+    register int i=0;
+    size_t entrysize;
 
-  if ((d=opendir(dir)) == NULL)
-     return(-1);
+    if ((d=opendir(dir)) == NULL)
+        return(-1);
 
-  *namelist=NULL;
-  while ((entry=readdir(d)) != NULL)
-  {
-    if (select == NULL || (select != NULL && (*select)(entry)))
+    *namelist=NULL;
+    while ((entry=readdir(d)) != NULL)
     {
-      *namelist=(struct dirent **)realloc((void *)(*namelist),
-                 (size_t)((i+1)*sizeof(struct dirent *)));
-	if (*namelist == NULL) return(-1);
-	entrysize=sizeof(struct dirent)-sizeof(entry->d_name)+strlen(entry->d_name)+1;
-	(*namelist)[i]=(struct dirent *)malloc(entrysize);
-	if ((*namelist)[i] == NULL) return(-1);
-	memcpy((*namelist)[i], entry, entrysize);
-	i++;
+        if (select == NULL || (select != NULL && (*select)(entry)))
+        {
+            *namelist=(struct dirent **)realloc((void *)(*namelist),
+                                                (size_t)((i+1)*sizeof(struct dirent *)));
+            if (*namelist == NULL) return(-1);
+            entrysize=sizeof(struct dirent)-sizeof(entry->d_name)+strlen(entry->d_name)+1;
+            (*namelist)[i]=(struct dirent *)malloc(entrysize);
+            if ((*namelist)[i] == NULL) return(-1);
+            memcpy((*namelist)[i], entry, entrysize);
+            i++;
+        }
     }
-  }
-  if (closedir(d)) return(-1);
-  if (i == 0) return(-1);
-  if (compar != NULL)
-    qsort((void *)(*namelist), (size_t)i, sizeof(struct dirent *), compar);
+    if (closedir(d)) return(-1);
+    if (i == 0) return(-1);
+    if (compar != NULL)
+        qsort((void *)(*namelist), (size_t)i, sizeof(struct dirent *), compar);
 
-  return(i);
+    return(i);
 }
 
 //qb: alphasort def is in dirent.h of alchemy (cygwin)
-int alphasort(const struct dirent **a, const struct dirent **b) {
-  return(strcmpi((*a)->d_name, (*b)->d_name));
+int alphasort(const struct dirent **a, const struct dirent **b)
+{
+    return(strcmpi((*a)->d_name, (*b)->d_name));
 }
 #endif
 
@@ -221,7 +223,7 @@ void M_Developer_f (void);
 void M_Help_f (void);
 void M_Quit_f (void);
 
-  //qb: Rikku2000 maplist
+//qb: Rikku2000 maplist
 void M_Menu_MapList_f (void);
 void M_MapList_Draw (void);
 void M_MapList_Key (int key);
@@ -280,9 +282,9 @@ void M_ServerList_Key (int key);
 
 // Manoel Kasimier - begin
 byte	m_inp_up, m_inp_down, m_inp_left, m_inp_right,
-m_inp_ok, m_inp_cancel, m_inp_no, m_inp_yes,
-m_inp_off, m_inp_backspace
-;
+        m_inp_ok, m_inp_cancel, m_inp_no, m_inp_yes,
+        m_inp_off, m_inp_backspace
+        ;
 void M_CheckInput (int key)
 {
     m_inp_up = m_inp_down = m_inp_left = m_inp_right =
@@ -583,10 +585,10 @@ char *timetos (int mytime)
 {
     int
     hours		= mytime/3600,
-                  min_tens	= ((mytime%3600)/60)/10,
-                                min_units	= ((mytime%3600)/60)%10,
-                                        tens		= (mytime%60)/10,
-                                                units		= (mytime%60)%10;
+         min_tens	= ((mytime%3600)/60)/10,
+            min_units	= ((mytime%3600)/60)%10,
+              tens		= (mytime%60)/10,
+                    units		= (mytime%60)%10;
     return va("%i:%i%i:%i%i", hours, min_tens, min_units, tens, units);
 }
 char *skilltos(int i)
@@ -1021,110 +1023,110 @@ qboolean	m_singleplayer_confirm;
 
 void M_SinglePlayer_f (void)
 {
-	key_dest = key_menu;
-	m_state = m_singleplayer;
-	m_entersound = true;
-	m_singleplayer_confirm = false;
+    key_dest = key_menu;
+    m_state = m_singleplayer;
+    m_entersound = true;
+    m_singleplayer_confirm = false;
 }
 
 void M_SinglePlayer_Draw (void)
 {
-	int	f;
-	qpic_t	*p;
+    int	f;
+    qpic_t	*p;
 
-	if (m_singleplayer_confirm)
-	{
-		M_PrintWhite (64, 11*8, "Are you sure you want to");
-		M_PrintWhite (64, 12*8, "    start a new game?");
-		return;
-	}
+    if (m_singleplayer_confirm)
+    {
+        M_PrintWhite (64, 11*8, "Are you sure you want to");
+        M_PrintWhite (64, 12*8, "    start a new game?");
+        return;
+    }
 
-	M_DrawTransPic (16, 0 /*4*/, Draw_CachePic("gfx/qplaque.lmp"));
-	p = Draw_CachePic ("gfx/ttl_sgl.lmp");
-	M_DrawTransPic ((320 - p->width) >> 1, 0 /*4*/, p);
-	M_DrawTransPic (72, 28 /*32*/, Draw_CachePic("gfx/sp_menu.lmp"));
+    M_DrawTransPic (16, 0 /*4*/, Draw_CachePic("gfx/qplaque.lmp"));
+    p = Draw_CachePic ("gfx/ttl_sgl.lmp");
+    M_DrawTransPic ((320 - p->width) >> 1, 0 /*4*/, p);
+    M_DrawTransPic (72, 28 /*32*/, Draw_CachePic("gfx/sp_menu.lmp"));
 
-	f = (int)(host_time*10) % 6;
-	M_DrawTransPic (54, 28 /*32*/ + m_singleplayer_cursor * 20, Draw_CachePic(va("gfx/menudot%i.lmp", f+1)));
+    f = (int)(host_time*10) % 6;
+    M_DrawTransPic (54, 28 /*32*/ + m_singleplayer_cursor * 20, Draw_CachePic(va("gfx/menudot%i.lmp", f+1)));
 }
 
 static void StartNewGame (void)
 {
-	key_dest = key_game;
-	if (sv.active)
-		Cbuf_AddText ("disconnect\n");
-	Cbuf_AddText ("maxplayers 1\n");
-	Cvar_SetValue (&teamplay, 0);
-	Cvar_SetValue (&coop, 0);
-	Cbuf_AddText ("map start\n");
+    key_dest = key_game;
+    if (sv.active)
+        Cbuf_AddText ("disconnect\n");
+    Cbuf_AddText ("maxplayers 1\n");
+    Cvar_SetValue (&teamplay, 0);
+    Cvar_SetValue (&coop, 0);
+    Cbuf_AddText ("map start\n");
 }
 
 void M_SinglePlayer_Key (int key)
 {
-	if (m_singleplayer_confirm)
-	{
-		if (key == 'n' || key == K_ESCAPE)
-		{
-			m_singleplayer_confirm = false;
-			m_entersound = true;
-		}
-		else if (key == 'y' || key == K_ENTER)
-		{
-			StartNewGame ();
-		}
-		return;
-	}
+    if (m_singleplayer_confirm)
+    {
+        if (key == 'n' || key == K_ESCAPE)
+        {
+            m_singleplayer_confirm = false;
+            m_entersound = true;
+        }
+        else if (key == 'y' || key == K_ENTER)
+        {
+            StartNewGame ();
+        }
+        return;
+    }
 
-	switch (key)
-	{
-	case K_ESCAPE:
-		M_Main_f ();
-		break;
+    switch (key)
+    {
+    case K_ESCAPE:
+        M_Main_f ();
+        break;
 
-	case K_DOWNARROW:
-		S_LocalSound ("misc/menu1.wav");
-		if (++m_singleplayer_cursor >= SINGLEPLAYER_ITEMS)
-			m_singleplayer_cursor = 0;
-		break;
+    case K_DOWNARROW:
+        S_LocalSound ("misc/menu1.wav");
+        if (++m_singleplayer_cursor >= SINGLEPLAYER_ITEMS)
+            m_singleplayer_cursor = 0;
+        break;
 
-	case K_UPARROW:
-		S_LocalSound ("misc/menu1.wav");
-		if (--m_singleplayer_cursor < 0)
-			m_singleplayer_cursor = SINGLEPLAYER_ITEMS - 1;
-		break;
+    case K_UPARROW:
+        S_LocalSound ("misc/menu1.wav");
+        if (--m_singleplayer_cursor < 0)
+            m_singleplayer_cursor = SINGLEPLAYER_ITEMS - 1;
+        break;
 
-	case K_HOME:
-	case K_PGUP:
-		S_LocalSound ("misc/menu1.wav");
-		m_singleplayer_cursor = 0;
-		break;
+    case K_HOME:
+    case K_PGUP:
+        S_LocalSound ("misc/menu1.wav");
+        m_singleplayer_cursor = 0;
+        break;
 
-	case K_END:
-	case K_PGDN:
-		S_LocalSound ("misc/menu1.wav");
-		m_singleplayer_cursor = SINGLEPLAYER_ITEMS - 1;
-		break;
+    case K_END:
+    case K_PGDN:
+        S_LocalSound ("misc/menu1.wav");
+        m_singleplayer_cursor = SINGLEPLAYER_ITEMS - 1;
+        break;
 
-	case K_ENTER:
-		m_entersound = true;
-		switch (m_singleplayer_cursor)
-		{
-		case 0:
-			if (sv.active)
-				m_singleplayer_confirm = true;
-			else
-				StartNewGame ();
-			break;
+    case K_ENTER:
+        m_entersound = true;
+        switch (m_singleplayer_cursor)
+        {
+        case 0:
+            if (sv.active)
+                m_singleplayer_confirm = true;
+            else
+                StartNewGame ();
+            break;
 
-		case 1:
-			M_Load_f ();
-			break;
+        case 1:
+            M_Load_f ();
+            break;
 
-		case 2:
-			M_Save_f ();
-			break;
-		}
-	}
+        case 2:
+            M_Save_f ();
+            break;
+        }
+    }
 }
 
 //=============================================================================
@@ -1441,18 +1443,18 @@ void M_Save_Key (int k)
             {
                 if (m_cursor[m_state] == i2)
                 {
+                    key_dest = key_game; //qb
+                    m_state = m_none; //qb
                     if (saving)
                     {
-                        // the "menu_main;menu_save" part is a hack to refresh the list of saves
                         if (loadable[i] == false)
                         {
-                            Cbuf_AddText (va ("save%s %s.%c%i%i\nmenu_main;menu_save%s\n", (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10, (m_state==m_savesmall)?"small":""));
-                            m_state = m_none; //qb: exit this menu
-                            key_dest = key_game; //qb:
-                        }
-                              else
-                            M_PopUp_f ((m_state==m_savesmall)?"Overwrite saved game?":"Overwrite saved state?", va ("save%s %s.%c%i%i\nmenu_main;menu_save%s\n",
-                                       (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10, (m_state==m_savesmall)?"small":""));
+                            //qb: removed refresh.  simply exit menu instead
+                        Cbuf_AddText (va ("save%s %s.%c%i%i\n", (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10));
+                         }
+                               else
+                              M_PopUp_f ((m_state==m_savesmall)?"Overwrite saved game?":"Overwrite saved state?", va ("save%s %s.%c%i%i\n",
+                                        (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10));
                         return;
                     }
                     else
@@ -1463,8 +1465,6 @@ void M_Save_Key (int k)
                         SCR_BeginLoadingPlaque ();
                         Cbuf_AddText (va ("load%s %s.%c%i%i\n", (m_state==m_loadsmall)?"small":"", savename.string, (m_state==m_loadsmall)?'G':'S', i/10, i%10) );
                         fade_level = 0; // BlackAura - Menu background fading
-                        m_state = m_none;
-                        key_dest = key_game;
                         return;
                         // Manoel Kasimier - begin
                     }
@@ -2002,145 +2002,160 @@ int posArrow = 0;
 int numFileList = 0;
 int lastArrowY = 0;
 
-void DeleteArray (char listaFiles[MAX_FILE_LIST][256], int numFileList) {
-   int i;
+void DeleteArray (char listaFiles[MAX_FILE_LIST][256], int numFileList)
+{
+    int i;
 
-   for (i = 0; i < numFileList; i++)
-      strcpy(listaFiles[i], "0");
+    for (i = 0; i < numFileList; i++)
+        strcpy(listaFiles[i], "0");
 }
 
-void FileNames (char listaFiles[MAX_FILE_LIST][256], int numFileList) {
-   int y = 35;
-   int i;
+void FileNames (char listaFiles[MAX_FILE_LIST][256], int numFileList)
+{
+    int y = 35;
+    int i;
 
-   for(i = 0; i < numFileList; i++) {
-      M_Print (74, y, listaFiles[i]);
+    for(i = 0; i < numFileList; i++)
+    {
+        M_Print (74, y, listaFiles[i]);
 
-      y += 8;
-   }
+        y += 8;
+    }
 }
 
-int isFile(const struct dirent *nombre) {
-   int isFile = 0;
+int isFile(const struct dirent *nombre)
+{
+    int isFile = 0;
 
-   char *extension = strrchr(nombre->d_name, '.');
+    char *extension = strrchr(nombre->d_name, '.');
 
-   if (strcmp(extension, ".bsp") == 0)
-      isFile = 1;
+    if (strcmp(extension, ".bsp") == 0)
+        isFile = 1;
 
-   return isFile;
+    return isFile;
 }
 
 void M_Menu_MapList_f (void)
 {
-   key_dest = key_menu;
-   m_state = m_maplist;
-   m_entersound = true;
+    key_dest = key_menu;
+    m_state = m_maplist;
+    m_entersound = true;
 
-   if(initState) {
-      numFiles = scandir(va("%s/maps", GAMENAME), &nombres, isFile, alphasort);
+    if(initState)
+    {
+        numFiles = scandir(va("%s/maps", GAMENAME), &nombres, isFile, alphasort);
 
-      if (numFiles < MAX_FILE_LIST) {
-         maxFile = numFiles;
-         numFileList = numFiles;
-      } else
-         numFileList = MAX_FILE_LIST;
+        if (numFiles < MAX_FILE_LIST)
+        {
+            maxFile = numFiles;
+            numFileList = numFiles;
+        }
+        else
+            numFileList = MAX_FILE_LIST;
 
-      DeleteArray(listaFiles, numFileList);
+        DeleteArray(listaFiles, numFileList);
 
-      int x = 0;
-      int i;
+        int x = 0;
+        int i;
 
-      for (i = minFile; i < maxFile; i++){
-         strcpy(listaFiles[x], nombres[i]->d_name);
-         x++;
-      }
+        for (i = minFile; i < maxFile; i++)
+        {
+            strcpy(listaFiles[x], nombres[i]->d_name);
+            x++;
+        }
 
-      initState = 0;
-   }
+        initState = 0;
+    }
 }
 
 void M_MapList_Draw (void)
 {
-   qpic_t   *p;
-   int      x;
+    qpic_t   *p;
+    int      x;
 
-   M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
-   p = Draw_CachePic ("gfx/p_multi.lmp");
-   M_DrawTransPic ( (320-p->width)/2, 4, p);
+    M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
+    p = Draw_CachePic ("gfx/p_multi.lmp");
+    M_DrawTransPic ( (320-p->width)/2, 4, p);
 
-   M_DrawTextBox (56, 27, 23, 15);
-      FileNames(listaFiles, numFileList);
+    M_DrawTextBox (56, 27, 23, 15);
+    FileNames(listaFiles, numFileList);
 
-   M_DrawCharacter (64, arrowY, 12 + ((int)(realtime * 4) & 1));
+    M_DrawCharacter (64, arrowY, 12 + ((int)(realtime * 4) & 1));
 }
 
 void M_MapList_Key (int key)
 {
-   switch (key)
-   {
-   case K_ESCAPE:
-      M_GameOptions_f ();
-      break;
+    switch (key)
+    {
+    case K_ESCAPE:
+        M_GameOptions_f ();
+        break;
 
-   case K_UPARROW:
-      S_LocalSound ("misc/menu1.wav");
-      arrowY -= 8;
-      posArrow--;
+    case K_UPARROW:
+        S_LocalSound ("misc/menu1.wav");
+        arrowY -= 8;
+        posArrow--;
 
-      if (posArrow < 0) {
-         if (minFile != 0) {
-            minFile--;
-            maxFile--;
+        if (posArrow < 0)
+        {
+            if (minFile != 0)
+            {
+                minFile--;
+                maxFile--;
 
-            DeleteArray(listaFiles, numFileList);
+                DeleteArray(listaFiles, numFileList);
 
-            int x = 0;
-            int i;
+                int x = 0;
+                int i;
 
-            for (i = minFile; i < maxFile; i++) {
-               strcpy(listaFiles[x], nombres[i]->d_name);
-               x++;
+                for (i = minFile; i < maxFile; i++)
+                {
+                    strcpy(listaFiles[x], nombres[i]->d_name);
+                    x++;
+                }
             }
-         }
 
-         arrowY = 35;
-         posArrow = 0;
-      }
-      break;
+            arrowY = 35;
+            posArrow = 0;
+        }
+        break;
 
-   case K_DOWNARROW:
-      S_LocalSound ("misc/menu1.wav");
-      lastArrowY = arrowY;
-      arrowY += 8;
+    case K_DOWNARROW:
+        S_LocalSound ("misc/menu1.wav");
+        lastArrowY = arrowY;
+        arrowY += 8;
 
-      if (posArrow > numFileList-2) {
-         if(maxFile+1 <= numFiles) {
-            minFile++;
-            maxFile++;
+        if (posArrow > numFileList-2)
+        {
+            if(maxFile+1 <= numFiles)
+            {
+                minFile++;
+                maxFile++;
 
-            DeleteArray(listaFiles, numFileList);
+                DeleteArray(listaFiles, numFileList);
 
-            int x = 0;
-            int i;
+                int x = 0;
+                int i;
 
-            for (i = minFile; i < maxFile; i++) {
-               strcpy(listaFiles[x], nombres[i]->d_name);
-               x++;
+                for (i = minFile; i < maxFile; i++)
+                {
+                    strcpy(listaFiles[x], nombres[i]->d_name);
+                    x++;
+                }
             }
-         }
 
-         arrowY = lastArrowY;
-      } else
-         posArrow++;
-      break;
+            arrowY = lastArrowY;
+        }
+        else
+            posArrow++;
+        break;
 
-   case K_ENTER:
-      S_LocalSound ("misc/menu2.wav");
-      strcpy(nombreFile, listaFiles[posArrow]);
-      Cbuf_AddText (va("map %s\n", strtok(nombreFile, ".bsp")));
-      break;
-   }
+    case K_ENTER:
+        S_LocalSound ("misc/menu2.wav");
+        strcpy(nombreFile, listaFiles[posArrow]);
+        Cbuf_AddText (va("map %s\n", strtok(nombreFile, ".bsp")));
+        break;
+    }
 }
 
 //=============================================================================
@@ -2225,7 +2240,7 @@ void M_Options_Key (int k)
             M_Gameplay_f ();
             break;
         case 4+QUICKHACK:
-           M_Audio_f ();
+            M_Audio_f ();
             break;
         case 5+QUICKHACK:
             M_Video_f ();
@@ -3847,9 +3862,9 @@ void M_Net_Draw (void)
 
 
 #ifdef _WIN32
-        p = NULL;
+    p = NULL;
 #else
-        p = Draw_CachePic ("gfx/dim_modm.lmp");
+    p = Draw_CachePic ("gfx/dim_modm.lmp");
 #endif
 
     if (p)
@@ -3858,9 +3873,9 @@ void M_Net_Draw (void)
     f += 19;
 
 #ifdef _WIN32
-        p = NULL;
+    p = NULL;
 #else
-        p = Draw_CachePic ("gfx/dim_drct.lmp");
+    p = Draw_CachePic ("gfx/dim_drct.lmp");
 #endif
 
     if (p)
@@ -4519,7 +4534,7 @@ void M_Keydown (int key)
         M_Keys_Key (key);
         return;
 
-   case m_maplist:
+    case m_maplist:
         M_MapList_Key (key);
         return;
 
