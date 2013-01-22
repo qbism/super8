@@ -146,10 +146,10 @@ cvar_t	r_drawflat = {"r_drawflat", "0"};
 cvar_t	r_ambient = {"r_ambient", "0"};
 
 cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qb:
-cvar_t	r_clintensity = {"r_clintensity", "1.2", true}; //qb:
+cvar_t	r_clintensity = {"r_clintensity", "1.35", true}; //qb: this is a radius factor, not saturation
 cvar_t	r_clbaseweight = {"r_clbaseweight", "1.0", true}; //qb: base pixel weight for color map blending
-cvar_t	r_clcolorweight= {"r_clcolorweight", "0.7", true}; //qb: color weight for color map blending
-cvar_t	r_colmaprange= {"r_colmaprange", "1.3", true}; //qb: colormap range for overbright
+cvar_t	r_clcolorweight= {"r_clcolorweight", "0.6", true}; //qb: color weight for color map blending
+cvar_t	r_colmaprange= {"r_colmaprange", "1.2", true}; //qb: colormap range for overbright
 
 cvar_t r_fog = {"r_fog", "1", true}; //qb:  draw fog?
 
