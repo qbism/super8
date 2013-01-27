@@ -163,15 +163,14 @@ typedef struct client_s
 #define	EF_DIMLIGHT 			8
 #define	EF_NODRAW				16
 #define EF_ADDITIVE				32		// LordHavoc: Additive Rendering (qb: looks ghostly!)
-//#define EF_RED				64		//qb: would be nice eventually + EF_GREEN
-//#define EF_BLUE				128
-#define	EF_REFLECTIVE			256		// LordHavoc: shiny metal objects :)
-#define EF_FULLBRIGHT			512		// LordHavoc: fullbright
-//#define EF_FLAME				1024	// LordHavoc: on fire
+//#define ???                   128
+#define MOD_NOLERP              256     //qb: from FQ
+#define	EF_REFLECTIVE			512		// LordHavoc: shiny metal objects :)
+#define EF_FULLBRIGHT			1024		// LordHavoc: fullbright
 //#define EF_STARDUST			2048	// LordHavoc: showering sparks
 #define EF_NOSHADOW				4096	// LordHavoc: does not cast a shadow
-#define EF_DARKFIELD			8192	//qb:
-//#define EF_DARKLIGHT			//qb: darklight is just a negative radius
+#define EF_DARKFIELD			8192	//qb
+//#define ???   			    16384
 
 //qb: changed these to occupy 'unused' slots based on DP standard
 #define EF_SHADOW				131072	// Manoel Kasimier - EF_SHADOW

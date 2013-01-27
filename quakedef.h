@@ -222,7 +222,6 @@ typedef struct
 	unsigned short exteriormodeltoclient; //qb:
 } entity_state_t;
 
-
 #include "wad.h"
 #include "draw.h"
 #include "cvar.h"

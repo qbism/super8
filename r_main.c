@@ -144,12 +144,15 @@ cvar_t	r_aliasstats = {"r_polymodelstats","0"};
 cvar_t	r_dspeeds = {"r_dspeeds","0"};
 cvar_t	r_drawflat = {"r_drawflat", "0"};
 cvar_t	r_ambient = {"r_ambient", "0"};
+//qb: nolerp list from FQ
+cvar_t	r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs/braztall.mdl,progs/brazshrt.mdl,progs/longtrch.mdl,progs/flame_pyre.mdl,progs/v_saw.mdl,progs/v_xfist.mdl,progs/h2stuff/newfire.mdl"};
+
 
 cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qb:
 cvar_t	r_clintensity = {"r_clintensity", "1.35", true}; //qb: this is a radius factor, not saturation
 cvar_t	r_clbaseweight = {"r_clbaseweight", "1.0", true}; //qb: base pixel weight for color map blending
 cvar_t	r_clcolorweight= {"r_clcolorweight", "0.6", true}; //qb: color weight for color map blending
-cvar_t	r_colmaprange= {"r_colmaprange", "1.2", true}; //qb: colormap range for overbright
+//qb:  too dangerous... cvar_t	r_colmaprange= {"r_colmaprange", "1.0", true}; //qb: colormap range for overbright
 
 cvar_t r_fog = {"r_fog", "1", true}; //qb:  draw fog?
 
@@ -262,6 +265,10 @@ void R_Init (void)
     Cmd_AddCommand ("pointfile", R_ReadPointFile_f);
     Cmd_AddCommand ("loadsky", R_LoadSky_f); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
     Cmd_AddCommand ("fog", Fog_FogCommand_f); // qb: fog commands from FitzQuake
+    Cmd_AddCommand ("gl_texturemode", Placebo_f);  //qb: ignore common commands with no equivalent, stuffed by mod
+    Cmd_AddCommand ("gl_clear", Placebo_f);
+    Cmd_AddCommand ("gl_overbright", Placebo_f);
+
     //set up global fog defaults
     fog_density = 0.0;
     fog_red = 0.17;
@@ -279,7 +286,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_clintensity); //qb:
     Cvar_RegisterVariable (&r_clbaseweight); //qb:
     Cvar_RegisterVariable (&r_clcolorweight); //qb:
-    Cvar_RegisterVariable (&r_colmaprange); //qb:
+//qb:    Cvar_RegisterVariable (&r_colmaprange); //qb:
     Cvar_RegisterVariable (&r_fog); //qb:
     Cvar_RegisterVariable (&r_clearcolor);
     Cvar_RegisterVariable (&r_waterwarp);
@@ -312,7 +319,8 @@ void R_Init (void)
     Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
 //    Cvar_RegisterVariable (&r_sprite_addblend); // Manoel Kasimier
     Cvar_RegisterVariable (&r_shadowhack); //qb: engoo shadowhack
-    Cvar_RegisterVariable (&r_shadowhacksize); //qb:
+    Cvar_RegisterVariable (&r_shadowhacksize); //qb
+    Cvar_RegisterVariable (&r_nolerp_list); //qb: from FQ
 
     //qb: ftestain cvars
     Cvar_RegisterVariable(&r_stains);
@@ -632,7 +640,7 @@ void GrabColormap (void)  //qb: fixed, was a little screwy
     for (l=0; l<COLORLEVELS; l++)
     {
         frac = (float)l/(COLORLEVELS-1);
-        frac = r_colmaprange.value - (frac );  //qb: was 1.0.... boost!
+        frac = 1.0  - (frac ); //qb: obsolete... r_colmaprange.value - (frac );  //qb: was 1.0.... boost!
         //rscaled = r_colmapred.value*cscale;
         // gscaled = r_colmapgreen.value*cscale;
         // bscaled = r_colmapblue.value*cscale;
@@ -1066,12 +1074,6 @@ void R_SetVrect (vrect_t *pvrectin, vrect_t *pvrect, int lineadj)
         if (screen_right > hspace)
             pvrect->width -= screen_right - hspace;
 
-        /*	if ((scr_con_current > screen_top) && (scr_con_current < vid.height))
-        	{
-        		pvrect->y += scr_con_current;
-        		pvrect->height -= scr_con_current;
-        	}
-        	else	*/
         if (screen_top > vspace)
         {
             pvrect->y += screen_top - vspace;
@@ -1081,13 +1083,11 @@ void R_SetVrect (vrect_t *pvrectin, vrect_t *pvrect, int lineadj)
         if (sb_lines)
         {
             pvrect->height -= screen_bottom;
-            vid.aspect = ((float)(pvrect->height + sb_lines + min(vspace, screen_bottom)) / (float)pvrect->width) * (320.0 / 240.0);
-        }
+         }
         else
         {
             if (screen_bottom > vspace)
                 pvrect->height -= screen_bottom - vspace;
-            vid.aspect = ((float)pvrect->height / (float)pvrect->width) * (320.0 / 240.0);
         }
         // Manoel Kasimier - svc_letterbox - start
         if (cl.letterbox)
@@ -1098,7 +1098,6 @@ void R_SetVrect (vrect_t *pvrectin, vrect_t *pvrect, int lineadj)
         }
         // Manoel Kasimier - svc_letterbox - end
     }
-    // Manoel Kasimier - stereo 3D - begin
 }
 
 
@@ -1110,7 +1109,7 @@ Called every time the vid structure or r_refdef changes.
 Guaranteed to be called before the first refresh
 ===============
 */
-void R_ViewChanged (vrect_t *pvrect, int lineadj, float aspect)
+void R_ViewChanged (vrect_t *pvrect, int lineadj)
 {
     int		i;
     float	res_scale;
@@ -1151,8 +1150,8 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj, float aspect)
     }
     else
     {
-        pixelAspect = aspect;
-        screenAspect = r_refdef.vrect.width*pixelAspect /r_refdef.vrect.height;
+          pixelAspect = vid_aspect; //qb
+         screenAspect = r_refdef.vrect.width*pixelAspect /r_refdef.vrect.height;
     }
     xOrigin = r_refdef.xOrigin;
     yOrigin = r_refdef.yOrigin;
@@ -1961,3 +1960,17 @@ void R_InitTurb (void)
     }
 }
 
+
+
+/*
+===============
+R_NoLerpList_f -- johnfitz -- called when r_nolerp_list cvar changes //qb: from FQ
+===============
+*/
+void R_NoLerpList_f (void)
+{
+	int i;
+
+	for (i=0; i < MAX_MODELS; i++)
+		Mod_SetExtraFlags (cl.model_precache[i]);
+}

@@ -332,7 +332,7 @@ typedef struct model_s
 // volume occupied by the model
 //
 	vec3_t		mins, maxs;
-	float		radius;
+    float radius;
 
 //
 // brush model

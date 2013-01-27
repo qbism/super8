@@ -1130,7 +1130,7 @@ void Crosshair_Draw (int x, int y, int color)
 	int		pixel_value, pixel_color,
 			countx, county, xdest, ydest,
 			xmult=vid.width/min_vid_width/*320*/,
-			ymult=vid.height<480 ? vid.height/200 : vid.height/240; //qb: try me - xmult * (vid.height/vid.width);
+			ymult=xmult; //qb;
 	byte	*pdest, num=crosshair.value-1;
 	pdest = vid.buffer + y*vid.rowbytes + x;
 
@@ -1196,7 +1196,7 @@ void Sbar_Draw (void)
 		if (crosshair.value < 0 || crosshair.value > 5)
 			crosshair.value = 0;
 		x = cl_crossx.value + scr_vrect.x + scr_vrect.width/2 - 6*(vid.width/min_vid_width/*320*/);
-		y = cl_crossy.value + scr_vrect.y + scr_vrect.height/2 - 5*(vid.height<480 ? vid.height/200 : vid.height/240);
+		y = cl_crossy.value + scr_vrect.y + scr_vrect.height/2 - 6*(vid.width/min_vid_width/*320*/);
 		Crosshair_Start(x, y); // Manoel Kasimier - crosshair
 	}
 	// Manoel Kasimier - crosshair - end

@@ -38,7 +38,7 @@ typedef struct
 	int     		rowbytes;	// may be > width if displayed in a window //qb: signed per szo
 	int     		width;
 	int        		height;
-	float			aspect;		// width / height -- < 1 is taller than wide
+	//qb: replace with cvar.    float aspect;		// width / height -- < 1 is taller than wide
 	int				numpages;
 	int				recalc_refdef;	// if true, recalc vid-based stuff
 	pixel_t			*conbuffer;

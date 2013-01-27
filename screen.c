@@ -288,7 +288,7 @@ static void SCR_CalcRefdef (void)
         scr_con_current = vid.height;
 
 // notify the refresh of the change
-    R_ViewChanged (&vrect, sb_lines, vid.aspect);
+    R_ViewChanged (&vrect, sb_lines);
 }
 
 

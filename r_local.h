@@ -73,6 +73,7 @@ extern cvar_t	r_skyname; // Manoel Kasimier - skyboxes // Code taken from the To
 extern cvar_t	r_skyalpha; // Manoel Kasimier - translucent sky
 extern cvar_t	sw_stipplealpha; // Manoel Kasimier
 //extern cvar_t	r_sprite_addblend; // Manoel Kasimier
+extern cvar_t   r_nolerp_list; //qb: //from FQ
 
 extern cvar_t	r_coloredlights; //qb: at last!
 extern cvar_t	r_clintensity;
@@ -124,6 +125,7 @@ extern	float	verticalFieldOfView;
 extern	float	xOrigin, yOrigin;
 
 extern	int		r_visframecount;
+extern  int     vid_aspect; //qb
 
 //=============================================================================
 
@@ -328,7 +330,8 @@ void R_SplitEntityOnNode2 (mnode_t *node);
 void R_MarkLights (dlight_t *light, int bit, mnode_t *node);
 void R_InitSkyBox (void); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 qboolean R_LoadSkybox (char *name); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
-
+void Placebo_f (void); //qb
 int BestColor (int r, int g, int b, int start, int stop); //qb:
 
-void Fog_FogCommand_f (void); //qb:
+void Fog_FogCommand_f (void); //qb
+void R_NoLerpList_f (void); //qb:  from johnfitz

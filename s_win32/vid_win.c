@@ -37,6 +37,15 @@ HWND mainwindow = NULL;
 
 byte gammatable[256];
 
+typedef struct
+{
+    modestate_t	type;
+    int			width;
+    int			height;
+    int			modenum;
+    int			fullscreen;
+    char		modedesc[13];
+} vmode_t; //qb: moved from vid_win so it can be used to calc pixel aspect in r_main
 
 static void Check_Gamma (void)
 {
@@ -365,7 +374,7 @@ cvar_t		vid_default_mode_win = {"vid_default_mode_win", "3", true};
 cvar_t		vid_wait = {"vid_wait", "1", true};
 cvar_t		vid_config_x = {"vid_config_x", "1280", true};
 cvar_t		vid_config_y = {"vid_config_y", "720", true};
-cvar_t		vid_stretch_by_2 = {"vid_stretch_by_2", "1", true};
+cvar_t		vid_stretch_by_2 = {"vid_stretch_by_2", "0", true};
 cvar_t		_windowed_mouse = {"_windowed_mouse", "1", true};
 cvar_t		vid_fullscreen_mode = {"vid_fullscreen_mode", "3", true};
 cvar_t		vid_windowed_mode = {"vid_windowed_mode", "0", true};
@@ -375,7 +384,8 @@ cvar_t		vid_window_y = {"vid_window_y", "0", false};
 int			vid_modenum = NO_MODE;
 int			vid_testingmode, vid_realmode;
 double		vid_testendtime;
-int			vid_default = MODE_FULLSCREEN_DEFAULT; //qb:
+int			vid_default = MODE_FULLSCREEN_DEFAULT; //qb
+int         vid_aspect; //qb
 static int	windowed_default;
 
 modestate_t	modestate = MS_UNINIT;
@@ -389,16 +399,6 @@ unsigned short	d_8to16table[256];
 unsigned	d_8to24table[256];
 
 int     mode;
-
-typedef struct
-{
-    modestate_t	type;
-    int			width;
-    int			height;
-    int			modenum;
-    int			fullscreen;
-    char		modedesc[13];
-} vmode_t;
 
 static vmode_t	modelist[MAX_MODE_LIST];
 static int		nummodes = VID_WINDOWED_MODES;	// reserve space for windowed mode  //qb: was 3
@@ -702,6 +702,7 @@ void VID_GetDisplayModes (void)
 {
     DEVMODE	devmode;
     int		i, j, modenum, cmodes, existingmode, originalnummodes, lowestres;
+    int     highestres; //qb: use this as basis for video aspect ratio
     int		numlowresmodes, bpp, done;
     int		cstretch, istretch, mstretch;
     BOOL	stat;
@@ -710,6 +711,7 @@ void VID_GetDisplayModes (void)
     originalnummodes = nummodes;
     modenum = 0;
     lowestres = 99999;
+   lowestres = 0;
 
     do
     {
@@ -753,6 +755,13 @@ void VID_GetDisplayModes (void)
                 {
                     if (modelist[nummodes].width < lowestres)
                         lowestres = modelist[nummodes].width;
+                    if (modelist[nummodes].width > highestres)
+                    {
+                         highestres = modelist[nummodes].width;
+                         vid_aspect = modelist[nummodes].width/modelist[nummodes].height;
+
+                    }
+
 
                     nummodes++;
                 }
@@ -894,9 +903,6 @@ qboolean VID_SetWindowedMode (int modenum)
     vid.maxwarpwidth = vid.width; //qb: from  Manoel Kasimier - hi-res waterwarp
     vid.maxwarpheight = vid.height; //qb: from  Manoel Kasimier - hi-res waterwarp
 
-    vid.aspect = ((float) vid.height / (float) vid.width) *
-                 (320.0 / 240.0);
-
     SendMessage (hWndWinQuake, WM_SETICON, (WPARAM) TRUE, (LPARAM) hIcon);
     SendMessage (hWndWinQuake, WM_SETICON, (WPARAM) FALSE, (LPARAM) hIcon);
 
@@ -968,8 +974,6 @@ qboolean VID_SetFullDIBMode (int modenum)
     }
     vid.maxwarpwidth = vid.width; //qb: from  Manoel Kasimier - hi-res waterwarp
     vid.maxwarpheight = vid.height; //qb: from  Manoel Kasimier - hi-res waterwarp
-    vid.aspect = ((float) vid.height / (float) vid.width) *
-                 (320.0 / 240.0);
 
     // needed because we're not getting WM_MOVE messages fullscreen on NT
     window_x = 0;

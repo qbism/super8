@@ -216,6 +216,11 @@ void R_LoadSky_f (void)
 }
 // Manoel Kasimier - skyboxes - end
 
+void Placebo_f() //qb
+{
+    //do nothing
+}
+
 
 //qb: fog commands from FitzQuake, simplified
 //==============================================================================

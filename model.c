@@ -1895,6 +1895,38 @@ void * Mod_LoadAliasSkinGroup (void * pin, int *pskinindex, int skinsize,
     return ptemp;
 }
 
+/*
+=================
+Mod_SetExtraFlags -- johnfitz -- set up extra flags that aren't in the mdl
+=================
+*/
+//qb: pared down from FQ
+void Mod_SetExtraFlags (model_t *mod)
+{
+	char *s;
+	int i;
+
+	if (!mod || !mod->name || mod->type != mod_alias)
+		return;
+
+	mod->flags &= 0xFF; //only preserve first byte
+
+	// nolerp flag
+	for (s=r_nolerp_list.string; *s; s += i+1, i=0)
+	{
+		//search forwards to the next comma or end of string
+		for (i=0; s[i] != ',' && s[i] != 0; i++) ;
+
+		//compare it to the model name
+		if (!strncmp(mod->name, s, i))
+		{
+			mod->flags |= MOD_NOLERP;
+			break;
+		}
+	}
+}
+
+
 
 /*
 =================
@@ -2103,6 +2135,8 @@ void Mod_LoadAliasModel (model_t *mod, void *buffer)
     }
 
     mod->type = mod_alias;
+
+	Mod_SetExtraFlags (mod); //qb: from johnfitz
 
 // FIXME: do this right
     mod->mins[0] = mod->mins[1] = mod->mins[2] = -16;

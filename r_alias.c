@@ -1256,7 +1256,7 @@ void R_AliasSetupBlendedFrame (void)
     {
         if ((pose != e->pose2) || (paliasgroup != e->framegroup2)) // Manoel Kasimier - edited
         {
-            if (e->reset_frame_interpolation == true)
+            if (e->reset_frame_interpolation == true || e->effects & MOD_NOLERP)  //qb: from FQ
             {
                 e->framegroup1 = paliasgroup; // Manoel Kasimier
                 e->pose1 = pose;
