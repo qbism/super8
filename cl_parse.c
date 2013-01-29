@@ -1103,7 +1103,7 @@ void CL_ParseStatic (void)
 CL_ParseStaticSound
 ===================
 */
-void CL_ParseStaticSound (void)
+void CL_ParseStaticSound (int cmd)
 {
     vec3_t		org;
     int			sound_num, vol, atten;
@@ -1111,8 +1111,7 @@ void CL_ParseStaticSound (void)
 
     for (i=0 ; i<3 ; i++)
         org[i] = MSG_ReadCoord ();
- //qb:  hopefully ambients are low number.  Removed for compatibility (Marcher)
-  if (current_protocol != PROTOCOL_NETQUAKE && COMPATSTATSOUND)
+   if (cmd == svc_spawnstaticsound_large)
         sound_num = MSG_ReadShort ();
     else
     sound_num = MSG_ReadByte ();
@@ -1386,7 +1385,8 @@ void CL_ParseServerMessage (void)
             break;
 
         case svc_spawnstaticsound:
-            CL_ParseStaticSound ();
+        case svc_spawnstaticsound_large:
+            CL_ParseStaticSound (cmd);
             break;
 
         case svc_cdtrack:

@@ -698,7 +698,7 @@ void PF_ambientsound (void)
         return;
     }
  // qb: soundnum as byte for compatibility (Marcher) Ambients should be low number, anyway.
-   if (current_protocol != PROTOCOL_NETQUAKE && COMPATSTATSOUND)
+   if (current_protocol != PROTOCOL_NETQUAKE)
     {
         if (soundnum >MAX_SOUNDS)
         {
@@ -716,13 +716,15 @@ void PF_ambientsound (void)
 // add an svc_spawnambient command to the level signon packet
 
 
+if (current_protocol == PROTOCOL_NETQUAKE || (soundnum < 256))
     MSG_WriteByte (&sv.signon,svc_spawnstaticsound);
-
+else
+    MSG_WriteByte (&sv.signon,svc_spawnstaticsound_large); //qb: for mods that stuffcmd byte (Marcher, grrr...)
     for (i=0 ; i<3 ; i++)
         MSG_WriteCoord(&sv.signon, pos[i]);
 
-    if (current_protocol != PROTOCOL_NETQUAKE && COMPATSTATSOUND)
-        MSG_WriteShort (&sv.signon, soundnum); //qb: more ambient sounds
+    if (current_protocol != PROTOCOL_NETQUAKE && (soundnum > 255))
+        MSG_WriteShort (&sv.signon, soundnum); //qb: more ambient sounds, breaks some mods
     else
     MSG_WriteByte (&sv.signon, soundnum);
     MSG_WriteByte (&sv.signon, vol*255);

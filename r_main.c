@@ -239,9 +239,9 @@ void FogDitherInit(void)
 {
     int i;
     float dfactor;
-    dfactor = max(1.0-fog_density,0.01);
+    dfactor = max(1.0-fog_density,0.01)* 0.33; //qb: would rather hand-tune this multiplier than make cvar.
     for (i=0; i<DITHER_NUMRANDS; i++)
-        ditherfog[i] = dfactor* 0.4 + (float)(rand()%10000)/100000.0;
+        ditherfog[i] = dfactor + (float)(rand()%10000)/100000.0;
 }
 
 

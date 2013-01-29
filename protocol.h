@@ -43,16 +43,16 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define U_FRAME2		(1<<17) // 1 byte, this is .frame & 0xFF00 (second byte)
 #define U_MODEL2		(1<<18) // 1 byte, this is .modelindex & 0xFF00 (second byte)
 #define U_GLOW_SIZE 	(1<<19) // short, -250 to 250.  qb: from Tomazquake
-#define U_GLOW_GREEN	(1<<21) //qb: 1 byte, 0 to 1 maps to 0 to 255
-#define U_GLOW_RED		(1<<20) //qb: 1 byte
+//open                 	(1<<21) //qb: for compatibility with byte stuffcmd (Marcher, grrr...)
+#define U_GLOW_RED		(1<<20) //qb: 1 byte, 0 to 1 maps to 0 to 255
 #define U_GLOW_GREEN	(1<<21) //qb: 1 byte
 #define U_GLOW_BLUE 	(1<<22) //qb: 1 byte
 #define U_EXTEND2		(1<<23) // another byte to follow
 
 #define U_EFFECTS2		(1<<24) // qb: jump up to 4 bytes for DP effects
 #define U_FRAMEINTERVAL	(1<<25) // Manoel Kasimier - QC frame_interval
-#define U_VIEWMODEL		(1<<26) // attachs the model to the view (origin and angles become relative to it), only shown to owner, a more powerful alternative to .weaponmodel and such
-#define U_EXTERIORMODEL	(1<<27) // causes this model to not be drawn when using a first person view (third person will draw it, first person will not)
+#define U_VIEWMODEL		(1<<26) //qb: attaches the model to the view (origin and angles become relative to it), only shown to owner, a more powerful alternative to .weaponmodel and such
+#define U_EXTERIORMODEL	(1<<27) //qb causes this model to not be drawn when using a first person view (third person will draw it, first person will not)
 #define U_SCALE 		(1<<28) //qb: from Tomazquake
 #define U_SCALEV       	(1<<29) //qb: from Tomazquake
 //open              	(1<<30)
@@ -194,7 +194,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 //johnfitz
 
 #define svc_localsound      48  //qb: play sound to a single client, S_LocalSound
-#define	svc_say				49	//qb: TTS [string] null terminated string
+#define	svc_spawnstaticsound_large	49	//qb: [coord3] [short] samp [byte] vol [byte] aten
+#define	svc_say				50	//qb: TTS [string] null terminated string
 
 #define svc_letterbox		60	// Manoel Kasimier - svc_letterbox
 #define svc_vibrate			61	// Manoel Kasimier

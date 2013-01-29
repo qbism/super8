@@ -315,6 +315,7 @@ void SV_SendServerinfo (client_t *client)
 {
     char			**s;
     char			message[2048];
+    int     i;
 
     if (client->sendsignon == true)  //qb - don't send serverinfo twice.
     {
@@ -341,13 +342,17 @@ void SV_SendServerinfo (client_t *client)
 
     MSG_WriteString (&client->message,message);
 
-    for (s = sv.model_precache+1 ; *s ; s++)
-        MSG_WriteString (&client->message, *s);
-    MSG_WriteByte (&client->message, 0);
+	//qb: from johnfitz -- only send the first 256 model and sound precaches if protocol is 15
+	for (i=0,s = sv.model_precache+1 ; *s; s++,i++)
+		if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
+			MSG_WriteString (&client->message, *s);
+	MSG_WriteByte (&client->message, 0);
 
-    for (s = sv.sound_precache+1 ; *s ; s++)
-        MSG_WriteString (&client->message, *s);
-    MSG_WriteByte (&client->message, 0);
+	for (i=0,s = sv.sound_precache+1 ; *s ; s++,i++)
+		if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
+			MSG_WriteString (&client->message, *s);
+	MSG_WriteByte (&client->message, 0);
+	//johnfitz
 
 // send music
     MSG_WriteByte (&client->message, svc_cdtrack);
@@ -499,64 +504,59 @@ crosses a waterline.
 int		fatbytes;
 byte	fatpvs[MAX_MAP_LEAFS/8];
 
-void SV_AddToFatPVS (vec3_t org, mnode_t *node)
+//qb:  from FQ
+void SV_AddToFatPVS (vec3_t org, mnode_t *node, model_t *worldmodel) //johnfitz -- added worldmodel as a parameter
 {
-    int		i;
-    byte	*pvs;
-    mplane_t	*plane;
-    float	d;
+	int		i;
+	byte	*pvs;
+	mplane_t	*plane;
+	float	d;
 
-    while (1)
-    {
-        // if this is a leaf, accumulate the pvs bits
-        if (node->contents < 0)
-        {
-            if (node->contents != CONTENTS_SOLID)
-            {
-                pvs = Mod_LeafPVS ( (mleaf_t *)node, sv.worldmodel);
-                for (i=0 ; i<fatbytes ; i++)
-                    fatpvs[i] |= pvs[i];
-            }
-            return;
-        }
+	while (1)
+	{
+	// if this is a leaf, accumulate the pvs bits
+		if (node->contents < 0)
+		{
+			if (node->contents != CONTENTS_SOLID)
+			{
+				pvs = Mod_LeafPVS ( (mleaf_t *)node, worldmodel); //johnfitz -- worldmodel as a parameter
+				for (i=0 ; i<fatbytes ; i++)
+					fatpvs[i] |= pvs[i];
+			}
+			return;
+		}
 
-        plane = node->plane;
-        d = DotProduct (org, plane->normal) - plane->dist;
-        if (d > 8)
-            node = node->children[0];
-        else if (d < -8)
-            node = node->children[1];
-        else
-        {
-            // go down both
-            SV_AddToFatPVS (org, node->children[0]);
-            node = node->children[1];
-        }
-    }
+		plane = node->plane;
+		d = DotProduct (org, plane->normal) - plane->dist;
+		if (d > 8)
+			node = node->children[0];
+		else if (d < -8)
+			node = node->children[1];
+		else
+		{	// go down both
+			SV_AddToFatPVS (org, node->children[0], worldmodel); //johnfitz -- worldmodel as a parameter
+			node = node->children[1];
+		}
+	}
 }
 
 /*
 =============
-SV_FatPVS
+SV_FatPVS - //qb:  from FQ
 
 Calculates a PVS that is the inclusive or of all leafs within 8 pixels of the
 given point.
 =============
 */
-byte *SV_FatPVS (vec3_t org)
+byte *SV_FatPVS (vec3_t org, model_t *worldmodel) //johnfitz -- added worldmodel as a parameter
 {
-    fatbytes = (sv.worldmodel->numleafs+31)>>3;
-    memset (fatpvs, 0, fatbytes);
-    SV_AddToFatPVS (org, sv.worldmodel->nodes);
-    return fatpvs;
+	fatbytes = (worldmodel->numleafs+31)>>3;
+	memset (fatpvs, 0, fatbytes);
+	SV_AddToFatPVS (org, worldmodel->nodes, worldmodel); //johnfitz -- worldmodel as a parameter
+	return fatpvs;
 }
 
 //=============================================================================
-
-
-
-
-
 
 
 /*
@@ -637,6 +637,7 @@ loc1:
     }
 }
 
+
 /*
 =============
 SV_WriteEntitiesToClient
@@ -666,7 +667,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
 
 // find the client's PVS
     VectorAdd (clent->v.origin, clent->v.view_ofs, org);
-    pvs = SV_FatPVS (org);
+    pvs = SV_FatPVS (org, sv.worldmodel); //qb:  add sv.worldmodel from FQ
 
     clentnum = EDICT_TO_PROG(clent); // LordHavoc: for comparison purposes //Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT
 
