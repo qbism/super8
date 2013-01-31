@@ -26,7 +26,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 qboolean    vid_usingddraw = false;
 int	stretched; //qb: added back
 
-int min_vid_width=320; //qb: Dan East (for very low-res display)
+int min_vid_width=320; //qb: Dan East - pocketquake (could be less for very low-res display)
 
 // main application window
 HWND hWndWinQuake = NULL;
@@ -959,7 +959,7 @@ qboolean VID_SetFullDIBMode (int modenum)
     vid.numpages = 1;
 //	vid.maxwarpwidth = WARP_WIDTH; //qb: from Manoel Kasimier - hi-res waterwarp - removed
 //	vid.maxwarpheight = WARP_HEIGHT; //qb: from Manoel Kasimier - hi-res waterwarp - removed
-    if(DIBWidth >= 640 && vid_stretch_by_2.value && (DIBWidth%2 == 0))  //qb:
+    if(DIBWidth >= 640 && vid_stretch_by_2.value && (DIBWidth%2 == 0))  //qb
         stretched = 1;
     else stretched = 0;
     if (stretched )
@@ -1124,6 +1124,9 @@ int VID_SetMode (int modenum, unsigned char *palette)
     window_width = vid.width;
     window_height = vid.height;
     VID_UpdateWindowStatus ();
+    if (host_initialized) //qb: from mankrip
+		SetCursorPos (window_center_x, window_center_y); // mankrip - center the mouse, to avoid false movement detection
+
     CDAudio_Resume ();
     scr_disabled_for_loading = temp;
 
