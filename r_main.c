@@ -125,6 +125,8 @@ float	se_time1, se_time2, de_time1, de_time2, dv_time1, dv_time2;
 
 void R_MarkLeaves (void);
 
+extern cvar_t		vid_windowed_mode; //qb
+
 cvar_t	r_draworder = {"r_draworder","0"};
 cvar_t	r_speeds = {"r_speeds","0"};
 
@@ -1142,6 +1144,7 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj)
     r_refdef.aliasvrectbottom = r_refdef.aliasvrect.y +
                                 r_refdef.aliasvrect.height;
 
+
 //qb: Aardappel fisheye
     if(r_fisheye.value)
     {
@@ -1150,8 +1153,10 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj)
     }
     else
     {
-          pixelAspect = vid_aspect; //qb
-         screenAspect = r_refdef.vrect.width*pixelAspect /r_refdef.vrect.height;
+          pixelAspect = vid_nativeaspect; //qb
+          if(vid_windowed_mode.value)
+            screenAspect = 1;
+         else screenAspect = r_refdef.vrect.width*pixelAspect /r_refdef.vrect.height;
     }
     xOrigin = r_refdef.xOrigin;
     yOrigin = r_refdef.yOrigin;

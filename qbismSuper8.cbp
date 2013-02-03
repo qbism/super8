@@ -16,7 +16,7 @@
 				<Option type="0" />
 				<Option compiler="mingw32" />
 				<Compiler>
-					<Add option="-march=pentium2" />
+					<Add option="-march=pentium3" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />

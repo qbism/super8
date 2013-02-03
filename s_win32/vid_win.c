@@ -45,7 +45,7 @@ typedef struct
     int			modenum;
     int			fullscreen;
     char		modedesc[13];
-} vmode_t; //qb: moved from vid_win so it can be used to calc pixel aspect in r_main
+} vmode_t;
 
 static void Check_Gamma (void)
 {
@@ -385,7 +385,7 @@ int			vid_modenum = NO_MODE;
 int			vid_testingmode, vid_realmode;
 double		vid_testendtime;
 int			vid_default = MODE_FULLSCREEN_DEFAULT; //qb
-int         vid_aspect; //qb
+int         vid_nativeaspect; //qb
 static int	windowed_default;
 
 modestate_t	modestate = MS_UNINIT;
@@ -758,7 +758,7 @@ void VID_GetDisplayModes (void)
                     if (modelist[nummodes].width > highestres)
                     {
                          highestres = modelist[nummodes].width;
-                         vid_aspect = modelist[nummodes].width/modelist[nummodes].height;
+                         vid_nativeaspect = modelist[nummodes].width/modelist[nummodes].height;
 
                     }
 
