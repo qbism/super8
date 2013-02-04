@@ -1909,7 +1909,7 @@ void Mod_SetExtraFlags (model_t *mod)
 	if (!mod || !mod->name || mod->type != mod_alias)
 		return;
 
-	mod->flags &= 0xFF; //only preserve first byte
+//qb: would wipe out effects as flags.	mod->flags &= 0xFF; //only preserve first byte
 
 	// nolerp flag
 	for (s=r_nolerp_list.string; *s; s += i+1, i=0)

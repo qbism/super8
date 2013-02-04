@@ -16,7 +16,7 @@
 				<Option type="0" />
 				<Option compiler="mingw32" />
 				<Compiler>
-					<Add option="-march=pentium3" />
+					<Add option="-march=pentium2" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
@@ -50,7 +50,7 @@
 				<Option compiler="mingw32" />
 				<Option parameters=" -heapsize 999000" />
 				<Compiler>
-					<Add option="-march=pentium2" />
+					<Add option="-march=pentium-mmx" />
 					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-DDEBUG" />
@@ -104,6 +104,9 @@
 				</ExtraCommands>
 			</Target>
 		</Build>
+		<Compiler>
+			<Add option="-march=pentium-mmx" />
+		</Compiler>
 		<ExtraCommands>
 			<Add before="version.bat" />
 		</ExtraCommands>
