@@ -564,8 +564,8 @@ qboolean Host_FilterTime (float time)
     else
 #endif
 
-	host_frametime = realtime - oldrealtime;
-	oldrealtime = realtime;
+        host_frametime = realtime - oldrealtime;
+    oldrealtime = realtime;
 
 //qb: fitzquake host_framerate + DEMO_REWIND Baker change
     frame_timescale = 1;
@@ -725,7 +725,8 @@ void _Host_Frame (float time)
     if (cls.signon == SIGNONS)
     {
         S_Update (r_origin, vpn, vright, vup);
-        CL_DecayLights ();
+        if (!sv_freezephysics.value || !sv_cheats.value) //qb
+            CL_DecayLights ();
     }
     else
         S_Update (vec3_origin, vec3_origin, vec3_origin, vec3_origin);

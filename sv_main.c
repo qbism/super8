@@ -24,6 +24,7 @@ int current_protocol = PROTOCOL_QBS8; //qb
 extern qboolean		pr_alpha_supported; //johnfitz
 extern cvar_t r_palette;
 extern	cvar_t	sv_novis; //qb - from FQ via Mark V
+extern	cvar_t	sv_freezephysics; //qb
 server_t		sv;
 server_static_t	svs;
 
@@ -75,7 +76,6 @@ void SV_Init (void)
 {
     int		i;
     extern	cvar_t	sv_maxvelocity;
-    extern	cvar_t	sv_cheats;  //qb
     extern	cvar_t	sv_gravity;
     extern	cvar_t	sv_nostep;
     extern	cvar_t	sv_friction;
@@ -102,6 +102,7 @@ void SV_Init (void)
     Cvar_RegisterVariable (&sv_aim);
     Cvar_RegisterVariable (&sv_novis); //qb - from FQ
     Cvar_RegisterVariable (&sv_nostep);
+    Cvar_RegisterVariable (&sv_freezephysics); //qb
     Cvar_RegisterVariable (&sv_enable_use_button); // Manoel Kasimier - +USE fix
     Cvar_RegisterVariable (&sv_qcexec); // Manoel Kasimier - qcexec
 

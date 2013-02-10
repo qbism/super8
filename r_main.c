@@ -1872,7 +1872,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
         dp_time1 = de_time2; // draw particles time
     }
 
-    R_DrawParticles ();
+        R_DrawParticles ();
 
     if (r_dspeeds.value)
         dp_time2 = Sys_DoubleTime (); // draw particles time

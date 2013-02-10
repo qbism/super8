@@ -208,17 +208,17 @@ void as3ReadFileSharedObject(const char* filename);
 
 typedef struct
 {
-	vec3_t	origin;
-	vec3_t	angles;
+    vec3_t	origin;
+    vec3_t	angles;
     unsigned short 	modelindex; //qb: johnfitz -- was int
-	unsigned short 	frame; //johnfitz -- was int
-	unsigned char 	colormap; //johnfitz -- was int
-	unsigned char 	skin; //johnfitz -- was int
-	int		effects;
-	byte   alpha; //qb:
-	unsigned short nodrawtoclient; //qb: Team Xlink DP_SV_NODRAWTOCLIENT
+    unsigned short 	frame; //johnfitz -- was int
+    unsigned char 	colormap; //johnfitz -- was int
+    unsigned char 	skin; //johnfitz -- was int
+    int		effects;
+    byte   alpha; //qb:
+    unsigned short nodrawtoclient; //qb: Team Xlink DP_SV_NODRAWTOCLIENT
     unsigned short drawonlytoclient; //Team Xlink DP_SV_DRAWONLYTOCLIENT
-	unsigned short exteriormodeltoclient; //qb:
+    unsigned short exteriormodeltoclient; //qb:
 } entity_state_t;
 
 #include "wad.h"
@@ -254,12 +254,12 @@ typedef struct
 
 typedef struct
 {
-	char	*basedir;
-	char	*cachedir;		// for development over ISDN lines
-	int		argc;
-	char	**argv;
-	void	*membase;
-	int		memsize;
+    char	*basedir;
+    char	*cachedir;		// for development over ISDN lines
+    int		argc;
+    char	**argv;
+    void	*membase;
+    int		memsize;
 } quakeparms_t;
 
 
@@ -285,7 +285,7 @@ extern	byte		*host_basepal;
 extern	byte		*host_colormap;
 extern	int			host_framecount;	// incremented every frame, never reset
 extern	double		realtime;			// not bounded in any way, changed at
-										// start of every frame, never reset
+// start of every frame, never reset
 
 extern double	newtime;
 
@@ -319,10 +319,10 @@ qboolean R_LoadSkybox (char *name);
 void CL_Clear_Demos_Queue (void);
 
 extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output
-										//  an fullscreen DIB focus gain/loss
+//  an fullscreen DIB focus gain/loss
 extern int			current_skill;		// skill level for currently loaded level (in case
-										//  the user changes the cvar while the level is
-										//  running, this reflects the level actually in use)
+//  the user changes the cvar while the level is
+//  running, this reflects the level actually in use)
 
 extern int stretched; //qb: video stretch, also used by pcx and avi capture.
 
@@ -343,7 +343,8 @@ dfunction_t *ED_FindFunction (char *name);	// FrikaC - qcexec function
 // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
 extern	double	host_org_frametime;
 extern	cvar_t	host_timescale;
-
+extern	cvar_t	sv_cheats;  //qb
+extern	cvar_t	sv_freezephysics;  //qb
 
 extern	cvar_t vid_mode; //qb:
 extern	cvar_t snd_speed; //qb:

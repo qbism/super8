@@ -42,8 +42,8 @@ cvar_t	sv_stopspeed = {"sv_stopspeed","100"};
 cvar_t	sv_gravity = {"sv_gravity","800",false,true};
 cvar_t	sv_maxvelocity = {"sv_maxvelocity","2000"};
 cvar_t	sv_nostep = {"sv_nostep","0"};
-cvar_t	sv_novis = {"sv_novis","0", false, true}; //qb - from FitzQuake
-
+cvar_t	sv_novis = {"sv_novis","0", false, true}; //qb: from FitzQuake
+cvar_t	sv_freezephysics = {"sv_freezephysics", "0"}; //qb - inspired by r00k's nomonsters
 #define	MOVE_EPSILON	0.01
 
 void SV_Physics_Toss (edict_t *ent);
@@ -1406,15 +1406,15 @@ void SV_Physics (void)
             continue;
 
         if (pr_global_struct->force_retouch)
-        {
             SV_LinkEdict (ent, true);	// force retouch even for stationary
-        }
+
 //qb changed to switch below
         if (i > 0 && i <= svs.maxclients)
         {
             SV_Physics_Client (ent, i);
         }
-        else switch ((int) ent->v.movetype)
+        else if (!sv_freezephysics.value || !sv_cheats.value) //qb: freeze everything but players
+            switch ((int) ent->v.movetype)
             {
             case MOVETYPE_PUSH:
                 SV_Physics_Pusher (ent);

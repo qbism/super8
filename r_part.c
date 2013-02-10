@@ -21,7 +21,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define MAX_PARTICLES 8192	//qb: 16383 per qsb, was 2048	// default max # of particles at one time
 #define ABSOLUTE_MIN_PARTICLES	1024 //qb: per qsb - was 512	//no fewer no matter the command line
 
-extern cvar_t	sv_gravity;
+extern  cvar_t	sv_gravity;
 
 int		ramp1[8] = {0x6f, 0x6d, 0x6b, 0x69, 0x67, 0x65, 0x63, 0x61};
 int		ramp2[8] = {0x6f, 0x6e, 0x6d, 0x6c, 0x6b, 0x6a, 0x68, 0x66};
@@ -805,33 +805,35 @@ void R_DrawParticles (void)
     grav = frametime * sv_gravity.value * 0.05;
     dvel = 4*frametime;
 
-    for ( ;; )
-    {
-        kill = active_particles;
-        if (kill && kill->die < cl.time)
-        {
-            active_particles = kill->next;
-            kill->next = free_particles;
-            free_particles = kill;
-            continue;
-        }
-        break;
-    }
-
-    for (p=active_particles ; p ; p=p->next)
-    {
+    if (!sv_freezephysics.value || !sv_cheats.value) //qb
         for ( ;; )
         {
-            kill = p->next;
+            kill = active_particles;
             if (kill && kill->die < cl.time)
             {
-                p->next = kill->next;
+                active_particles = kill->next;
                 kill->next = free_particles;
                 free_particles = kill;
                 continue;
             }
             break;
         }
+
+    for (p=active_particles ; p ; p=p->next)
+    {
+        if (!sv_freezephysics.value || !sv_cheats.value) //qb
+            for ( ;; )
+            {
+                kill = p->next;
+                if (kill && kill->die < cl.time)
+                {
+                    p->next = kill->next;
+                    kill->next = free_particles;
+                    free_particles = kill;
+                    continue;
+                }
+                break;
+            }
         // Manoel Kasimier - begin
 
         float alpha = 1.0 - ((cl.time - p->start_time) / (p->die - cl.time));
@@ -842,132 +844,135 @@ void R_DrawParticles (void)
         else
             D_DrawParticle_C (p);  // renamed to not conflict with the asm version
 
-        p->org[0] += p->vel[0] * frametime;
-        p->org[1] += p->vel[1] * frametime;
-        p->org[2] += p->vel[2] * frametime;
-
-        switch (p->type)
+        if (!sv_freezephysics.value || !sv_cheats.value)
         {
-        case pt_static:
-            break;
-        case pt_fire:
-            p->ramp += time1;
-            if (p->ramp >= 6)
-                p->die = -1;
-            else
-                p->color = ramp3[(int)p->ramp];
-            p->vel[2] += grav;
-            break;
+            p->org[0] += p->vel[0] * frametime;
+            p->org[1] += p->vel[1] * frametime;
+            p->org[2] += p->vel[2] * frametime;
 
-        case pt_explode:
-            p->ramp += time2;
-//			p->splatter = 0;
-            if (p->ramp >=8)
-                p->die = -1;
-            else
-                p->color = ramp1[(int)p->ramp];
-            for (i=0 ; i<3 ; i++)
-                p->vel[i] += p->vel[i]*dvel;
-            p->vel[2] -= grav;
-            break;
-
-        case pt_explode2:
-            p->ramp += time3;
-//			p->splatter = 0;
-            if (p->ramp >=8)
-                p->die = -1;
-            else
-                p->color = ramp2[(int)p->ramp];
-            for (i=0 ; i<3 ; i++)
-                p->vel[i] -= p->vel[i]*frametime;
-            p->vel[2] -= grav;
-            break;
-
-        case pt_blob:
-            for (i=0 ; i<3 ; i++)
-                p->vel[i] += p->vel[i]*dvel;
-            p->vel[2] -= grav;
-            break;
-
-        case pt_blob2:
-            for (i=0 ; i<2 ; i++)
-                p->vel[i] -= p->vel[i]*dvel;
-            p->vel[2] -= grav;
-            break;
-
-        case pt_grav:
-            p->vel[2] -= grav * 4;
-            break;
-
-        case pt_slowgrav:
-            p->vel[2] -= grav * 2;
-            break;
-
-        case pt_fastgrav:
-            p->vel[2] -= grav * 8;
-            break;
-
-        case pt_smoke:
-            p->alpha = 1;
-            p->vel[2] += grav;
-            break;
-
-        case pt_decel:
-            p->alpha = 1;
-            for (i=0 ; i<3 ; i++)
-                p->vel[i] += p->vel[i]* -dvel;
-            break;
-
-        case pt_staticfade:
-            p->alpha + frametime*p->alphavel;
-
-            if (p->alpha <= 0)
-                p->die = -1;
-            break;
-
-        case pt_staticfadeadd:
-            p->alpha += frametime*p->alphavel;
-            if (p->alpha <= 0)
-                p->die = -1;
-            break;
-
-        case pt_sticky: //pt_blood in engoo... could be anything sticky
-            VectorScale(p->vel, frametime, diff);
-            VectorAdd(p->org, diff, p->org);
-
-            // WHERE THE HITTING HAPPENS
-            // if hit solid, go to last position,
-            // no velocity, fade out.
-            l = Mod_PointInLeaf (p->org, cl.worldmodel);
-            if (l->contents != CONTENTS_EMPTY) // || in_solid == true
+            switch (p->type)
             {
-                // still have small prob of snow melting on emitter
-                VectorScale(diff, 0.2, p->vel);
-                i = 6;
-                while (l->contents != CONTENTS_EMPTY)
-                {
-                    VectorNormalize(p->vel);
-                    p->org[0] -= p->vel[0]*3;
-                    p->org[1] -= p->vel[1]*3;
-                    p->org[2] -= p->vel[2]*3;
-                    i--; //no infinite loops
-                    if (!i)
-                    {
-                        p->die = -1;	//should never happen now!
-                        break;
-                    }
-                    l = Mod_PointInLeaf (p->org, cl.worldmodel);
-                }
-                p->vel[0] = p->vel[1] = p->vel[2] = 0;
-                p->ramp = 0;
-                p->type = pt_static;
-            }
-            else
-            {
-                p->alpha = 0.5;
+            case pt_static:
+                break;
+            case pt_fire:
+                p->ramp += time1;
+                if (p->ramp >= 6)
+                    p->die = -1;
+                else
+                    p->color = ramp3[(int)p->ramp];
+                p->vel[2] += grav;
+                break;
+
+            case pt_explode:
+                p->ramp += time2;
+//			p->splatter = 0;
+                if (p->ramp >=8)
+                    p->die = -1;
+                else
+                    p->color = ramp1[(int)p->ramp];
+                for (i=0 ; i<3 ; i++)
+                    p->vel[i] += p->vel[i]*dvel;
+                p->vel[2] -= grav;
+                break;
+
+            case pt_explode2:
+                p->ramp += time3;
+//			p->splatter = 0;
+                if (p->ramp >=8)
+                    p->die = -1;
+                else
+                    p->color = ramp2[(int)p->ramp];
+                for (i=0 ; i<3 ; i++)
+                    p->vel[i] -= p->vel[i]*frametime;
+                p->vel[2] -= grav;
+                break;
+
+            case pt_blob:
+                for (i=0 ; i<3 ; i++)
+                    p->vel[i] += p->vel[i]*dvel;
+                p->vel[2] -= grav;
+                break;
+
+            case pt_blob2:
+                for (i=0 ; i<2 ; i++)
+                    p->vel[i] -= p->vel[i]*dvel;
+                p->vel[2] -= grav;
+                break;
+
+            case pt_grav:
+                p->vel[2] -= grav * 4;
+                break;
+
+            case pt_slowgrav:
                 p->vel[2] -= grav * 2;
+                break;
+
+            case pt_fastgrav:
+                p->vel[2] -= grav * 8;
+                break;
+
+            case pt_smoke:
+                p->alpha = 1;
+                p->vel[2] += grav;
+                break;
+
+            case pt_decel:
+                p->alpha = 1;
+                for (i=0 ; i<3 ; i++)
+                    p->vel[i] += p->vel[i]* -dvel;
+                break;
+
+            case pt_staticfade:
+                p->alpha + frametime*p->alphavel;
+
+                if (p->alpha <= 0)
+                    p->die = -1;
+                break;
+
+            case pt_staticfadeadd:
+                p->alpha += frametime*p->alphavel;
+                if (p->alpha <= 0)
+                    p->die = -1;
+                break;
+
+            case pt_sticky: //pt_blood in engoo... could be anything sticky
+                VectorScale(p->vel, frametime, diff);
+                VectorAdd(p->org, diff, p->org);
+
+                // WHERE THE HITTING HAPPENS
+                // if hit solid, go to last position,
+                // no velocity, fade out.
+                l = Mod_PointInLeaf (p->org, cl.worldmodel);
+                if (l->contents != CONTENTS_EMPTY) // || in_solid == true
+                {
+                    // still have small prob of snow melting on emitter
+                    VectorScale(diff, 0.2, p->vel);
+                    i = 6;
+                    while (l->contents != CONTENTS_EMPTY)
+                    {
+                        VectorNormalize(p->vel);
+                        p->org[0] -= p->vel[0]*3;
+                        p->org[1] -= p->vel[1]*3;
+                        p->org[2] -= p->vel[2]*3;
+                        i--; //no infinite loops
+                        if (!i)
+                        {
+                            p->die = -1;	//should never happen now!
+                            break;
+                        }
+                        l = Mod_PointInLeaf (p->org, cl.worldmodel);
+                    }
+                    p->vel[0] = p->vel[1] = p->vel[2] = 0;
+                    p->ramp = 0;
+                    p->type = pt_static;
+                }
+                else
+                {
+                    p->alpha = 0.5;
+                    p->vel[2] -= grav * 2;
+                }
+                break;
             }
-            break;
         }
     }
 }

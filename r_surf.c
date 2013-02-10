@@ -548,7 +548,7 @@ void R_BuildLightMap (void)
 {
     int			smax, tmax;
     int			t;
-    int			i, size;
+    int			i, surfsize;
     byte		*lightmap;
     byte		*colormap;  //qb: indexed colored
     unsigned	scale;
@@ -559,20 +559,20 @@ void R_BuildLightMap (void)
 
     smax = (surf->extents[0]>>4)+1;
     tmax = (surf->extents[1]>>4)+1;
-    size = smax*tmax;
+    surfsize = smax*tmax;
     lightmap = surf->samples;
     if (r_coloredlights.value)
         colormap = surf->colorsamples; //qb:
 
     if (r_fullbright.value || !cl.worldmodel->lightdata)
     {
-        for (i=0 ; i<size ; i++)
+        for (i=0 ; i<surfsize ; i++)
             blocklights[i] = 31<<8;//0; // Manoel Kasimier - fullbright BSP textures fix
         return;
     }
 
 // clear to ambient
-    for (i=0 ; i<size ; i++)
+    for (i=0 ; i<surfsize ; i++)
         blocklights[i] = r_refdef.ambientlight<<8;
 
 
@@ -582,15 +582,15 @@ void R_BuildLightMap (void)
                 maps++)
         {
             scale = r_drawsurf.lightadj[maps];	// 8.8 fraction
-            for (i=0 ; i<size ; i++)
+            for (i=0 ; i<surfsize ; i++)
             {
                 blocklights[i] += lightmap[i] * scale;
                 if (r_coloredlights.value)
                     blockcolors[i] = colormap[i]; //qb:
             }
-            lightmap += size;	// skip to next lightmap
+            lightmap += surfsize;	// skip to next lightmap
             if (r_coloredlights.value)
-                colormap += size;	//qb: skip to next colormap
+                colormap += surfsize;	//qb: skip to next colormap
         }
 
 // add all the dynamic lights
@@ -637,7 +637,7 @@ void R_BuildLightMap (void)
 //qb: ftestains end
 
 // bound, invert, and shift
-    for (i=0 ; i<size ; i++)
+    for (i=0 ; i<surfsize ; i++)
     {
         t = (255*256 - (int)blocklights[i]) >> (8 - VID_CBITS);
 
@@ -820,7 +820,17 @@ void R_DrawSurfaceBlock8_mip0 (void)
                 pix = psource[b];
                 if (r_coloredlights.value)
                 {
-                    color = r_colorptr[dithercolor[(dither++)%41]];  //qb: just to get a random-ish dither pattern
+                    //color = r_colorptr[dithercolor[(dither++)%41]];  //qb: just to get a random-ish dither pattern
+                    if (b<5)
+                        color = r_colorptr[0];
+                    else if (b>12)
+                        color = r_colorptr[1];
+                    else color = r_colorptr[dithercolor[(dither++)%41]];
+
+                    // else if (b>5 && b<12)
+                    //     color = alphamap[colorleft + colorright*256];
+                    // else color = alphamap[colorleft*256 + colorright];
+
                     prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                 }
                 else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];

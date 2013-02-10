@@ -934,7 +934,8 @@ void V_RenderView (void)
     if (con_forcedup)
         return;
 
-    R_LessenStains();  //qb ftestain
+    if (!sv_freezephysics.value || !sv_cheats.value) //qb
+        R_LessenStains();  //qb ftestain
 
     if (cl.intermission)
     {
