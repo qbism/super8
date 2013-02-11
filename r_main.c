@@ -151,9 +151,9 @@ cvar_t	r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs
 
 
 cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qb:
-cvar_t	r_clintensity = {"r_clintensity", "1.35", true}; //qb: this is a radius factor, not saturation
-cvar_t	r_clbaseweight = {"r_clbaseweight", "1.0", true}; //qb: base pixel weight for color map blending
-cvar_t	r_clcolorweight= {"r_clcolorweight", "0.6", true}; //qb: color weight for color map blending
+cvar_t	r_clintensity = {"r_clintensity", "1.33", true}; //qb: this is a radius factor, not saturation
+cvar_t	r_clbaseweight = {"r_clbaseweight", "0.8", true}; //qb: base pixel weight for color map blending
+cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", true}; //qb: color weight for color map blending
 //qb:  too dangerous... cvar_t	r_colmaprange= {"r_colmaprange", "1.0", true}; //qb: colormap range for overbright
 
 cvar_t r_fog = {"r_fog", "1", true}; //qb:  draw fog?
@@ -523,7 +523,6 @@ void GrabAlphamap (void) //qb: based on Engoo
 void GrabFogmap (void) //qb: yet another lookup
 {
     int c,l, r,g,b;
-    float ay, ae;
     byte *colmap;
 
     colmap = fogmap;

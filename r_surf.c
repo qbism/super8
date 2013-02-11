@@ -24,19 +24,21 @@ extern shadow_t		cl_shadows[MAX_SHADOWS];
 
 drawsurf_t	r_drawsurf;
 
-int				lightleft, sourcesstep, blocksize, sourcetstep;
+int             lightleft, lightright, lightleftstep, lightrightstep;
+int				sourcesstep, blocksize, sourcetstep;
 int				lightdelta, lightdeltastep;
-int				lightright, lightleftstep, lightrightstep, blockdivshift;
+int				blockdivshift;
 unsigned		blockdivmask;
 void			*prowdestbase;
-unsigned char	*pbasesource;
+byte	*pbasesource;
 int				surfrowbytes;	// used by ASM files
 unsigned		*r_lightptr;
 unsigned		*r_colorptr; //qb:
 int				r_stepback;
 int				r_lightwidth;
 int				r_numhblocks, r_numvblocks;
-unsigned char	*r_source, *r_sourcemax;
+byte	*r_source, *r_sourcemax;
+byte    *vidcolmap; //qb
 
 void R_DrawSurfaceBlock8_mip0 (void);
 void R_DrawSurfaceBlock8_mip1 (void);
@@ -63,7 +65,7 @@ extern cvar_t r_stainfadeamount;
 #define	LMBLOCK_HEIGHT		128
 #define MAX_STAINMAPS		32000 //qb: was 64
 
-typedef unsigned char stmap;
+typedef byte stmap;
 stmap stainmaps[MAX_STAINMAPS*LMBLOCK_WIDTH*LMBLOCK_HEIGHT];	//added to lightmap for added (hopefully) speed.
 int			allocated[MAX_STAINMAPS][LMBLOCK_WIDTH];
 
@@ -692,15 +694,16 @@ R_DrawSurface
 */
 void R_DrawSurface (void)
 {
-    unsigned char	*basetptr;
+    byte	*basetptr;
     int				smax, tmax, twidth;
     int				u;
     int				soffset, basetoffset, texwidth;
     int				horzblockstep;
-    unsigned char	*pcolumndest;
+    byte	*pcolumndest;
     void			(*pblockdrawer)(void);
     texture_t		*mt;
 
+    vidcolmap = (byte *)vid.colormap; //qb
 // calculate the lightings
     R_BuildLightMap ();
 
@@ -789,25 +792,23 @@ R_DrawSurfaceBlock8_mip0
 */
 void R_DrawSurfaceBlock8_mip0 (void)
 {
-    int				v, i, b, lightstep, lighttemp, light;
-    int     color; //qb: indexed lit
-    unsigned char	pix, *psource, *prowdest;
-    int dither; //qb: fake randomish dither
+    int		v, i, b, lightstep, lighttemp, light;
+    int     colorleft, colorright; //qb: indexed lit
+    byte	*psource, *prowdest;
 
     psource = pbasesource;
     prowdest = prowdestbase;
 
     for (v=0 ; v<r_numvblocks ; v++)
     {
-        // FIXME: make these locals?
         // FIXME: use delta rather than both right and left, like ASM?
         lightleft = r_lightptr[0];
         lightright = r_lightptr[1];
         r_lightptr += r_lightwidth;
         lightleftstep = (r_lightptr[0] - lightleft) >> 4;
         lightrightstep = (r_lightptr[1] - lightright) >> 4;
-
-        r_colorptr += r_lightwidth; //qb: indexed colored
+        colorleft = r_colorptr[0];
+        colorright = r_colorptr[1];
 
         for (i=0 ; i<16 ; i++)
         {
@@ -815,25 +816,76 @@ void R_DrawSurfaceBlock8_mip0 (void)
             lightstep = lighttemp >> 4;
             light = lightright;
 
-            for (b=15; b>=0; b--)
+            if (r_coloredlights.value)
             {
-                pix = psource[b];
-                if (r_coloredlights.value)
-                {
-                    //color = r_colorptr[dithercolor[(dither++)%41]];  //qb: just to get a random-ish dither pattern
-                    if (b<5)
-                        color = r_colorptr[0];
-                    else if (b>12)
-                        color = r_colorptr[1];
-                    else color = r_colorptr[dithercolor[(dither++)%41]];
+                prowdest[15] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[15]*256 + colorright]];
+                light += lightstep;
+                prowdest[14] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[14]*256 + colorright]];
+                light += lightstep;
+                prowdest[13] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[13]*256 + colorright]];
+                light += lightstep;
+                prowdest[12] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[12]*256 + colorright]];
+                light += lightstep;
+                prowdest[11] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[12]*256 + colorright]];
+                light += lightstep;
 
-                    // else if (b>5 && b<12)
-                    //     color = alphamap[colorleft + colorright*256];
-                    // else color = alphamap[colorleft*256 + colorright];
+                prowdest[10] = vidcolmap[(light & 0xFF00)+ lightcolormap[psource[10]*256 + r_colorptr[dithercolor[light%41]]]];
+                light += lightstep;
+                prowdest[9] = vidcolmap[(light & 0xFF00)+ lightcolormap[psource[9]*256 + r_colorptr[dithercolor[light%41]]]];
+                light += lightstep;
+                prowdest[8] = vidcolmap[(light & 0xFF00)+ lightcolormap[psource[8]*256 + r_colorptr[dithercolor[light%41]]]];
+                light += lightstep;
+                prowdest[7] = vidcolmap[(light & 0xFF00)+ lightcolormap[psource[7]*256 + r_colorptr[dithercolor[light%41]]]];
+                light += lightstep;
+                prowdest[6] = vidcolmap[(light & 0xFF00)+ lightcolormap[psource[6]*256 + r_colorptr[dithercolor[light%41]]]];
+                light += lightstep;
+                prowdest[5] = vidcolmap[(light & 0xFF00)+ lightcolormap[psource[5]*256 + r_colorptr[dithercolor[light%41]]]];
+                light += lightstep;
 
-                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
-                }
-                else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
+                prowdest[4] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[4]*256 + colorleft]];
+                light += lightstep;
+                prowdest[3] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[3]*256 + colorleft]];
+                light += lightstep;
+                prowdest[2] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[2]*256 + colorleft]];
+                light += lightstep;
+                prowdest[1] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[1]*256 + colorleft]];
+                light += lightstep;
+                prowdest[0] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[0]*256 + colorleft]];
+                light += lightstep;
+            }
+            else
+            {
+                prowdest[15] = vidcolmap[(light & 0xFF00) + psource[15]];
+                light += lightstep;
+                prowdest[14] = vidcolmap[(light & 0xFF00) + psource[14]];
+                light += lightstep;
+                prowdest[13] = vidcolmap[(light & 0xFF00) + psource[13]];
+                light += lightstep;
+                prowdest[12] = vidcolmap[(light & 0xFF00) + psource[12]];
+                light += lightstep;
+                prowdest[11] = vidcolmap[(light & 0xFF00) + psource[11]];
+                light += lightstep;
+                prowdest[10] = vidcolmap[(light & 0xFF00) + psource[10]];
+                light += lightstep;
+                prowdest[9] = vidcolmap[(light & 0xFF00) + psource[9]];
+                light += lightstep;
+                prowdest[8] = vidcolmap[(light & 0xFF00) + psource[8]];
+                light += lightstep;
+                prowdest[7] = vidcolmap[(light & 0xFF00) + psource[7]];
+                light += lightstep;
+                prowdest[6] = vidcolmap[(light & 0xFF00) + psource[6]];
+                light += lightstep;
+                prowdest[5] = vidcolmap[(light & 0xFF00) + psource[5]];
+                light += lightstep;
+                prowdest[4] = vidcolmap[(light & 0xFF00) + psource[4]];
+                light += lightstep;
+                prowdest[3] = vidcolmap[(light & 0xFF00) + psource[3]];
+                light += lightstep;
+                prowdest[2] = vidcolmap[(light & 0xFF00) + psource[2]];
+                light += lightstep;
+                prowdest[1] = vidcolmap[(light & 0xFF00) + psource[1]];
+                light += lightstep;
+                prowdest[0] = vidcolmap[(light & 0xFF00) + psource[0]];
                 light += lightstep;
             }
 
@@ -842,6 +894,7 @@ void R_DrawSurfaceBlock8_mip0 (void)
             lightleft += lightleftstep;
             prowdest += surfrowbytes;
         }
+        r_colorptr += r_lightwidth; //qb: indexed colored
 
         if (psource >= r_sourcemax)
             psource -= r_stepback;
@@ -856,24 +909,22 @@ R_DrawSurfaceBlock8_mip1
 */
 void R_DrawSurfaceBlock8_mip1 (void)
 {
-    int				v, i, b, lightstep, lighttemp, light;
-    int     color; //qb: indexed lit
-    unsigned char	pix, *psource, *prowdest;
+    int		v, i, b, lightstep, lighttemp, light;
+    int     colorleft, colorright; //qb: indexed lit
+    byte	*psource, *prowdest;
 
     psource = pbasesource;
     prowdest = prowdestbase;
 
     for (v=0 ; v<r_numvblocks ; v++)
     {
-        // FIXME: make these locals?
-        // FIXME: use delta rather than both right and left, like ASM?
         lightleft = r_lightptr[0];
         lightright = r_lightptr[1];
         r_lightptr += r_lightwidth;
         lightleftstep = (r_lightptr[0] - lightleft) >> 3;
         lightrightstep = (r_lightptr[1] - lightright) >> 3;
-
-        r_colorptr += r_lightwidth; //qb: indexed colored
+        colorleft = r_colorptr[0];
+        colorright = r_colorptr[1];
 
         for (i=0 ; i<8 ; i++)
         {
@@ -881,15 +932,43 @@ void R_DrawSurfaceBlock8_mip1 (void)
             lightstep = lighttemp >> 3;
             light = lightright;
 
-            for (b=7; b>=0; b--)
+            if (r_coloredlights.value)
             {
-                pix = psource[b];
-                if (r_coloredlights.value)
-                {
-                    color = r_colorptr[(b+i)%2];
-                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
-                }
-                else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
+                prowdest[7] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[7]*256 + colorright]];
+                light += lightstep;
+                prowdest[6] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[6]*256 + colorright]];
+                light += lightstep;
+                prowdest[5] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[5]*256 + r_colorptr[dithercolor[light%41]]]];
+                light += lightstep;
+                prowdest[4] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[4]*256 + r_colorptr[dithercolor[light%41]]]];
+                light += lightstep;
+                prowdest[3] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[3]*256 + r_colorptr[dithercolor[light%41]]]];
+                light += lightstep;
+                prowdest[2] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[2]*256 + r_colorptr[dithercolor[light%41]]]];
+                light += lightstep;
+                prowdest[1] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[1]*256 + colorleft]];
+                light += lightstep;
+                prowdest[0] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[0]*256 + colorleft]];
+                light += lightstep;
+            }
+
+            else
+            {
+                prowdest[7] = vidcolmap[(light & 0xFF00) + psource[7]];
+                light += lightstep;
+                prowdest[6] = vidcolmap[(light & 0xFF00) + psource[6]];
+                light += lightstep;
+                prowdest[5] = vidcolmap[(light & 0xFF00) + psource[5]];
+                light += lightstep;
+                prowdest[4] = vidcolmap[(light & 0xFF00) + psource[4]];
+                light += lightstep;
+                prowdest[3] = vidcolmap[(light & 0xFF00) + psource[3]];
+                light += lightstep;
+                prowdest[2] = vidcolmap[(light & 0xFF00) + psource[2]];
+                light += lightstep;
+                prowdest[1] = vidcolmap[(light & 0xFF00) + psource[1]];
+                light += lightstep;
+                prowdest[0] = vidcolmap[(light & 0xFF00) + psource[0]];
                 light += lightstep;
             }
 
@@ -897,7 +976,8 @@ void R_DrawSurfaceBlock8_mip1 (void)
             lightright += lightrightstep;
             lightleft += lightleftstep;
             prowdest += surfrowbytes;
-        }
+         }
+           r_colorptr += r_lightwidth; //qb: indexed colored
 
         if (psource >= r_sourcemax)
             psource -= r_stepback;
@@ -912,9 +992,9 @@ R_DrawSurfaceBlock8_mip2
 */
 void R_DrawSurfaceBlock8_mip2 (void)
 {
-    int				v, i, b, lightstep, lighttemp, light;
+    int		v, i, b, lightstep, lighttemp, light;
     int     color; //qb: indexed lit
-    unsigned char	pix, *psource, *prowdest;
+    byte	pix, *psource, *prowdest;
 
     psource = pbasesource;
     prowdest = prowdestbase;
@@ -943,9 +1023,9 @@ void R_DrawSurfaceBlock8_mip2 (void)
                 if (r_coloredlights.value)
                 {
                     color = r_colorptr[(b+i)%2];
-                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
+                    prowdest[b] = ((byte *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                 }
-                else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
+                else prowdest[b] = ((byte *)vid.colormap)[(light & 0xFF00) + pix];
                 light += lightstep;
             }
 
@@ -968,9 +1048,9 @@ R_DrawSurfaceBlock8_mip3
 */
 void R_DrawSurfaceBlock8_mip3 (void)
 {
-    int				v, i, b, lightstep, lighttemp, light;
+    int		v, i, b, lightstep, lighttemp, light;
     int     color; //qb: indexed lit
-    unsigned char	pix, *psource, *prowdest;
+    byte	pix, *psource, *prowdest;
 
     psource = pbasesource;
     prowdest = prowdestbase;
@@ -999,9 +1079,9 @@ void R_DrawSurfaceBlock8_mip3 (void)
                 if (r_coloredlights.value)
                 {
                     color = r_colorptr[(b+i)%2];
-                    prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
+                    prowdest[b] = ((byte *)vid.colormap)[(light & 0xFF00) + lightcolormap[pix*256 + color]];
                 }
-                else prowdest[b] = ((unsigned char *)vid.colormap)[(light & 0xFF00) + pix];
+                else prowdest[b] = ((byte *)vid.colormap)[(light & 0xFF00) + pix];
                 light += lightstep;
             }
 
@@ -1027,7 +1107,7 @@ FIXME: make this work
 void R_DrawSurfaceBlock16 (void)
 {
     int				k;
-    unsigned char	*psource;
+    byte	*psource;
     int				lighttemp, lightstep, light;
     unsigned short	*prowdest;
 
@@ -1035,7 +1115,7 @@ void R_DrawSurfaceBlock16 (void)
     for (k=0 ; k<blocksize ; k++)
     {
         unsigned short	*pdest;
-        unsigned char	pix;
+        byte	pix;
         int				b;
 
         psource = pbasesource;

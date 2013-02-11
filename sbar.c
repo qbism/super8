@@ -71,7 +71,7 @@ cvar_t	sbar_show_ammo		= {"sbar_show_ammo","1", true};
 cvar_t	sbar_show_bg		= {"sbar_show_bg","0", true};
 cvar_t	sbar = {"sbar","2", true};
 
-cvar_t	crosshair_color		= {"crosshair_color","1", true};
+cvar_t	crosshair_color		= {"crosshair_color","12", true};
 // Manoel Kasimier - end
 
 void Sbar_MiniDeathmatchOverlay (void);

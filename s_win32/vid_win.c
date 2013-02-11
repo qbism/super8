@@ -649,7 +649,7 @@ void VID_InitModes (HINSTANCE hInstance)
         windowed_default = MODE_WINDOWED;
     }
     ReleaseDC (NULL, hdc);
-    Cvar_SetValue("vid_fullscreen_mode", vid_default); //qb:
+    Cvar_SetValue("vid_fullscreen_mode", vid_default); //qb
 }
 
 /*
@@ -759,10 +759,7 @@ void VID_GetDisplayModes (void)
                     {
                          highestres = modelist[nummodes].width;
                          vid_nativeaspect = modelist[nummodes].width/modelist[nummodes].height;
-
                     }
-
-
                     nummodes++;
                 }
             }
@@ -774,12 +771,6 @@ void VID_GetDisplayModes (void)
 
     if (nummodes == originalnummodes)
         Con_Printf ("No fullscreen DIB modes found\n");
-
-    /*qb: was   if (nummodes != originalnummodes)
-           vid_default = MODE_FULLSCREEN_DEFAULT;
-       else Con_Printf ("No fullscreen DIB modes found\n");
-           */
-
 }
 
 

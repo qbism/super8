@@ -64,7 +64,7 @@ cvar_t	v_ipitch_level = {"v_ipitch_level", "0.3", false};
 
 cvar_t	v_idlescale = {"v_idlescale", "0", false};
 
-cvar_t	crosshair = {"crosshair", "0", true};
+cvar_t	crosshair = {"crosshair", "2", true};
 cvar_t	cl_crossx = {"cl_crossx", "0", false};
 cvar_t	cl_crossy = {"cl_crossy", "0", false};
 
