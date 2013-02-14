@@ -324,7 +324,8 @@ extern int			current_skill;		// skill level for currently loaded level (in case
 //  the user changes the cvar while the level is
 //  running, this reflects the level actually in use)
 
-extern int stretched; //qb: video stretch, also used by pcx and avi capture.
+extern int  stretched; //qb: video stretch, also used by pcx and avi capture.
+extern int	coloredlights; //qb: colored lights on, set at map load.
 
 extern qboolean		isDedicated;
 
@@ -346,9 +347,9 @@ extern	cvar_t	host_timescale;
 extern	cvar_t	sv_cheats;  //qb
 extern	cvar_t	sv_freezephysics;  //qb
 
-extern	cvar_t vid_mode; //qb:
-extern	cvar_t snd_speed; //qb:
-extern int current_protocol; //qb:
+extern	cvar_t vid_mode; //qb
+extern	cvar_t snd_speed; //qb
+extern int current_protocol; //qb
 
 #ifdef WEBDL    //qb: sometimes works, needs more testing
 extern cvar_t cl_web_download; //qb: R00k / Baker tute

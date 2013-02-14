@@ -632,35 +632,64 @@ void D_PolysetDrawSpans8 (spanpackage_t *pspanpackage)
             llight = pspanpackage->light;
             lzi = pspanpackage->zi;
 
-            do
+            if (coloredlights == 1)
             {
-                if ((lzi >> 16) >= *lpz)
-                    if (*lptex != 255) // Manoel Kasimier - transparent pixels in alias models
-                    {
-                        if (r_coloredlights.value)
+                do
+                {
+                    if ((lzi >> 16) >= *lpz)
+                        if (*lptex != 255) // Manoel Kasimier - transparent pixels in alias models
+                        {
                             *lpdest = ((byte *)acolormap)[(llight & 0xFF00) + lightcolormap[*lptex*256 + *pointcolormap]];
-                        else
+                            *lpz = lzi >> 16;
+                        }
+                    lpdest++;
+                    lzi += r_zistepx;
+                    lpz++;
+                    llight += r_lstepx;
+                    lptex += a_ststepxwhole;
+                    lsfrac += a_sstepxfrac;
+                    lptex += lsfrac >> 16;
+                    lsfrac &= 0xFFFF;
+                    ltfrac += a_tstepxfrac;
+                    if (ltfrac & 0x10000)
+                    {
+                        lptex += r_affinetridesc.skinwidth;
+                        ltfrac &= 0xFFFF;
+                    }
+                }
+                while (--lcount);
+            }
+
+            else
+            {
+                do
+                {
+                    if ((lzi >> 16) >= *lpz)
+                        if (*lptex != 255) // Manoel Kasimier - transparent pixels in alias models
+                        {
                             *lpdest = ((byte *)acolormap)[*lptex + (llight & 0xFF00)];
 
-                        //*lpdest = gelmap[*lpdest]; // gel mapping
-                        *lpz = lzi >> 16;
+                            //*lpdest = gelmap[*lpdest]; // gel mapping
+                            *lpz = lzi >> 16;
+                        }
+                    lpdest++;
+                    lzi += r_zistepx;
+                    lpz++;
+                    llight += r_lstepx;
+                    lptex += a_ststepxwhole;
+                    lsfrac += a_sstepxfrac;
+                    lptex += lsfrac >> 16;
+                    lsfrac &= 0xFFFF;
+                    ltfrac += a_tstepxfrac;
+                    if (ltfrac & 0x10000)
+                    {
+                        lptex += r_affinetridesc.skinwidth;
+                        ltfrac &= 0xFFFF;
                     }
-                lpdest++;
-                lzi += r_zistepx;
-                lpz++;
-                llight += r_lstepx;
-                lptex += a_ststepxwhole;
-                lsfrac += a_sstepxfrac;
-                lptex += lsfrac >> 16;
-                lsfrac &= 0xFFFF;
-                ltfrac += a_tstepxfrac;
-                if (ltfrac & 0x10000)
-                {
-                    lptex += r_affinetridesc.skinwidth;
-                    ltfrac &= 0xFFFF;
                 }
+                while (--lcount);
             }
-            while (--lcount);
+
         }
 
         pspanpackage++;

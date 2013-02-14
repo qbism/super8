@@ -571,6 +571,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                         *lout++ = max((r+g+b)/3, *lout);  //avoid large differences if colored lights don't align w/ standard.
                     }
                     Q_free(fileinfo);
+                    coloredlights = 1;
                     return;
                 }
                 else
@@ -579,20 +580,10 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
             else
                 Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
         }
-        //qb: no lit.  Still need to have something.
+        //qb: no lit.  Still need something for colored dynamic lights.
         loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qb: need some padding
         memset (loadmodel->colordata, 1, l->filelen+18);  //qb: fill w/ color index
     }
-
-    /*   loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qb: need some padding
-       out = loadmodel->colordata;
-       lout = loadmodel->lightdata;
-       for(i=0 ; i < sizeof(loadmodel->lightdata); i++)
-       {
-           j= *lout++;
-           *out++ = BestColor(j,j,j,0,254);
-       }
-    */
 }
 
 
@@ -1562,6 +1553,7 @@ void Mod_LoadBrushModel (model_t *mod, void *buffer, loadedfile_t *brush_fileinf
     dmodel_t 	*bm;
     int			fhandle;	// 2001-12-28 .VIS support by Maddes
 
+    coloredlights = (int)r_coloredlights.value; // sanity check
     loadmodel->type = mod_brush;
     header = (dheader_t *)buffer;
 
@@ -1903,27 +1895,27 @@ Mod_SetExtraFlags -- johnfitz -- set up extra flags that aren't in the mdl
 //qb: pared down from FQ
 void Mod_SetExtraFlags (model_t *mod)
 {
-	char *s;
-	int i;
+    char *s;
+    int i;
 
-	if (!mod || !mod->name || mod->type != mod_alias)
-		return;
+    if (!mod || !mod->name || mod->type != mod_alias)
+        return;
 
 //qb: would wipe out effects as flags.	mod->flags &= 0xFF; //only preserve first byte
 
-	// nolerp flag
-	for (s=r_nolerp_list.string; *s; s += i+1, i=0)
-	{
-		//search forwards to the next comma or end of string
-		for (i=0; s[i] != ',' && s[i] != 0; i++) ;
+    // nolerp flag
+    for (s=r_nolerp_list.string; *s; s += i+1, i=0)
+    {
+        //search forwards to the next comma or end of string
+        for (i=0; s[i] != ',' && s[i] != 0; i++) ;
 
-		//compare it to the model name
-		if (!strncmp(mod->name, s, i))
-		{
-			mod->flags |= MOD_NOLERP;
-			break;
-		}
-	}
+        //compare it to the model name
+        if (!strncmp(mod->name, s, i))
+        {
+            mod->flags |= MOD_NOLERP;
+            break;
+        }
+    }
 }
 
 
@@ -2136,7 +2128,7 @@ void Mod_LoadAliasModel (model_t *mod, void *buffer)
 
     mod->type = mod_alias;
 
-	Mod_SetExtraFlags (mod); //qb: from johnfitz
+    Mod_SetExtraFlags (mod); //qb: from johnfitz
 
 // FIXME: do this right
     mod->mins[0] = mod->mins[1] = mod->mins[2] = -16;

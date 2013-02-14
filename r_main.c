@@ -547,7 +547,7 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
     float ay, ae, bright;
     byte *colmap;
 
-    if(r_coloredlights.value)
+    if(coloredlights == 1)
     {
         ae = bound (0, r_clbaseweight.value, 1.0);	    		// base pixels
         ay = bound (0, r_clcolorweight.value, 1.0);             //color
