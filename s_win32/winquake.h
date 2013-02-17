@@ -78,7 +78,6 @@ extern HWND		hwnd_dialog;
 
 extern HANDLE	hinput, houtput;
 
-extern cvar_t   capture_hack;  //qb:
 extern float    hack_ctr;
 
 void IN_UpdateClipCursor (void);

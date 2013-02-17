@@ -395,8 +395,6 @@ void Sys_Printf (char *fmt, ...)
 
 void Sys_Quit (void)
 {
-	extern char *hunk_base; // JPG - needed for Sys_Quit
-
 	Host_Shutdown();
 
 	if (tevent)

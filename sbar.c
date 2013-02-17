@@ -18,9 +18,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 
-//Dan East:
-extern int min_vid_width; //qb: Dan East
-
 #define STAT_MINUS		10	// num frame for '-' stats digit
 qpic_t		*sb_nums[2][11];
 qpic_t		*sb_colon, *sb_slash;
@@ -1049,9 +1046,6 @@ void Sbar_DrawAmmo (int x, int x2, int y) // default 224, 248, 0
 //=============================================================================
 
 // Manoel Kasimier - crosshair - begin
-extern cvar_t	crosshair;
-extern cvar_t	cl_crossx;
-extern cvar_t	cl_crossy;
 // crosshair alpha values: 0=transparent, 1=opaque, 3=33% transparent, 6=66% transparent
 byte	crosshair_tex[5][11][11] =
 {

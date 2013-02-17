@@ -21,7 +21,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "..\quakedef.h"
 
 extern	HWND	mainwindow;
-extern	cvar_t	bgmvolume;
 
 /* // Manoel Kasimier - CD player in menu - removed - begin
 static qboolean cdValid = false;

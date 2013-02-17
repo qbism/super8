@@ -106,7 +106,6 @@ cvar_t	joy_pitchsensitivity = {"joypitchsensitivity", "1.0"};
 cvar_t	joy_yawsensitivity = {"joyyawsensitivity", "-1.0"};
 cvar_t	joy_wwhack1 = {"joywwhack1", "0.0"};
 cvar_t	joy_wwhack2 = {"joywwhack2", "0.0"};
-extern cvar_t m_look; // Manoel Kasimier - m_look
 
 qboolean	joy_avail, joy_advancedinit, joy_haspov;
 DWORD		joy_oldbuttonstate, joy_oldpovstate;

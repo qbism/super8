@@ -22,10 +22,6 @@ key up events are sent even if in console mode
 
 */
 
-
-#define      HISTORY_FILE_NAME   "command_history.txt"  //qb: Baker/ezQuake command history
-#define		MAXCMDLINE	256
-#define      CMDLINES   32
 char   key_lines[CMDLINES][MAXCMDLINE];
 int		key_linepos;
 int		shift_down=false;

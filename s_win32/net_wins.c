@@ -21,8 +21,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "../quakedef.h"
 #include "winquake.h"
 
-extern cvar_t hostname;
-
 #define MAXHOSTNAMELEN		256
 
 static int net_acceptsocket = -1;		// socket for fielding new connections

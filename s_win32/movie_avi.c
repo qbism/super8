@@ -67,8 +67,6 @@ HACMDRIVER	m_mp3_driver;
 HACMSTREAM	m_mp3_stream;
 ACMSTREAMHEADER	m_mp3_stream_header;
 
-extern qboolean avi_loaded, acm_loaded;
-extern	cvar_t	capture_codec, capture_fps, capture_mp3, capture_mp3_kbps;
 
 #define AVI_GETFUNC(f) (qAVI##f = (void *)GetProcAddress(avi_handle, "AVI" #f))
 #define ACM_GETFUNC(f) (qacm##f = (void *)GetProcAddress(acm_handle, "acm" #f))

@@ -34,3 +34,11 @@ void Movie_UpdateScreen (void);
 
 qboolean Movie_GetSoundtime (void);
 qboolean Movie_IsActive (void);
+
+extern cvar_t   capture_hack;  //qb
+extern qboolean avi_loaded, acm_loaded;
+extern	cvar_t	capture_codec, capture_fps, capture_mp3, capture_mp3_kbps;
+extern	float	scr_con_current;
+extern qboolean	scr_drawloading;
+extern	short	*snd_out;
+extern	int	snd_linear_count, soundtime;

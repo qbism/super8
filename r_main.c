@@ -443,7 +443,7 @@ void MakeMy15to8()
         {
             for (b=0 ; b<256 ; b+=8)
             {
-                beastcolor = BestColor (r, g, b, 0, 255);
+                beastcolor = BestColor (r, g, b, 0, 254);
                 beefstcolor = BestColor (r, g, b, 0, 223);
                 palmap[r>>3][g>>3][b>>3] = beastcolor;
                 palmapnofb[r>>3][g>>3][b>>3] = beefstcolor;
@@ -515,7 +515,7 @@ void GrabAlphamap (void) //qb: based on Engoo
             r = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
             g = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
             b = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
-            *colmap++ =BestColor(r,g,b, 0, 255); // High quality color tables get best color
+            *colmap++ =BestColor(r,g,b, 0, 254); // High quality color tables get best color
         }
     }
 }

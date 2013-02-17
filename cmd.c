@@ -32,17 +32,6 @@ void Cmd_ForwardToServer (void);
 
 #define	MAX_ALIAS_NAME	32
 
-//qb: qrack complete command begin
-extern	char	key_lines[64][MAXCMDLINE];
-extern	int	edit_line;
-extern	int	key_linepos;
-
-static	char	compl_common[MAX_FILELENGTH];
-static	int	compl_len;
-static	int	compl_clen;
-
-//qb: qrack complete command end
-
 typedef struct cmdalias_s
 {
     struct cmdalias_s	*next;
@@ -233,7 +222,6 @@ quake -nosound +cmd amlev1
 */
 void Cmd_StuffCmds_f (void)
 {
-    extern cvar_t cmdline;
     char	cmds[256];
     int		i, j, plus;
 
@@ -1112,7 +1100,6 @@ extern	int	con_x;
 
 static void PaddedPrint (char *s)
 {
-    extern	int	con_linewidth;
     int		nextcolx = 0;
 
     if (con_x)

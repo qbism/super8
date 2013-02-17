@@ -22,11 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../quakedef.h"
 #include "movie_avi.h"
 
-extern	float	scr_con_current;
-extern qboolean	scr_drawloading;
-extern	short	*snd_out;
-extern	int	snd_linear_count, soundtime;
-
 // Variables for buffering audio
 short	capture_audio_samples[44100];	// big enough buffer for 1fps at 44100Hz
 int	captured_audio_samples;

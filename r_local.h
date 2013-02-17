@@ -50,6 +50,7 @@ typedef struct {
 } auxvert_t;
 
 //===========================================================================
+extern vrect_t	scr_vrect;
 
 extern cvar_t	r_draworder;
 extern cvar_t	r_speeds;

@@ -20,8 +20,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 
-extern	cvar_t	scr_fadecolor; //qb:
-
 typedef struct
 {
     vrect_t	rect;

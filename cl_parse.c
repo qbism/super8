@@ -18,11 +18,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 
-//Dan East:
-//We need to know the console char width for a modification below
-extern int 		con_linewidth;
-
-
 char *svc_strings[] =
 {
     "svc_bad",
@@ -326,7 +321,6 @@ void CL_ParseServerInfo (void)
     char download_tempname[MAX_QPATH],download_finalname[MAX_QPATH];
     char folder[MAX_QPATH];
     char name[MAX_QPATH];
-    extern int net_hostport;
 
     byte	tmp[256]; //qb: for Dan East pocketquake
 

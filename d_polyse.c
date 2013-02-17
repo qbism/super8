@@ -1338,7 +1338,7 @@ void D_PolysetDrawSpans8_Metal (spanpackage_t *pspanpackage)
 D_RasterizeAliasPolySmooth
 ================
 */
-extern cvar_t sw_stipplealpha; // Manoel Kasimier
+
 void D_RasterizeAliasPolySmooth (void)
 {
     int				initialleftheight, initialrightheight;

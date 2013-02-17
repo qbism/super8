@@ -18,6 +18,12 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "../quakedef.h"
 #include "errno.h"
 
+extern float mouse_x, mouse_y;
+extern byte _asToQKey[256];
+extern int soundtime;
+extern AS3_Val _flashSampleData;
+extern unsigned _vidBuffer4b[];
+
 qboolean			isDedicated;	//Always false for Null Driver
 //qb: pointless in Flash     cvar_t		_windowed_mouse = {"_windowed_mouse","0", true};
 
@@ -350,12 +356,9 @@ AS3_Val swcFrame(void *data, AS3_Val args)
     }
 
 	//Return the position of the screen buffer in the Alchemy ByteArray of memory
-	extern unsigned _vidBuffer4b[];
 	return AS3_Ptr(_vidBuffer4b);
 }
 
-extern AS3_Val _flashSampleData;
-extern int soundtime;
 void S_Update_();
 
 AS3_Val swcWriteSoundData(void *data, AS3_Val args)
@@ -376,7 +379,6 @@ AS3_Val swcKey(void *data, AS3_Val args)
 
 	AS3_ArrayValue(args, "IntType,IntType,IntType", &key, &charCode, &state);
 
-	extern byte _asToQKey[256];
 	if(_asToQKey[key])
 	{
 		//Modifier, Fkey, or special keys for example, so we need to look up its Quake code
@@ -391,7 +393,6 @@ AS3_Val swcKey(void *data, AS3_Val args)
 	return NULL;
 }
 
-extern float mouse_x, mouse_y;
 AS3_Val swcDeltaMouse(void *data, AS3_Val args)
 {
 	#ifndef FLASHDEMO //qb: disable input for flash demo-mode-only

@@ -20,7 +20,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define	SBAR_HEIGHT		24
 
-extern	int			sb_lines;			// scan lines to draw
 
 void Sbar_Init (void);
 

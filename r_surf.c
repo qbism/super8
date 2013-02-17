@@ -25,21 +25,27 @@ extern shadow_t		cl_shadows[MAX_SHADOWS];
 drawsurf_t	r_drawsurf;
 
 int             coloredlights; //qb: sanity check ala engoo
-int             lightleft, lightright, lightleftstep, lightrightstep;
-int				sourcesstep, blocksize, sourcetstep;
-int				lightdelta, lightdeltastep;
-int				blockdivshift;
-unsigned		blockdivmask;
+static int      lightleft, lightright, lightleftstep, lightrightstep;
+static int	    sourcesstep, blocksize, sourcetstep;
+static int		blockdivshift;
 void			*prowdestbase;
-byte	*pbasesource;
-int				surfrowbytes;	// used by ASM files
+byte	        *pbasesource;
+static int		surfrowbytes;	// used by ASM files
 unsigned		*r_lightptr;
 unsigned		*r_colorptr; //qb:
-int				r_stepback;
-int				r_lightwidth;
-int				r_numhblocks, r_numvblocks;
+static int		r_stepback;
+static int		r_lightwidth;
+int		r_numhblocks, r_numvblocks;
 byte	*r_source, *r_sourcemax;
-static byte    *vidcolmap; //qb
+byte    *vidcolmap; //qb
+unsigned		blocklights[18*18];
+unsigned		blockcolors[18*18]; //qb:
+
+
+const byte dithercolor[] =  //qb
+{ 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1,0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1};
+
+
 
 void R_DrawSurfaceBlockColor8_mip0 (void);
 void R_DrawSurfaceBlockColor8_mip1 (void);
@@ -66,9 +72,6 @@ static void	(*surfmiptable[4])(void) =
     R_DrawSurfaceBlock8_mip2,
     R_DrawSurfaceBlock8_mip3
 };
-
-unsigned		blocklights[18*18];
-unsigned		blockcolors[18*18]; //qb:
 
 //qb: ftestain begin
 extern cvar_t r_stains;
@@ -734,8 +737,6 @@ void R_DrawSurface (void)
 
     blocksize = 16 >> r_drawsurf.surfmip;
     blockdivshift = 4 - r_drawsurf.surfmip;
-    blockdivmask = (1 << blockdivshift) - 1;
-
     r_lightwidth = (r_drawsurf.surf->extents[0]>>4)+1;
 
     r_numhblocks = r_drawsurf.surfwidth >> blockdivshift;
@@ -799,10 +800,6 @@ void R_DrawSurface (void)
 
 //=============================================================================
 
-byte dithercolor[] =  //qb
-{ 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1,0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1};
-
-
 
 /*
 ================
@@ -823,10 +820,10 @@ void R_DrawSurfaceBlockColor8_mip0 (void)
         lightleft = r_lightptr[0];
         lightright = r_lightptr[1];
         r_lightptr += r_lightwidth;
-        lightleftstep = (r_lightptr[0] - lightleft) >> 4;
-        lightrightstep = (r_lightptr[1] - lightright) >> 4;
         colorleft = r_colorptr[0];
         colorright = r_colorptr[1];
+        lightleftstep = (r_lightptr[0] - lightleft) >> 4;
+        lightrightstep = (r_lightptr[1] - lightright) >> 4;
 
         for (i=0 ; i<16 ; i++)
         {
@@ -858,7 +855,6 @@ void R_DrawSurfaceBlockColor8_mip0 (void)
             prowdest += surfrowbytes;
         }
         r_colorptr += r_lightwidth; //qb: indexed colored
-
         if (psource >= r_sourcemax)
             psource -= r_stepback;
     }
@@ -879,10 +875,10 @@ void R_DrawSurfaceBlockColor8_mip1 (void)
         lightleft = r_lightptr[0];
         lightright = r_lightptr[1];
         r_lightptr += r_lightwidth;
-        lightleftstep = (r_lightptr[0] - lightleft) >> 3;
-        lightrightstep = (r_lightptr[1] - lightright) >> 3;
         colorleft = r_colorptr[0];
         colorright = r_colorptr[1];
+        lightleftstep = (r_lightptr[0] - lightleft) >> 3;
+        lightrightstep = (r_lightptr[1] - lightright) >> 3;
 
         for (i=0 ; i<8 ; i++)
         {
@@ -902,9 +898,9 @@ void R_DrawSurfaceBlockColor8_mip1 (void)
             lightright += lightrightstep;
             lightleft += lightleftstep;
             prowdest += surfrowbytes;
+
         }
         r_colorptr += r_lightwidth; //qb: indexed colored
-
         if (psource >= r_sourcemax)
             psource -= r_stepback;
     }
@@ -924,10 +920,11 @@ void R_DrawSurfaceBlockColor8_mip2 (void)
         lightleft = r_lightptr[0];
         lightright = r_lightptr[1];
         r_lightptr += r_lightwidth;
-        lightleftstep = (r_lightptr[0] - lightleft) >> 2;
-        lightrightstep = (r_lightptr[1] - lightright) >> 2;
         colorleft = r_colorptr[0];
         colorright = r_colorptr[1];
+        lightleftstep = (r_lightptr[0] - lightleft) >> 2;
+        lightrightstep = (r_lightptr[1] - lightright) >> 2;
+
 
         for (i=0 ; i<4 ; i++)
         {
@@ -945,7 +942,6 @@ void R_DrawSurfaceBlockColor8_mip2 (void)
             prowdest += surfrowbytes;
         }
         r_colorptr += r_lightwidth; //qb: indexed colored
-
         if (psource >= r_sourcemax)
             psource -= r_stepback;
     }
@@ -965,10 +961,11 @@ void R_DrawSurfaceBlockColor8_mip3 (void)
         lightleft = r_lightptr[0];
         lightright = r_lightptr[1];
         r_lightptr += r_lightwidth;
-        lightleftstep = (r_lightptr[0] - lightleft) >> 1;
-        lightrightstep = (r_lightptr[1] - lightright) >> 1;
         colorleft = r_colorptr[0];
         colorright = r_colorptr[1];
+        lightleftstep = (r_lightptr[0] - lightleft) >> 1;
+        lightrightstep = (r_lightptr[1] - lightright) >> 1;
+
 
         for (i=0 ; i<2 ; i++)
         {
@@ -984,7 +981,6 @@ void R_DrawSurfaceBlockColor8_mip3 (void)
             prowdest += surfrowbytes;
         }
         r_colorptr += r_lightwidth; //qb: indexed colored
-
         if (psource >= r_sourcemax)
             psource -= r_stepback;
     }
@@ -997,54 +993,54 @@ R_DrawSurfaceBlock8  //qb: good old grays
 ================
 */
 
-    void R_DrawSurfaceBlock8_mip0 (void)
+void R_DrawSurfaceBlock8_mip0 (void)
+{
+    int   v, i, lightstep, light;
+    byte   *psource, *prowdest;
+
+    psource = pbasesource;
+    prowdest = prowdestbase;
+
+    for (v=0 ; v<r_numvblocks ; v++)
     {
-        int   v, i, lightstep, light;
-        byte   *psource, *prowdest;
+        lightleft = r_lightptr[0];
+        lightright = r_lightptr[1];
+        r_lightptr += r_lightwidth;
+        lightleftstep = (r_lightptr[0] - lightleft) >> 4;
+        lightrightstep = (r_lightptr[1] - lightright) >> 4;
 
-        psource = pbasesource;
-        prowdest = prowdestbase;
-
-        for (v=0 ; v<r_numvblocks ; v++)
+        for (i=0 ; i<16 ; i++)
         {
-            lightleft = r_lightptr[0];
-            lightright = r_lightptr[1];
-            r_lightptr += r_lightwidth;
-            lightleftstep = (r_lightptr[0] - lightleft) >> 4;
-            lightrightstep = (r_lightptr[1] - lightright) >> 4;
+            lightstep = (lightleft - lightright) >> 4;
+            light = lightright;
 
-            for (i=0 ; i<16 ; i++)
-            {
-                lightstep = (lightleft - lightright) >> 4;
-                light = lightright;
+            prowdest[15] = vidcolmap[((light += lightstep) & 0xFF00) + psource[15]];
+            prowdest[14] = vidcolmap[((light += lightstep) & 0xFF00) + psource[14]];
+            prowdest[13] = vidcolmap[((light += lightstep) & 0xFF00) + psource[13]];
+            prowdest[12] = vidcolmap[((light += lightstep) & 0xFF00) + psource[12]];
+            prowdest[11] = vidcolmap[((light += lightstep) & 0xFF00) + psource[11]];
+            prowdest[10] = vidcolmap[((light += lightstep) & 0xFF00) + psource[10]];
+            prowdest[9] = vidcolmap[((light += lightstep) & 0xFF00) + psource[9]];
+            prowdest[8] = vidcolmap[((light += lightstep) & 0xFF00) + psource[8]];
+            prowdest[7] = vidcolmap[((light += lightstep) & 0xFF00) + psource[7]];
+            prowdest[6] = vidcolmap[((light += lightstep) & 0xFF00) + psource[6]];
+            prowdest[5] = vidcolmap[((light += lightstep) & 0xFF00) + psource[5]];
+            prowdest[4] = vidcolmap[((light += lightstep) & 0xFF00) + psource[4]];
+            prowdest[3] = vidcolmap[((light += lightstep) & 0xFF00) + psource[3]];
+            prowdest[2] = vidcolmap[((light += lightstep) & 0xFF00) + psource[2]];
+            prowdest[1] = vidcolmap[((light += lightstep) & 0xFF00) + psource[1]];
+            prowdest[0] = vidcolmap[(light & 0xFF00) + psource[0]];
 
-                prowdest[15] = vidcolmap[((light += lightstep) & 0xFF00) + psource[15]];
-                prowdest[14] = vidcolmap[((light += lightstep) & 0xFF00) + psource[14]];
-                prowdest[13] = vidcolmap[((light += lightstep) & 0xFF00) + psource[13]];
-                prowdest[12] = vidcolmap[((light += lightstep) & 0xFF00) + psource[12]];
-                prowdest[11] = vidcolmap[((light += lightstep) & 0xFF00) + psource[11]];
-                prowdest[10] = vidcolmap[((light += lightstep) & 0xFF00) + psource[10]];
-                prowdest[9] = vidcolmap[((light += lightstep) & 0xFF00) + psource[9]];
-                prowdest[8] = vidcolmap[((light += lightstep) & 0xFF00) + psource[8]];
-                prowdest[7] = vidcolmap[((light += lightstep) & 0xFF00) + psource[7]];
-                prowdest[6] = vidcolmap[((light += lightstep) & 0xFF00) + psource[6]];
-                prowdest[5] = vidcolmap[((light += lightstep) & 0xFF00) + psource[5]];
-                prowdest[4] = vidcolmap[((light += lightstep) & 0xFF00) + psource[4]];
-                prowdest[3] = vidcolmap[((light += lightstep) & 0xFF00) + psource[3]];
-                prowdest[2] = vidcolmap[((light += lightstep) & 0xFF00) + psource[2]];
-                prowdest[1] = vidcolmap[((light += lightstep) & 0xFF00) + psource[1]];
-                prowdest[0] = vidcolmap[(light & 0xFF00) + psource[0]];
-
-                psource += sourcetstep;
-                lightright += lightrightstep;
-                lightleft += lightleftstep;
-                prowdest += surfrowbytes;
-            }
-
-            if (psource >= r_sourcemax)
-                psource -= r_stepback;
+            psource += sourcetstep;
+            lightright += lightrightstep;
+            lightleft += lightleftstep;
+            prowdest += surfrowbytes;
         }
+
+        if (psource >= r_sourcemax)
+            psource -= r_stepback;
     }
+}
 
 
 /*

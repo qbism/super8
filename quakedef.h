@@ -57,6 +57,10 @@ void as3ReadFileSharedObject(const char* filename);
 
 #endif
 
+#define      HISTORY_FILE_NAME   "command_history.txt"  //qb: Baker/ezQuake command history
+#define		MAXCMDLINE	256
+#define      CMDLINES   64
+
 #define CACHE_SIZE	32		// used to align key data structures
 
 #define UNUSED(x)	(x = x)	// for pesky compiler / lint warnings
@@ -268,6 +272,7 @@ typedef struct
 
 
 extern qboolean noclip_anglehack;
+extern	kbutton_t	in_forward, in_forward2, in_back;
 
 
 //
@@ -275,10 +280,7 @@ extern qboolean noclip_anglehack;
 //
 extern	quakeparms_t host_parms;
 
-extern	cvar_t		sys_ticrate;
-extern	cvar_t		sys_nostdout;
-extern	cvar_t		developer;
-
+extern qboolean bumper_on;  //DEMO_REWIND qb: Baker change
 extern	qboolean	host_initialized;		// true if into command execution
 extern	double		host_frametime;
 extern	byte		*host_basepal;
@@ -289,6 +291,21 @@ extern	double		realtime;			// not bounded in any way, changed at
 
 extern double	newtime;
 
+extern int 	con_linewidth; //qb: Dan East
+extern int min_vid_width; //qb: Dan East
+
+//qb: qrack complete command begin
+extern	char	key_lines[CMDLINES][MAXCMDLINE];
+extern	int	edit_line;
+extern	int	key_linepos;
+
+static	char	compl_common[MAX_FILELENGTH];
+static	int	compl_len;
+static	int	compl_clen;
+
+//qb: qrack complete command end
+
+extern	int	con_linewidth;
 
 void Host_ClearMemory (void);
 void Host_ServerFrame (void);
@@ -317,6 +334,13 @@ int R_LoadPalette (char *name);
 void Fog_ParseServerMessage (void);
 qboolean R_LoadSkybox (char *name);
 void CL_Clear_Demos_Queue (void);
+qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p2f, vec3_t p1, vec3_t p2, trace_t *trace);  //qb: move externs out of c files.
+void M_Video_f (void); //qb: from Manoel Kasimier - edited
+void M_Print (int cx, int cy, char *str);
+void M_PrintWhite (int cx, int cy, char *str);
+void M_DrawCharacter (int cx, int line, int num);
+void M_DrawTransPic (int x, int y, qpic_t *pic);
+
 
 extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output
 //  an fullscreen DIB focus gain/loss
@@ -328,28 +352,35 @@ extern int  stretched; //qb: video stretch, also used by pcx and avi capture.
 extern int	coloredlights; //qb: colored lights on, set at map load.
 
 extern qboolean		isDedicated;
+extern	int			sb_lines;			// scan lines to draw
 
 extern int			minimum_memory;
 extern byte     palmapnofb[32][32][32];
 extern byte	    palmap[32][32][32];
+
+extern cvar_t   cmdline;
+extern cvar_t	developer;
+extern cvar_t	host_timescale;
+extern cvar_t	chase_active;
+extern cvar_t   snd_speed; //qb
+extern cvar_t   vid_mode; //qb
+extern cvar_t	sys_ticrate;
+extern cvar_t	sys_nostdout;
+extern cvar_t   r_palette;
+extern cvar_t	r_shadowhack; //qb: engoo shadowhack
+extern cvar_t   r_shadowhacksize; //qb
+extern cvar_t m_look; // Manoel Kasimier - m_look
+extern	cvar_t	bgmvolume;
+
 //
 // chase
 //
-extern	cvar_t	chase_active;
-
 void Chase_Init (void);
 void Chase_Update (void);
 
 dfunction_t *ED_FindFunction (char *name);	// FrikaC - qcexec function
 // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-extern	double	host_org_frametime;
-extern	cvar_t	host_timescale;
-extern	cvar_t	sv_cheats;  //qb
-extern	cvar_t	sv_freezephysics;  //qb
-
-extern	cvar_t vid_mode; //qb
-extern	cvar_t snd_speed; //qb
-extern int current_protocol; //qb
+extern	double	host_org_frametime;extern int current_protocol; //qb
 
 #ifdef WEBDL    //qb: sometimes works, needs more testing
 extern cvar_t cl_web_download; //qb: R00k / Baker tute

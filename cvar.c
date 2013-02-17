@@ -158,7 +158,6 @@ void Cvar_Set (char *var_name, char *value)
 Cvar_SetValue
 ============
 */
-extern char *MK_cleanftos (float f); // Manoel Kasimier - reduced config file
 void Cvar_SetValue (char *var_name, float value)
 {
 	char	val[32];

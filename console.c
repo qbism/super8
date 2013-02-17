@@ -48,17 +48,9 @@ int			con_vislines;
 
 qboolean	con_debuglog;
 
-#define		MAXCMDLINE	256
-extern	char	key_lines[32][MAXCMDLINE];
-extern	int		edit_line;
-extern	int		key_linepos;
-
 char		con_lastcenterstring[1024]; //qb:  johnfitz
 qboolean	con_initialized;
-
 int			con_notifylines;		// scan lines to clear for notify lines
-
-extern void M_Main_f (void); // edited
 
 void M_OnScreenKeyboard_Reset (void); // Manoel Kasimier - on-screen keyboard
 
@@ -126,8 +118,6 @@ void Con_ClearNotify (void)
 Con_MessageMode_f
 ================
 */
-extern qboolean team_message;
-
 void Con_MessageMode_f (void)
 {
     key_dest = key_message;
@@ -640,7 +630,6 @@ void Con_DrawNotify (void)
     char	*text;
     int		i;
     float	time;
-    extern char chat_buffer[];
 
     v = screen_top; // Manoel Kasimier - screen positioning
     for (i= con_current-NUM_CON_TIMES+1 ; i<=con_current ; i++)

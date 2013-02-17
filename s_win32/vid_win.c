@@ -337,9 +337,7 @@ qboolean		DDActive;
 
 #define MAX_MODE_LIST	30
 #define VID_ROW_SIZE	3
-#define VID_WINDOWED_MODES 3 //qb:
-
-extern int		Minimized;
+#define VID_WINDOWED_MODES 3 //qb
 
 HWND WINAPI InitializeWindow (HINSTANCE hInstance, int nCmdShow);
 
@@ -2170,13 +2168,6 @@ LONG WINAPI MainWndProc (
     /* return 0 if handled message, 1 if not */
     return lRet;
 }
-
-extern void M_Video_f (void); //qb: from Manoel Kasimier - edited
-//qb: extern void M_Menu_Options_f (void);
-extern void M_Print (int cx, int cy, char *str);
-extern void M_PrintWhite (int cx, int cy, char *str);
-extern void M_DrawCharacter (int cx, int line, int num);
-extern void M_DrawTransPic (int x, int y, qpic_t *pic);
 
 static int	vid_line, vid_wmodes;
 

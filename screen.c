@@ -22,10 +22,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "s_win32/movie_avi.h"
 #endif
 
-extern cvar_t scr_ofsx; //qb:
-extern cvar_t scr_ofsz; //qb:
-extern cvar_t sbar; //qb:
-
 // only the refresh window will be updated unless these variables are flagged
 int			scr_copytop;
 int			scr_copyeverything;
@@ -463,7 +459,6 @@ DrawPause
 */
 void SCR_DrawPause (void)
 {
-    extern cvar_t sbar; // Manoel Kasimier
     if (!scr_showpause.value)		// turn off for screenshots
         return;
 
@@ -504,10 +499,8 @@ SCR_SetUpToDrawConsole
 void SCR_SetUpToDrawConsole (void)
 {
     float conspeed; //qb: from goldquake
-    extern cvar_t	con_alpha; // Manoel Kasimier - transparent console
     //qb: from johnfitz -- let's hack away the problem of slow console when host_timescale is <0
 // DEMO_REWIND - qb: Baker change
-    extern float frame_timescale;
     float timescale;
 
     Con_CheckResize ();

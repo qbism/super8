@@ -39,8 +39,8 @@ extern	int			sb_lines;
 extern	int			clearnotify;	// set to 0 whenever notify text is drawn
 extern	qboolean	scr_disabled_for_loading;
 extern	qboolean	scr_skipupdate;
+extern float frame_timescale;
 
-extern	cvar_t		scr_viewsize;
 int			screen_left;
 int			screen_right;
 int			screen_top;
@@ -56,3 +56,13 @@ extern	int			scr_copyeverything;
 extern qboolean		block_drawing;
 
 void SCR_UpdateWholeScreen (void);
+
+extern cvar_t   scr_ofsx; //qb
+extern cvar_t   scr_ofsz; //qb
+extern cvar_t	scr_viewsize;
+extern cvar_t	con_alpha; // Manoel Kasimier - transparent console
+extern cvar_t   sbar; //qb
+extern cvar_t	crosshair;
+extern cvar_t	cl_crossx;
+extern cvar_t	cl_crossy;
+extern cvar_t	scr_fadecolor; //qb

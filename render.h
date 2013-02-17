@@ -200,6 +200,6 @@ void D_DeleteSurfaceCache (void);
 void D_InitCaches (void *buffer, int size);
 void R_SetVrect (vrect_t *pvrect, vrect_t *pvrectin, int lineadj);
 
-//qb: ftestain.  Could lightdelta be int ?
+//qb: ftestain
 void R_AddStain(vec3_t org, float tint, float radius);
 void R_LessenStains(void);

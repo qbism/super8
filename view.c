@@ -76,8 +76,6 @@ cvar_t	cl_nobob = {"cl_nobob","0", true}; // Manoel Kasimier - cl_nobob
 
 float	v_dmg_time, v_dmg_roll, v_dmg_pitch;
 
-extern	int			in_forward, in_forward2, in_back;
-
 float fisheye_accel; //qb
 
 
@@ -927,7 +925,6 @@ The player's clipping box goes from (-16 -16 -24) to (16 16 32) from
 the entity origin, so any view position inside that will be valid
 ==================
 */
-extern vrect_t	scr_vrect;
 
 void V_RenderView (void)
 {
@@ -1388,8 +1385,6 @@ void renderside(B* bufs, double yaw, double pitch, double roll, int side)
     r_refdef.viewangles[ROLL] = a.roll;
     rendercopy((int *)bufs, side);
 };
-
-//extern int istimedemo;
 
 void R_RenderView_Fisheye()
 {

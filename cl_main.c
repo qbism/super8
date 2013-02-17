@@ -24,9 +24,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 int BestColor (int r, int g, int b, int start, int stop);
 
-extern cvar_t	r_shadowhack; //qb: engoo shadowhack
-extern cvar_t   r_shadowhacksize; //qb:
-
 // these two are not intended to be set directly
 cvar_t	cl_name = {"_cl_name", "player", true};
 cvar_t	cl_color = {"_cl_color", "22", true}; // edited
@@ -446,8 +443,6 @@ should be put at.
 */
 float	CL_LerpPoint (void)
 {
-    extern qboolean bumper_on;  //DEMO_REWIND qb: Baker change
-
     float	f, frac;
 
     f = cl.mtime[0] - cl.mtime[1];

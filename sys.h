@@ -68,3 +68,6 @@ int  vibration_update[2];
 void Vibration_Update (void);
 void Vibration_Stop (int player); // 0=player1, 1=player2
 // Manoel Kasimier - end
+
+extern byte *hunk_base; // JPG - needed for Sys_Quit
+

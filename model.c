@@ -571,7 +571,6 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                         *lout++ = max((r+g+b)/3, *lout);  //avoid large differences if colored lights don't align w/ standard.
                     }
                     Q_free(fileinfo);
-                    coloredlights = 1;
                     return;
                 }
                 else
@@ -581,8 +580,8 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                 Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
         }
         //qb: no lit.  Still need something for colored dynamic lights.
-        loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qb: need some padding
-        memset (loadmodel->colordata, 1, l->filelen+18);  //qb: fill w/ color index
+        loadmodel->colordata = Hunk_AllocName (l->filelen+20, "modcolor"); //qb: need some padding
+        memset (loadmodel->colordata, 1, l->filelen+20);  //qb: fill w/ color index
     }
 }
 

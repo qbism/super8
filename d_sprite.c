@@ -1163,7 +1163,6 @@ void D_SpriteCalculateGradients (void)
 D_DrawSprite
 =====================
 */
-extern cvar_t sw_stipplealpha; /*qb: remove r_sprite_addblend*/ // Manoel Kasimier
 void D_DrawSprite (void)
 {
 	int			i, nump;

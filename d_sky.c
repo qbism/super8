@@ -25,9 +25,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 static float	timespeed1, timespeed2; // Manoel Kasimier - smooth sky
 
-extern byte	*skyunderlay, *skyoverlay; // Manoel Kasimier - smooth sky
-
-
 /*
 =================
 D_Sky_uv_To_st

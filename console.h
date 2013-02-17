@@ -18,12 +18,20 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 //
 // console
 //
+#define		MAXCMDLINE	256
 extern int con_totallines;
 extern int con_backscroll;
 extern	qboolean con_forcedup;	// because no entities to refresh
 extern qboolean con_initialized;
 extern byte *con_chars;
 extern	int	con_notifylines;		// scan lines to clear for notify lines
+extern	int		edit_line;
+extern	int		key_linepos;
+extern char chat_buffer[];
+extern qboolean team_message;
+extern char *MK_cleanftos (float f); // Manoel Kasimier - reduced config file
+
+extern void M_Main_f (void); // edited
 
 void Con_DrawCharacter (int cx, int line, int num);
 

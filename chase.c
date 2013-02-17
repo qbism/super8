@@ -18,8 +18,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 
-extern qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p2f, vec3_t p1, vec3_t p2, trace_t *trace);
-
 cvar_t	chase_back = {"chase_back", "100", true}; // Manoel Kasimier - edited
 cvar_t	chase_up = {"chase_up", "16", true}; // Manoel Kasimier - edited
 cvar_t	chase_right = {"chase_right", "0", true};
@@ -28,9 +26,6 @@ cvar_t	chase_active = {"chase_active", "0", true}; // Manoel Kasimier - edited
 cvar_t  chase_roll = {"chase_roll", "0", true};  //qb:  custom chase by frag.machine
 cvar_t  chase_yaw = {"chase_yaw", "180", true};
 cvar_t  chase_pitch = {"chase_pitch", "45", true};
-
-vec3_t	chase_pos;
-vec3_t	chase_angles;
 
 vec3_t	chase_dest;
 vec3_t	chase_dest_angles;

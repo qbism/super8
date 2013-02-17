@@ -21,10 +21,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "version.h" //qb - generated from bat
 
 int current_protocol = PROTOCOL_QBS8; //qb
-extern qboolean		pr_alpha_supported; //johnfitz
-extern cvar_t r_palette;
-extern	cvar_t	sv_novis; //qb - from FQ via Mark V
-extern	cvar_t	sv_freezephysics; //qb
 server_t		sv;
 server_static_t	svs;
 
@@ -75,19 +71,6 @@ SV_Init
 void SV_Init (void)
 {
     int		i;
-    extern	cvar_t	sv_maxvelocity;
-    extern	cvar_t	sv_gravity;
-    extern	cvar_t	sv_nostep;
-    extern	cvar_t	sv_friction;
-    extern	cvar_t	sv_edgefriction;
-    extern	cvar_t	sv_stopspeed;
-    extern	cvar_t	sv_maxspeed;
-    extern	cvar_t	sv_accelerate;
-    extern	cvar_t	sv_idealpitchscale;
-    extern	cvar_t	sv_aim_h; // Manoel Kasimier - horizontal autoaim
-    extern	cvar_t	sv_aim;
-    extern	cvar_t	sv_enable_use_button; // Manoel Kasimier - +USE fix
-
     Cvar_RegisterVariable (&sv_progs); //qb:  fitzquake
     Cvar_RegisterVariable (&sv_cheats); //qb
     Cvar_RegisterVariable (&sv_maxvelocity);
@@ -1472,8 +1455,6 @@ SV_SpawnServer
 This is called at the start of each level
 ================
 */
-extern float		scr_centertime_off;
-
 void SV_SpawnServer (char *server)
 {
     edict_t		*ent;

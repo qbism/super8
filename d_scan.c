@@ -23,7 +23,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "d_local.h"
 
 unsigned char	*r_turb_pbase, *r_turb_pdest;
-fixed16_t		r_turb_s, r_turb_t, r_turb_sstep, r_turb_tstep;
+static fixed16_t		r_turb_s, r_turb_t, r_turb_sstep, r_turb_tstep;
 int				*r_turb_turb;
 int				r_turb_spancount;
 

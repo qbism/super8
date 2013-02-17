@@ -22,8 +22,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "s_win32/movie_avi.h"
 #endif
 
-extern cvar_t r_palette;
-
 void CL_FinishTimeDemo (void);
 
 //DEMO_REWIND qb:  Baker change
