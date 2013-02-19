@@ -3208,11 +3208,8 @@ void M_Gameplay_Key (int k)
 //=============================================================================
 /* AUDIO OPTIONS MENU */
 
-#ifndef _WIN32
 #define	AUDIO_ITEMS	12
-#else
-#define	AUDIO_ITEMS	11
-#endif
+
 byte cd_cursor;
 
 void M_Audio_f (void)
@@ -3234,14 +3231,12 @@ void M_Audio_Draw (void)
     M_Print (16, y+=8, "     Swap L/R Channels");
     M_DrawCheckbox (220, y, snd_swapstereo.value);
     M_Print (16, y+=8, "          Sound Volume");
-    M_DrawSlider (220, y, volume.value);
-#ifndef _WIN32
-    M_Print (16, y+=8, "       CD Music Volume");
+    M_DrawSlider (220, y, sfxvolume.value);
+    M_Print (16, y+=8, "       Music Volume");
     M_DrawSlider (220, y, bgmvolume.value);
-#endif
     M_Print (16, y+=8, "              CD Music");
     M_DrawCheckbox (220, y, cd_enabled.value);
-    M_Print (16, y+=8, "            Play Track");
+    M_Print (16, y+=8, "            Play CD Track");
     if (cdValid)
     {
         (cd_cursor == playTrack) ? M_Print (220, y, va("%u", cd_cursor)) : M_PrintWhite (220, y, va("%u", cd_cursor));
@@ -3251,11 +3246,11 @@ void M_Audio_Draw (void)
         M_Print (220, y, "No tracks");
     else
         M_Print (220, y, "Drive empty");
-    M_Print (16, y+=8, "                  Loop");
+    M_Print (16, y+=8, "                  Loop CD");
     M_DrawCheckbox (220, y, playLooping);
-    M_Print (16, y+=8, "                 Pause");
+    M_Print (16, y+=8, "                 Pause CD");
     M_DrawCheckbox (220, y, !playing && wasPlaying);
-    M_Print (16, y+=8, "                  Stop");
+    M_Print (16, y+=8, "                  Stop CD");
     M_Print (16, y+=8, "            Open Drive");
     M_Print (16, y+=8, "           Close Drive");
     M_Print (16, y+=8, "        Reset CD Audio");
@@ -3271,10 +3266,8 @@ void M_Audio_Change (int dir)
 
     if (c == i++) Cvar_SetValue ("snd_stereo", !snd_stereo.value);
     if (c == i++) Cvar_SetValue ("snd_swapstereo", !snd_swapstereo.value);
-    if (c == i++) ChangeCVar("volume", volume.value, dir * 0.1, 0, 1, true);
-#ifndef _WIN32
+    if (c == i++) ChangeCVar("sfxvolume", sfxvolume.value, dir * 0.1, 0, 1, true);
     if (c == i++) ChangeCVar("bgmvolume", bgmvolume.value, dir * 0.1, 0, 1, true);
-#endif
     if (c == i++) Cvar_SetValue ("cd_enabled", !cd_enabled.value);
     if (c == i++)
     {
@@ -3314,11 +3307,8 @@ void M_Audio_Key (int k)
         if (++m_cursor[m_state] >= AUDIO_ITEMS)
             m_cursor[m_state] = 0;
     }
-#ifndef _WIN32
+
     else if (m_cursor[m_state] == 5 && m_inp_ok && cdValid && audioTrack[cd_cursor])
-#else
-    else if (m_cursor[m_state] == 4 && m_inp_ok && cdValid && audioTrack[cd_cursor])
-#endif
         CDAudio_Play(cd_cursor, playLooping);
     else if (m_inp_left)
         M_Audio_Change (-1);

@@ -42,33 +42,33 @@ static unsigned long CD_OrigVolume;
 
 void CD_FindCDAux(void)
 {
-	UINT NumDevs,counter;
-	MMRESULT Result;
-	AUXCAPS Caps;
+    UINT NumDevs,counter;
+    MMRESULT Result;
+    AUXCAPS Caps;
 
-	CD_ID = -1;
-	if (!COM_CheckParm("-usecdvolume"))
-		return;
-	NumDevs = auxGetNumDevs();
-	for(counter=0;counter<NumDevs;counter++)
-	{
-		Result = auxGetDevCaps(counter,&Caps,sizeof(Caps));
-		if (!Result) // valid
-		{
-			if (Caps.wTechnology == AUXCAPS_CDAUDIO)
-			{
-				CD_ID = counter;
-				auxGetVolume(CD_ID,&CD_OrigVolume);
-				return;
-			}
-		}
-	}
+    CD_ID = -1;
+    if (!COM_CheckParm("-usecdvolume"))
+        return;
+    NumDevs = auxGetNumDevs();
+    for(counter=0; counter<NumDevs; counter++)
+    {
+        Result = auxGetDevCaps(counter,&Caps,sizeof(Caps));
+        if (!Result) // valid
+        {
+            if (Caps.wTechnology == AUXCAPS_CDAUDIO)
+            {
+                CD_ID = counter;
+                auxGetVolume(CD_ID,&CD_OrigVolume);
+                return;
+            }
+        }
+    }
 }
 
 void CD_SetVolume(unsigned long Volume)
 {
-	if (CD_ID != -1)
-		auxSetVolume(CD_ID,(Volume<<16)+Volume);
+    if (CD_ID != -1)
+        auxSetVolume(CD_ID,(Volume<<16)+Volume);
 }
 // Hexen 2 - end
 
@@ -77,520 +77,521 @@ UINT	wDeviceID;
 
 static void CDAudio_Eject(void)
 {
-	DWORD	dwReturn;
+    DWORD	dwReturn;
 
     if (dwReturn = mciSendCommand(wDeviceID, MCI_SET, MCI_SET_DOOR_OPEN, (DWORD)NULL))
-		Con_DPrintf("MCI_SET_DOOR_OPEN failed (%i)\n", dwReturn);
+        Con_DPrintf("MCI_SET_DOOR_OPEN failed (%i)\n", dwReturn);
 }
 
 
 static void CDAudio_CloseDoor(void)
 {
-	DWORD	dwReturn;
+    DWORD	dwReturn;
 
     if (dwReturn = mciSendCommand(wDeviceID, MCI_SET, MCI_SET_DOOR_CLOSED, (DWORD)NULL))
-		Con_DPrintf("MCI_SET_DOOR_CLOSED failed (%i)\n", dwReturn);
+        Con_DPrintf("MCI_SET_DOOR_CLOSED failed (%i)\n", dwReturn);
 }
 
 
 static int CDAudio_GetAudioDiskInfo(void)
 {
-	DWORD				dwReturn;
-	MCI_STATUS_PARMS	mciStatusParms;
-	byte track; // Manoel Kasimier
+    DWORD				dwReturn;
+    MCI_STATUS_PARMS	mciStatusParms;
+    byte track; // Manoel Kasimier
 
 
-	cdValid = false;
-	maxTrack = 0; // Manoel Kasimier
+    cdValid = false;
+    maxTrack = 0; // Manoel Kasimier
 
-	mciStatusParms.dwItem = MCI_STATUS_READY;
+    mciStatusParms.dwItem = MCI_STATUS_READY;
     dwReturn = mciSendCommand(wDeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_WAIT, (DWORD) (LPVOID) &mciStatusParms);
-	if (dwReturn)
-	{
-		Con_DPrintf("CDAudio: drive ready test - get status failed\n");
-		return -1;
-	}
-	if (!mciStatusParms.dwReturn)
-	{
-		Con_DPrintf("CDAudio: drive not ready\n");
-		return -1;
-	}
+    if (dwReturn)
+    {
+        Con_DPrintf("CDAudio: drive ready test - get status failed\n");
+        return -1;
+    }
+    if (!mciStatusParms.dwReturn)
+    {
+        Con_DPrintf("CDAudio: drive not ready\n");
+        return -1;
+    }
 
-	mciStatusParms.dwItem = MCI_STATUS_NUMBER_OF_TRACKS;
+    mciStatusParms.dwItem = MCI_STATUS_NUMBER_OF_TRACKS;
     dwReturn = mciSendCommand(wDeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_WAIT, (DWORD) (LPVOID) &mciStatusParms);
-	if (dwReturn)
-	{
-		Con_DPrintf("CDAudio: get tracks - status failed\n");
-		return -1;
-	}
-	if (mciStatusParms.dwReturn < 1)
-	{
-		Con_DPrintf("CDAudio: no music tracks\n");
-		return -1;
-	}
+    if (dwReturn)
+    {
+        Con_DPrintf("CDAudio: get tracks - status failed\n");
+        return -1;
+    }
+    if (mciStatusParms.dwReturn < 1)
+    {
+        Con_DPrintf("CDAudio: no music tracks\n");
+        return -1;
+    }
 
-	maxTrack = mciStatusParms.dwReturn;
-	// Manoel Kasimier - begin
-	for (track=0; track<=100; track++)
-		audioTrack[track] = false;
-	for (track=1; track<=maxTrack; track++)
-	{
-		mciStatusParms.dwItem = MCI_CDA_STATUS_TYPE_TRACK;
-		mciStatusParms.dwTrack = track;
-		if (!mciSendCommand(wDeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_TRACK | MCI_WAIT, (DWORD) (LPVOID) &mciStatusParms))
-			if (mciStatusParms.dwReturn == MCI_CDA_TRACK_AUDIO)
-			{
-				audioTrack[track] = true;
-				cdValid = true;
-			}
-	}
-	// Manoel Kasimier - end
+    maxTrack = mciStatusParms.dwReturn;
+    // Manoel Kasimier - begin
+    for (track=0; track<=100; track++)
+        audioTrack[track] = false;
+    for (track=1; track<=maxTrack; track++)
+    {
+        mciStatusParms.dwItem = MCI_CDA_STATUS_TYPE_TRACK;
+        mciStatusParms.dwTrack = track;
+        if (!mciSendCommand(wDeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_TRACK | MCI_WAIT, (DWORD) (LPVOID) &mciStatusParms))
+            if (mciStatusParms.dwReturn == MCI_CDA_TRACK_AUDIO)
+            {
+                audioTrack[track] = true;
+                cdValid = true;
+            }
+    }
+    // Manoel Kasimier - end
 
-	return 0;
+    return 0;
 }
 
 
-void CDAudio_Play(byte track, qboolean looping)
+int CDAudio_Play(byte track, qboolean looping)
 {
-	DWORD				dwReturn;
+    DWORD				dwReturn;
     MCI_PLAY_PARMS		mciPlayParms;
-	MCI_STATUS_PARMS	mciStatusParms;
+    MCI_STATUS_PARMS	mciStatusParms;
 
-	if (!cd_enabled.value || !initialized) // Manoel Kasimier - CD player in menu - edited
-		return;
+    if (!cd_enabled.value || !initialized) // Manoel Kasimier - CD player in menu - edited
+        return 0;
 
-	if (!cdValid)
-	{
-		CDAudio_GetAudioDiskInfo();
-		if (!cdValid)
-			return;
-	}
+    if (!cdValid)
+    {
+        CDAudio_GetAudioDiskInfo();
+        if (!cdValid)
+            return 0;
+    }
 
-	track = remap[track];
+    track = remap[track];
 
 
-	if (track < 1 || track > maxTrack)
-	{
-		Con_DPrintf("CDAudio: Bad track number %u.\n", track);
-		return;
-	}
+    if (track < 1 || track > maxTrack)
+    {
+        Con_DPrintf("CDAudio: Bad track number %u.\n", track);
+        return 0;
+    }
 
-	// don't try to play a non-audio track
-	mciStatusParms.dwItem = MCI_CDA_STATUS_TYPE_TRACK;
-	mciStatusParms.dwTrack = track;
+    // don't try to play a non-audio track
+    mciStatusParms.dwItem = MCI_CDA_STATUS_TYPE_TRACK;
+    mciStatusParms.dwTrack = track;
     dwReturn = mciSendCommand(wDeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_TRACK | MCI_WAIT, (DWORD) (LPVOID) &mciStatusParms);
-	if (dwReturn)
-	{
-		Con_DPrintf("MCI_STATUS failed (%i)\n", dwReturn);
-		return;
-	}
-	if (mciStatusParms.dwReturn != MCI_CDA_TRACK_AUDIO)
-	{
-		Con_Printf("CDAudio: track %i is not audio\n", track);
-		return;
-	}
+    if (dwReturn)
+    {
+        Con_DPrintf("MCI_STATUS failed (%i)\n", dwReturn);
+        return 0;
+    }
+    if (mciStatusParms.dwReturn != MCI_CDA_TRACK_AUDIO)
+    {
+        Con_Printf("CDAudio: track %i is not audio\n", track);
+        return 0;
+    }
 
-	// get the length of the track to be played
-	mciStatusParms.dwItem = MCI_STATUS_LENGTH;
-	mciStatusParms.dwTrack = track;
+    // get the length of the track to be played
+    mciStatusParms.dwItem = MCI_STATUS_LENGTH;
+    mciStatusParms.dwTrack = track;
     dwReturn = mciSendCommand(wDeviceID, MCI_STATUS, MCI_STATUS_ITEM | MCI_TRACK | MCI_WAIT, (DWORD) (LPVOID) &mciStatusParms);
-	if (dwReturn)
-	{
-		Con_DPrintf("MCI_STATUS failed (%i)\n", dwReturn);
-		return;
-	}
+    if (dwReturn)
+    {
+        Con_DPrintf("MCI_STATUS failed (%i)\n", dwReturn);
+        return 0;
+    }
 
-	if (playing)
-	{
-		if (playTrack == track)
-			return;
-		CDAudio_Stop();
-	}
+    if (playing)
+    {
+        if (playTrack == track)
+            return 1;
+        CDAudio_Stop();
+    }
 
     mciPlayParms.dwFrom = MCI_MAKE_TMSF(track, 0, 0, 0);
-	mciPlayParms.dwTo = (mciStatusParms.dwReturn << 8) | track;
+    mciPlayParms.dwTo = (mciStatusParms.dwReturn << 8) | track;
     mciPlayParms.dwCallback = (DWORD)mainwindow;
     dwReturn = mciSendCommand(wDeviceID, MCI_PLAY, MCI_NOTIFY | MCI_FROM | MCI_TO, (DWORD)(LPVOID) &mciPlayParms);
-	if (dwReturn)
-	{
-		Con_DPrintf("CDAudio: MCI_PLAY failed (%i)\n", dwReturn);
-		return;
-	}
+    if (dwReturn)
+    {
+        Con_DPrintf("CDAudio: MCI_PLAY failed (%i)\n", dwReturn);
+        return 0;
+    }
 
-	playLooping = looping;
-	playTrack = track;
-	playing = true;
+    playLooping = looping;
+    playTrack = track;
+    playing = true;
 
-	if (cdvolume == 0.0)
-		CDAudio_Pause ();
+    if (cdvolume == 0.0)
+        CDAudio_Pause ();
+        return 1;
 }
 
 
 void CDAudio_Stop(void)
 {
-	DWORD	dwReturn;
+    DWORD	dwReturn;
 
-	if (!cd_enabled.value || !initialized) // Manoel Kasimier - CD player in menu - edited
-		return;
+    if (!cd_enabled.value || !initialized) // Manoel Kasimier - CD player in menu - edited
+        return;
 
-	if (!playing)
-		return;
+    if (!playing)
+        return;
 
     if (dwReturn = mciSendCommand(wDeviceID, MCI_STOP, 0, (DWORD)NULL))
-		Con_DPrintf("MCI_STOP failed (%i)", dwReturn);
+        Con_DPrintf("MCI_STOP failed (%i)", dwReturn);
 
-	wasPlaying = false;
-	playing = false;
+    wasPlaying = false;
+    playing = false;
 }
 
 
 void CDAudio_Pause(void)
 {
-	DWORD				dwReturn;
-	MCI_GENERIC_PARMS	mciGenericParms;
+    DWORD				dwReturn;
+    MCI_GENERIC_PARMS	mciGenericParms;
 
-	if (!cd_enabled.value || !initialized) // Manoel Kasimier - CD player in menu - edited
-		return;
+    if (!cd_enabled.value || !initialized) // Manoel Kasimier - CD player in menu - edited
+        return;
 
-	if (!playing)
-		return;
+    if (!playing)
+        return;
 
-	mciGenericParms.dwCallback = (DWORD)mainwindow;
+    mciGenericParms.dwCallback = (DWORD)mainwindow;
     if (dwReturn = mciSendCommand(wDeviceID, MCI_PAUSE, 0, (DWORD)(LPVOID) &mciGenericParms))
-		Con_DPrintf("MCI_PAUSE failed (%i)", dwReturn);
+        Con_DPrintf("MCI_PAUSE failed (%i)", dwReturn);
 
-	wasPlaying = playing;
-	playing = false;
+    wasPlaying = playing;
+    playing = false;
 }
 
 
 void CDAudio_Resume(void)
 {
-	DWORD			dwReturn;
+    DWORD			dwReturn;
     MCI_PLAY_PARMS	mciPlayParms;
 
-	if (!cd_enabled.value || !initialized) // Manoel Kasimier - CD player in menu - edited
-		return;
+    if (!cd_enabled.value || !initialized) // Manoel Kasimier - CD player in menu - edited
+        return;
 
-	if (!cdValid)
-		return;
+    if (!cdValid)
+        return;
 
-	if (!wasPlaying)
-		return;
+    if (!wasPlaying)
+        return;
 
     mciPlayParms.dwFrom = MCI_MAKE_TMSF(playTrack, 0, 0, 0);
     mciPlayParms.dwTo = MCI_MAKE_TMSF(playTrack + 1, 0, 0, 0);
     mciPlayParms.dwCallback = (DWORD)mainwindow;
     dwReturn = mciSendCommand(wDeviceID, MCI_PLAY, MCI_TO | MCI_NOTIFY, (DWORD)(LPVOID) &mciPlayParms);
-	if (dwReturn)
-	{
-		Con_DPrintf("CDAudio: MCI_PLAY failed (%i)\n", dwReturn);
-		return;
-	}
-	playing = true;
+    if (dwReturn)
+    {
+        Con_DPrintf("CDAudio: MCI_PLAY failed (%i)\n", dwReturn);
+        return;
+    }
+    playing = true;
 }
 
 
 static void CD_f (void)
 {
-	char	*command;
-	int		ret;
-	int		n;
+    char	*command;
+    int		ret;
+    int		n;
 
-	if (Cmd_Argc() < 2)
-	{
-		Con_Printf("CD parameters:\n on\n off\n reset\n remap\n eject\n close\n play\n loop\n pause\n resume\n stop\n info\n"); // Manoel Kasimier
-		return;
-	}
+    if (Cmd_Argc() < 2)
+    {
+        Con_Printf("CD parameters:\n on\n off\n reset\n remap\n eject\n close\n play\n loop\n pause\n resume\n stop\n info\n"); // Manoel Kasimier
+        return;
+    }
 
-	command = Cmd_Argv (1);
+    command = Cmd_Argv (1);
 
-	if (Q_strcasecmp(command, "on") == 0)
-	{
-		Cvar_SetValue("cd_enabled", 1); // Manoel Kasimier - CD player in menu
-		return;
-	}
+    if (Q_strcasecmp(command, "on") == 0)
+    {
+        Cvar_SetValue("cd_enabled", 1); // Manoel Kasimier - CD player in menu
+        return;
+    }
 
-	if (Q_strcasecmp(command, "off") == 0)
-	{
-		if (playing)
-			CDAudio_Stop();
-		Cvar_SetValue("cd_enabled", 0); // Manoel Kasimier - CD player in menu
-		return;
-	}
+    if (Q_strcasecmp(command, "off") == 0)
+    {
+        if (playing)
+            CDAudio_Stop();
+        Cvar_SetValue("cd_enabled", 0); // Manoel Kasimier - CD player in menu
+        return;
+    }
 
-	if (Q_strcasecmp(command, "reset") == 0)
-	{
-		/* // Manoel Kasimier - Windows XP fix
-		if (playing)
-			CDAudio_Stop();
-		for (n = 0; n < 100; n++)
-			remap[n] = n;
-		CDAudio_GetAudioDiskInfo();
-		*/ // Manoel Kasimier - Windows XP fix - begin
-		CDAudio_Shutdown();
-		CDAudio_Init();
-		// Manoel Kasimier - Windows XP fix - end
-		return;
-	}
+    if (Q_strcasecmp(command, "reset") == 0)
+    {
+        /* // Manoel Kasimier - Windows XP fix
+        if (playing)
+        	CDAudio_Stop();
+        for (n = 0; n < 100; n++)
+        	remap[n] = n;
+        CDAudio_GetAudioDiskInfo();
+        */ // Manoel Kasimier - Windows XP fix - begin
+        CDAudio_Shutdown();
+        CDAudio_Init();
+        // Manoel Kasimier - Windows XP fix - end
+        return;
+    }
 
-	if (Q_strcasecmp(command, "remap") == 0)
-	{
-		ret = Cmd_Argc() - 2;
-		if (ret <= 0)
-		{
-			for (n = 1; n < 100; n++)
-				if (remap[n] != n)
-					Con_Printf("  %u -> %u\n", n, remap[n]);
-			return;
-		}
-		for (n = 1; n <= ret; n++)
-			remap[n] = Q_atoi(Cmd_Argv (n+1));
-		return;
-	}
+    if (Q_strcasecmp(command, "remap") == 0)
+    {
+        ret = Cmd_Argc() - 2;
+        if (ret <= 0)
+        {
+            for (n = 1; n < 100; n++)
+                if (remap[n] != n)
+                    Con_Printf("  %u -> %u\n", n, remap[n]);
+            return;
+        }
+        for (n = 1; n <= ret; n++)
+            remap[n] = Q_atoi(Cmd_Argv (n+1));
+        return;
+    }
 
-	// Manoel Kasimier - moved the "eject" command here so empty drives can be ejected
-	if (Q_strcasecmp(command, "eject") == 0)
-	{
-		if (playing)
-			CDAudio_Stop();
-		CDAudio_Eject();
-		cdValid = false;
-		maxTrack = 0; // Manoel Kasimier - CD player in menu
-		return;
-	}
+    // Manoel Kasimier - moved the "eject" command here so empty drives can be ejected
+    if (Q_strcasecmp(command, "eject") == 0)
+    {
+        if (playing)
+            CDAudio_Stop();
+        CDAudio_Eject();
+        cdValid = false;
+        maxTrack = 0; // Manoel Kasimier - CD player in menu
+        return;
+    }
 
-	if (Q_strcasecmp(command, "close") == 0)
-	{
-		CDAudio_CloseDoor();
-		Cbuf_AddText ("wait;cd reset\n"); // Manoel Kasimier - CD player in menu - auto-update CD status after closing drive door
-		return;
-	}
+    if (Q_strcasecmp(command, "close") == 0)
+    {
+        CDAudio_CloseDoor();
+        Cbuf_AddText ("wait;cd reset\n"); // Manoel Kasimier - CD player in menu - auto-update CD status after closing drive door
+        return;
+    }
 
-	if (Q_strcasecmp(command, "info") == 0)
-	{
-		// Manoel Kasimier - begin
-		if (!maxTrack)
-			Con_Printf("No CD in player.\n");
-		else
-		{
-			Con_Printf("%u tracks\n", maxTrack);
-			if (!cdValid)
-				Con_Printf("No audio tracks on disc\n");
-			else // List valid tracks
-			{
-				Con_Printf("Audio tracks on disc:\n");
-				for (n=1; n<=99; n++)
-					if (audioTrack[n])
-					{
-						if (!audioTrack[n+1]) // end of sequence, or isolated track
-							Con_Printf(" %2i\n", n);
-						else if (!audioTrack[n-1]) // beginning of sequence
-							Con_Printf(" %2i -", n);
-					}
-				if (cd_enabled.value)
-				{
-		// Manoel Kasimier - end
-		if (playing)
-			Con_Printf("Currently %s track %u\n", playLooping ? "looping" : "playing", playTrack);
-		else if (wasPlaying)
-			Con_Printf("Paused %s track %u\n", playLooping ? "looping" : "playing", playTrack);
-		// Manoel Kasimier - begin
-				}
-			}
-		}
-		if (!cd_enabled.value)
-			Con_Printf("CD audio is off\n");
-		// Manoel Kasimier - end
-		Con_Printf("Volume is %.1f\n", cdvolume); // Manoel Kasimier - edited
-		return;
-	}
+    if (Q_strcasecmp(command, "info") == 0)
+    {
+        // Manoel Kasimier - begin
+        if (!maxTrack)
+            Con_Printf("No CD in player.\n");
+        else
+        {
+            Con_Printf("%u tracks\n", maxTrack);
+            if (!cdValid)
+                Con_Printf("No audio tracks on disc\n");
+            else // List valid tracks
+            {
+                Con_Printf("Audio tracks on disc:\n");
+                for (n=1; n<=99; n++)
+                    if (audioTrack[n])
+                    {
+                        if (!audioTrack[n+1]) // end of sequence, or isolated track
+                            Con_Printf(" %2i\n", n);
+                        else if (!audioTrack[n-1]) // beginning of sequence
+                            Con_Printf(" %2i -", n);
+                    }
+                if (cd_enabled.value)
+                {
+                    // Manoel Kasimier - end
+                    if (playing)
+                        Con_Printf("Currently %s track %u\n", playLooping ? "looping" : "playing", playTrack);
+                    else if (wasPlaying)
+                        Con_Printf("Paused %s track %u\n", playLooping ? "looping" : "playing", playTrack);
+                    // Manoel Kasimier - begin
+                }
+            }
+        }
+        if (!cd_enabled.value)
+            Con_Printf("CD audio is off\n");
+        // Manoel Kasimier - end
+        Con_Printf("Volume is %.1f\n", cdvolume); // Manoel Kasimier - edited
+        return;
+    }
 
-	if (!cdValid)
-	{
-		CDAudio_GetAudioDiskInfo();
-		if (!cdValid)
-		{
-			// Manoel Kasimier - begin
-			if (maxTrack)
-				Con_Printf("No audio tracks on disc\n");
-			else
-			// Manoel Kasimier - end
-			Con_Printf("No CD in player.\n");
-			return;
-		}
-	}
+    if (!cdValid)
+    {
+        CDAudio_GetAudioDiskInfo();
+        if (!cdValid)
+        {
+            // Manoel Kasimier - begin
+            if (maxTrack)
+                Con_Printf("No audio tracks on disc\n");
+            else
+                // Manoel Kasimier - end
+                Con_Printf("No CD in player.\n");
+            return;
+        }
+    }
 
-	if (Q_strcasecmp(command, "play") == 0)
-	{
-		CDAudio_Play((byte)Q_atoi(Cmd_Argv (2)), false);
-		return;
-	}
+    if (Q_strcasecmp(command, "play") == 0)
+    {
+        CDAudio_Play((byte)Q_atoi(Cmd_Argv (2)), false);
+        return;
+    }
 
-	if (Q_strcasecmp(command, "loop") == 0)
-	{
-		CDAudio_Play((byte)Q_atoi(Cmd_Argv (2)), true);
-		return;
-	}
+    if (Q_strcasecmp(command, "loop") == 0)
+    {
+        CDAudio_Play((byte)Q_atoi(Cmd_Argv (2)), true);
+        return;
+    }
 
-	if (Q_strcasecmp(command, "stop") == 0)
-	{
-		CDAudio_Stop();
-		return;
-	}
+    if (Q_strcasecmp(command, "stop") == 0)
+    {
+        CDAudio_Stop();
+        return;
+    }
 
-	if (Q_strcasecmp(command, "pause") == 0)
-	{
-		CDAudio_Pause();
-		return;
-	}
+    if (Q_strcasecmp(command, "pause") == 0)
+    {
+        CDAudio_Pause();
+        return;
+    }
 
-	if (Q_strcasecmp(command, "resume") == 0)
-	{
-		CDAudio_Resume();
-		return;
-	}
+    if (Q_strcasecmp(command, "resume") == 0)
+    {
+        CDAudio_Resume();
+        return;
+    }
 
-	Con_Printf("CD parameters:\n on\n off\n reset\n remap\n eject\n close\n play\n loop\n pause\n resume\n stop\n info\n"); // Manoel Kasimier - absent/unrecognized parameter
+    Con_Printf("CD parameters:\n on\n off\n reset\n remap\n eject\n close\n play\n loop\n pause\n resume\n stop\n info\n"); // Manoel Kasimier - absent/unrecognized parameter
 }
 
 
 LONG CDAudio_MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (lParam != wDeviceID)
-		return 1;
+    if (lParam != wDeviceID)
+        return 1;
 
-	switch (wParam)
-	{
-		case MCI_NOTIFY_SUCCESSFUL:
-			if (playing)
-			{
-				playing = false;
-				if (playLooping)
-					CDAudio_Play(playTrack, true);
-			}
-			break;
+    switch (wParam)
+    {
+    case MCI_NOTIFY_SUCCESSFUL:
+        if (playing)
+        {
+            playing = false;
+            if (playLooping)
+                CDAudio_Play(playTrack, true);
+        }
+        break;
 
-		case MCI_NOTIFY_ABORTED:
-		case MCI_NOTIFY_SUPERSEDED:
-			break;
+    case MCI_NOTIFY_ABORTED:
+    case MCI_NOTIFY_SUPERSEDED:
+        break;
 
-		case MCI_NOTIFY_FAILURE:
-			Con_DPrintf("MCI_NOTIFY_FAILURE\n");
-			CDAudio_Stop ();
-			cdValid = false;
-			break;
+    case MCI_NOTIFY_FAILURE:
+        Con_DPrintf("MCI_NOTIFY_FAILURE\n");
+        CDAudio_Stop ();
+        cdValid = false;
+        break;
 
-		default:
-			Con_DPrintf("Unexpected MM_MCINOTIFY type (%i)\n", wParam);
-			return 1;
-	}
+    default:
+        Con_DPrintf("Unexpected MM_MCINOTIFY type (%i)\n", wParam);
+        return 1;
+    }
 
-	return 0;
+    return 0;
 }
 
 
 void CDAudio_Update(void)
 {
-	if (!cd_enabled.value || !initialized) // Manoel Kasimier - CD player in menu
-		return;
+    if (!cd_enabled.value || !initialized) // Manoel Kasimier - CD player in menu
+        return;
 
-	if (bgmvolume.value != cdvolume)
-	{
-		CD_SetVolume(bgmvolume.value * 0xffff); // Hexen 2
-		if (cdvolume && !bgmvolume.value) // Manoel Kasimier - just muted
-			CDAudio_Pause ();
-		else if (!cdvolume && bgmvolume.value) // Manoel Kasimier
-			CDAudio_Resume ();
-		cdvolume = bgmvolume.value;
-	}
+    if (bgmvolume.value != cdvolume)
+    {
+        CD_SetVolume(bgmvolume.value ); // Hexen 2
+        if (cdvolume && !bgmvolume.value) // Manoel Kasimier - just muted
+            CDAudio_Pause ();
+        else if (!cdvolume && bgmvolume.value) // Manoel Kasimier
+            CDAudio_Resume ();
+        cdvolume = bgmvolume.value;
+    }
 }
 
 
 // Manoel Kasimier - begin
 void cd_cvar_check(void)
 {
-	if (!cd_enabled.value)
-	{
-		cd_enabled.value = 1;
-		if (playing)
-			CDAudio_Stop();
-		cd_enabled.value = 0;
-	}
+    if (!cd_enabled.value)
+    {
+        cd_enabled.value = 1;
+        if (playing)
+            CDAudio_Stop();
+        cd_enabled.value = 0;
+    }
 }
 // Manoel Kasimier - end
 
 int CDAudio_Init(void)
 {
-	DWORD	dwReturn;
-	MCI_OPEN_PARMS	mciOpenParms;
+    DWORD	dwReturn;
+    MCI_OPEN_PARMS	mciOpenParms;
     MCI_SET_PARMS	mciSetParms;
-	int				n;
+    int				n;
 
-	static qboolean cd_initialized; // Manoel Kasimier - Windows XP fix
-	// Manoel Kasimier - CD player in menu - begin
-	cdValid = false;
-	playing = false;
-	wasPlaying = false;
-	playLooping = false;
-	// Manoel Kasimier - CD player in menu - end
+    static qboolean cd_initialized; // Manoel Kasimier - Windows XP fix
+    // Manoel Kasimier - CD player in menu - begin
+    cdValid = false;
+    playing = false;
+    wasPlaying = false;
+    playLooping = false;
+    // Manoel Kasimier - CD player in menu - end
 
-	if (cls.state == ca_dedicated)
-		return -1;
+    if (cls.state == ca_dedicated)
+        return -1;
 
-	if (COM_CheckParm("-nocdaudio"))
-		return -1;
+    if (COM_CheckParm("-nocdaudio"))
+        return -1;
 
-	mciOpenParms.lpstrDeviceType = "cdaudio";
-	if (dwReturn = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_SHAREABLE, (DWORD) (LPVOID) &mciOpenParms))
-	{
-		Con_Printf("CDAudio_Init: MCI_OPEN failed (%i)\n", dwReturn);
-		return -1;
-	}
-	wDeviceID = mciOpenParms.wDeviceID;
+    mciOpenParms.lpstrDeviceType = "cdaudio";
+    if (dwReturn = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_SHAREABLE, (DWORD) (LPVOID) &mciOpenParms))
+    {
+        Con_Printf("CDAudio_Init: MCI_OPEN failed (%i)\n", dwReturn);
+        return -1;
+    }
+    wDeviceID = mciOpenParms.wDeviceID;
 
     // Set the time format to track/minute/second/frame (TMSF).
     mciSetParms.dwTimeFormat = MCI_FORMAT_TMSF;
     if (dwReturn = mciSendCommand(wDeviceID, MCI_SET, MCI_SET_TIME_FORMAT, (DWORD)(LPVOID) &mciSetParms))
     {
-		Con_Printf("MCI_SET_TIME_FORMAT failed (%i)\n", dwReturn);
+        Con_Printf("MCI_SET_TIME_FORMAT failed (%i)\n", dwReturn);
         mciSendCommand(wDeviceID, MCI_CLOSE, 0, (DWORD)NULL);
-		return -1;
+        return -1;
     }
 
-	for (n = 0; n < 100; n++)
-		remap[n] = n;
-	initialized = true;
+    for (n = 0; n < 100; n++)
+        remap[n] = n;
+    initialized = true;
 
-	if (CDAudio_GetAudioDiskInfo())
-	{
-		Con_DPrintf("CDAudio_Init: No CD in player.\n"); // edited
-		cdValid = false;
-	}
-	// Manoel Kasimier - Windows XP fix - begin
-	if (!cd_initialized)
-	{
-		cd_initialized = true;
-		Cvar_RegisterVariableWithCallback(&cd_enabled, cd_cvar_check);
-	// Manoel Kasimier - Windows XP fix - end
-	Cmd_AddCommand ("cd", CD_f);
-		CD_FindCDAux(); // Hexen 2
-	} // Manoel Kasimier - Windows XP fix
+    if (CDAudio_GetAudioDiskInfo())
+    {
+        Con_DPrintf("CDAudio_Init: No CD in player.\n"); // edited
+        cdValid = false;
+    }
+    // Manoel Kasimier - Windows XP fix - begin
+    if (!cd_initialized)
+    {
+        cd_initialized = true;
+        Cvar_RegisterVariableWithCallback(&cd_enabled, cd_cvar_check);
+        // Manoel Kasimier - Windows XP fix - end
+        Cmd_AddCommand ("cd", CD_f);
+        CD_FindCDAux(); // Hexen 2
+    } // Manoel Kasimier - Windows XP fix
 
-	Con_DPrintf("CD Audio Initialized\n"); // edited
+    Con_DPrintf("CD Audio Initialized\n"); // edited
 
-	return 0;
+    return 0;
 }
 
 
 void CDAudio_Shutdown(void)
 {
-	if (!initialized)
-		return;
-	if (playing) // Manoel Kasimier
-		CDAudio_Stop();
-	if (CD_ID != -1) // Manoel Kasimier
-		auxSetVolume(CD_ID,CD_OrigVolume); // Manoel Kasimier
-	if (mciSendCommand(wDeviceID, MCI_CLOSE, MCI_WAIT, (DWORD)NULL))
-		Con_DPrintf("CDAudio_Shutdown: MCI_CLOSE failed\n");
+    if (!initialized)
+        return;
+    if (playing) // Manoel Kasimier
+        CDAudio_Stop();
+    if (CD_ID != -1) // Manoel Kasimier
+        auxSetVolume(CD_ID,CD_OrigVolume); // Manoel Kasimier
+    if (mciSendCommand(wDeviceID, MCI_CLOSE, MCI_WAIT, (DWORD)NULL))
+        Con_DPrintf("CDAudio_Shutdown: MCI_CLOSE failed\n");
 }

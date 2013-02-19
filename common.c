@@ -48,6 +48,8 @@ char	**com_argv;
 #define CMDLINE_LENGTH	256
 char	com_cmdline[CMDLINE_LENGTH];
 
+int file_from_pak; //qb: QS
+
 qboolean		standard_quake = true, rogue, hipnotic;
 
 /* // Manoel Kasimier - removing pop.lmp check - removed - begin
@@ -452,7 +454,7 @@ void COM_ForceExtension (char *path, char *extension)
 ============================================================================
 */
 
-qboolean        bigendien;
+qboolean        host_bigendian;
 
 short   (*BigShort) (short l);
 short   (*LittleShort) (short l);
@@ -642,11 +644,11 @@ int MSG_ReadChar (void)
 {
     int     c;
 
-	if (msg_readcount+1 > net_message.cursize)
-	{
-		msg_badread = true;
-		return -1;
-	}
+    if (msg_readcount+1 > net_message.cursize)
+    {
+        msg_badread = true;
+        return -1;
+    }
 
     c = (signed char)net_message.data[msg_readcount];
     msg_readcount++;
@@ -658,11 +660,11 @@ int MSG_ReadByte (void)
 {
     int     c;
 
-	if (msg_readcount+1 > net_message.cursize)
-	{
-		msg_badread = true;
-		return -1;
-	}
+    if (msg_readcount+1 > net_message.cursize)
+    {
+        msg_badread = true;
+        return -1;
+    }
 
     c = (unsigned char)net_message.data[msg_readcount];
     msg_readcount++;
@@ -674,11 +676,11 @@ int MSG_ReadShort (void)
 {
     int     c;
 
-	if (msg_readcount+2 > net_message.cursize)
-	{
-		msg_badread = true;
-		return -1;
-	}
+    if (msg_readcount+2 > net_message.cursize)
+    {
+        msg_badread = true;
+        return -1;
+    }
 
     c = (short)(net_message.data[msg_readcount]
                 + (net_message.data[msg_readcount+1]<<8));
@@ -692,11 +694,11 @@ int MSG_ReadLong (void)
 {
     int     c;
 
-	if (msg_readcount+4 > net_message.cursize)
-	{
-		msg_badread = true;
-		return -1;
-	}
+    if (msg_readcount+4 > net_message.cursize)
+    {
+        msg_badread = true;
+        return -1;
+    }
 
     c = net_message.data[msg_readcount]
         + (net_message.data[msg_readcount+1]<<8)
@@ -891,18 +893,18 @@ COM_GetFolder //qb: R00k / Baker tute
 */
 void COM_GetFolder (char *in, char *out)
 {
-char *last = NULL;
+    char *last = NULL;
 
-while (*in)
-{
-if (*in == '/')
-last = out;
-*out++ = *in++;
-}
-if (last)
-*last = 0;
-else
-*out = 0;
+    while (*in)
+    {
+        if (*in == '/')
+            last = out;
+        *out++ = *in++;
+    }
+    if (last)
+        *last = 0;
+    else
+        *out = 0;
 }
 
 /*
@@ -1012,8 +1014,8 @@ skipwhite:
     }
 
 // parse single characters
-	if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'') //qb: Baker - IP port
-  //if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
+    if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'') //qb: Baker - IP port
+        //if (c=='{' || c=='}'|| c==')'|| c=='(' || c=='\'' || c==':')
     {
         com_token[len] = c;
         len++;
@@ -1182,7 +1184,7 @@ void COM_InitArgv (int argc, char **argv)
         rogue = true;
         standard_quake = false;
     }
- //qb: drake and quoth support
+//qb: drake and quoth support
     if (COM_CheckParm ("-hipnotic") || COM_CheckParm ("-quoth"))
     {
         hipnotic = true;
@@ -1207,7 +1209,7 @@ void COM_Init (char *basedir)
 // set the byte swapping variables in a portable manner
     if ( *(short *)swaptest == 1)
     {
-        bigendien = false;
+        host_bigendian = false;
         BigShort = ShortSwap;
         LittleShort = ShortNoSwap;
         BigLong = LongSwap;
@@ -1217,7 +1219,7 @@ void COM_Init (char *basedir)
     }
     else
     {
-        bigendien = true;
+        host_bigendian = true;
         BigShort = ShortNoSwap;
         LittleShort = ShortSwap;
         BigLong = LongNoSwap;
@@ -1441,9 +1443,11 @@ int COM_FindFile (char *filename, int *handle, FILE **file, searchpath_t **found
     int                     findtime, cachetime;
 
     if (file && handle)
-        Sys_Error ("COM_FindFile: both handle and file set");
+        return 0; //Sys_Error ("COM_FindFile: both handle and file set");
     if (!file && !handle)
-        Sys_Error ("COM_FindFile: neither handle or file set");
+        return 0; //Sys_Error ("COM_FindFile: neither handle or file set");
+
+    file_from_pak = 0;  //qb: QS
 
 //
 // search through the path, one element at a time
@@ -1481,6 +1485,7 @@ int COM_FindFile (char *filename, int *handle, FILE **file, searchpath_t **found
                     }
 // 2001-09-12 Returning from which searchpath a file was loaded by Maddes  end
                     com_filesize = pak->files[i].filelen;
+                    file_from_pak = 1;
                     return com_filesize;
                 }
         }
@@ -1555,6 +1560,21 @@ int COM_FindFile (char *filename, int *handle, FILE **file, searchpath_t **found
 
 /*
 ===========
+COM_FileExists  qb - QS
+
+Returns whether the file is found in the quake filesystem.
+===========
+*/
+qboolean COM_FileExists (const char *filename, unsigned int *path_id)
+{
+    if (!filename)
+        return false;
+    int ret = COM_FindFile (filename, NULL, NULL, path_id);
+    return (ret == -1) ? false : true;
+}
+
+/*
+===========
 COM_OpenFile
 
 filename never has a leading slash, but may contain directory walks
@@ -1564,7 +1584,10 @@ it may actually be inside a pak file
 */
 int COM_OpenFile (char *filename, int *handle, searchpath_t **foundpath)	// 2001-09-12 Returning from which searchpath a file was loaded by Maddes
 {
-    return COM_FindFile (filename, handle, NULL, foundpath);	// 2001-09-12 Returning from which searchpath a file was loaded by Maddes
+    if(!filename && !handle)
+        return 0;
+    else
+        return COM_FindFile (filename, handle, NULL, foundpath);	// 2001-09-12 Returning from which searchpath a file was loaded by Maddes
 }
 
 /*
@@ -1577,7 +1600,10 @@ into the file.
 */
 int COM_FOpenFile (char *filename, FILE **file, searchpath_t **foundpath)	// 2001-09-12 Returning from which searchpath a file was loaded by Maddes
 {
-    return COM_FindFile (filename, NULL, file, foundpath);	// 2001-09-12 Returning from which searchpath a file was loaded by Maddes
+    if(!filename)
+        return 0;
+    else
+        return COM_FindFile (filename, NULL, file, foundpath);	// 2001-09-12 Returning from which searchpath a file was loaded by Maddes
 }
 
 /*
@@ -1830,7 +1856,7 @@ int COM_AddGameDirectory (char *dir)
     searchpath_t    *search;
     pack_t                  *pak;
     char                    pakfile[MAX_OSPATH];
-	int success =0; //qb: pocketquake- to appease embedded vc++
+    int success =0; //qb: pocketquake- to appease embedded vc++
 
     strcpy (com_gamedir, dir);
 
@@ -1851,7 +1877,7 @@ int COM_AddGameDirectory (char *dir)
         pak = COM_LoadPackFile (pakfile);
         if (!pak)
             continue;//break; // Manoel Kasimier - edited
-		success = 1;
+        success = 1;
         search = Hunk_Alloc (sizeof(searchpath_t));
         strcpy (search->filename, dir);	// 2001-09-12 Finding the last searchpath of a directory by Maddes
         search->pack = pak;
@@ -1861,15 +1887,15 @@ int COM_AddGameDirectory (char *dir)
 //
 // add the contents of the parms.txt file to the end of the command line
 //
-	return success;
+    return success;
 }
 
 
 //qb: AddDir from bjp
 static void AddDir (qboolean Cond, char *basedir, char *gamedir, char *Dir)
 {
-	if (Cond && Q_strcmp(gamedir, Dir))
-		COM_AddGameDirectory (va("%s/%s", basedir, Dir));
+    if (Cond && Q_strcmp(gamedir, Dir))
+        COM_AddGameDirectory (va("%s/%s", basedir, Dir));
 }
 
 /*
@@ -1880,104 +1906,104 @@ COM_InitFilesystem  //qb: from bjp
 
 void COM_InitFilesystem (void)
 {
-	int             i, j;
-	char		basedir[MAX_OSPATH], gamedir[MAX_OSPATH];
-	searchpath_t    *search;
+    int             i, j;
+    char		basedir[MAX_OSPATH], gamedir[MAX_OSPATH];
+    searchpath_t    *search;
 
 //
 // -basedir <path>
 // Overrides the system supplied base directory (under GAMENAME)
 //
-	i = COM_CheckParm ("-basedir");
-	if (i && i < com_argc-1)
-		strcpy (basedir, com_argv[i+1]);
-	else
-		strcpy (basedir, host_parms.basedir);
+    i = COM_CheckParm ("-basedir");
+    if (i && i < com_argc-1)
+        strcpy (basedir, com_argv[i+1]);
+    else
+        strcpy (basedir, host_parms.basedir);
 
-	j = strlen (basedir);
+    j = strlen (basedir);
 
-	if (j > 0)
-	{
-		if ((basedir[j-1] == '\\') || (basedir[j-1] == '/'))
-			basedir[j-1] = 0;
-	}
+    if (j > 0)
+    {
+        if ((basedir[j-1] == '\\') || (basedir[j-1] == '/'))
+            basedir[j-1] = 0;
+    }
 
 //
 // -cachedir <path>
 // Overrides the system supplied cache directory (NULL or /qcache)
 // -cachedir - will disable caching.
 //
-	i = COM_CheckParm ("-cachedir");
-	if (i && i < com_argc-1)
-	{
-		if (com_argv[i+1][0] == '-')
-			com_cachedir[0] = 0;
-		else
-			strcpy (com_cachedir, com_argv[i+1]);
-	}
-	else if (host_parms.cachedir)
-		strcpy (com_cachedir, host_parms.cachedir);
-	else
-		com_cachedir[0] = 0;
+    i = COM_CheckParm ("-cachedir");
+    if (i && i < com_argc-1)
+    {
+        if (com_argv[i+1][0] == '-')
+            com_cachedir[0] = 0;
+        else
+            strcpy (com_cachedir, com_argv[i+1]);
+    }
+    else if (host_parms.cachedir)
+        strcpy (com_cachedir, host_parms.cachedir);
+    else
+        com_cachedir[0] = 0;
 
-	// Don't add unnecessary dirs if already specified in "-game"
-	memset (gamedir, 0, sizeof(gamedir));
+    // Don't add unnecessary dirs if already specified in "-game"
+    memset (gamedir, 0, sizeof(gamedir));
 
-	i = COM_CheckParm ("-game");
-	if (i && i < com_argc-1)
-		strncpy (gamedir, com_argv[i+1], sizeof(gamedir) - 1);
+    i = COM_CheckParm ("-game");
+    if (i && i < com_argc-1)
+        strncpy (gamedir, com_argv[i+1], sizeof(gamedir) - 1);
 
-	i = COM_CheckParm ("-sndspeed");  //qb: from Darkplaces
-	if (i && i < com_argc-1)
-			snd_speed.value = Q_atoi (com_argv[i+1]);
+    i = COM_CheckParm ("-sndspeed");  //qb: from Darkplaces
+    if (i && i < com_argc-1)
+        snd_speed.value = Q_atoi (com_argv[i+1]);
 
 //
 // start up with GAMENAME by default (id1)
 //
-	AddDir (true, basedir, gamedir, GAMENAME);
+    AddDir (true, basedir, gamedir, GAMENAME);
 //qb: not supported	AddDir (nehahra, basedir, gamedir, "nehahra"); // Add Nehahra
-	AddDir (COM_CheckParm ("-rogue"), basedir, gamedir, "rogue");
-	AddDir (COM_CheckParm ("-hipnotic"), basedir, gamedir, "hipnotic");
-	AddDir (COM_CheckParm ("-quoth"), basedir, gamedir, "quoth");
+    AddDir (COM_CheckParm ("-rogue"), basedir, gamedir, "rogue");
+    AddDir (COM_CheckParm ("-hipnotic"), basedir, gamedir, "hipnotic");
+    AddDir (COM_CheckParm ("-quoth"), basedir, gamedir, "quoth");
     AddDir (COM_CheckParm ("-drake"), basedir, gamedir, "drake"); //qb: added
 
 //
 // -game <gamedir>
 // Adds basedir/gamedir as an override game
 //
-	if (gamedir[0])
-	{
-		com_modified = true;
-		COM_AddGameDirectory (va("%s/%s", basedir, gamedir));
-	}
+    if (gamedir[0])
+    {
+        com_modified = true;
+        COM_AddGameDirectory (va("%s/%s", basedir, gamedir));
+    }
 
 //
 // -path <dir or packfile> [<dir or packfile>] ...
 // Fully specifies the exact serach path, overriding the generated one
 //
-	i = COM_CheckParm ("-path");
-	if (i)
-	{
-		com_modified = true;
-		com_searchpaths = NULL;
-		while (++i < com_argc)
-		{
-			if (!com_argv[i] || com_argv[i][0] == '+' || com_argv[i][0] == '-')
-				break;
+    i = COM_CheckParm ("-path");
+    if (i)
+    {
+        com_modified = true;
+        com_searchpaths = NULL;
+        while (++i < com_argc)
+        {
+            if (!com_argv[i] || com_argv[i][0] == '+' || com_argv[i][0] == '-')
+                break;
 
-			search = Hunk_Alloc (sizeof(searchpath_t));
-			if ( !strcmp(COM_FileExtension(com_argv[i]), "pak") )
-			{
-				search->pack = COM_LoadPackFile (com_argv[i]);
-				if (!search->pack)
-					Sys_Error ("Couldn't load packfile: %s", com_argv[i]);
-			}
-			else
-				strcpy (search->filename, com_argv[i]);
-			search->next = com_searchpaths;
-			com_searchpaths = search;
-		}
-	}
+            search = Hunk_Alloc (sizeof(searchpath_t));
+            if ( !strcmp(COM_FileExtension(com_argv[i]), "pak") )
+            {
+                search->pack = COM_LoadPackFile (com_argv[i]);
+                if (!search->pack)
+                    Sys_Error ("Couldn't load packfile: %s", com_argv[i]);
+            }
+            else
+                strcpy (search->filename, com_argv[i]);
+            search->next = com_searchpaths;
+            com_searchpaths = search;
+        }
+    }
 }
 
 // 2001-09-12 Finding the last searchpath of a directory  start
@@ -2006,3 +2032,160 @@ searchpath_t *COM_GetDirSearchPath(searchpath_t *startsearch)
     return lastsearch;
 }
 // 2001-09-12 Finding the last searchpath of a directory  end
+
+
+
+/* qb - QS FS
+ * The following FS_*() stdio replacements are necessary if one is
+ * to perform non-sequential reads on files reopened on pak files
+ * because we need the bookkeeping about file start/end positions.
+ * Allocating and filling in the fshandle_t structure is the users'
+ * responsibility when the file is initially opened. */
+
+size_t FS_fread(void *ptr, size_t size, size_t nmemb, fshandle_t *fh)
+{
+    long byte_size;
+    long bytes_read;
+    size_t nmemb_read;
+
+    if (!ptr)
+    {
+        //	errno = EFAULT;
+        return 0;
+    }
+
+    if (!(size && nmemb))	/* not an error, just zero bytes wanted */
+    {
+        //	errno = 0;
+        return 0;
+    }
+
+    if (!fh)
+    {
+        //	errno = EBADF;
+        return 0;
+    }
+
+    byte_size = nmemb * size;
+    if (byte_size > fh->length - fh->pos)	/* just read to end */
+        byte_size = fh->length - fh->pos;
+    bytes_read = fread(ptr, 1, byte_size, fh->file);
+    fh->pos += bytes_read;
+
+    /* fread() must return the number of elements read,
+     * not the total number of bytes. */
+    nmemb_read = bytes_read / size;
+    /* even if the last member is only read partially
+     * it is counted as a whole in the return value. */
+    if (bytes_read % size)
+        nmemb_read++;
+
+    return nmemb_read;
+}
+
+int FS_fseek(fshandle_t *fh, long offset, int whence)
+{
+    /* I don't care about 64 bit off_t or fseeko() here.
+     * the quake/hexen2 file system is 32 bits, anyway. */
+    int ret;
+
+    if (!fh)
+    {
+        //	errno = EBADF;
+        return -1;
+    }
+
+    /* the relative file position shouldn't be smaller
+     * than zero or bigger than the filesize. */
+    switch (whence)
+    {
+    case SEEK_SET:
+        break;
+    case SEEK_CUR:
+        offset += fh->pos;
+        break;
+    case SEEK_END:
+        offset = fh->length + offset;
+        break;
+    default:
+        //	errno = EINVAL;
+        return -1;
+    }
+
+    if (offset < 0)
+    {
+        //	errno = EINVAL;
+        return -1;
+    }
+
+    if (offset > fh->length)	/* just seek to end */
+        offset = fh->length;
+
+    ret = fseek(fh->file, fh->start + offset, SEEK_SET);
+    if (ret < 0)
+        return ret;
+
+    fh->pos = offset;
+    return 0;
+}
+
+int FS_fclose(fshandle_t *fh)
+{
+    if (!fh)
+    {
+        //	errno = EBADF;
+        return -1;
+    }
+
+    return fclose(fh->file);
+}
+
+long FS_ftell(fshandle_t *fh)
+{
+    if (!fh)
+    {
+        //	errno = EBADF;
+        return -1;
+    }
+
+    /* send the relative file position */
+    return fh->pos;
+}
+
+void FS_rewind(fshandle_t *fh)
+{
+    if (!fh)
+        return;
+
+    clearerr(fh->file);
+    fseek(fh->file, fh->start, SEEK_SET);
+    fh->pos = 0;
+}
+
+int FS_feof(fshandle_t *fh)
+{
+    if (fh->pos >= fh->length)
+        return -1;
+    return 0;
+}
+
+int FS_ferror(fshandle_t *fh)
+{
+    return ferror(fh->file);
+}
+
+char *FS_fgets(char *s, int size, fshandle_t *fh)
+{
+    char *ret;
+
+    if (FS_feof(fh))
+        return NULL;
+
+    if (size > (fh->length - fh->pos) + 1)
+        size = (fh->length - fh->pos) + 1;
+
+    ret = fgets(s, size, fh->file);
+    fh->pos = ftell(fh->file) - fh->start;
+
+    return ret;
+}

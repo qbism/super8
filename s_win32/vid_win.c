@@ -1042,6 +1042,7 @@ int VID_SetMode (int modenum, unsigned char *palette)
     scr_disabled_for_loading = true;
     in_mode_set = true;
     CDAudio_Pause ();
+    BGM_Pause ();
     S_ClearBuffer ();
 
     if (vid_modenum == NO_MODE)
@@ -1117,6 +1118,7 @@ int VID_SetMode (int modenum, unsigned char *palette)
 		SetCursorPos (window_center_x, window_center_y); // mankrip - center the mouse, to avoid false movement detection
 
     CDAudio_Resume ();
+    BGM_Resume (); //qb: QS
     scr_disabled_for_loading = temp;
 
     if (!stat)

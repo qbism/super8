@@ -105,6 +105,10 @@ channel_t *SND_PickChannel(int entnum, int entchannel);
 // spatializes a channel
 void SND_Spatialize(channel_t *ch);
 
+/* qb: QS - music stream support */
+void S_RawSamples(int samples, int rate, int width, int channels, byte * data, float volume);
+				/* Expects data in signed 16 bit, or unsigned 8 bit format. */
+
 // initializes cycling through a DMA buffer and returns information on it
 int SNDDMA_Init(void); //qb: was qboolean, type conflict
 
@@ -147,7 +151,8 @@ extern volatile dma_t sn;
 extern vec_t sound_nominal_clip_dist;
 
 extern	cvar_t bgmvolume;
-extern	cvar_t volume;
+extern	cvar_t sfxvolume;
+extern	int		s_rawend; //qb: QuakeSpasm
 
 extern qboolean	snd_initialized;
 

@@ -199,9 +199,11 @@ void as3ReadFileSharedObject(const char* filename);
 #define FADE_SHADOW     2
 #define FADE_SLIMETRAIL 3
 
-
 #define	MAX_SCOREBOARD		64 //qb: per bjp, was 16
 #define	MAX_SCOREBOARDNAME	32
+
+#define	MAX_RAW_SAMPLES	8192 //qb: QS
+#define WAV_FORMAT_PCM	1 //qb: QS
 
 #include "common.h"
 #include "bspfile.h"
@@ -274,6 +276,7 @@ typedef struct
 extern qboolean noclip_anglehack;
 extern	kbutton_t	in_forward, in_forward2, in_back;
 
+extern	portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];  //qb QS
 
 //
 // host

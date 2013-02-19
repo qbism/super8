@@ -113,7 +113,9 @@ void CL_Disconnect (void)
 {
     int i;
 // stop sounds (especially looping!)
-    S_StopAllSounds (true);
+ 	S_StopAllSounds (true);
+	BGM_Stop(); //qb: QS
+	CDAudio_Stop();
 
 #ifdef WEBDL    //qb: sometimes works, needs more testing
 // We have to shut down webdownloading first

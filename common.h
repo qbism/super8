@@ -50,6 +50,30 @@ typedef struct link_s
 	struct link_s	*prev, *next;
 } link_t;
 
+//qb:  fs_handle_t from quakespasm
+/* The following FS_*() stdio replacements are necessary if one is
+ * to perform non-sequential reads on files reopened on pak files
+ * because we need the bookkeeping about file start/end positions.
+ * Allocating and filling in the fshandle_t structure is the users'
+ * responsibility when the file is initially opened. */
+
+typedef struct _fshandle_t
+{
+	FILE *file;
+	qboolean pak;	/* is the file read from a pak */
+	long start;	/* file or data start position */
+	long length;	/* file or data size */
+	long pos;	/* current position relative to start */
+} fshandle_t;
+
+size_t FS_fread(void *ptr, size_t size, size_t nmemb, fshandle_t *fh);
+int FS_fseek(fshandle_t *fh, long offset, int whence);
+long FS_ftell(fshandle_t *fh);
+void FS_rewind(fshandle_t *fh);
+int FS_feof(fshandle_t *fh);
+int FS_ferror(fshandle_t *fh);
+int FS_fclose(fshandle_t *fh);
+char *FS_fgets(char *s, int size, fshandle_t *fh);
 
 void ClearLink (link_t *l);
 void RemoveLink (link_t *l);
@@ -81,7 +105,7 @@ void InsertLinkAfter (link_t *l, link_t *after);
 
 //============================================================================
 
-extern	qboolean		bigendien;
+extern	qboolean		host_bigendian;
 
 extern	short	(*BigShort) (short l);
 extern	short	(*LittleShort) (short l);
@@ -139,6 +163,9 @@ char *COM_Parse (char *data);
 
 extern	int		com_argc;
 extern	char	**com_argv;
+
+extern	int	file_from_pak;	//qb: QS - global indicating that file came from a pak
+
 
 int COM_CheckParm (char *parm);
 void COM_Init (char *path);
@@ -239,6 +266,7 @@ int COM_OpenFile (char *filename, int *hndl, searchpath_t **foundpath);
 int COM_FOpenFile (char *filename, FILE **file, searchpath_t **foundpath);
 // 2001-09-12 Returning from which searchpath a file was loaded by Maddes  end
 void COM_CloseFile (int h);
+qboolean COM_FileExists (const char *filename, unsigned int *path_id); //qb - QS
 
 // 2001-09-12 Returning information about loaded file by Maddes  start
 /*

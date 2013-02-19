@@ -722,6 +722,7 @@ void _Host_Frame (float time)
         time2 = Sys_DoubleTime ();
 
     // update audio
+    BGM_Update();	//qb: QS - adds music raw samples and/or advances midi driver
     if (cls.signon == SIGNONS)
     {
         S_Update (r_origin, vpn, vright, vup);
@@ -891,6 +892,7 @@ void Host_Init (quakeparms_t *parms)
 #endif	// _WIN32
 
         CDAudio_Init ();
+        BGM_Init();
         Sbar_Init ();
         CL_Init ();
 #ifdef _WIN32 // on non win32, mouse comes before video for security reasons
@@ -937,6 +939,7 @@ void Host_Shutdown(void)
     scr_disabled_for_loading = true;
     Host_WriteConfiguration ();
     if (con_initialized) History_Shutdown (); //qb: Baker/ezQuake- command history
+    BGM_Shutdown(); //qb: QS
     CDAudio_Shutdown ();
     NET_Shutdown ();
     S_Shutdown();

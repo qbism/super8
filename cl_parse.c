@@ -1324,10 +1324,8 @@ void CL_ParseServerMessage (void)
             if (cl.paused)
             {
                 CDAudio_Pause ();
-
-#ifdef _WIN32
+				BGM_Pause ();
                 VID_HandlePause (true);
-#endif
 
                 Vibration_Stop (0); // Manoel Kasimier
                 Vibration_Stop (1); // Manoel Kasimier
@@ -1335,6 +1333,7 @@ void CL_ParseServerMessage (void)
             else
             {
                 CDAudio_Resume ();
+                BGM_Resume ();
 #ifdef _WIN32
                 VID_HandlePause (false);
 #endif
@@ -1387,9 +1386,9 @@ void CL_ParseServerMessage (void)
             cl.cdtrack = MSG_ReadByte ();
             cl.looptrack = MSG_ReadByte ();
             if ( (cls.demoplayback || cls.demorecording) && (cls.forcetrack != -1) )
-                CDAudio_Play ((byte)cls.forcetrack, true);
-            else
-                CDAudio_Play ((byte)cl.cdtrack, true);
+				BGM_PlayCDtrack ((byte)cls.forcetrack, true);
+			else
+				BGM_PlayCDtrack ((byte)cl.cdtrack, true);
             break;
 
         case svc_intermission:

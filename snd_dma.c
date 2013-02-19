@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 // snd_dma.c -- main control for any streaming sound output device
 
 #include "quakedef.h"
+#include "snd_codec.h"
+#include "bgmusic.h"
 #ifdef _WIN32 //qb: jqavi
 #include "s_win32/winquake.h"
 #include "s_win32/movie_avi.h"
@@ -65,8 +67,11 @@ int 		desired_bits = 16;
 
 int sound_started=0;
 
+int		s_rawend; //qb: QS
+portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
+
 cvar_t bgmvolume = {"bgmvolume", "1.0", true};
-cvar_t volume = {"volume", "0.7", true};
+cvar_t sfxvolume = {"sfxvolume", "0.7", true};
 
 cvar_t nosound = {"nosound", "0"};
 cvar_t precache = {"precache", "1"};
@@ -183,7 +188,7 @@ void S_Init (void)
 	Cmd_AddCommand("soundinfo", S_SoundInfo_f);
 
 	Cvar_RegisterVariable(&nosound);
-	Cvar_RegisterVariable(&volume);
+	Cvar_RegisterVariable(&sfxvolume);
 	Cvar_RegisterVariable(&precache);
 	Cvar_RegisterVariable(&bgmvolume);
 	Cvar_RegisterVariable(&bgmbuffer);
@@ -235,6 +240,8 @@ void S_Init (void)
 
 	ambient_sfx[AMBIENT_WATER] = S_PrecacheSound ("ambience/water1.wav");
 	ambient_sfx[AMBIENT_SKY] = S_PrecacheSound ("ambience/wind2.wav");
+
+	S_CodecInit (); //qb: QS
 
 	S_StopAllSounds (true);
 }
@@ -447,6 +454,93 @@ void SND_Spatialize(channel_t *ch)
 	ch->leftvol = (int) (ch->master_vol * scale);
 	if (ch->leftvol < 0)
 		ch->leftvol = 0;
+}
+
+
+
+/*
+===================
+S_RawSamples		(from QuakeII)  qb- QS
+
+Streaming music support. Byte swapping
+of data must be handled by the codec.
+Expects data in signed 16 bit, or unsigned
+8 bit format.
+===================
+*/
+void S_RawSamples (int samples, int rate, int width, int channels, byte *data, float volume)
+{
+	int i;
+	int src, dst;
+	float scale;
+	//qb: way loud.  int intVolume;
+
+	if (s_rawend < paintedtime)
+		s_rawend = paintedtime;
+
+	scale = (float) rate / shm->speed;
+	//intVolume = (int) (256 * volume);
+
+	if (channels == 2 && width == 2)
+	{
+		for (i = 0; ; i++)
+		{
+			src = i * scale;
+			if (src >= samples)
+				break;
+			dst = s_rawend & (MAX_RAW_SAMPLES - 1);
+			s_rawend++;
+			s_rawsamples [dst].left = ((short *) data)[src * 2] * volume; //qb: intVolume;
+			s_rawsamples [dst].right = ((short *) data)[src * 2 + 1] * volume; //qb: intVolume;
+		}
+	}
+	else if (channels == 1 && width == 2)
+	{
+		for (i = 0; ; i++)
+		{
+			src = i * scale;
+			if (src >= samples)
+				break;
+			dst = s_rawend & (MAX_RAW_SAMPLES - 1);
+			s_rawend++;
+			s_rawsamples [dst].left = ((short *) data)[src] * volume; //qb: intVolume;
+			s_rawsamples [dst].right = ((short *) data)[src]  * volume; //qb: intVolume;
+		}
+	}
+	else if (channels == 2 && width == 1)
+	{
+		//intVolume *= 256;
+
+		for (i = 0; ; i++)
+		{
+			src = i * scale;
+			if (src >= samples)
+				break;
+			dst = s_rawend & (MAX_RAW_SAMPLES - 1);
+			s_rawend++;
+		//	s_rawsamples [dst].left = ((signed char *) data)[src * 2] * intVolume;
+		//	s_rawsamples [dst].right = ((signed char *) data)[src * 2 + 1] * intVolume;
+			s_rawsamples [dst].left = (((byte *) data)[src * 2] - 128) * volume; //qb: intVolume;
+			s_rawsamples [dst].right = (((byte *) data)[src * 2 + 1] - 128) * volume; //qb: intVolume;
+		}
+	}
+	else if (channels == 1 && width == 1)
+	{
+		//intVolume *= 256;
+
+		for (i = 0; ; i++)
+		{
+			src = i * scale;
+			if (src >= samples)
+				break;
+			dst = s_rawend & (MAX_RAW_SAMPLES - 1);
+			s_rawend++;
+		//	s_rawsamples [dst].left = ((signed char *) data)[src] * intVolume;
+		//	s_rawsamples [dst].right = ((signed char *) data)[src] * intVolume;
+			s_rawsamples [dst].left = (((byte *) data)[src] - 128) * volume; //qb: intVolume;
+			s_rawsamples [dst].right = (((byte *) data)[src] - 128) * volume; //qb: intVolume;
+		}
+	}
 }
 
 
