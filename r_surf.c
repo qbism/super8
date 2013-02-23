@@ -45,8 +45,6 @@ unsigned		blockcolors[18*18]; //qb:
 const byte dithercolor[] =  //qb
 { 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1,0, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 1};
 
-
-
 void R_DrawSurfaceBlockColor8_mip0 (void);
 void R_DrawSurfaceBlockColor8_mip1 (void);
 void R_DrawSurfaceBlockColor8_mip2 (void);
@@ -830,24 +828,24 @@ void R_DrawSurfaceBlockColor8_mip0 (void)
             lightstep = (lightleft - lightright) >> 4;
             light = lightright;
 
-            prowdest[15] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[15]*256 + colorright]];
-            prowdest[14] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[14]*256 + colorright]];
-            prowdest[13] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[13]*256 + colorright]];
-            prowdest[12] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[12]*256 + colorright]];
-            prowdest[11] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[12]*256 + colorright]];
+            prowdest[15] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[15]*256 + colorright]];
+            prowdest[14] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[14]*256 + colorright]];
+            prowdest[13] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[13]*256 + colorright]];
+            prowdest[12] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[12]*256 + colorright]];
+            prowdest[11] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[12]*256 + colorright]];
 
-            prowdest[10] = vidcolmap[((light += lightstep) & 0xFF00)+ lightcolormap[psource[10]*256 + r_colorptr[dithercolor[light%41]]]];
-            prowdest[9] = vidcolmap[((light += lightstep) & 0xFF00)+ lightcolormap[psource[9]*256 + r_colorptr[dithercolor[light%41]]]];
-            prowdest[8] = vidcolmap[((light += lightstep) & 0xFF00)+ lightcolormap[psource[8]*256 + r_colorptr[dithercolor[light%41]]]];
-            prowdest[7] = vidcolmap[((light += lightstep) & 0xFF00)+ lightcolormap[psource[7]*256 + r_colorptr[dithercolor[light%41]]]];
-            prowdest[6] = vidcolmap[((light += lightstep) & 0xFF00)+ lightcolormap[psource[6]*256 + r_colorptr[dithercolor[light%41]]]];
-            prowdest[5] = vidcolmap[((light += lightstep) & 0xFF00)+ lightcolormap[psource[5]*256 + r_colorptr[dithercolor[light%41]]]];
+            prowdest[10] = vidcolmap[((light += lightstep) & 0xFF00)+ (int)lightcolormap[psource[10]*256 + r_colorptr[dithercolor[light%41]]]];
+            prowdest[9] = vidcolmap[((light += lightstep) & 0xFF00)+ (int)lightcolormap[psource[9]*256 + r_colorptr[dithercolor[light%41]]]];
+            prowdest[8] = vidcolmap[((light += lightstep) & 0xFF00)+ (int)lightcolormap[psource[8]*256 + r_colorptr[dithercolor[light%41]]]];
+            prowdest[7] = vidcolmap[((light += lightstep) & 0xFF00)+ (int)lightcolormap[psource[7]*256 + r_colorptr[dithercolor[light%41]]]];
+            prowdest[6] = vidcolmap[((light += lightstep) & 0xFF00)+ (int)lightcolormap[psource[6]*256 + r_colorptr[dithercolor[light%41]]]];
+            prowdest[5] = vidcolmap[((light += lightstep) & 0xFF00)+ (int)lightcolormap[psource[5]*256 + r_colorptr[dithercolor[light%41]]]];
 
-            prowdest[4] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[4]*256 + colorleft]];
-            prowdest[3] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[3]*256 + colorleft]];
-            prowdest[2] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[2]*256 + colorleft]];
-            prowdest[1] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[1]*256 + colorleft]];
-            prowdest[0] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[0]*256 + colorleft]];
+            prowdest[4] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[4]*256 + colorleft]];
+            prowdest[3] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[3]*256 + colorleft]];
+            prowdest[2] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[2]*256 + colorleft]];
+            prowdest[1] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[1]*256 + colorleft]];
+            prowdest[0] = vidcolmap[(light & 0xFF00) + (int)lightcolormap[psource[0]*256 + colorleft]];
 
             psource += sourcetstep;
             lightright += lightrightstep;
@@ -885,14 +883,14 @@ void R_DrawSurfaceBlockColor8_mip1 (void)
             lightstep = (lightleft - lightright) >> 3;
             light = lightright;
 
-            prowdest[7] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[7]*256 + colorright]];
-            prowdest[6] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[6]*256 + colorright]];
-            prowdest[5] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[5]*256 + r_colorptr[dithercolor[light%41]]]];
-            prowdest[4] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[4]*256 + r_colorptr[dithercolor[light%41]]]];
-            prowdest[3] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[3]*256 + r_colorptr[dithercolor[light%41]]]];
-            prowdest[2] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[2]*256 + r_colorptr[dithercolor[light%41]]]];
-            prowdest[1] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[1]*256 + colorleft]];
-            prowdest[0] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[0]*256 + colorleft]];
+            prowdest[7] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[7]*256 + colorright]];
+            prowdest[6] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[6]*256 + colorright]];
+            prowdest[5] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[5]*256 + r_colorptr[dithercolor[light%41]]]];
+            prowdest[4] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[4]*256 + r_colorptr[dithercolor[light%41]]]];
+            prowdest[3] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[3]*256 + r_colorptr[dithercolor[light%41]]]];
+            prowdest[2] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[2]*256 + r_colorptr[dithercolor[light%41]]]];
+            prowdest[1] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[1]*256 + colorleft]];
+            prowdest[0] = vidcolmap[(light & 0xFF00) + (int)lightcolormap[psource[0]*256 + colorleft]];
 
             psource += sourcetstep;
             lightright += lightrightstep;
@@ -931,10 +929,10 @@ void R_DrawSurfaceBlockColor8_mip2 (void)
             lightstep = (lightleft - lightright) >> 2;
             light = lightright;
 
-            prowdest[3] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[3]*256 + colorright]];
-            prowdest[2] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[2]*256 + colorright]];
-            prowdest[1] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[1]*256 + colorleft]];
-            prowdest[0] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[0]*256 + colorleft]];
+            prowdest[3] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[3]*256 + colorright]];
+            prowdest[2] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[2]*256 + colorright]];
+            prowdest[1] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[1]*256 + colorleft]];
+            prowdest[0] = vidcolmap[(light & 0xFF00) + (int)lightcolormap[psource[0]*256 + colorleft]];
 
             psource += sourcetstep;
             lightright += lightrightstep;
@@ -972,8 +970,8 @@ void R_DrawSurfaceBlockColor8_mip3 (void)
             lightstep = (lightleft - lightright) >> 1;
             light = lightright;
 
-            prowdest[1] = vidcolmap[((light += lightstep) & 0xFF00) + lightcolormap[psource[1]*256 + colorright]];
-            prowdest[0] = vidcolmap[(light & 0xFF00) + lightcolormap[psource[0]*256 + colorleft]];
+            prowdest[1] = vidcolmap[((light += lightstep) & 0xFF00) + (int)lightcolormap[psource[1]*256 + colorright]];
+            prowdest[0] = vidcolmap[(light & 0xFF00) + (int)lightcolormap[psource[0]*256 + colorleft]];
 
             psource += sourcetstep;
             lightright += lightrightstep;

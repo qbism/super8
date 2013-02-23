@@ -70,7 +70,7 @@ int sound_started=0;
 int		s_rawend; //qb: QS
 portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
 
-cvar_t bgmvolume = {"bgmvolume", "1.0", true};
+cvar_t bgmvolume = {"bgmvolume", "0.4", true};
 cvar_t sfxvolume = {"sfxvolume", "0.7", true};
 
 cvar_t nosound = {"nosound", "0"};

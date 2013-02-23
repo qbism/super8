@@ -1443,7 +1443,7 @@ int COM_FindFile (char *filename, int *handle, FILE **file, searchpath_t **found
     int                     findtime, cachetime;
 
     if (file && handle)
-        return 0; //Sys_Error ("COM_FindFile: both handle and file set");
+        Sys_Error ("COM_FindFile: both handle and file set");
     if (!file && !handle)
         return 0; //Sys_Error ("COM_FindFile: neither handle or file set");
 
@@ -1557,21 +1557,6 @@ int COM_FindFile (char *filename, int *handle, FILE **file, searchpath_t **found
     return -1;
 }
 
-
-/*
-===========
-COM_FileExists  qb - QS
-
-Returns whether the file is found in the quake filesystem.
-===========
-*/
-qboolean COM_FileExists (const char *filename, unsigned int *path_id)
-{
-    if (!filename)
-        return false;
-    int ret = COM_FindFile (filename, NULL, NULL, path_id);
-    return (ret == -1) ? false : true;
-}
 
 /*
 ===========

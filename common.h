@@ -266,7 +266,6 @@ int COM_OpenFile (char *filename, int *hndl, searchpath_t **foundpath);
 int COM_FOpenFile (char *filename, FILE **file, searchpath_t **foundpath);
 // 2001-09-12 Returning from which searchpath a file was loaded by Maddes  end
 void COM_CloseFile (int h);
-qboolean COM_FileExists (const char *filename, unsigned int *path_id); //qb - QS
 
 // 2001-09-12 Returning information about loaded file by Maddes  start
 /*

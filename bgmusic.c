@@ -211,7 +211,7 @@ static void BGM_Play_noext (const char *filename, unsigned int allowed_types)
 		handler = handler->next;
 	}
 
-	Con_Printf("Couldn't handle music file %s\n", filename);
+	Con_Printf("Can't find music file %s\n", filename);
 }
 
 void BGM_Play (const char *filename)
@@ -267,66 +267,24 @@ void BGM_Play (const char *filename)
         break;
     }
 
-    Con_Printf("Couldn't handle music file %s\n", filename);
+    Con_Printf("Can't find music file %s\n", filename);
 }
 
 void BGM_PlayCDtrack (byte track, qboolean looping)
 {
-/* instead of searching by the order of music_handlers, do so by
- * the order of searchpath priority: the file from the searchpath
- * with the highest path_id is most likely from our own gamedir
- * itself. This way, if a mod has track02 as a *.mp3 file, which
- * is below *.ogg in the music_handler order, the mp3 will still
- * have priority over track02.ogg from, say, id1.
- */
+//qb: Simplified from QS.
 	char tmp[MAX_QPATH];
 	const char *ext;
-	unsigned int path_id, prev_id, type;
-	music_handler_t *handler;
 
 	BGM_Stop();
 	if (!CDAudio_Play(track, looping) == 0)
 		return;			/* success */
 
-	if (music_handlers == NULL)
-		return;
-
 	if (no_extmusic || !bgm_extmusic.value)
 		return;
 
-	prev_id = 0;
-	type = 0;
-	ext  = NULL;
-	handler = music_handlers;
-	while (handler)
-	{
-		if (! handler->is_available)
-			goto _next;
-		if (! CDRIPTYPE(handler->type))
-			goto _next;
-		Q_snprintfz(tmp, sizeof(tmp), "%s/track%02d.%s",
-				MUSIC_DIRNAME, (int)track, handler->ext);
-		if (! COM_FileExists(tmp, &path_id))
-			goto _next;
-		if (path_id > prev_id)
-		{
-			prev_id = path_id;
-			type = handler->type;
-			ext = handler->ext;
-		}
-	_next:
-		handler = handler->next;
-	}
-	if (ext == NULL)
-		Con_Printf("Couldn't find a cdrip for track %d\n", (int)track);
-	else
-	{
-		Q_snprintfz(tmp, sizeof(tmp), "%s/track%02d.%s",
-				MUSIC_DIRNAME, (int)track, ext);
-		bgmstream = S_CodecOpenStreamType(tmp, type);
-		if (! bgmstream)
-			Con_Printf("Couldn't handle music file %s\n", tmp);
-	}
+	Q_snprintfz(tmp, sizeof(tmp), "track%02d", (int)track);
+	BGM_Play(tmp);
 }
 
 void BGM_Stop (void)

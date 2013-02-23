@@ -17,8 +17,6 @@
 				<Option compiler="mingw32" />
 				<Compiler>
 					<Add option="-march=pentium2" />
-					<Add option="-fomit-frame-pointer" />
-					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-w" />
 					<Add option="-DWIN32" />
@@ -30,11 +28,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="-static-libgcc" />
-					<Add library="winmm" />
-					<Add library="wsock32" />
-					<Add library="dinput" />
-					<Add library="dxguid" />
 				</Linker>
 				<ExtraCommands>
 					<Add before="version.bat" />
@@ -49,7 +42,6 @@
 				<Option compiler="mingw32" />
 				<Option parameters=" -heapsize 999000" />
 				<Compiler>
-					<Add option="-march=pentium-mmx" />
 					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-DDEBUG" />
@@ -60,13 +52,6 @@
 				<ResourceCompiler>
 					<Add directory="./dxsdk/sdk/inc" />
 				</ResourceCompiler>
-				<Linker>
-					<Add option="-static-libgcc" />
-					<Add library="winmm" />
-					<Add library="wsock32" />
-					<Add library="dinput" />
-					<Add library="dxguid" />
-				</Linker>
 				<ExtraCommands>
 					<Add before="version.bat" />
 				</ExtraCommands>
@@ -92,11 +77,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="-static-libgcc" />
-					<Add library="winmm" />
-					<Add library="wsock32" />
-					<Add library="dinput" />
-					<Add library="dxguid" />
 				</Linker>
 				<ExtraCommands>
 					<Add before="version.bat" />
@@ -105,13 +85,33 @@
 		</Build>
 		<Compiler>
 			<Add option="-march=pentium-mmx" />
+			<Add option="-w" />
+			<Add option="-DUSE_CODEC_MP3" />
+			<Add option="-DUSE_CODEC_VORBIS" />
+			<Add option="-DUSE_CODEC_WAVE" />
+			<Add directory="s_win32/codecs/include" />
 		</Compiler>
+		<Linker>
+			<Add library="vorbisfile" />
+			<Add library="vorbis" />
+			<Add library="ogg" />
+			<Add library="mad" />
+			<Add library="winmm" />
+			<Add library="wsock32" />
+			<Add library="dinput" />
+			<Add library="dxguid" />
+			<Add directory="s_win32/codecs/x86" />
+		</Linker>
 		<ExtraCommands>
 			<Add before="version.bat" />
 		</ExtraCommands>
 		<Unit filename="adivtab.h" />
 		<Unit filename="anorm_dots.h" />
 		<Unit filename="anorms.h" />
+		<Unit filename="bgmusic.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="bgmusic.h" />
 		<Unit filename="bspfile.h" />
 		<Unit filename="cdaudio.h" />
 		<Unit filename="chase.c">
@@ -352,6 +352,11 @@
 		</Unit>
 		<Unit filename="screen.h" />
 		<Unit filename="server.h" />
+		<Unit filename="snd_codec.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="snd_codec.h" />
+		<Unit filename="snd_codeci.h" />
 		<Unit filename="snd_dma.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -361,6 +366,18 @@
 		<Unit filename="snd_mix.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="snd_mp3.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="snd_mp3.h" />
+		<Unit filename="snd_vorbis.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="snd_vorbis.h" />
+		<Unit filename="snd_wave.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="snd_wave.h" />
 		<Unit filename="sound.h" />
 		<Unit filename="spritegn.h" />
 		<Unit filename="sv_main.c">
