@@ -282,9 +282,9 @@ Sbar_DrawTransPic
 void Sbar_DrawTransPic (int x, int y, qpic_t *pic)
 {
 	if (cl.gametype == GAME_DEATHMATCH || sbar.value > 3) // Manoel Kasimier - edited
-		Draw_TransPic (x /*+ ((vid.width - 320)>>1)*/, y + (vid.height-SBAR_HEIGHT) - screen_bottom, pic); // Manoel Kasimier - edited
+		Draw_TransPic (x /*+ ((vid.width - 320)>>1)*/, y + (vid.height-SBAR_HEIGHT), pic); // Manoel Kasimier - edited
 	else
-		Draw_TransPic (x   + ((vid.width - min_vid_width/*320*/)>>1)  , y + (vid.height-SBAR_HEIGHT) - screen_bottom, pic); // Manoel Kasimier - edited
+		Draw_TransPic (x   + ((vid.width - min_vid_width/*320*/)>>1)  , y + (vid.height-SBAR_HEIGHT), pic); // Manoel Kasimier - edited
 }
 
 /*
@@ -297,9 +297,9 @@ Draws one solid graphics character
 void Sbar_DrawCharacter (int x, int y, int num)
 {
 	if (cl.gametype == GAME_DEATHMATCH || sbar.value > 3) // Manoel Kasimier - edited
-		Draw_Character ( x /*+ ((vid.width - 320)>>1) */ + 4 , y + vid.height-SBAR_HEIGHT - screen_bottom, num); // Manoel Kasimier - edited
+		Draw_Character ( x /*+ ((vid.width - 320)>>1) */ + 4 , y + vid.height-SBAR_HEIGHT, num); // Manoel Kasimier - edited
 	else
-		Draw_Character ( x + ((vid.width - min_vid_width/*320*/)>>1) + 4 , y + vid.height-SBAR_HEIGHT - screen_bottom, num); // Manoel Kasimier - edited
+		Draw_Character ( x + ((vid.width - min_vid_width/*320*/)>>1) + 4 , y + vid.height-SBAR_HEIGHT, num); // Manoel Kasimier - edited
 }
 
 /*
@@ -310,9 +310,9 @@ Sbar_DrawString
 void Sbar_DrawString (int x, int y, char *str)
 {
 	if (cl.gametype == GAME_DEATHMATCH || sbar.value > 3) // Manoel Kasimier - edited
-		Draw_String (x /*+ ((vid.width - 320)>>1)*/, y+ vid.height-SBAR_HEIGHT - screen_bottom, str); // Manoel Kasimier - edited
+		Draw_String (x /*+ ((vid.width - 320)>>1)*/, y+ vid.height-SBAR_HEIGHT, str); // Manoel Kasimier - edited
 	else
-		Draw_String (x + ((vid.width - min_vid_width/*320*/)>>1), y+ vid.height-SBAR_HEIGHT - screen_bottom, str); // Manoel Kasimier - edited
+		Draw_String (x + ((vid.width - min_vid_width/*320*/)>>1), y+ vid.height-SBAR_HEIGHT, str); // Manoel Kasimier - edited
 }
 
 /*
@@ -786,8 +786,8 @@ void Sbar_DrawFrags (void)
 		top = Sbar_ColorForMap (top);
 		bottom = Sbar_ColorForMap (bottom);
 
-		Draw_Fill (xofs + x*8 + 10, y - screen_bottom, 28, 4, top); // Manoel Kasimier - edited
-		Draw_Fill (xofs + x*8 + 10, y+4 - screen_bottom, 28, 3, bottom); // Manoel Kasimier - edited
+		Draw_Fill (xofs + x*8 + 10, y, 28, 4, top); // Manoel Kasimier - edited
+		Draw_Fill (xofs + x*8 + 10, y+4, 28, 3, bottom); // Manoel Kasimier - edited
 
 	// draw number
 		f = s->frags;
@@ -890,8 +890,8 @@ void Sbar_DrawFace (int x, int y) // default 112, 0
 			xofs = ((vid.width - min_vid_width/*320*/)>>1) + x + 2; // 113 Manoel Kasimier - edited
 
 		Sbar_DrawTransPic (x, 0, rsb_teambord); // 112 Manoel Kasimier - edited
-		Draw_Fill (xofs, vid.height-SBAR_HEIGHT+3 - screen_bottom, 20, 9, top); // Manoel Kasimier - edited
-		Draw_Fill (xofs, vid.height-SBAR_HEIGHT+12 - screen_bottom, 20, 9, bottom); // Manoel Kasimier - edited
+		Draw_Fill (xofs, vid.height-SBAR_HEIGHT+3, 20, 9, top); // Manoel Kasimier - edited
+		Draw_Fill (xofs, vid.height-SBAR_HEIGHT+12, 20, 9, bottom); // Manoel Kasimier - edited
 
 		// draw number
 		f = s->frags;
@@ -1171,7 +1171,7 @@ Sbar_Draw
 */
 void Sbar_Draw (void)
 {
-	int x, x2, y; // Manoel Kasimier - crosshair
+	int x, y; // Manoel Kasimier - crosshair
 	if (scr_con_current == vid.height)
 		return;		// console is full screen
 
@@ -1179,7 +1179,7 @@ void Sbar_Draw (void)
 	if (cl.letterbox)
 	{
 		if (cl.letterbox == 1) // hack to ensure the whole screen will be black
-			Draw_Fill(0, screen_top+(vid.height-screen_top-screen_bottom)/2, vid.width, 1, 0);
+			Draw_Fill(0, vid.height/2, vid.width, 1, 0);
 		return;
 	}
 	// Manoel Kasimier - svc_letterbox - end
@@ -1199,21 +1199,18 @@ void Sbar_Draw (void)
 
 // Manoel Kasimier - begin
 
-	//x = (sbar_x.value / 100) * (vid.width / 3.2); // 16
-	x  = screen_left;
-	x2 = screen_right;
 	sb_lines = 0;
 
 	if ( (sb_showscores || sbar.value > 0) && sbar.value < 4)
 	{
 		sb_lines = sbar.value*24;
 		if (sbar_show_bg.value)
-			Draw_TileClear (scr_vrect.x, vid.height - sb_lines - screen_bottom, scr_vrect.width, sb_lines);
+			Draw_TileClear (scr_vrect.x, vid.height - sb_lines, scr_vrect.width, sb_lines);
 		else
 		{
-			Draw_Fill (0, vid.height - sb_lines - screen_bottom, scr_vrect.x, sb_lines, 0); // left
-			Draw_Fill (scr_vrect.x+scr_vrect.width, vid.height - sb_lines - screen_bottom, vid.width-(scr_vrect.x+scr_vrect.width), sb_lines, 0); // right
-			Draw_Fill (scr_vrect.x, scr_vrect.y+scr_vrect.height, scr_vrect.width, vid.height-(scr_vrect.y+scr_vrect.height)-screen_bottom, 0); // bottom
+			Draw_Fill (0, vid.height - sb_lines, scr_vrect.x, sb_lines, 0); // left
+			Draw_Fill (scr_vrect.x+scr_vrect.width, vid.height - sb_lines, vid.width-(scr_vrect.x+scr_vrect.width), sb_lines, 0); // right
+			Draw_Fill (scr_vrect.x, scr_vrect.y+scr_vrect.height, scr_vrect.width, vid.height-(scr_vrect.y+scr_vrect.height), 0); // bottom
 			sb_lines = 0;
 		}
 		if (sbar.value > 1 || sb_showscores) // inventory bar
@@ -1269,9 +1266,9 @@ void Sbar_Draw (void)
 	{
 		if (scr_viewsize.value < 100)
 		{
-			Draw_Fill (screen_left, 0, scr_vrect.x-screen_left, vid.height-screen_bottom, 0); // left
-			Draw_Fill (scr_vrect.x+scr_vrect.width, 0, vid.width-(scr_vrect.x+scr_vrect.width)-screen_right, vid.height-screen_bottom, 0); // right
-			Draw_Fill (scr_vrect.x, scr_vrect.y+scr_vrect.height, scr_vrect.width, vid.height-(scr_vrect.y+scr_vrect.height)-screen_bottom, 0); // bottom
+			Draw_Fill (0, 0, scr_vrect.x, vid.height, 0); // left
+			Draw_Fill (scr_vrect.x+scr_vrect.width, 0, vid.width-(scr_vrect.x+scr_vrect.width), vid.height, 0); // right
+			Draw_Fill (scr_vrect.x, scr_vrect.y+scr_vrect.height, scr_vrect.width, vid.height-(scr_vrect.y+scr_vrect.height), 0); // bottom
 		}
 
 		if (rogue || hipnotic)
@@ -1279,13 +1276,13 @@ void Sbar_Draw (void)
 		else
 			Sbar_SoloScoreboard (x, -33, 1);
 
-		Sbar_DrawAmmoList	(vid.width - 56 - x2, -9, 1);
-		Sbar_DrawWeaponList	(vid.width - 52 - x2, -48, 1);
+		Sbar_DrawAmmoList	(vid.width - 56, -9, 1);
+		Sbar_DrawWeaponList	(vid.width - 52, -48, 1);
 
 		if (rogue)
-			Sbar_DrawKeys (vid.width - 56 - x2, -16);
+			Sbar_DrawKeys (vid.width - 56, -16);
 		else
-			Sbar_DrawKeys (vid.width - 88 - x2, -16);
+			Sbar_DrawKeys (vid.width - 88, -16);
 
 		if (rogue || hipnotic)
 		{
@@ -1294,40 +1291,17 @@ void Sbar_Draw (void)
 			Sbar_DrawPowerups_Hipnotic	(x + 64, -40);
 		}
 		else
-			Sbar_DrawPowerUps (vid.width - 88 - x2, -32);
+			Sbar_DrawPowerUps (vid.width - 88, -32);
 
-		Sbar_DrawRunes (vid.width - 56 - x2, -16); // sigils
+		Sbar_DrawRunes (vid.width - 56, -16); // sigils
 
 //		Sbar_DrawFrags (); // TO DO
 
 		Sbar_DrawArmor	(x, x + 24, -24);
 		Sbar_DrawHealth	(x, x + 24, 0);
-		Sbar_DrawHipKeys (vid.width - 40 - x2, -18); // keys (hipnotic only)
-		Sbar_DrawAmmo (vid.width - 24 - x2, vid.width - 96 - x2, 0);
+		Sbar_DrawHipKeys (vid.width - 40, -18); // keys (hipnotic only)
+		Sbar_DrawAmmo (vid.width - 24, vid.width - 96, 0);
 	}
-#if 0
-	else if (sbar.value == 5)
-	{
-		// player 1
-		Sbar_DrawEnergyBar ( 12 + x, screen_top, cl.stats[STAT_HEALTH], 2);
-		// player 2
-		Sbar_DrawEnergyBar (-12 + vid.width - screen_right - 6 - 100/* *(vid.width/320) */, screen_top, cl.stats[STAT_AMMO], 0);
-
-		// time
-	//	Draw_TransPic (screen_left + (vid.width - screen_left - screen_right - draw_disc->width)/2, screen_top, draw_disc); // Manoel Kasimier - edited
-		Sbar_DrawNum (screen_left + (vid.width - screen_left - screen_right - 48)/2, -1*(vid.height - screen_top - screen_bottom - 24), cl.stats[STAT_ARMOR]%100/10, 1, 0);
-		Sbar_DrawNum (screen_left + (vid.width - screen_left - screen_right - 0)/2, -1*(vid.height - screen_top - screen_bottom - 24), cl.stats[STAT_ARMOR]%10, 1, 0);
-		if (cl.paused)
-		{
-			qpic_t	*pic;
-			pic = Draw_CachePic ("gfx/pause.lmp");
-			Draw_TransPic (screen_left + (vid.width - screen_left - screen_right - pic->width)/2, (int)vid.height - screen_bottom - pic->height, pic);
-		}
-
-		return;
-	}
-#endif
-// Manoel Kasimier - end
 
 	if (vid.width > min_vid_width/*320*/)
 		if (cl.gametype == GAME_DEATHMATCH)
@@ -1400,7 +1374,7 @@ void Sbar_DeathmatchOverlay (void)
 	l = scoreboardlines;
 
 	x = 80 + ((vid.width - min_vid_width/*320*/)>>1);
-	y = screen_top + 36; // Manoel Kasimier - edited
+	y = 36; // Manoel Kasimier - edited
 	for (i=0 ; i<l ; i++)
 	{
 		k = fragsort[i];
@@ -1487,7 +1461,7 @@ void Sbar_MiniDeathmatchOverlay (void)
 	// Manoel Kasimier - end
 	if (numlines < 3)
 		return;
-	y = vid.height - screen_bottom - numlines*8; // Manoel Kasimier
+	y = vid.height - numlines*8; // Manoel Kasimier
 
 	//find us
 	for (i = 0; i < scoreboardlines; i++)
@@ -1568,7 +1542,7 @@ void Sbar_IntermissionOverlay (void)
 {
 	int		num;
 	int		movex = ((vid.width - min_vid_width/*320*/)>>1); // Manoel Kasimier
-	int		y = screen_top + 28; // Manoel Kasimier
+	int		y = 28;
 
 	scr_copyeverything = 1;
 	scr_fullupdate = 0;

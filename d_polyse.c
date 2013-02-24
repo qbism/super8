@@ -639,7 +639,7 @@ void D_PolysetDrawSpans8 (spanpackage_t *pspanpackage)
                     if ((lzi >> 16) >= *lpz)
                         if (*lptex != 255) // Manoel Kasimier - transparent pixels in alias models
                         {
-                            *lpdest = ((byte *)acolormap)[(llight & 0xFF00) + lightcolormap[*lptex*256 + *pointcolormap]];
+                            *lpdest = ((byte *)acolormap)[(llight & 0xFF00) + lightcolormap[*pointcolormap*256 + *lptex]];
                             *lpz = lzi >> 16;
                         }
                     lpdest++;

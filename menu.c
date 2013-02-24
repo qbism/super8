@@ -2841,7 +2841,7 @@ void M_Keys_Key (int k)
 {
     char	cmd[80];
     int		keys[MAXKEYS]; // Manoel Kasimier
-    int		menulines = (vid.height - screen_top - 28 - (m_keys_pages>0)*16 - 48) / 8; // Manoel Kasimier
+    int		menulines = (vid.height - 28 - (m_keys_pages>0)*16 - 48) / 8; // Manoel Kasimier
 
     M_FillKeyList(); // Manoel Kasimier
 

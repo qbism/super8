@@ -41,12 +41,6 @@ extern	qboolean	scr_disabled_for_loading;
 extern	qboolean	scr_skipupdate;
 extern float frame_timescale;
 
-int			screen_left;
-int			screen_right;
-int			screen_top;
-int			screen_bottom;
-// Manoel Kasimier - screen positioning - end
-
 extern cvar_t scr_viewsize;
 
 // only the refresh window will be updated unless these variables are flagged

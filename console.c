@@ -631,7 +631,7 @@ void Con_DrawNotify (void)
     int		i;
     float	time;
 
-    v = screen_top; // Manoel Kasimier - screen positioning
+    v = 0; // Manoel Kasimier - screen positioning
     for (i= con_current-NUM_CON_TIMES+1 ; i<=con_current ; i++)
     {
         if (i < 0)
@@ -649,8 +649,7 @@ void Con_DrawNotify (void)
             scr_copytop = 1;
 
         for (x = 0 ; x < con_linewidth ; x++)
-            //	for (x = 0 ; x < ((vid.width - (unsigned)(screen_left + screen_right)) >> 3)/*con_linewidth*/ ; x++) // Manoel Kasimier - screen positioning - edited
-            Draw_Character ( ((x)<<3) + screen_left, v, text[x]); // Manoel Kasimier - screen positioning - edited
+             Draw_Character ( ((x)<<3), v, text[x]); // Manoel Kasimier - screen positioning - edited
 
         v += 8;
     }
@@ -664,13 +663,13 @@ void Con_DrawNotify (void)
 
         x = 0;
 
-        Draw_String (screen_left, v, "say:"); // Manoel Kasimier - screen positioning - edited
+        Draw_String (0, v, "say:"); // Manoel Kasimier - screen positioning - edited
         while(chat_buffer[x])
         {
-            Draw_Character ( ((x+4)<<3) + screen_left, v, chat_buffer[x]); // Manoel Kasimier - screen positioning - edited
+            Draw_Character ( ((x+4)<<3), v, chat_buffer[x]); // Manoel Kasimier - screen positioning - edited
             x++;
         }
-        Draw_Character ( ((x+4)<<3) + screen_left, v, 10+((int)(realtime*con_cursorspeed)&1)); // Manoel Kasimier - screen positioning - edited
+        Draw_Character ( ((x+4)<<3), v, 10+((int)(realtime*con_cursorspeed)&1)); // Manoel Kasimier - screen positioning - edited
         v += 8;
         M_OnScreenKeyboard_Draw(48); // Manoel Kasimier - on-screen keyboard
     }
@@ -704,8 +703,6 @@ void Con_DrawConsole (int lines, qboolean drawinput)
     Draw_ConsoleBackground (lines);
 
 // draw the text
-    if (!sv.active && !cls.demoplayback) // Manoel Kasimier - screen positioning
-        lines = lines - screen_bottom; // Manoel Kasimier - screen positioning
     con_vislines = lines;
 
     rows = ((lines-16)>>3) +1;		// rows of text to draw // Manoel Kasimier - edited

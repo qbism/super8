@@ -42,6 +42,7 @@
 				<Option compiler="mingw32" />
 				<Option parameters=" -heapsize 999000" />
 				<Compiler>
+					<Add option="-march=pentium-mmx" />
 					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-DDEBUG" />
@@ -63,9 +64,8 @@
 				<Option type="0" />
 				<Option compiler="mingw32" />
 				<Compiler>
-					<Add option="-march=corei7" />
+					<Add option="-march=core2" />
 					<Add option="-fomit-frame-pointer" />
-					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-w" />
 					<Add option="-DWIN32" />

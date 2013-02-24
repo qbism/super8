@@ -122,7 +122,7 @@ void SCR_EraseCenterString (void)
         if (scr_center_lines <= 4)
             y = vid.height*0.35;
         else
-            y = screen_top + 44;//28+16;//48; // Manoel Kasimier - edited
+            y = 44;//28+16;//48; // Manoel Kasimier - edited
 
     scr_copytop = 1;
     // Manoel Kasimier - begin
@@ -159,7 +159,7 @@ void SCR_DrawCenterString (void)
         if (scr_center_lines <= 4)
             y = vid.height*0.35;
         else
-            y = screen_top + 44;//28+16;//48; // Manoel Kasimier - edited
+            y = 44;//28+16;//48; // Manoel Kasimier - edited
 
     do
     {
@@ -445,10 +445,10 @@ void SCR_DrawFPS (void)
 
     sprintf(st, "%f FPS", fps);
 
-    x = vid.width - Q_strlen(st) * 8 - screen_right; // Manoel Kasimier - edited
-    if (scr_vrect.y > screen_top) // Manoel Kasimier
-        Draw_Fill(x, screen_top, Q_strlen(st) * 8, 8, 0); // Manoel Kasimier
-    Draw_String(x, screen_top, st); // x, y, st // Manoel Kasimier - edited
+    x = vid.width - Q_strlen(st) * 8;
+    if (scr_vrect.y > 0)
+        Draw_Fill(x, 0, Q_strlen(st) * 8, 8, 0);
+    Draw_String(x, 0, st);
 }
 
 
@@ -551,10 +551,10 @@ void SCR_SetUpToDrawConsole (void)
             Draw_Fill (0, 0, vid.width, vid.height, 0); // Manoel Kasimier - transparent console
         Sbar_Changed ();
     }
-    else if (clearnotify++ < vid.numpages && scr_vrect.y > screen_top) // Manoel Kasimier - edited
+    else if (clearnotify++ < vid.numpages && scr_vrect.y > 0)
     {
         scr_copytop = 1;
-        Draw_Fill (0, screen_top, vid.width, con_notifylines, 0); // Manoel Kasimier - edited
+        Draw_Fill (0, 0, vid.width, con_notifylines, 0);
     }
     else
         con_notifylines = 0;
@@ -1231,7 +1231,7 @@ void SCR_UpdateScreen (void)
         vrect.x = 0;
         vrect.y = 0;
         vrect.width = vid.width;
-        vrect.height = vid.height - sb_lines - screen_bottom; // Manoel Kasimier - edited
+        vrect.height = vid.height - sb_lines;
         vrect.pnext = 0;
 
         VID_Update (&vrect);

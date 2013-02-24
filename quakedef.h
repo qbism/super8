@@ -372,8 +372,9 @@ extern cvar_t	sys_nostdout;
 extern cvar_t   r_palette;
 extern cvar_t	r_shadowhack; //qb: engoo shadowhack
 extern cvar_t   r_shadowhacksize; //qb
-extern cvar_t m_look; // Manoel Kasimier - m_look
-extern	cvar_t	bgmvolume;
+extern cvar_t   m_look; // Manoel Kasimier - m_look
+extern cvar_t	bgmvolume;  //qb: QS
+extern cvar_t	vid_stretch_by_2;
 
 //
 // chase

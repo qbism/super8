@@ -562,20 +562,20 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
 
     for (l=0; l<256; l++)
     {
-        rl = host_basepal[l*3]*ae;
-        gl = host_basepal[l*3+1]*ae;
-        bl = host_basepal[l*3+2]*ae;
+        rl = host_basepal[l*3]*ay;
+        gl = host_basepal[l*3+1]*ay;
+        bl = host_basepal[l*3+2]*ay;
 
         for (c=0 ; c<256 ; c++)
         {
-            if (l>223)
-                *colmap++ = l;
+            if (c>223)
+                *colmap++ = c;
             else
             {
                 //bright = sqrt((rl+gl+bl)/(host_basepal[c*3]+host_basepal[c*3+1]+host_basepal[c*3+2]+1.0));
-                r = rl + (float)host_basepal[c*3]*ay;//*bright;
-                g = gl + (float)host_basepal[c*3+1]*ay;//*bright;
-                b = bl + (float)host_basepal[c*3+2]*ay;//*bright;
+                r = rl + (float)host_basepal[c*3]*ae;//*bright;
+                g = gl + (float)host_basepal[c*3+1]*ae;//*bright;
+                b = bl + (float)host_basepal[c*3+2]*ae;//*bright;
 
 
                 *colmap++ = BestColor(r,g,b, 0, 223);
@@ -1061,35 +1061,7 @@ void R_SetVrect (vrect_t *pvrectin, vrect_t *pvrect, int lineadj)
     pvrect->x = (pvrectin->width - pvrect->width)/2;
     pvrect->y = (h - pvrect->height)/2;
 
-    // Manoel Kasimier - screen positioning - begin
     {
-        int hspace = (int)(vid.width  / 40);//80);
-        int vspace = (int)(vid.height / 30);//60);
-
-        if (screen_left > hspace)
-        {
-            pvrect->x += screen_left - hspace;
-            pvrect->width -= screen_left - hspace;
-        }
-
-        if (screen_right > hspace)
-            pvrect->width -= screen_right - hspace;
-
-        if (screen_top > vspace)
-        {
-            pvrect->y += screen_top - vspace;
-            pvrect->height -= screen_top - vspace;
-        }
-
-        if (sb_lines)
-        {
-            pvrect->height -= screen_bottom;
-         }
-        else
-        {
-            if (screen_bottom > vspace)
-                pvrect->height -= screen_bottom - vspace;
-        }
         // Manoel Kasimier - svc_letterbox - start
         if (cl.letterbox)
         {
