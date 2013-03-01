@@ -520,6 +520,27 @@ void GrabAlphamap (void) //qb: based on Engoo
     }
 }
 
+void GrabAlpha50map (void) //qb: 50% / 50% alpha
+{
+    int c,l, r,g,b;
+    byte *colmap;
+
+    colmap = alpha50map;
+
+    for (l=0; l<256; l++)
+    {
+        for (c=0 ; c<256 ; c++)
+        {
+            r = (int)(((float)host_basepal[c*3]*0.5)  + ((float)host_basepal[l*3] *0.5));
+            g = (int)(((float)host_basepal[c*3+1]*0.5) + ((float)host_basepal[l*3+1] *0.5));
+            b = (int)(((float)host_basepal[c*3+2]*0.5)  + ((float)host_basepal[l*3+2] *0.5));
+            *colmap++ =BestColor(r,g,b, 0, 254); // High quality color tables get best color
+        }
+    }
+}
+
+
+
 void GrabFogmap (void) //qb: yet another lookup
 {
     int c,l, r,g,b;
@@ -542,9 +563,9 @@ void GrabFogmap (void) //qb: yet another lookup
 
 void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show through
 {
-    int c,l, r,g,b;
-    float rl, gl, bl;
-    float ay, ae, bright;
+    int c,p, r,g,b;
+    float rc,gc,bc, rp,gp,bp;
+    float ay, ae;
     byte *colmap;
 
     if(coloredlights == 1)
@@ -560,23 +581,26 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
 
     colmap = lightcolormap;
 
-    for (l=0; l<256; l++)
+    for (c=0; c<256; c++)
     {
-        rl = host_basepal[l*3]*ay;
-        gl = host_basepal[l*3+1]*ay;
-        bl = host_basepal[l*3+2]*ay;
+        rc=host_basepal[c*3]/96.0;
+        gc=host_basepal[c*3+1]/96.0;
+        bc=host_basepal[c*3+2]/96.0;
 
-        for (c=0 ; c<256 ; c++)
+        for (p=0 ; p<256 ; p++)
         {
-            if (c>223)
-                *colmap++ = c;
+            if (p>223)
+                *colmap++ = p;
             else
             {
-                //bright = sqrt((rl+gl+bl)/(host_basepal[c*3]+host_basepal[c*3+1]+host_basepal[c*3+2]+1.0));
-                r = rl + (float)host_basepal[c*3]*ae;//*bright;
-                g = gl + (float)host_basepal[c*3+1]*ae;//*bright;
-                b = bl + (float)host_basepal[c*3+2]*ae;//*bright;
+                rp=host_basepal[p*3];
+                gp=host_basepal[p*3+1];
+                bp=host_basepal[p*3+2];
 
+                //bright = sqrt((rl+gl+bl)/(host_basepal[c*3]+host_basepal[c*3+1]+host_basepal[c*3+2]+1.0));
+                r = (rc * ay)+ rp * (ae + (rc * ay));
+                g = (gc * ay)+ gp * (ae + (gc * ay));
+                b = (bc * ay)+ bp * (ae + (bc * ay));
 
                 *colmap++ = BestColor(r,g,b, 0, 223);
             }
@@ -1124,10 +1148,10 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj)
     }
     else
     {
-          pixelAspect = vid_nativeaspect; //qb
-          if(vid_windowed_mode.value)
+        pixelAspect = vid_nativeaspect; //qb
+        if(vid_windowed_mode.value)
             screenAspect = 1;
-         else screenAspect = r_refdef.vrect.width*pixelAspect /r_refdef.vrect.height;
+        else screenAspect = r_refdef.vrect.width*pixelAspect /r_refdef.vrect.height;
     }
     xOrigin = r_refdef.xOrigin;
     yOrigin = r_refdef.yOrigin;
@@ -1783,7 +1807,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 
     R_SetupFrame ();
     currententity = &cl_entities[0];
-        R_PushDlights (cl.worldmodel->nodes);  //qb: moved here from view.c
+    R_PushDlights (cl.worldmodel->nodes);  //qb: moved here from view.c
 
 #ifdef PASSAGES
     SetVisibilityByPassages ();
@@ -1831,7 +1855,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 
     if (r_dspeeds.value) // Manoel Kasimier
         de_time1 = Sys_DoubleTime (); // Manoel Kasimier - draw entities time
-        CL_UpdateTEnts (); // Manoel Kasimier
+    CL_UpdateTEnts (); // Manoel Kasimier
 
     R_SortAliasEntities(); //qb: from reckless
     R_DrawEntitiesOnList ();
@@ -1843,7 +1867,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
         dp_time1 = de_time2; // draw particles time
     }
 
-        R_DrawParticles ();
+    R_DrawParticles ();
 
     if (r_dspeeds.value)
         dp_time2 = Sys_DoubleTime (); // draw particles time
@@ -1901,23 +1925,23 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 #endif // Manoel Kasimier - buffered video (bloody hack)
 
     V_SetContentsColor (r_viewleaf->contents);
-        if (r_timegraph.value)
-            R_TimeGraph ();
+    if (r_timegraph.value)
+        R_TimeGraph ();
 
-        if (r_aliasstats.value)
-            R_PrintAliasStats ();
+    if (r_aliasstats.value)
+        R_PrintAliasStats ();
 
-        if (r_speeds.value)
-            R_PrintTimes ();
+    if (r_speeds.value)
+        R_PrintTimes ();
 
-        if (r_dspeeds.value)
-            R_PrintDSpeeds ();
+    if (r_dspeeds.value)
+        R_PrintDSpeeds ();
 
-        if (r_reportsurfout.value && r_outofsurfaces)
-            Con_Printf ("Short %d surfaces\n", r_outofsurfaces);
+    if (r_reportsurfout.value && r_outofsurfaces)
+        Con_Printf ("Short %d surfaces\n", r_outofsurfaces);
 
-        if (r_reportedgeout.value && r_outofedges)
-            Con_Printf ("Short roughly %d edges\n", r_outofedges * 2 / 3);
+    if (r_reportedgeout.value && r_outofedges)
+        Con_Printf ("Short roughly %d edges\n", r_outofedges * 2 / 3);
 }
 
 /*
@@ -1945,8 +1969,8 @@ R_NoLerpList_f -- johnfitz -- called when r_nolerp_list cvar changes //qb: from 
 */
 void R_NoLerpList_f (void)
 {
-	int i;
+    int i;
 
-	for (i=0; i < MAX_MODELS; i++)
-		Mod_SetExtraFlags (cl.model_precache[i]);
+    for (i=0; i < MAX_MODELS; i++)
+        Mod_SetExtraFlags (cl.model_precache[i]);
 }

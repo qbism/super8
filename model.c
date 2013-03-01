@@ -526,8 +526,7 @@ Mod_LoadLighting
 */
 void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
 {
-    int		i, j, k;
-    int		r, g, b;
+    int		i, j, k, r, g, b;
     float   weight, wlout;
     byte	*out, *lout, *data;
     char	litname[1024];
@@ -559,16 +558,12 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                     loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qb: need some padding
                     k=8;
                     out = loadmodel->colordata;
-                    lout = loadmodel->lightdata;
                     while(k <= fileinfo->filelen)
                     {
                         r = data[k++];
                         g = data[k++];
                         b = data[k++];
-                        weight= r_clintensity.value/(1+r+b+g);  //qb: flatten out the color
-                        wlout = *lout*(1-r_clintensity.value);
-                        *out++ = BestColor((int)(r*r*weight)+wlout, (int)(g*g*weight)+wlout, (int)(b*b*weight)+wlout, 0, 254);
-                        *lout++ = max((r+g+b)/3, *lout);  //avoid large differences if colored lights don't align w/ standard.
+                        *out++ = BestColor(r, g, b, 0, 254);
                     }
                     Q_free(fileinfo);
                     return;

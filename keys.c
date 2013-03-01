@@ -195,6 +195,8 @@ void Key_Console (int key)
 			Cmd_CompleteParameter (cmd, "*.txt");
 		else if (strstr(cmd, "map ") == cmd)
 			Cmd_CompleteParameter (cmd, "*.bsp");
+		else if (strstr(cmd, "music ") == cmd)
+			Cmd_CompleteParameter (cmd, "*.mp3");
 		else if (strstr(cmd, "exec ") == cmd)
 			Cmd_CompleteParameter (cmd, "*.cfg");
 		else if (strstr(cmd, "load ") == cmd)
