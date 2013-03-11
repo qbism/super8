@@ -563,8 +563,8 @@ void GrabFogmap (void) //qb: yet another lookup
 
 void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show through
 {
-    int c,p, r,g,b;
-    float rc,gc,bc, rp,gp,bp;
+    int c,p,i, r,g,b;
+    float rc,gc,bc, rp,gp,bp, coloravg, brightscale;
     float ay, ae;
     byte *colmap;
 
@@ -583,9 +583,16 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
 
     for (c=0; c<256; c++)
     {
-        rc=host_basepal[c*3]/96.0;
-        gc=host_basepal[c*3+1]/96.0;
-        bc=host_basepal[c*3+2]/96.0;
+        rc=host_basepal[c*3];
+        gc=host_basepal[c*3+1];
+        bc=host_basepal[c*3+2];
+        coloravg = (rc+gc+bc+sqrt(rc+gc+bc))/4.0;
+        rc = (rc-coloravg)*ay;
+        if (rc < 0) rc = 0;
+        bc = (bc-coloravg)*ay;
+        if (bc < 0) bc = 0;
+        gc = (gc-coloravg)*ay;
+        if (gc < 0) gc = 0;
 
         for (p=0 ; p<256 ; p++)
         {
@@ -596,19 +603,18 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
                 rp=host_basepal[p*3];
                 gp=host_basepal[p*3+1];
                 bp=host_basepal[p*3+2];
+               // brightscale = (float)(rp+gp+bp)/(brightcolor+0.5);
 
                 //bright = sqrt((rl+gl+bl)/(host_basepal[c*3]+host_basepal[c*3+1]+host_basepal[c*3+2]+1.0));
-                r = (rc * ay)+ rp * (ae + (rc * ay));
-                g = (gc * ay)+ gp * (ae + (gc * ay));
-                b = (bc * ay)+ bp * (ae + (bc * ay));
+                r = rp+rc ; //(rc * rc * ay)+ rp * (ae + (rc * ay));
+                g = gp+gc ; //(gc * gc * ay)+ gp * (ae + (gc * ay));
+                b = bp+bc ; //(bc * bc * ay)+ bp * (ae + (bc * ay));
 
                 *colmap++ = BestColor(r,g,b, 0, 223);
             }
         }
     }
 }
-
-
 
 void GrabAdditivemap (void) //qb: based on Engoo
 {
