@@ -77,7 +77,6 @@ extern cvar_t	sw_stipplealpha; // Manoel Kasimier
 extern cvar_t   r_nolerp_list; //qb: //from FQ
 
 extern cvar_t	r_coloredlights; //qb: at last!
-extern cvar_t	r_clintensity;
 extern cvar_t	r_clcolorweight;
 
 extern cvar_t   r_fog; //qb: fog!  not TOO bad...

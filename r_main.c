@@ -151,7 +151,6 @@ cvar_t	r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs
 
 
 cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qb:
-cvar_t	r_clintensity = {"r_clintensity", "1.33", true}; //qb: this is a radius factor, not saturation
 cvar_t	r_clbaseweight = {"r_clbaseweight", "0.8", true}; //qb: base pixel weight for color map blending
 cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", true}; //qb: color weight for color map blending
 //qb:  too dangerous... cvar_t	r_colmaprange= {"r_colmaprange", "1.0", true}; //qb: colormap range for overbright
@@ -285,8 +284,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_drawflat);
     Cvar_RegisterVariable (&r_ambient);
     Cvar_RegisterVariable (&r_coloredlights); //qb:
-    Cvar_RegisterVariable (&r_clintensity); //qb:
-    Cvar_RegisterVariable (&r_clbaseweight); //qb:
+     Cvar_RegisterVariable (&r_clbaseweight); //qb:
     Cvar_RegisterVariable (&r_clcolorweight); //qb:
 //qb:    Cvar_RegisterVariable (&r_colmaprange); //qb:
     Cvar_RegisterVariable (&r_fog); //qb:
