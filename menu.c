@@ -496,18 +496,6 @@ void M_PrintWhite (int cx, int cy, char *str)
     }
 }
 
-void M_DrawTransPic (int x, int y, qpic_t *pic)
-{
-    if (pic)
-        Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, false, identityTable, NULL, false);
-}
-void M_DrawTransPicMirror (int x, int y, qpic_t *pic)
-{
-    if (pic)
-        Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, true , identityTable, NULL, false);
-}
-
-
 void M_DrawTextBox (int x, int y, int width, int lines)
 {
     qpic_t	*p;
@@ -564,19 +552,6 @@ void M_DrawTextBox (int x, int y, int width, int lines)
     p = Draw_CachePic ("gfx/box_br.lmp");
     M_DrawTransPic (cx - w, cy+8 - h, p); // Manoel Kasimier - crosshair - edited
 }
-
-void M_DrawTransPicTranslate (int x, int y, qpic_t *pic)
-{
-    if (pic)
-        Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, false, translationTable, NULL, false);
-}
-void M_DrawTransPicTranslateMirror (int x, int y, qpic_t *pic)
-{
-    if (pic)
-        Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, true , translationTable, NULL, false);
-}
-
-
 
 #define	SLIDER_RANGE	10
 void M_DrawSlider (int x, int y, float range)
@@ -654,9 +629,6 @@ void M_DrawCursor (int x, int y, int itemindex)
         M_DrawCharacter (x, y + itemindex*8, 12+((int)(realtime*4)&1));
 }
 
-#define ALIGN_LEFT 0
-#define ALIGN_RIGHT 8
-#define ALIGN_CENTER 4
 void M_PrintText (char *s, int x, int y, int w, int h, int alignment)
 {
     int		l;
@@ -890,7 +862,7 @@ void M_PopUp_Draw (void)
         M_Draw ();
         m_state = m_popup;
     }
-    M_DrawTextBox (56, (200/*vid.height*/ - 48) / 2, 24*8, 4*8);
+    M_DrawTextBox (48, (200/*vid.height*/ - 110) / 2, 25*8, 12*8);
     M_PrintText (popup_message, 64, (200/*vid.height*/ - 32) / 2, 24, 4, ALIGN_CENTER);
 }
 
@@ -3658,24 +3630,23 @@ void M_Help_Draw (void)
 		{
 credits1:
             M_DrawTextBox (0, y, 38*8, 23*8);
-            M_Print		(16+4,	y+=12,	"     qbism Super 8 engine  ");
-            M_Print		(16+4,	y+=8,	"       super8.qbism.com  ");
-            M_PrintWhite(16+4,	y+=12,	"        forked from Makaqu     ");
-            M_PrintWhite(16,	y+=8,	" Programmed by Manoel Kasimier");
-            M_PrintWhite(16+4,	y+=12,	"ToChriS Quake by Victor Luchitz");
-            M_PrintWhite(16,	y+=16,	"FlashQuake port by Michael Rennie");
-            M_PrintWhite(16,	y+=8,	"FlashProQuake port by Baker");
-            M_PrintWhite(16,	y+=8,	"joequake engine by Jozsef Szalontai");
-            M_PrintWhite(16,	y+=8,	"qrack engine coded by R00k");
-            M_PrintWhite(16,	y+=8,	"fteqw engine by Spike and FTE Team");
-            M_PrintWhite(16,	y+=8,	"FitzQuake coded by John Fitz");
-            M_PrintWhite(16,	y+=8,	"DarkPlaces engine by Lord Havoc");
-            M_PrintWhite(16,	y+=8,	"engoo engine by Leilei");
-            M_PrintWhite(16,	y+=8,	"GoldQuake engine by Sajt");
-            M_PrintWhite(16,	y+=8,	"enhanced WinQuake by Bengt Jardrup ");
-            M_PrintWhite(16,	y+=8,	"Tutorials- JTR, Fett, Baker and MH");
-
-            M_PrintWhite(16,	y+=16,	"Thanks to any other GPL coders!");
+            M_Print		(22,	y+=24,	"      qbism Super 8 engine  ");
+            M_Print		(22,	y+=8,	"        super8.qbism.com  ");
+            M_PrintWhite(22,	y+=12,	"       forked from Makaqu     ");
+            M_PrintWhite(22,	y+=8,	"Programmed by Manoel Kasimier");
+            M_PrintWhite(22,	y+=12,	"ToChriS Quake by Victor Luchitz");
+            M_PrintWhite(22,	y+=8,	"FlashQuake port by Michael Rennie");
+            M_PrintWhite(22,	y+=8,	"FlashProQuake port by Baker");
+            M_PrintWhite(22,	y+=8,	"joequake engine by Jozsef Szalontai");
+            M_PrintWhite(22,	y+=8,	"qrack engine coded by R00k");
+            M_PrintWhite(22,	y+=8,	"fteqw engine by Spike and FTE Team");
+            M_PrintWhite(22,	y+=8,	"FitzQuake coded by John Fitz");
+            M_PrintWhite(22,	y+=8,	"DarkPlaces engine by Lord Havoc");
+            M_PrintWhite(22,	y+=8,	"engoo engine by Leilei");
+            M_PrintWhite(22,	y+=8,	"GoldQuake engine by Sajt");
+            M_PrintWhite(22,	y+=8,	"enhanced WinQuake by Bengt Jardrup ");
+            M_PrintWhite(22,	y+=8,	"Tutorials- JTR, Fett, Baker and MH");
+            M_PrintWhite(22,	y+=16,	"Thanks to any other GPL coders!");
         }
         else
         {
@@ -3736,13 +3707,13 @@ char *quitMessage =  //qb: show credits
 Press N to Reconsider.\n\
 \n\
 qbism Super8 engine\n\
-\n\
-Originally based on Makaqu\n\
-Also thanks to code from ToChriS Quake,\n\
-FlashQuake port, joequake engine,\n\
-Qrack, FTEQW, FitzQuake, DarkPlaces,\n\
-GoldQuake, and BJP's WinQuake\n\
-Tutorials and support from inside3d.com";
+Forked from Makaqu\n\
+Thanks to ToChriS Quake,\n\
+FlashProQuake, joequake,\n\
+Qrack, FTEQW, FitzQuake,\n\
+DarkPlaces, GoldQuake,\n\
+and BJP's WinQuake\n\
+Tutes from inside3d.com";
 
 void M_Quit_f (void)
 {

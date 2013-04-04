@@ -205,6 +205,11 @@ void as3ReadFileSharedObject(const char* filename);
 #define	MAX_RAW_SAMPLES	8192 //qb: QS
 #define WAV_FORMAT_PCM	1 //qb: QS
 
+//qb: for M_PrintText
+#define ALIGN_LEFT 0
+#define ALIGN_RIGHT 8
+#define ALIGN_CENTER 4
+
 #include "common.h"
 #include "bspfile.h"
 #include "vid.h"

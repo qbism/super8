@@ -136,61 +136,58 @@ void SCR_EraseCenterString (void)
 
 void SCR_DrawCenterString (void)
 {
-    char	*start;
-    int		l;
-    int		j;
-    int		x, y;
-    int		remaining;
+	char	*start;
+	int		l;
+	int		j;
+	int		x, y;
+	int		remaining;
 
 // the finale prints the characters one at a time
-    if (cl.intermission)
-        remaining = scr_printspeed.value * (cl.time - scr_centertime_start);
-    else
-        remaining = 9999;
+	if (cl.intermission)
+		remaining = scr_printspeed.value * (cl.time - scr_centertime_start);
+	else
+		remaining = 9999;
 
-    scr_erase_center = 0;
-    start = scr_centerstring;
+	scr_erase_center = 0;
+	start = scr_centerstring;
 
-    Draw_UpdateAlignment (1, 1);
-    // mankrip - svc_letterbox - begin
-    if (cl.letterbox)
-    {
-        y = (scr_vrect.y + scr_vrect.height + 4.0) / scr_2d_scale_v;
-        Draw_UpdateAlignment (1, 0);
-    }
-    else
-        // mankrip - svc_letterbox - end
-        if (scr_center_lines <= 4)
-            y = vid.height*0.35;
-        else
-            y = 44;//28+16;//48; // Manoel Kasimier - edited
+	Draw_UpdateAlignment (1, 1);
+	// mankrip - svc_letterbox - begin
+	if (cl.letterbox)
+	{
+		y = (scr_vrect.y + scr_vrect.height + 4) / scr_2d_scale_v;
+		Draw_UpdateAlignment (1, 0);
+	}
+	else
+	// mankrip - svc_letterbox - end
+	if (scr_center_lines <= 4)
+		y = 200*0.35; // mankrip - edited
+	else
+		y = 44;//28+16;//48; // mankrip - edited
 
-    do
-    {
-        // scan the width of the line
-        for (l=0 ; l<40 ; l++)
-            if (start[l] == '\n' || !start[l])
-                break;
-        //Dan: fixed to work with screens < 320 pixels
-        if (l*8>(int)vid.width) x=0;
-        else x = (vid.width - l*8)/2;
-        for (j=0 ; j<l ; j++, x+=8)
-        {
-            Draw_Character (x, y, start[j]);
-            if (!remaining--)
-                return;
-        }
+	do
+	{
+	// scan the width of the line
+		for (l=0 ; l<40 ; l++)
+			if (start[l] == '\n' || !start[l])
+				break;
+		x = (320 - l*8)/2;
+		for (j=0 ; j<l ; j++, x+=8)
+		{
+			M_DrawCharacter (x, y, start[j]);
+			if (!remaining--)
+				return;
+		}
 
-        y += 8;
+		y += 8;
 
-        while (*start && *start != '\n')
-            start++;
+		while (*start && *start != '\n')
+			start++;
 
-        if (!*start)
-            break;
-        start++;		// skip the \n
-    }
-    while (1);
+		if (!*start)
+			break;
+		start++;		// skip the \n
+	} while (1);
 }
 
 void SCR_CheckDrawCenterString (void)
@@ -422,7 +419,7 @@ void SCR_DrawNet (void)
         return;
 
     Draw_UpdateAlignment (0, 0); // mankrip
-    Draw_TransPic (scr_vrect.x+64, scr_vrect.y, scr_net); // Manoel Kasimier - edited
+    M_DrawTransPic (scr_vrect.x+64, scr_vrect.y, scr_net); // Manoel Kasimier - edited
 }
 
 //qb: improved drawfps adapted from Proquake

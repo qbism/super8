@@ -1300,7 +1300,7 @@ void Sbar_Draw (void)
 		if (rogue)
 			Sbar_DrawKeys (360 - SBAR_PADDING - 74, 4);
 		else
-			Sbar_DrawKeys (360 - SBAR_PADDING - 112, 4);
+			Sbar_DrawKeys (360 - SBAR_PADDING - 156, 4);
 
 		if (rogue || hipnotic)
 		{
@@ -1349,7 +1349,7 @@ void Sbar_IntermissionNumber (int x, int y, int num, int digits, int color)
         else
             frame = *ptr -'0';
 
-        Draw_TransPic (x,y,sb_nums[color][frame]);
+        M_DrawTransPic(x,y,sb_nums[color][frame]);
         x += 24;
         ptr++;
     }
@@ -1548,41 +1548,42 @@ Sbar_IntermissionOverlay
 */
 void Sbar_IntermissionOverlay (void)
 {
-    int		num;
-    int		movex = ((vid.width - min_vid_width)>>1); // Manoel Kasimier
-    int		y = 28;
+	int		num;
+	int		y = 28; // mankrip
 
-    scr_copyeverything = 1;
-    scr_fullupdate = 0;
+	scr_copyeverything = 1;
+	scr_fullupdate = 0;
 
-    if (cl.gametype == GAME_DEATHMATCH)
-    {
-        Sbar_DeathmatchOverlay ();
-        return;
-    }
-    Draw_UpdateAlignment (1, 1);
-    M_DrawPlaque ("gfx/complete.lmp", false); // Manoel Kasimier
-    Draw_TransPic (movex, y, Draw_CachePic ("gfx/inter.lmp")); // Manoel Kasimier
+	if (cl.gametype == GAME_DEATHMATCH)
+	{
+		Sbar_DeathmatchOverlay ();
+		return;
+	}
+
+	// mankrip - begin
+	Draw_UpdateAlignment (1, 1);
+	M_DrawPlaque ("gfx/complete.lmp", false);
+	M_DrawTransPic (0, y, Draw_CachePic ("gfx/inter.lmp"));
+	// mankrip - end
 
 // time
-// Manoel Kasimier - edited - begin
-    num = cl.completed_time/60;
-    Sbar_IntermissionNumber (160 + movex, y+=8/*64*/, num, 3, 0);
-    num = cl.completed_time - num*60;
-    Draw_TransPic (234 + movex, y/*64*/, sb_colon);
-    Draw_TransPic (246 + movex, y/*64*/, sb_nums[0][num/10]);
-    Draw_TransPic (266 + movex, y/*64*/, sb_nums[0][num%10]);
+// mankrip - edited - begin
+	num = cl.completed_time/60;
+	Sbar_IntermissionNumber (160, y+=8/*64*/, num, 3, 0);
+	num = cl.completed_time - num*60;
+	M_DrawTransPic (234, y/*64*/, sb_colon);
+	M_DrawTransPic (246, y/*64*/, sb_nums[0][num/10]);
+	M_DrawTransPic (266, y/*64*/, sb_nums[0][num%10]);
 
-    Sbar_IntermissionNumber (160 + movex, y+=40/*104*/, cl.stats[STAT_SECRETS], 3, 0);
-    Draw_TransPic			(232 + movex, y/*104*/, sb_slash);
-    Sbar_IntermissionNumber (240 + movex, y/*104*/, cl.stats[STAT_TOTALSECRETS], 3, 0);
+	Sbar_IntermissionNumber (160, y+=40/*104*/, cl.stats[STAT_SECRETS], 3, 0);
+	M_DrawTransPic			(232, y/*104*/, sb_slash);
+	Sbar_IntermissionNumber (240, y/*104*/, cl.stats[STAT_TOTALSECRETS], 3, 0);
 
-    Sbar_IntermissionNumber (160 + movex, y+=40/*144*/, cl.stats[STAT_MONSTERS], 3, 0);
-    Draw_TransPic			(232 + movex, y/*144*/, sb_slash);
-    Sbar_IntermissionNumber (240 + movex, y/*144*/, cl.stats[STAT_TOTALMONSTERS], 3, 0);
-// Manoel Kasimier - edited - end
+	Sbar_IntermissionNumber (160, y+=40/*144*/, cl.stats[STAT_MONSTERS], 3, 0);
+	M_DrawTransPic			(232, y/*144*/, sb_slash);
+	Sbar_IntermissionNumber (240, y/*144*/, cl.stats[STAT_TOTALMONSTERS], 3, 0);
+// mankrip - edited - end
 }
-
 
 /*
 ==================
