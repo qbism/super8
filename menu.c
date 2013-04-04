@@ -19,7 +19,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include<stdlib.h>
 #include<sys/types.h>
 
-extern int min_vid_width;  //qb: Dan East
 
 #ifdef _WIN32
 #define	NET_MENUS 1
@@ -27,8 +26,13 @@ extern int min_vid_width;  //qb: Dan East
 #define	NET_MENUS 0
 #endif
 
-cvar_t	savename = {"savename","QBS8____"}; // 8 uppercase characters
+extern byte identityTable[256]; //qb: MQ 1.6 hudscale
+extern byte translationTable[256];
 
+float scr_2d_scale_h = 1.0,	scr_2d_scale_v = 1.0;
+int scr_2d_offset_x, scr_2d_offset_y;
+
+cvar_t	savename = {"savename","QBS8____"}; // 8 uppercase characters
 
 //qb: needed for Rikku2000 maplist, but not included w/ mingw
 #ifndef FLASH
@@ -365,10 +369,6 @@ void M_ConfigureNetSubsystem(void);
 #endif
 static int fade_level = 0;
 
-
-byte identityTable[256];
-byte translationTable[256];
-
 // Manoel Kasimier - precaching menu pics - begin
 void M_Precache (void)
 {
@@ -432,34 +432,49 @@ void M_Precache (void)
 }
 // Manoel Kasimier - precaching menu pics - end
 
-void M_BuildTranslationTable(int top, int bottom)
+void BuildColorTranslationTable (int top, int bottom, byte *source, byte *dest)
 {
-    int		j;
-    byte	*dest, *source;
-
-    for (j = 0; j < 256; j++)
-        identityTable[j] = j;
-    dest = translationTable;
-    source = identityTable;
     memcpy (dest, source, 256);
 
-    if (top < 128)	// the artists made some backwards ranges.  sigh.
-        memcpy (dest + TOP_RANGE, source + top, 16);
-    else
-        for (j=0 ; j<16 ; j++)
-            dest[TOP_RANGE+j] = source[top+15-j];
-
-    if (bottom < 128)
-        memcpy (dest + BOTTOM_RANGE, source + bottom, 16);
-    else
-        for (j=0 ; j<16 ; j++)
-            dest[BOTTOM_RANGE+j] = source[bottom+15-j];
+    memcpy (dest + TOP_RANGE   , source + top    * 16, 16);
+    memcpy (dest + BOTTOM_RANGE, source + bottom * 16, 16);
 }
 
-void M_DrawCharacter (int cx, int line, int num)
+
+void Draw_UpdateAlignment (int h, int v) // aligns the drawing area
 {
-    Draw_Character ( cx + ((vid.width - /*320*/min_vid_width)>>1), line, num);
+    // calculate offsets
+    switch (h)
+    {
+    case 0: // left, no adjust
+        scr_2d_offset_x = 0;
+    case 1: // h-center
+        scr_2d_offset_x = (r_refdef.vrect.width- 360.0 * scr_2d_scale_h)/2.0;
+    default: // right
+        scr_2d_offset_x = r_refdef.vrect.width - 360.0 * scr_2d_scale_h;
+    }
+
+    switch (v)
+    {
+    case 0: // top, no adjust
+        scr_2d_offset_y = 0;
+    case 1: // v-center
+        scr_2d_offset_y = (r_refdef.vrect.height - 200.0 * scr_2d_scale_v)/2.0;
+    default: // bottom
+        scr_2d_offset_y = r_refdef.vrect.height - 200.0 * scr_2d_scale_v;
+    }
 }
+
+
+
+/*
+at position x and y on the screen,
+get a source image data with dimensions determined by sourcewidth & sourceheight,
+skip ypadding lines and xpadding columns inside it,
+get an area of w*h pixels from that point,
+crop if necessary,
+translate the color of each pixel and draw the result scaled
+*/
 
 void M_Print (int cx, int cy, char *str)
 {
@@ -483,8 +498,15 @@ void M_PrintWhite (int cx, int cy, char *str)
 
 void M_DrawTransPic (int x, int y, qpic_t *pic)
 {
-    Draw_TransPic (x + ((vid.width - /*320*/min_vid_width)>>1), y, pic);
+    if (pic)
+        Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, false, identityTable, NULL, false);
 }
+void M_DrawTransPicMirror (int x, int y, qpic_t *pic)
+{
+    if (pic)
+        Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, true , identityTable, NULL, false);
+}
+
 
 void M_DrawTextBox (int x, int y, int width, int lines)
 {
@@ -545,8 +567,16 @@ void M_DrawTextBox (int x, int y, int width, int lines)
 
 void M_DrawTransPicTranslate (int x, int y, qpic_t *pic)
 {
-    Draw_TransPicTranslate (x + ((vid.width - /*320*/min_vid_width)>>1), y, pic, translationTable);
+    if (pic)
+        Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, false, translationTable, NULL, false);
 }
+void M_DrawTransPicTranslateMirror (int x, int y, qpic_t *pic)
+{
+    if (pic)
+        Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, true , translationTable, NULL, false);
+}
+
+
 
 #define	SLIDER_RANGE	10
 void M_DrawSlider (int x, int y, float range)
@@ -601,11 +631,11 @@ char *skilltos(int i)
 }
 void M_DrawPlaque (char *c, qboolean b)
 {
-    qpic_t	*p;
-    if (b)
-        M_DrawTransPic (16, 0, Draw_CachePic ("gfx/qplaque.lmp") );
-    p = Draw_CachePic (c);
-    M_DrawTransPic ( (/*320*/min_vid_width-p->width)/2, 0, p);
+	qpic_t	*p;
+	if (b)
+		M_DrawTransPic (16, 0, Draw_CachePic ("gfx/qplaque.lmp") );
+	p = Draw_CachePic (c);
+	M_DrawTransPic ( (360-p->width)/2, 0, p);
 }
 void M_DrawCursor (int x, int y, int itemindex)
 {
@@ -623,6 +653,7 @@ void M_DrawCursor (int x, int y, int itemindex)
     else
         M_DrawCharacter (x, y + itemindex*8, 12+((int)(realtime*4)&1));
 }
+
 #define ALIGN_LEFT 0
 #define ALIGN_RIGHT 8
 #define ALIGN_CENTER 4
@@ -850,6 +881,8 @@ void M_PopUp_f (char *s, char *cmd)
 
 void M_PopUp_Draw (void)
 {
+    int y = (200/*vid.height*/ - 48) / 2 + 24 + 16;
+
     if (wasInMenus)
     {
         m_state = m_prevstate;
@@ -857,8 +890,8 @@ void M_PopUp_Draw (void)
         M_Draw ();
         m_state = m_popup;
     }
-    //qb: M_DrawTextBox (56, (vid.height - 48) / 2, 24*8, 4*8);
-    M_PrintText (popup_message, 64, (vid.height + 8) / 2, 24, 4, ALIGN_CENTER); //qb: was vid.height - 32
+    M_DrawTextBox (56, (200/*vid.height*/ - 48) / 2, 24*8, 4*8);
+    M_PrintText (popup_message, 64, (200/*vid.height*/ - 32) / 2, 24, 4, ALIGN_CENTER);
 }
 
 void M_PopUp_Key (int key)
@@ -1043,7 +1076,7 @@ void M_SinglePlayer_Draw (void)
 
     M_DrawTransPic (16, 0 /*4*/, Draw_CachePic("gfx/qplaque.lmp"));
     p = Draw_CachePic ("gfx/ttl_sgl.lmp");
-    M_DrawTransPic ((320 - p->width) >> 1, 0 /*4*/, p);
+    M_DrawTransPic ((360 - p->width) >> 1, 0 /*4*/, p);
     M_DrawTransPic (72, 28 /*32*/, Draw_CachePic("gfx/sp_menu.lmp"));
 
     f = (int)(host_time*10) % 6;
@@ -1159,7 +1192,7 @@ static int DCM_ScanInt(FILE *file)
 
 int		liststart[4]; // Manoel Kasimier [m_state - m_load]
 int		load_cursormax; // Manoel Kasimier
-#define	MAX_SAVEGAMES		100 // Manoel Kasimier - edited
+#define	MAX_SAVEGAMES		13 //qb
 char	m_filenames[MAX_SAVEGAMES][SAVEGAME_COMMENT_LENGTH+1];
 char	*m_fileinfo[MAX_SAVEGAMES]; // Manoel Kasimier
 int		loadable[MAX_SAVEGAMES];
@@ -1360,7 +1393,7 @@ void M_Save_Draw (void)
 
     M_DrawPlaque (saving ? "gfx/p_save.lmp" : "gfx/p_load.lmp", true);
 
-    numsaves = (int)((vid.height - 28 - 8*7) / 8);
+    numsaves = (int)((min_vid_height - 28 - 8*7) / 8);
     if (smallsave)
         numsaves += 3;
 
@@ -1450,11 +1483,11 @@ void M_Save_Key (int k)
                         if (loadable[i] == false)
                         {
                             //qb: removed refresh.  simply exit menu instead
-                        Cbuf_AddText (va ("save%s %s.%c%i%i\n", (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10));
-                         }
-                               else
-                              M_PopUp_f ((m_state==m_savesmall)?"Overwrite saved game?":"Overwrite saved state?", va ("save%s %s.%c%i%i\n",
-                                        (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10));
+                            Cbuf_AddText (va ("save%s %s.%c%i%i\n", (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10));
+                        }
+                        else
+                            M_PopUp_f ((m_state==m_savesmall)?"Overwrite saved game?":"Overwrite saved state?", va ("save%s %s.%c%i%i\n",
+                                       (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10));
                         return;
                     }
                     else
@@ -2075,7 +2108,7 @@ void M_MapList_Draw (void)
 
     M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
     p = Draw_CachePic ("gfx/p_multi.lmp");
-    M_DrawTransPic ( (320-p->width)/2, 4, p);
+    M_DrawTransPic ( (min_vid_width-p->width)/2, 4, p);
 
     M_DrawTextBox (56, 27, 23, 15);
     FileNames(listaFiles, numFileList);
@@ -2335,21 +2368,19 @@ void M_Setup_Draw (void)
     M_Print (64, y + setup_cursor_table[i]/*56*/, "Pants color");
 
     M_DrawTransPic (160, y + setup_cursor_table[i]-40/*16*/, Draw_CachePic ("gfx/bigbox.lmp"));
-    M_BuildTranslationTable(setup_top*16, setup_bottom*16);
+    BuildColorTranslationTable (setup_top, setup_bottom, identityTable, translationTable);
     M_DrawTransPicTranslate (172, y + setup_cursor_table[i++]-32/*24*/, Draw_CachePic ("gfx/menuplyr.lmp"));
     // Manoel Kasimier - edited - end
     // Manoel Kasimier - crosshair - begin
     M_Print (64, y + setup_cursor_table[i++]/*88*/, "Crosshair");
     M_Print (64, y + setup_cursor_table[i]/*96*/, "Color");
-//	M_DrawTextBox (160, y + setup_cursor_table[i]-16/*80*/, 2*8 - 1, 2*8 - 1);
-//	M_DrawTextBox (160, y + setup_cursor_table[i]-16/*80*/, ceil(1.5*(vid.width/320))*8 - 1, ceil(1.5*(vid.height<480 ? vid.height/200 : vid.height/240))*8 - 1);
     if (!setup_crosshair_color)
-        Draw_Fill  (169 + ((vid.width - /*320*/min_vid_width)>>1), y + setup_cursor_table[i]-7/*80*/, 4+11*(vid.width/ /*320*/min_vid_width), 4+11*(vid.height<480 ? vid.height/200 : vid.height/240), 8);
+        Draw_Fill  (169 + ((vid.width - min_vid_width)>>1), y + setup_cursor_table[i]-7/*80*/, 4+11*(vid.width/ min_vid_width), 4+11*(vid.height<480 ? vid.height/200 : vid.height/240), 8);
     i1 = crosshair.value;
     i2 = crosshair_color.value;
     crosshair.value = setup_crosshair;
     crosshair_color.value = setup_crosshair_color;
-    Crosshair_Start(171 + ((vid.width - /*320*/min_vid_width)>>1), y + setup_cursor_table[i]-5/*91*/);
+    Crosshair_Start(171 + ((vid.width - min_vid_width)>>1), y + setup_cursor_table[i]-5/*91*/);
     crosshair.value = i1;
     crosshair_color.value = i2;
     // Manoel Kasimier - crosshair - end
@@ -3601,42 +3632,37 @@ void M_Help_f (void)
 
 void M_Help_Draw (void)
 {
-    // Manoel Kasimier - begin
-    qpic_t	*p;
-    int y = r_refdef.vrect.y + ((r_refdef.vrect.height-200)/2);
-    if (y < 0)
-        y = 0;
-    if (y+200 > vid.height)
-        y = vid.height - 200;
+	// mankrip - begin
+	qpic_t	*p;
+	int y = 0;
 
-    if (m_state == m_credits)
-    {
-        if ((int)(realtime-m_credits_starttime) > 9)
-            M_Credits_Key(0);
-        if (m_cursor[m_state] == 1)
-            goto credits1;
-        else if (m_cursor[m_state] == 2)
-            goto credits2;
-        return;
-    }
+	if (m_state == m_credits)
+	{
+		if ((int)(realtime-m_credits_starttime) > 9)
+			M_Credits_Key(0);
+		if (m_cursor[m_state] == 1)
+			goto credits1;
+		else if (m_cursor[m_state] == 2)
+			goto credits2;
+		return;
+	}
 
-    if (m_cursor[m_state] < help_pages.value)
-    {
-        p = Draw_CachePic ( va("gfx/help%i.lmp", m_cursor[m_state]));
-        M_DrawTransPic (0, y, p);
-    }
-    else
-    {
-        if (m_cursor[m_state] == help_pages.value)
-        {
+	if (m_cursor[m_state] < help_pages.value)
+	{
+		p = Draw_CachePic ( va("gfx/help%i.lmp", m_cursor[m_state]));
+		M_DrawTransPic (0, 0, p);
+	}
+	else
+	{
+		if (m_cursor[m_state] == help_pages.value)
+		{
 credits1:
             M_DrawTextBox (0, y, 38*8, 23*8);
             M_Print		(16+4,	y+=12,	"     qbism Super 8 engine  ");
-            M_Print		(16+4,	y+=8,	"             qbism.com  ");
-            M_PrintWhite(16,	y+=16,	"           code sources:           ");
-            M_PrintWhite(16+4,	y+=12,	"originally based on Makaqu     ");
+            M_Print		(16+4,	y+=8,	"       super8.qbism.com  ");
+            M_PrintWhite(16+4,	y+=12,	"        forked from Makaqu     ");
             M_PrintWhite(16,	y+=8,	" Programmed by Manoel Kasimier");
-            M_PrintWhite(16+4,	y+=12,	"and ToChriS Quake by Victor Luchitz");
+            M_PrintWhite(16+4,	y+=12,	"ToChriS Quake by Victor Luchitz");
             M_PrintWhite(16,	y+=16,	"FlashQuake port by Michael Rennie");
             M_PrintWhite(16,	y+=8,	"FlashProQuake port by Baker");
             M_PrintWhite(16,	y+=8,	"joequake engine by Jozsef Szalontai");
@@ -3644,6 +3670,7 @@ credits1:
             M_PrintWhite(16,	y+=8,	"fteqw engine by Spike and FTE Team");
             M_PrintWhite(16,	y+=8,	"FitzQuake coded by John Fitz");
             M_PrintWhite(16,	y+=8,	"DarkPlaces engine by Lord Havoc");
+            M_PrintWhite(16,	y+=8,	"engoo engine by Leilei");
             M_PrintWhite(16,	y+=8,	"GoldQuake engine by Sajt");
             M_PrintWhite(16,	y+=8,	"enhanced WinQuake by Bengt Jardrup ");
             M_PrintWhite(16,	y+=8,	"Tutorials- JTR, Fett, Baker and MH");
@@ -3653,32 +3680,33 @@ credits1:
         else
         {
 credits2:
-            M_DrawTextBox (0, y, 38*8, 23*8);
-            M_PrintWhite(16+4,	y+=12, "     Quake engine version 1.09     ");
+		//	if (m_state != m_credits)
+				M_DrawTextBox (0, y, 38*8, 23*8);
+			M_PrintWhite(16+4,	y+=12, "     Quake engine version 1.09     ");
 
-            M_PrintWhite(16,	y+=12, "Programming");
-            M_Print		(16,	 y+=8, " John Carmack");
-            M_Print		(16,	 y+=8, " Michael Abrash");
-            M_Print		(16,	 y+=8, " John Cash");
-            M_Print		(16,	 y+=8, " Dave 'Zoid' Kirsch");
+			M_PrintWhite(16,	y+=16, "Programming");
+			M_Print		(16,	 y+=8, " John Carmack");
+			M_Print		(16,	 y+=8, " Michael Abrash");
+			M_Print		(16,	 y+=8, " John Cash");
+			M_Print		(16,	 y+=8, " Dave 'Zoid' Kirsch");
 
-            M_PrintWhite(16,	y+=12, "Quake is a trademark of Id Software,");
-            M_PrintWhite(16,	 y+=8, "inc., (c)1996-1997 Id Software, inc.");
-            M_PrintWhite(16,	 y+=8, "All rights reserved.");
+			M_PrintWhite(16,	y+=16, "Quake is a trademark of Id Software,");
+			M_PrintWhite(16,	 y+=8, "inc., (c)1996-1997 Id Software, inc.");
+			M_PrintWhite(16,	 y+=8, "All rights reserved.");
 
-            M_PrintWhite(16,	y+=16, "This engine is distributed in the");
-            M_PrintWhite(16,	 y+=8, "hope that it will be useful, but");
-            M_PrintWhite(16,	 y+=8, "WITHOUT ANY WARRANTY.");
-            M_PrintWhite(16,	 y+=8, "Its code is licensed under the terms");
-            M_PrintWhite(16,	 y+=8, "of the GNU General Public License.");
-            M_PrintWhite(16,	 y+=8, "If you distribute modified binary");
-            M_PrintWhite(16,	 y+=8, "versions of this engine, you must");
-            M_PrintWhite(16,	 y+=8, "also make its source code available.");
-            M_PrintWhite(16,	 y+=8, "See the GNU General Public License");
-            M_PrintWhite(16,	 y+=8, "for more details.");
-        }
-    }
-    // Manoel Kasimier - end
+			M_PrintWhite(16,	y+=16, "This engine is distributed in the");
+			M_PrintWhite(16,	 y+=8, "hope that it will be useful, but");
+			M_PrintWhite(16,	 y+=8, "WITHOUT ANY WARRANTY.");
+			M_PrintWhite(16,	 y+=8, "Its code is licensed under the terms");
+			M_PrintWhite(16,	 y+=8, "of the GNU General Public License.");
+			M_PrintWhite(16,	 y+=8, "If you distribute modified binary");
+			M_PrintWhite(16,	 y+=8, "versions of this engine, you must");
+			M_PrintWhite(16,	 y+=8, "also make its source code available.");
+			M_PrintWhite(16,	 y+=8, "See the GNU General Public License");
+			M_PrintWhite(16,	 y+=8, "for more details.");
+		}
+	}
+	// mankrip - end
 }
 
 void M_Help_Key (int key)
@@ -3749,7 +3777,7 @@ void M_MultiPlayer_Draw (void)
 
     if (ipxAvailable || tcpipAvailable)
         return;
-    M_PrintWhite ((/*320*/min_vid_width/2) - ((27*8)/2), 148, "No Communications Available");
+    M_PrintWhite ((min_vid_width/2) - ((27*8)/2), 148, "No Communications Available");
 }
 
 void M_MultiPlayer_Key (int key)
@@ -3990,7 +4018,7 @@ void M_LanConfig_Draw (void)
 
 //	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
     p = Draw_CachePic ("gfx/p_multi.lmp");
-    basex = (/*320*/min_vid_width-p->width)/2;
+    basex = (min_vid_width-p->width)/2;
 //	M_DrawTransPic (basex, 4, p);
 
     if (StartingGame)
@@ -4182,7 +4210,7 @@ void M_Search_Draw (void)
 
     M_DrawPlaque ("gfx/p_multi.lmp", false); // Manoel Kasimier
 
-    x = (/*320*/min_vid_width/2) - ((12*8)/2) + 4;
+    x = (min_vid_width/2) - ((12*8)/2) + 4;
     M_DrawTextBox (x-8, 32, 12*8, 1*8);
     M_Print (x, 40, "Searching...");
 
@@ -4204,7 +4232,7 @@ void M_Search_Draw (void)
         return;
     }
 
-    M_PrintWhite ((/*320*/min_vid_width/2) - ((22*8)/2), 64, "No Quake servers found");
+    M_PrintWhite ((min_vid_width/2) - ((22*8)/2), 64, "No Quake servers found");
     if ((realtime - searchCompleteTime) < 3.0)
         return;
 
@@ -4385,6 +4413,7 @@ void M_Draw (void)
     {
         m_recursiveDraw = false;
     }
+    Draw_UpdateAlignment (1, 1);
 
     switch (m_state)
     {

@@ -4,7 +4,6 @@
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
 Foundation; either version 3 of the License, or (at your option) any later version.
-
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
 PARTICULAR PURPOSE.
@@ -26,7 +25,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 qboolean    vid_usingddraw = false;
 int	stretched; //qb: added back
 
-int min_vid_width=320; //qb: Dan East - pocketquake (could be less for very low-res display)
+int min_vid_width=360; //qb: Dan East - pocketquake (could be less for very low-res display)
+int min_vid_height=200;
 
 // main application window
 HWND hWndWinQuake = NULL;
@@ -349,7 +349,7 @@ int			window_center_x, window_center_y, window_x, window_y, window_width, window
 RECT		window_rect;
 
 static DEVMODE	gdevmode;
-static qboolean	startwindowed = 0, windowed_mode_set;
+static qboolean	windowed_mode_set;
 static int		firstupdate = 1;
 static qboolean	vid_initialized = false, vid_palettized;
 static int		vid_fulldib_on_focus_mode;
@@ -367,8 +367,7 @@ viddef_t	vid;				// global video state
 
 // Note that 0 is MODE_WINDOWED
 cvar_t		vid_mode = {"vid_mode", "3", true}; //qb: was false
-// Note that 0 is MODE_WINDOWED
-cvar_t		vid_default_mode_win = {"vid_default_mode_win", "3", true};
+cvar_t		vid_default_mode_win = {"vid_default_mode_win", "2", true};
 cvar_t		vid_wait = {"vid_wait", "1", true};
 cvar_t		vid_config_x = {"vid_config_x", "1280", true};
 cvar_t		vid_config_y = {"vid_config_y", "720", true};
@@ -622,23 +621,23 @@ void VID_InitModes (HINSTANCE hInstance)
     modelist[2].modenum = MODE_WINDOWED + 2;
     modelist[2].fullscreen = 0;
 
-    // automatically stretch the default mode up if > 640x480 desktop resolution
     hdc = GetDC (NULL);
+
 
     for (i = VID_WINDOWED_MODES; i<nummodes; i++) //qb: FIXME - this gets stomped on.
     {
-        if ((modelist[i].width == GetDeviceCaps (hdc, HORZRES)) && (modelist[i].height == GetDeviceCaps (hdc, VERTRES)) && !startwindowed)  //qb: do fullscreen as default.
+        if ((modelist[i].width == GetDeviceCaps (hdc, HORZRES)) && (modelist[i].height == GetDeviceCaps (hdc, VERTRES)))  //qb: do fullscreen as default.
         {
-            vid_default = i;
-            continue;
+            vid_default = i;//qb:  set default to highest detected res
+            //qb:  continue;
         }
     }
 
-    if ((GetDeviceCaps (hdc, HORZRES) > modelist[1].width) && !COM_CheckParm ("-noautostretch"))  //qb: was 800
+    if ((GetDeviceCaps (hdc, HORZRES) > modelist[MODE_WINDOWED + 2].width) && !COM_CheckParm ("-noautostretch"))  //qb: was 800
     {
         windowed_default = MODE_WINDOWED + 2;
     }
-    else if ((GetDeviceCaps (hdc, HORZRES) > modelist[0].width) && !COM_CheckParm ("-noautostretch"))  //qb: was 640
+    else if ((GetDeviceCaps (hdc, HORZRES) > modelist[MODE_WINDOWED + 1].width) && !COM_CheckParm ("-noautostretch"))  //qb: was 640
     {
         windowed_default = MODE_WINDOWED + 1;
     }
@@ -709,7 +708,7 @@ void VID_GetDisplayModes (void)
     originalnummodes = nummodes;
     modenum = 0;
     lowestres = 99999;
-   lowestres = 0;
+    lowestres = 0;
 
     do
     {
@@ -717,8 +716,8 @@ void VID_GetDisplayModes (void)
 
         if ((devmode.dmPelsWidth <= MAXWIDTH) &&
                 (devmode.dmPelsHeight <= MAXHEIGHT) &&
-                (devmode.dmPelsWidth >= 320) && //qb: was 640
-                (devmode.dmPelsHeight >= 200) && //qb: was 480
+                (devmode.dmPelsWidth >= 640) && //qb: was 640
+                (devmode.dmPelsHeight >= 360) && //qb: was 480
                 (nummodes < MAX_MODE_LIST))
         {
             devmode.dmFields = DM_BITSPERPEL |
@@ -755,8 +754,8 @@ void VID_GetDisplayModes (void)
                         lowestres = modelist[nummodes].width;
                     if (modelist[nummodes].width > highestres)
                     {
-                         highestres = modelist[nummodes].width;
-                         vid_nativeaspect = modelist[nummodes].width/modelist[nummodes].height;
+                        highestres = modelist[nummodes].width;
+                        vid_nativeaspect = modelist[nummodes].width/modelist[nummodes].height;
                     }
                     nummodes++;
                 }
@@ -891,6 +890,7 @@ qboolean VID_SetWindowedMode (int modenum)
 
     vid.maxwarpwidth = vid.width; //qb: from  Manoel Kasimier - hi-res waterwarp
     vid.maxwarpheight = vid.height; //qb: from  Manoel Kasimier - hi-res waterwarp
+    Sbar_SizeScreen(); //qb: calc sbar scale from MQ 1.6
 
     SendMessage (hWndWinQuake, WM_SETICON, (WPARAM) TRUE, (LPARAM) hIcon);
     SendMessage (hWndWinQuake, WM_SETICON, (WPARAM) FALSE, (LPARAM) hIcon);
@@ -963,6 +963,7 @@ qboolean VID_SetFullDIBMode (int modenum)
     }
     vid.maxwarpwidth = vid.width; //qb: from  Manoel Kasimier - hi-res waterwarp
     vid.maxwarpheight = vid.height; //qb: from  Manoel Kasimier - hi-res waterwarp
+    Sbar_SizeScreen(); //qb: calc sbar scale from MQ 1.6
 
     // needed because we're not getting WM_MOVE messages fullscreen on NT
     window_x = 0;
@@ -1115,7 +1116,7 @@ int VID_SetMode (int modenum, unsigned char *palette)
     window_height = vid.height;
     VID_UpdateWindowStatus ();
     if (host_initialized) //qb: from mankrip
-		SetCursorPos (window_center_x, window_center_y); // mankrip - center the mouse, to avoid false movement detection
+        SetCursorPos (window_center_x, window_center_y); // mankrip - center the mouse, to avoid false movement detection
 
     CDAudio_Resume ();
     BGM_Resume (); //qb: QS
@@ -1151,8 +1152,8 @@ int VID_SetMode (int modenum, unsigned char *palette)
     vid_modenum = modenum;
     Cvar_SetValue ("vid_mode", (float) vid_modenum);
 
-    if (vid.width<320) min_vid_width=vid.width; //qb: Dan East
-    else min_vid_width=320;
+  //  if (vid.width<320) min_vid_width=vid.width; //qb: Dan East
+  //  else min_vid_width=320;
 
     if (!VID_AllocBuffers (vid.width, vid.height))
     {
@@ -1298,28 +1299,22 @@ void VID_Init (unsigned char *palette)
         VID_InitModes (global_hInstance); //qb: move after VID_GetDisplayModes
     }
 
-    //vid.maxwarpwidth = WARP_WIDTH;
-    //vid.maxwarpheight = WARP_HEIGHT;
+//vid.maxwarpwidth = WARP_WIDTH;
+//vid.maxwarpheight = WARP_HEIGHT;
     vid.maxwarpwidth = vid.width; //qb: from  Manoel Kasimier - hi-res waterwarp
     vid.maxwarpheight = vid.height; //qb: from  Manoel Kasimier - hi-res waterwarp
     vid.colormap = host_colormap;
     vid.fullbright = 256 - LittleLong (*((int *) vid.colormap + 2048));
     vid_testingmode = 0;
 
-    if (COM_CheckParm("-startwindowed"))
-    {
-        startwindowed = 1;
-        vid_default = windowed_default;
-    }
-
     if (hwnd_dialog)
         DestroyWindow (hwnd_dialog);
 
-    // sound initialization has to go here, preceded by a windowed mode set,
-    // so there's a window for DirectSound to work with but we're not yet
-    // fullscreen so the "hardware already in use" dialog is visible if it
-    // gets displayed
-    // keep the window minimized until we're ready for the first real mode set
+// sound initialization has to go here, preceded by a windowed mode set,
+// so there's a window for DirectSound to work with but we're not yet
+// fullscreen so the "hardware already in use" dialog is visible if it
+// gets displayed
+// keep the window minimized until we're ready for the first real mode set
     hide_window = true;
     VID_SetMode (MODE_WINDOWED, palette);
     hide_window = false;
@@ -1701,7 +1696,8 @@ void VID_Update (vrect_t *rects)
     if (firstupdate)
     {
         if ((vid_default_mode_win.value != vid_default) &&
-                (!startwindowed || (vid_default_mode_win.value < MODE_FULLSCREEN_DEFAULT)))
+                (vid_default_mode_win.value < MODE_FULLSCREEN_DEFAULT))
+
         {
             firstupdate = 0;
 
@@ -2201,7 +2197,7 @@ void VID_MenuDraw (void)
     vmode_t		*pv;
     modedesc_t	tmodedesc;
     p = Draw_CachePic ("gfx/vidmodes.lmp");
-    M_DrawTransPic ( (/*320*/ min_vid_width-p->width)/2, 4, p); //qb: from Manoel Kasimier + Dan East
+    M_DrawTransPic ( ( min_vid_width-p->width)/2, 4, p); //qb: from Manoel Kasimier + Dan East
 
     for (i = 0; i < 3; i++)
     {
@@ -2223,10 +2219,7 @@ void VID_MenuDraw (void)
         ptr = VID_GetModeDescriptionMemCheck (i);
         pv = VID_GetModePtr (i);
 
-        // we only have room for 15 fullscreen modes, so don't allow
-        // 360-wide modes, because if there are 5 320-wide modes and
-        // 5 360-wide modes, we'll run out of space
-        if (ptr) //qb:...but now don't care... && ((pv->width != 360) || 1)) //was COM_CheckParm("-allow360")))
+        if (ptr && pv->width >= min_vid_width) //qb: res cut-off
         {
             dup = 0;
 

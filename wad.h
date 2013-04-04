@@ -39,6 +39,14 @@ typedef struct
 	byte		data[4];			// variably sized
 } qpic_t;
 
+// mankrip - begin
+typedef struct
+{
+	short		palette[256];
+	int			width, height;
+	byte		data[4];			// variably sized
+} satpic_t;
+// mankrip - end
 
 
 typedef struct

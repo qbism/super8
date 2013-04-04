@@ -151,11 +151,15 @@ void SCR_DrawCenterString (void)
     scr_erase_center = 0;
     start = scr_centerstring;
 
-    // Manoel Kasimier - svc_letterbox - begin
+    Draw_UpdateAlignment (1, 1);
+    // mankrip - svc_letterbox - begin
     if (cl.letterbox)
-        y = scr_vrect.y + scr_vrect.height + 4;
+    {
+        y = (scr_vrect.y + scr_vrect.height + 4.0) / scr_2d_scale_v;
+        Draw_UpdateAlignment (1, 0);
+    }
     else
-        // Manoel Kasimier - svc_letterbox - end
+        // mankrip - svc_letterbox - end
         if (scr_center_lines <= 4)
             y = vid.height*0.35;
         else
@@ -317,7 +321,7 @@ void SCR_SizeDown_f (void)
 void SCR_SbarUp_f (void)  //qb:
 {
     sbar.value +=1;
-    if (sbar.value >5) sbar.value = 5;
+    if (sbar.value >4) sbar.value = 4;
 }
 void SCR_SbarDown_f (void)  //qb:
 {
@@ -340,8 +344,8 @@ void SCR_AdjustFOV (void)
         Cvar_Set ("fov","30");
     if (scr_fov.value > 140)
         Cvar_Set ("fov","140");
-    scr_ofsx.value = (pow(scr_fov.value, 2)-8100)/1700; //qb: compensate view model position
-    scr_ofsz.value = (pow(scr_fov.value, 2)-8100)/2000;//qb: compensate view model position
+    scr_ofsx.value = (pow(scr_fov.value, 2)-scr_fov.value*70)/2000 -3; //qb: compensate view model position
+    scr_ofsz.value = (pow(scr_fov.value, 2)-scr_fov.value*70)/2000 -1;//qb: compensate view model position
     if (oldfov != scr_fov.value)
     {
         oldfov = scr_fov.value;
@@ -401,7 +405,6 @@ void SCR_Init (void)
 #ifdef _WIN32 //qb: jqavi
     Movie_Init ();
 #endif
-
     scr_initialized = true;
 }
 
@@ -418,6 +421,7 @@ void SCR_DrawNet (void)
     if (cls.demoplayback)
         return;
 
+    Draw_UpdateAlignment (0, 0); // mankrip
     Draw_TransPic (scr_vrect.x+64, scr_vrect.y, scr_net); // Manoel Kasimier - edited
 }
 
@@ -448,6 +452,7 @@ void SCR_DrawFPS (void)
     x = vid.width - Q_strlen(st) * 8;
     if (scr_vrect.y > 0)
         Draw_Fill(x, 0, Q_strlen(st) * 8, 8, 0);
+    Draw_UpdateAlignment (2, 0);
     Draw_String(x, 0, st);
 }
 
@@ -464,6 +469,7 @@ void SCR_DrawPause (void)
 
     if (!cl.paused)
         return;
+    Draw_UpdateAlignment (1, 2);
     M_DrawPlaque ("gfx/pause.lmp", false); // Manoel Kasimier
 }
 
@@ -482,8 +488,8 @@ void SCR_DrawLoading (void)
         return;
 
     pic = Draw_CachePic ("gfx/loading.lmp");
-    Draw_TransPic ( (vid.width - pic->width)/2,  // Manoel Kasimier - edited
-                    (vid.height - 48 - pic->height)/2, pic);
+	Draw_UpdateAlignment (1, 1); // mankrip
+	M_DrawTransPic ( (min_vid_width - pic->width) / 2, (min_vid_height - pic->height - (float)sb_lines / scr_2d_scale_v) / 2, pic);
 }
 
 
@@ -524,8 +530,8 @@ void SCR_SetUpToDrawConsole (void)
     timescale = (host_timescale.value > 0) ? host_timescale.value : 1; //qb: DEMO_REWIND by Baker - johnfitz -- timescale
 
     conspeed = scr_conspeed.value * (vid.height / 200.0f) * host_frametime;
-	if (cls.timedemo || cls.capturedemo)
-		frame_timescale = .00001; // Make it open or close instantly in timedemo
+    if (cls.timedemo || cls.capturedemo)
+        frame_timescale = .00001; // Make it open or close instantly in timedemo
 
     if (scr_conlines < scr_con_current)
     {
@@ -1023,7 +1029,7 @@ void SCR_DrawNotifyString (void)
     start = scr_notifystring;
 
     y = vid.height*0.35;
-
+	Draw_UpdateAlignment (0, 0); // mankrip
     do
     {
         // scan the width of the line

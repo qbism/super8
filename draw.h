@@ -36,10 +36,10 @@ void Draw_String (int x, int y, char *str);
 qpic_t *Draw_PicFromWad (char *name);
 qpic_t *Draw_CachePic (char *path);
 // Manoel Kasimier - begin
-void M_DrawCharacter (int cx, int line, int num);
 void M_Print (int cx, int cy, char *str);
 void M_PrintWhite (int cx, int cy, char *str);
 void M_DrawTransPic (int x, int y, qpic_t *pic);
 void M_DrawTextBox (int x, int y, int width, int lines);
 void M_DrawPlaque (char *c, qboolean b);
+void Draw_UpdateAlignment (int h, int v); // aligns the drawing area
 // Manoel Kasimier - end

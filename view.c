@@ -46,7 +46,7 @@ cvar_t	v_deathtiltangle = {"v_deathtiltangle", "80"}; // Manoel Kasimier
 cvar_t	cl_rollspeed = {"cl_rollspeed", "200"};
 cvar_t	cl_rollangle = {"cl_rollangle", "2.0"};
 
-cvar_t	cl_bob = {"cl_bob","0.02", false};
+cvar_t	cl_bob = {"cl_bob","0.007", false};
 cvar_t	cl_bobcycle = {"cl_bobcycle","0.6", false};
 cvar_t	cl_bobup = {"cl_bobup","0.5", false};
 

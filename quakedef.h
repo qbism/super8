@@ -343,6 +343,7 @@ void M_Print (int cx, int cy, char *str);
 void M_PrintWhite (int cx, int cy, char *str);
 void M_DrawCharacter (int cx, int line, int num);
 void M_DrawTransPic (int x, int y, qpic_t *pic);
+void Draw_UpdateAlignment (int h, int v);
 
 
 extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output
@@ -356,10 +357,14 @@ extern int	coloredlights; //qb: colored lights on, set at map load.
 
 extern qboolean		isDedicated;
 extern	int			sb_lines;			// scan lines to draw
+extern	float			scr_2d_scale_h, scr_2d_scale_v;
+extern int min_vid_width, min_vid_height;  //qb: Dan East
 
-extern int			minimum_memory;
+
+extern int		minimum_memory;
 extern byte     palmapnofb[32][32][32];
 extern byte	    palmap[32][32][32];
+extern byte		*draw_chars;
 
 extern cvar_t   cmdline;
 extern cvar_t	developer;

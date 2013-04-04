@@ -20,6 +20,9 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 
+byte identityTable[256];
+byte translationTable[256];
+
 typedef struct
 {
     vrect_t	rect;
@@ -54,6 +57,38 @@ qpic_t	*Draw_PicFromWad (char *name)
     return W_GetLumpName (name);
 }
 
+// mankrip - begin
+extern int		LongSwap (int l);
+extern short	ShortSwap (short l);
+extern byte		BestColor (int r, int g, int b, int start, int stop);
+qpic_t	*Draw_DecodePic (qpic_t *pic)
+{
+	satpic_t *p = (satpic_t *) pic;
+	if (LongSwap (p->width) == 320 && LongSwap (p->height) == 200) //qb was 240
+	{
+		int i, r, g, b;
+		byte c[256], *source;
+		source = p->data;
+		p->width	= LongSwap (p->width);
+		p->height	= LongSwap (p->height);
+
+		for (i=0 ; i<256 ; i++)
+		{
+			p->palette[i] = ShortSwap (p->palette[i]);
+			r = ( ( (int) (p->palette[i]>>0) & 31) + 1) * 8 - 1;
+			g = ( ( (int) (p->palette[i]>>5) & 31) + 1) * 8 - 1;
+		//	g = ( ( (int) (p->palette[i]>>5) & 63) + 1) * 4 - 1;
+			b = ( ( (int) (p->palette[i]>>10) & 31) + 1) * 8 - 1;
+			c[i] = BestColor (r, g, b, 0, 255);
+		}
+		for (i=0 ; i < p->width * p->height ; i++)
+			source[i] = c[source[i]];
+	}
+	if (p->width == 320 && p->height == 200) //qb was 240
+		return (qpic_t *) ( (byte *) p + 512);
+	return pic;
+}
+// mankrip - end
 /*
 ================
 Draw_CachePic
@@ -90,7 +125,9 @@ qpic_t	*Draw_CachePic (char *path)
     dat = (qpic_t *)pic->cache.data;
     if (!dat)
     {
-        Sys_Error ("Draw_CachePic: failed to load %s", path);
+	//	Sys_Error ("Draw_CachePic: failed to load %s", path);
+		Con_Printf ("Draw_CachePic: failed to load %s", path);
+		return NULL;
     }
 
     SwapPic (dat);
@@ -111,6 +148,9 @@ byte menumap[256][16];	//qb: from Engoo- Used for menu backgrounds and simple co
 void Draw_Init (void)
 {
 	int		i, j, r;
+
+    for (i = 0 ; i < 256 ; i++)
+        identityTable[i] = (byte) i; //qb: MQ 1.6 hudscale
 
     draw_chars = W_GetLumpName ("conchars");
     draw_disc = W_GetLumpName ("disc");
@@ -137,8 +177,6 @@ void Draw_Init (void)
 	}
 }
 
-
-
 /*
 ================
 Draw_Character
@@ -148,289 +186,144 @@ It can be clipped to the top of the screen to allow the console to be
 smoothly scrolled off.
 ================
 */
-#if 0
-void Draw_CharacterShadow (int x, int y, int num) // Manoel Kasimier
-{
-    byte			*dest;
-    byte			*source;
-    unsigned short	*pusdest;
-    int				drawline;
-    int				drawcol, draw_col; // Manoel Kasimier
-    int				row, col;
-
-    num &= 255;
-
-    if (y <= -8)
-        return;			// totally off screen
-    // Manoel Kasimier - begin
-    // if the character is totally off of the screen, don't print it
-    else if (y >= (int)vid.height)
-        return;
-    if (x <= -8)
-        return;
-    else if (x >= (int)vid.width)
-        return;
-    // Manoel Kasimier - end
-
-    row = num>>4;
-    col = num&15;
-    source = draw_chars + (row<<10) + (col<<3);
-
-    if (y < 0)
-    {
-        // clipped
-        drawline = 8 + y;
-        source -= 128*y;
-        y = 0;
-    }
-    else if (y+8 >= vid.height)			// Manoel Kasimier
-        drawline = (int)vid.height - y;	// Manoel Kasimier
-    else
-        drawline = 8;
-
-    // Manoel Kasimier - begin
-    if (x < 0)
-    {
-        draw_col = drawcol = 8 + x;
-        source -= x;
-        x = 0;
-    }
-    else if (x+8 >= vid.width)
-        draw_col = drawcol = (int)vid.width - x;
-    else
-        draw_col = drawcol = 8;
-    // Manoel Kasimier - end
-
-
-    if (r_pixbytes == 1)
-    {
-        dest = vid.conbuffer + y*vid.conrowbytes + x;
-
-        if (drawcol == 8) // Manoel Kasimier
-            while (drawline--)
-            {
-                if (source[0])
-                    dest[0] = 0;//alphamap[dest[drawcol]];//(byte)vid.colormap[dest[0] + ((32 + 16) * 256)]; // Manoel Kasimier
-                if (source[1])
-                    dest[1] = 0;//alphamap[dest[drawcol]];//(byte)vid.colormap[dest[1] + ((32 + 16) * 256)]; // Manoel Kasimier
-                if (source[2])
-                    dest[2] = 0;//alphamap[dest[drawcol]];//(byte)vid.colormap[dest[2] + ((32 + 16) * 256)]; // Manoel Kasimier
-                if (source[3])
-                    dest[3] = 0;//alphamap[dest[drawcol]];//(byte)vid.colormap[dest[3] + ((32 + 16) * 256)]; // Manoel Kasimier
-                if (source[4])
-                    dest[4] = 0;//alphamap[dest[drawcol]];//(byte)vid.colormap[dest[4] + ((32 + 16) * 256)]; // Manoel Kasimier
-                if (source[5])
-                    dest[5] = 0;//alphamap[dest[drawcol]];//(byte)vid.colormap[dest[5] + ((32 + 16) * 256)]; // Manoel Kasimier
-                if (source[6])
-                    dest[6] = 0;//alphamap[dest[drawcol]];//(byte)vid.colormap[dest[6] + ((32 + 16) * 256)]; // Manoel Kasimier
-                if (source[7])
-                    dest[7] = 0;//alphamap[dest[drawcol]];//(byte)vid.colormap[dest[7] + ((32 + 16) * 256)]; // Manoel Kasimier
-                source += 128;
-                dest += vid.conrowbytes;
-            }
-        // Manoel Kasimier - begin
-        else
-            while (drawline--)
-            {
-                while (drawcol--)
-                {
-                    if (source[drawcol])
-                        dest[drawcol] = 0;//alphamap[dest[drawcol]];//(byte)vid.colormap[dest[drawcol] + ((32 + 16) * 256)]; // Manoel Kasimier
-                }
-                drawcol = draw_col;
-                source += 128;
-                dest += vid.conrowbytes;
-            }
-        // Manoel Kasimier - end
-    }
-    else
-    {
-        // FIXME: pre-expand to native format?
-        pusdest = (unsigned short *)((byte *)vid.conbuffer + y*vid.conrowbytes + (x<<1));
-
-        if (drawcol == 8) // Manoel Kasimier
-            while (drawline--)
-            {
-                if (source[0])
-                    pusdest[0] = d_8to16table[source[0]];
-                if (source[1])
-                    pusdest[1] = d_8to16table[source[1]];
-                if (source[2])
-                    pusdest[2] = d_8to16table[source[2]];
-                if (source[3])
-                    pusdest[3] = d_8to16table[source[3]];
-                if (source[4])
-                    pusdest[4] = d_8to16table[source[4]];
-                if (source[5])
-                    pusdest[5] = d_8to16table[source[5]];
-                if (source[6])
-                    pusdest[6] = d_8to16table[source[6]];
-                if (source[7])
-                    pusdest[7] = d_8to16table[source[7]];
-
-                source += 128;
-                pusdest += (vid.conrowbytes >> 1);
-            }
-        // Manoel Kasimier - begin
-        else
-            while (drawline--)
-            {
-                while (drawcol--)
-                {
-                    if (source[drawcol])
-                        pusdest[drawcol] = d_8to16table[source[drawcol]];
-                }
-                drawcol = draw_col;
-                source += 128;
-                pusdest += (vid.conrowbytes >> 1);
-            }
-        // Manoel Kasimier - end
-    }
-}
-#endif
 void Draw_Character (int x, int y, int num)
 {
-    byte			*dest;
-    byte			*source;
-    unsigned short	*pusdest;
-    int				drawline;
-    int				drawcol, draw_col; // Manoel Kasimier
-    int				row, col;
+	byte			*dest;
+	byte			*source;
+	unsigned short	*pusdest;
+	int				drawline;
+	int				drawcol, draw_col; // mankrip
+	int				row, col;
 
-    num &= 255;
+	num &= 255;
 
-    if (y <= -8)
-        return;			// totally off screen
-    // Manoel Kasimier - begin
-    // if the character is totally off of the screen, don't print it
-    else if (y >= (int)vid.height)
-        return;
-    if (x <= -8)
-        return;
-    else if (x >= (int)vid.width)
-        return;
-    // Manoel Kasimier - end
+	if (y <= -8)
+		return;			// totally off screen
+	// mankrip - begin
+	// if the character is totally off of the screen, don't print it
+	else if (y >= (int)vid.height)
+		return;
+	if (x <= -8)
+		return;
+	else if (x >= (int)vid.width)
+		return;
+	// mankrip - end
 
-#if 0
-    if (developer.value)
-        Draw_CharacterShadow (x+1, y+1, num); // Manoel Kasimier
-#endif
+	row = num>>4;
+	col = num&15;
+	source = draw_chars + (row<<10) + (col<<3);
 
-    row = num>>4;
-    col = num&15;
-    source = draw_chars + (row<<10) + (col<<3);
+	if (y < 0)
+	{	// clipped
+		drawline = 8 + y;
+		source -= 128*y;
+		y = 0;
+	}
+	else if (y+8 >= vid.height)			// mankrip
+		drawline = (int)vid.height - y;	// mankrip
+	else
+		drawline = 8;
 
-    if (y < 0)
-    {
-        // clipped
-        drawline = 8 + y;
-        source -= 128*y;
-        y = 0;
-    }
-    else if (y+8 >= vid.height)			// Manoel Kasimier
-        drawline = (int)vid.height - y;	// Manoel Kasimier
-    else
-        drawline = 8;
-
-    // Manoel Kasimier - begin
-    if (x < 0)
-    {
-        draw_col = drawcol = 8 + x;
-        source -= x;
-        x = 0;
-    }
-    else if (x+8 >= vid.width)
-        draw_col = drawcol = (int)vid.width - x;
-    else
-        draw_col = drawcol = 8;
-    // Manoel Kasimier - end
+	// mankrip - begin
+	if (x < 0)
+	{
+		draw_col = drawcol = 8 + x;
+		source -= x;
+		x = 0;
+	}
+	else if (x+8 >= vid.width)
+		draw_col = drawcol = (int)vid.width - x;
+	else
+		draw_col = drawcol = 8;
+	// mankrip - end
 
 
-    if (r_pixbytes == 1)
-    {
-        dest = vid.conbuffer + y*vid.conrowbytes + x;
+	if (r_pixbytes == 1)
+	{
+		dest = vid.conbuffer + y*vid.conrowbytes + x;
 
-        if (drawcol == 8) // Manoel Kasimier
-            while (drawline--)
-            {
-                if (source[0])
-                    dest[0] = source[0];
-                if (source[1])
-                    dest[1] = source[1];
-                if (source[2])
-                    dest[2] = source[2];
-                if (source[3])
-                    dest[3] = source[3];
-                if (source[4])
-                    dest[4] = source[4];
-                if (source[5])
-                    dest[5] = source[5];
-                if (source[6])
-                    dest[6] = source[6];
-                if (source[7])
-                    dest[7] = source[7];
-                source += 128;
-                dest += vid.conrowbytes;
-            }
-        // Manoel Kasimier - begin
-        else
-            while (drawline--)
-            {
-                while (drawcol--)
-                {
-                    if (source[drawcol])
-                        dest[drawcol] = source[drawcol];
-                }
-                drawcol = draw_col;
-                source += 128;
-                dest += vid.conrowbytes;
-            }
-        // Manoel Kasimier - end
-    }
-    else
-    {
-        // FIXME: pre-expand to native format?
-        pusdest = (unsigned short *)((byte *)vid.conbuffer + y*vid.conrowbytes + (x<<1));
+		if (drawcol == 8) // mankrip
+			while (drawline--)
+			{
+				if (source[0])
+					dest[0] = source[0];
+				if (source[1])
+					dest[1] = source[1];
+				if (source[2])
+					dest[2] = source[2];
+				if (source[3])
+					dest[3] = source[3];
+				if (source[4])
+					dest[4] = source[4];
+				if (source[5])
+					dest[5] = source[5];
+				if (source[6])
+					dest[6] = source[6];
+				if (source[7])
+					dest[7] = source[7];
+				source += 128;
+				dest += vid.conrowbytes;
+			}
+		// mankrip - begin
+		else
+			while (drawline--)
+			{
+				while (drawcol--)
+				{
+					if (source[drawcol])
+						dest[drawcol] = source[drawcol];
+				}
+				drawcol = draw_col;
+				source += 128;
+				dest += vid.conrowbytes;
+			}
+		// mankrip - end
+	}
+	else
+	{
+		// FIXME: pre-expand to native format?
+		pusdest = (unsigned short *)((byte *)vid.conbuffer + y*vid.conrowbytes + (x<<1));
 
-        if (drawcol == 8) // Manoel Kasimier
-            while (drawline--)
-            {
-                if (source[0])
-                    pusdest[0] = d_8to16table[source[0]];
-                if (source[1])
-                    pusdest[1] = d_8to16table[source[1]];
-                if (source[2])
-                    pusdest[2] = d_8to16table[source[2]];
-                if (source[3])
-                    pusdest[3] = d_8to16table[source[3]];
-                if (source[4])
-                    pusdest[4] = d_8to16table[source[4]];
-                if (source[5])
-                    pusdest[5] = d_8to16table[source[5]];
-                if (source[6])
-                    pusdest[6] = d_8to16table[source[6]];
-                if (source[7])
-                    pusdest[7] = d_8to16table[source[7]];
+		if (drawcol == 8) // mankrip
+			while (drawline--)
+			{
+				if (source[0])
+					pusdest[0] = d_8to16table[source[0]];
+				if (source[1])
+					pusdest[1] = d_8to16table[source[1]];
+				if (source[2])
+					pusdest[2] = d_8to16table[source[2]];
+				if (source[3])
+					pusdest[3] = d_8to16table[source[3]];
+				if (source[4])
+					pusdest[4] = d_8to16table[source[4]];
+				if (source[5])
+					pusdest[5] = d_8to16table[source[5]];
+				if (source[6])
+					pusdest[6] = d_8to16table[source[6]];
+				if (source[7])
+					pusdest[7] = d_8to16table[source[7]];
 
-                source += 128;
-                pusdest += (vid.conrowbytes >> 1);
-            }
-        // Manoel Kasimier - begin
-        else
-            while (drawline--)
-            {
-                while (drawcol--)
-                {
-                    if (source[drawcol])
-                        pusdest[drawcol] = d_8to16table[source[drawcol]];
-                }
-                drawcol = draw_col;
-                source += 128;
-                pusdest += (vid.conrowbytes >> 1);
-            }
-        // Manoel Kasimier - end
-    }
+				source += 128;
+				pusdest += (vid.conrowbytes >> 1);
+			}
+		// mankrip - begin
+		else
+			while (drawline--)
+			{
+				while (drawcol--)
+				{
+					if (source[drawcol])
+						pusdest[drawcol] = d_8to16table[source[drawcol]];
+				}
+				drawcol = draw_col;
+				source += 128;
+				pusdest += (vid.conrowbytes >> 1);
+			}
+		// mankrip - end
+	}
 }
+
 
 /*
 ================
@@ -441,7 +334,8 @@ void Draw_String (int x, int y, char *str)
 {
     while (*str)
     {
-        Draw_Character (x, y, *str);
+        //qb Draw_Character (x, y, *str);
+        M_DrawCharacter (x, y, *str);
         str++;
         x += 8;
     }
@@ -462,7 +356,6 @@ void Draw_DebugChar (char num)
     byte			*dest;
     byte			*source;
     int				drawline;
-    extern byte		*draw_chars;
     int				row, col;
 
     if (!vid.direct)
@@ -492,67 +385,110 @@ void Draw_DebugChar (char num)
 }
 #endif
 
-/*
-=============
-Draw_TransPic
-=============
-*/
-void Draw_TransPic (int x, int y, qpic_t *pic)
+
+
+//=============================================================================
+
+//								2D SPRITES
+
+//=============================================================================
+
+void Draw2Dimage_ScaledMappedTranslatedTransparent (int x, int y, byte *source, int sourcewidth, int sourceheight, int xpadding, int ypadding, int w, int h, qboolean hflip, byte *translation, byte *color_blending_map, qboolean blendbackwards)//, vflip, rotate)
 {
-    byte	*dest, *source, tbyte;
-    unsigned short	*pusdest;
-    int				v, u;
+    byte  * dest;
+    byte  tbyte;
+    unsigned short   * pusdest;
+    int    v, u, vscale, uscale;
 
-    if (x < 0 || (unsigned)(x + pic->width) > vid.width ||
-            y < 0 || (unsigned)(y + pic->height) > vid.height)
-        Sys_Error ("Draw_TransPic: bad coordinates %i x, %i y", x + pic->width, y + pic->height);
+    x += (360-320)/2; //qb: square aspect is 320x180 or 360x202.5  ...sigh...
+     if (xpadding < 0)
+        Sys_Error ("Draw2Dimage_ScaledMappedTranslatedTransparent: xpadding < 0");
+    if (ypadding < 0)
+        Sys_Error ("Draw2Dimage_ScaledMappedTranslatedTransparent: ypadding < 0");
+    if (xpadding >= sourcewidth)
+        Sys_Error ("Draw2Dimage_ScaledMappedTranslatedTransparent: xpadding >= sourcewidth");
+    if (ypadding >= sourceheight)
+        Sys_Error ("Draw2Dimage_ScaledMappedTranslatedTransparent: ypadding >= sourceheight");
 
-    source = pic->data;
+    if (w > sourcewidth)
+        Sys_Error ("Draw2Dimage_ScaledMappedTranslatedTransparent: w > sourcewidth");
+    if (h > sourceheight)
+        Sys_Error ("Draw2Dimage_ScaledMappedTranslatedTransparent: h > sourceheight");
+
+    if (xpadding + w > sourcewidth)
+        w = sourcewidth - xpadding;
+    if (ypadding + h > sourceheight)
+        h = sourceheight - ypadding;
+
+    // return if offscreen
+    if (x + w * scr_2d_scale_h < scr_2d_scale_h - 1)
+        return;
+    if (y + h * scr_2d_scale_v < scr_2d_scale_v - 1)
+        return;
+    if (x * scr_2d_scale_h > (signed)vid.width)
+        return;
+    if (y * scr_2d_scale_v > (signed)vid.height)
+        return;
+
+    // crop left
+    if (x * scr_2d_scale_h < 0)
+    {
+        x = 0;
+    }
+    // crop right
+    if ( (unsigned) ((x + w) * scr_2d_scale_h) > vid.width)
+        w = ( (signed) (vid.width) - (x * scr_2d_scale_h)) / scr_2d_scale_h;
+    // crop top
+    if (y * scr_2d_scale_v < 0)
+    {
+        int yoffset = y;
+        h += yoffset;
+        ypadding -= yoffset;
+        y = 0;
+    }
+    // crop bottom
+    if ( (unsigned) ((y + h) * scr_2d_scale_v) > vid.height)
+        h = ( (signed) (vid.height) - (y * scr_2d_scale_v)) / scr_2d_scale_v;
+
+    if (!translation)
+        translation = identityTable;
+
+    source += (sourcewidth * ypadding) + xpadding;
 
     if (r_pixbytes == 1)
     {
-        dest = vid.buffer + y * vid.rowbytes + x;
-
-        if (pic->width & 7)
+        for (v = 0 ; v < h ; v++)
         {
-            // general
-            for (v=0 ; v<pic->height ; v++)
-            {
-                for (u=0 ; u<pic->width ; u++)
-                    if ( (tbyte=source[u]) != TRANSPARENT_COLOR)
-                        dest[u] = tbyte;
-
-                dest += vid.rowbytes;
-                source += pic->width;
-            }
-        }
-        else
-        {
-            // unwound
-            for (v=0 ; v<pic->height ; v++)
-            {
-                for (u=0 ; u<pic->width ; u+=8)
+            for (u = 0 ; u < w ; u++)
+                if (((tbyte = source[u]) != TRANSPARENT_COLOR) && tbyte)  //qb: fixme gfx - both 0 and 255...
                 {
-                    if ( (tbyte=source[u]) != TRANSPARENT_COLOR)
-                        dest[u] = tbyte;
-                    if ( (tbyte=source[u+1]) != TRANSPARENT_COLOR)
-                        dest[u+1] = tbyte;
-                    if ( (tbyte=source[u+2]) != TRANSPARENT_COLOR)
-                        dest[u+2] = tbyte;
-                    if ( (tbyte=source[u+3]) != TRANSPARENT_COLOR)
-                        dest[u+3] = tbyte;
-                    if ( (tbyte=source[u+4]) != TRANSPARENT_COLOR)
-                        dest[u+4] = tbyte;
-                    if ( (tbyte=source[u+5]) != TRANSPARENT_COLOR)
-                        dest[u+5] = tbyte;
-                    if ( (tbyte=source[u+6]) != TRANSPARENT_COLOR)
-                        dest[u+6] = tbyte;
-                    if ( (tbyte=source[u+7]) != TRANSPARENT_COLOR)
-                        dest[u+7] = tbyte;
+                    dest = vid.buffer
+                           + ( (int)((y + v) * scr_2d_scale_v - 1) * vid.rowbytes) // v offset
+                           + (int)((x + (hflip ? w - u - 1 : u)) * scr_2d_scale_h - 1); // h offset
+                    for (vscale = scr_2d_scale_v+1; vscale ; vscale--) //qb:  special effect: skip rows or columns
+                        for (uscale = scr_2d_scale_h+1; uscale ; uscale--)  //qb: need that +1
+                            if (color_blending_map)
+                            {
+                                if (blendbackwards)
+                                {
+                                    dest[vscale * vid.rowbytes + uscale] =
+                                        color_blending_map[dest[vscale * vid.rowbytes + uscale] * 256 + translation[tbyte]];
+                                }
+                                else
+                                {
+                                    dest[vscale * vid.rowbytes + uscale] =
+                                        color_blending_map[dest[vscale * vid.rowbytes + uscale] + translation[tbyte] * 256];
+                                }
+                            }
+                            else
+                            {
+                                dest[
+                                    vscale * vid.rowbytes // v offset
+                                    + uscale // h offset
+                                ] = translation[tbyte];
+                            }
                 }
-                dest += vid.rowbytes;
-                source += pic->width;
-            }
+            source += sourcewidth;
         }
     }
     else
@@ -560,23 +496,111 @@ void Draw_TransPic (int x, int y, qpic_t *pic)
         // FIXME: pretranslate at load time?
         pusdest = (unsigned short *)vid.buffer + y * (vid.rowbytes >> 1) + x;
 
-        for (v=0 ; v<pic->height ; v++)
+        for (v = 0 ; v < h; v++)
         {
-            for (u=0 ; u<pic->width ; u++)
+            for (u = 0 ; u < w ; u++)
                 if ( (tbyte=source[u]) != TRANSPARENT_COLOR)
                     pusdest[u] = d_8to16table[tbyte];
 
             pusdest += vid.rowbytes >> 1;
-            source += pic->width;
+            source += sourcewidth;
         }
     }
 }
-// Manoel Kasimier - begin
+
+
+void M_DrawCharacter (int x, int y, int num)
+{
+	Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, draw_chars + ( (num & 240) << 6) + ( (num & 15) << 3), 128, 128, 0, 0, 8, 8, false, identityTable, NULL, false);
+}
+
+/*
+=============
+Draw_TransPic
+=============
+*/
+void Draw_TransPic (int x, int y, qpic_t *pic)
+{
+	byte	*dest, *source, tbyte;
+	unsigned short	*pusdest;
+	int				v, u;
+
+	if (!pic) return; // mankrip
+
+	if (x < 0 || (unsigned)(x + pic->width) > vid.width ||
+		y < 0 || (unsigned)(y + pic->height) > vid.height)
+		Sys_Error ("Draw_TransPic: bad coordinates");
+
+	source = pic->data;
+
+	if (r_pixbytes == 1)
+	{
+		dest = vid.buffer + y * vid.rowbytes + x;
+
+		if (pic->width & 7)
+		{	// general
+			for (v=0 ; v<pic->height ; v++)
+			{
+				for (u=0 ; u<pic->width ; u++)
+					if ( (tbyte=source[u]) != TRANSPARENT_COLOR)
+						dest[u] = tbyte;
+
+				dest += vid.rowbytes;
+				source += pic->width;
+			}
+		}
+		else
+		{	// unwound
+			for (v=0 ; v<pic->height ; v++)
+			{
+				for (u=0 ; u<pic->width ; u+=8)
+				{
+					if ( (tbyte=source[u]) != TRANSPARENT_COLOR)
+						dest[u] = tbyte;
+					if ( (tbyte=source[u+1]) != TRANSPARENT_COLOR)
+						dest[u+1] = tbyte;
+					if ( (tbyte=source[u+2]) != TRANSPARENT_COLOR)
+						dest[u+2] = tbyte;
+					if ( (tbyte=source[u+3]) != TRANSPARENT_COLOR)
+						dest[u+3] = tbyte;
+					if ( (tbyte=source[u+4]) != TRANSPARENT_COLOR)
+						dest[u+4] = tbyte;
+					if ( (tbyte=source[u+5]) != TRANSPARENT_COLOR)
+						dest[u+5] = tbyte;
+					if ( (tbyte=source[u+6]) != TRANSPARENT_COLOR)
+						dest[u+6] = tbyte;
+					if ( (tbyte=source[u+7]) != TRANSPARENT_COLOR)
+						dest[u+7] = tbyte;
+				}
+				dest += vid.rowbytes;
+				source += pic->width;
+			}
+		}
+	}
+	else
+	{
+	// FIXME: pretranslate at load time?
+		pusdest = (unsigned short *)vid.buffer + y * (vid.rowbytes >> 1) + x;
+
+		for (v=0 ; v<pic->height ; v++)
+		{
+			for (u=0 ; u<pic->width ; u++)
+				if ( (tbyte=source[u]) != TRANSPARENT_COLOR)
+					pusdest[u] = d_8to16table[tbyte];
+
+			pusdest += vid.rowbytes >> 1;
+			source += pic->width;
+		}
+	}
+}
+// mankrip - begin
 void Draw_TransPicMirror (int x, int y, qpic_t *pic)
 {
     byte	*dest, *source, tbyte;
 //	unsigned short	*pusdest;
     int				v, u;
+
+	if (!pic) return; // mankrip
 
     if (x < 0 || (unsigned)(x + pic->width) > vid.width ||
             y < 0 || (unsigned)(y + pic->height) > vid.height)
@@ -631,7 +655,7 @@ void Draw_TransPicMirror (int x, int y, qpic_t *pic)
         }
     }
 }
-// Manoel Kasimier - end
+// mankrip - end
 
 
 /*
@@ -644,6 +668,8 @@ void Draw_TransPicTranslate (int x, int y, qpic_t *pic, byte *translation)
     byte	*dest, *source, tbyte;
     unsigned short	*pusdest;
     int				v, u;
+
+	if (!pic) return; // mankrip
 
     if (x < 0 || (unsigned)(x + pic->width) > vid.width || y < 0 ||
             (unsigned)(y + pic->height) > vid.height)
@@ -740,13 +766,13 @@ void Draw_ConsoleBackground (int lines)
 
 
 
-    extern cvar_t	con_alpha; // Manoel Kasimier - transparent console
+    extern cvar_t	con_alpha; // mankrip - transparent console
 
-    if (!con_alpha.value && !con_forcedup) // Manoel Kasimier - transparent console
-        return; // Manoel Kasimier - transparent console
+    if (!con_alpha.value && !con_forcedup) // mankrip - transparent console
+        return; // mankrip - transparent console
     conback = Draw_CachePic ("gfx/conback.lmp");
 
-    /* // Manoel Kasimier
+    /* // mankrip
     // hack the version number directly into the pic
     #ifdef _WIN32
     	sprintf (ver, "(WinQuake) %4.2f", (float)VERSION);
@@ -764,21 +790,21 @@ void Draw_ConsoleBackground (int lines)
 
     	for (x=0 ; x<Q_strlen(ver) ; x++)
     		Draw_CharToConback (ver[x], dest+(x<<3));
-    */ // Manoel Kasimier
+    */ // mankrip
 // draw the pic
-    fstep = conback->width*0x10000/vid.conwidth; // Manoel Kasimier - hi-res console background - edited
+    fstep = conback->width*0x10000/vid.conwidth; // mankrip - hi-res console background - edited
     if (r_pixbytes == 1)
     {
         dest = vid.conbuffer;
 
-        // Manoel Kasimier - transparent console - begin
+        // mankrip - transparent console - begin
         if (con_alpha.value < 0.5 && !con_forcedup)
             for (y=0 ; y<lines ; y++, dest += vid.conrowbytes)
             {
-                // Manoel Kasimier - hi-res console background - edited - begin
+                // mankrip - hi-res console background - edited - begin
                 v = (vid.conheight - lines + y)*conback->height/vid.conheight;
                 src = conback->data + v*conback->width;
-                // Manoel Kasimier - hi-res console background - edited - end
+                // mankrip - hi-res console background - edited - end
                 f = 0;
                 for (x=0 ; x<vid.conwidth ; x++) //qb: get rid of x4
                 {
@@ -801,10 +827,10 @@ void Draw_ConsoleBackground (int lines)
         else if (con_alpha.value < 1 && !con_forcedup)
             for (y=0 ; y<lines ; y++, dest += vid.conrowbytes)
             {
-                // Manoel Kasimier - hi-res console background - edited - begin
+                // mankrip - hi-res console background - edited - begin
                 v = (vid.conheight - lines + y)*conback->height/vid.conheight;
                 src = conback->data + v*conback->width;
-                // Manoel Kasimier - hi-res console background - edited - end
+                // mankrip - hi-res console background - edited - end
                 f = 0;
                 for (x=0 ; x<vid.conwidth ; x++) //qb: get rid of x4
                 {
@@ -813,14 +839,14 @@ void Draw_ConsoleBackground (int lines)
                 }
             }
         else
-            // Manoel Kasimier - transparent console - end
+            // mankrip - transparent console - end
             for (y=0 ; y<lines ; y++, dest += vid.conrowbytes)
             {
-                // Manoel Kasimier - hi-res console background - edited - begin
+                // mankrip - hi-res console background - edited - begin
                 v = (vid.conheight - lines + y)*conback->height/vid.conheight;
                 src = conback->data + v*conback->width;
                 if (vid.conwidth == conback->width)
-                    // Manoel Kasimier - hi-res console background - edited - end
+                    // mankrip - hi-res console background - edited - end
                     memcpy (dest, src, vid.conwidth);
                 else
                 {
@@ -841,8 +867,8 @@ void Draw_ConsoleBackground (int lines)
         {
             // FIXME: pre-expand to native format?
             // FIXME: does the endian switching go away in production?
-            v = (vid.conheight - lines + y)*conback->height/vid.conheight; // Manoel Kasimier - hi-res console background - edited
-            src = conback->data + v*conback->width; // Manoel Kasimier - hi-res console background - edited
+            v = (vid.conheight - lines + y)*conback->height/vid.conheight; // mankrip - hi-res console background - edited
+            src = conback->data + v*conback->width; // mankrip - hi-res console background - edited
             f = 0;
             //	fstep = 320*0x10000/vid.conwidth; // removed
             for (x=0 ; x<vid.conwidth ; x++)
@@ -1049,12 +1075,12 @@ void Draw_Fill (int x, int y, int w, int h, int c)
     unsigned		uc;
     int				u, v;
 
-    // Manoel Kasimier - begin
+    // mankrip - begin
     if (w > vid.width - x)
         w = vid.width - x;
     if (h > vid.height - y)
         h = vid.height - y;
-    // Manoel Kasimier - end
+    // mankrip - end
     if (r_pixbytes == 1)
     {
         dest = vid.buffer + y*vid.rowbytes + x;
@@ -1113,5 +1139,3 @@ void Draw_FadeScreen (void)  //qb: from engoo
 
 	S_ExtraUpdate ();
 }
-
-

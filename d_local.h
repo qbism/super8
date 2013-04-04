@@ -103,9 +103,6 @@ extern float	d_scalemip[3];
 
 extern void (*d_drawspans) (espan_t *pspan);
 
-//Dan East:
-extern int min_vid_width;  //qb: Dan East
-
 extern byte	*skyunderlay, *skyoverlay; // Manoel Kasimier - smooth sky
 extern cvar_t sw_stipplealpha; // Manoel Kasimier
 

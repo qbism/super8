@@ -284,7 +284,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_drawflat);
     Cvar_RegisterVariable (&r_ambient);
     Cvar_RegisterVariable (&r_coloredlights); //qb:
-     Cvar_RegisterVariable (&r_clbaseweight); //qb:
+    Cvar_RegisterVariable (&r_clbaseweight); //qb:
     Cvar_RegisterVariable (&r_clcolorweight); //qb:
 //qb:    Cvar_RegisterVariable (&r_colmaprange); //qb:
     Cvar_RegisterVariable (&r_fog); //qb:
@@ -601,7 +601,7 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
                 rp=host_basepal[p*3];
                 gp=host_basepal[p*3+1];
                 bp=host_basepal[p*3+2];
-               // brightscale = (float)(rp+gp+bp)/(brightcolor+0.5);
+                // brightscale = (float)(rp+gp+bp)/(brightcolor+0.5);
 
                 //bright = sqrt((rl+gl+bl)/(host_basepal[c*3]+host_basepal[c*3+1]+host_basepal[c*3+2]+1.0));
                 r = rp+rc ; //(rc * rc * ay)+ rp * (ae + (rc * ay));
@@ -708,222 +708,6 @@ MIPTEX GRABBING
 
 =============================================================================
 */
-
-
-/*
-=============
-AveragePixels  qb: from qlumpy
-=============
-*/
-/*qb: to do, or not...
-
-byte	pixdata[256];
-int		d_red, d_green, d_blue;
-
-byte AveragePixels (int count)
-{
-    int		r,g,b;
-    int		i;
-    int		vis;
-    int		pix;
-    int		dr, dg, db;
-    int		bestdistortion, distortion;
-    int		bestcolor;
-    byte	*pal;
-    int		fullbright;
-    int		e;
-
-    vis = 0;
-    r = g = b = 0;
-    fullbright = 0;
-    for (i=0 ; i<count ; i++)
-    {
-        pix = pixdata[i];
-        if (pix == 255)
-            fullbright = 2;
-        else if (pix >= 240)
-        {
-            return pix;
-            if (!fullbright)
-            {
-                fullbright = true;
-                r = 0;
-                g = 0;
-                b = 0;
-            }
-        }
-        else
-        {
-            if (fullbright)
-                continue;
-        }
-
-        r += host_basepal[pix*3];
-        g += host_basepal[pix*3+1];
-        b += host_basepal[pix*3+2];
-        vis++;
-    }
-
-    if (fullbright == 2)
-        return 255;
-
-    r /= vis;
-    g /= vis;
-    b /= vis;
-
-    if (!fullbright)
-    {
-        r += d_red;
-        g += d_green;
-        b += d_blue;
-    }
-
-//
-// find the best color
-//
-    bestdistortion = r*r + g*g + b*b;
-    bestcolor = 0;
-    if (fullbright)
-    {
-        i = 240;
-        e = 255;
-    }
-    else
-    {
-        i = 0;
-        e = 240;
-    }
-
-    for ( ; i< e ; i++)
-    {
-        pix = i;	//pixdata[i];
-
-        pal = host_basepal + pix*3;
-
-        dr = r - (int)pal[0];
-        dg = g - (int)pal[1];
-        db = b - (int)pal[2];
-
-        distortion = dr*dr + dg*dg + db*db;
-        if (distortion < bestdistortion)
-        {
-            if (!distortion)
-            {
-                d_red = d_green = d_blue = 0;	// no distortion yet
-                return pix;		// perfect match
-            }
-
-            bestdistortion = distortion;
-            bestcolor = pix;
-        }
-    }
-
-    if (!fullbright)
-    {
-        // error diffusion
-        pal = host_basepal + bestcolor*3;
-        d_red = r - (int)pal[0];
-        d_green = g - (int)pal[1];
-        d_blue = b - (int)pal[2];
-    }
-
-    return bestcolor;
-}
-*/
-
-/*
-==============
-GrabMip
-
-filename MIP x y width height
-must be multiples of sixteen
-==============
-*/
-/*qb: to do, or not...
-void GrabMip (void)
-{
-	int             x,y,xl,yl,xh,yh,w,h;
-	byte            *screen_p, *source;
-	int             linedelta;
-	miptex_t		*qtex;
-	int				miplevel, mipstep;
-	int				xx, yy, pix;
-	int				count;
-
-	GetToken (false);
-	xl = atoi (token);
-	GetToken (false);
-	yl = atoi (token);
-	GetToken (false);
-	w = atoi (token);
-	GetToken (false);
-	h = atoi (token);
-
-	if ( (w & 15) || (h & 15) )
-		Error ("line %i: miptex sizes must be multiples of 16", scriptline);
-
-	xh = xl+w;
-	yh = yl+h;
-
-	qtex = (miptex_t *)lump_p;
-	qtex->width = LittleLong(w);
-	qtex->height = LittleLong(h);
-	strcpy (qtex->name, lumpname);
-
-	lump_p = (byte *)&qtex->offsets[4];
-
-	screen_p = byteimage + yl*byteimagewidth + xl;
-	linedelta = byteimagewidth - w;
-
-	source = lump_p;
-	qtex->offsets[0] = LittleLong(lump_p - (byte *)qtex);
-
-	for (y=yl ; y<yh ; y++)
-	{
-		for (x=xl ; x<xh ; x++)
-		{
-			pix = *screen_p;
-			*screen_p++ = 0;
-			if (pix == 255)
-				pix = 0;
-			*lump_p++ = pix;
-		}
-		screen_p += linedelta;
-	}
-
-//
-// subsample for greater mip levels
-//
-	d_red = d_green = d_blue = 0;	// no distortion yet
-
-	for (miplevel = 1 ; miplevel<4 ; miplevel++)
-	{
-		qtex->offsets[miplevel] = LittleLong(lump_p - (byte *)qtex);
-
-		mipstep = 1<<miplevel;
-		for (y=0 ; y<h ; y+=mipstep)
-		{
-
-			for (x = 0 ; x<w ; x+= mipstep)
-			{
-				count = 0;
-				for (yy=0 ; yy<mipstep ; yy++)
-					for (xx=0 ; xx<mipstep ; xx++)
-					{
-						pixdata[count] = source[ (y+yy)*w + x + xx ];
-						count++;
-					}
-				*lump_p++ = AveragePixels (count);
-			}
-		}
-	}
-
-
-}
-
-*/
-
-
 
 
 /*
@@ -1217,7 +1001,7 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj)
         VectorNormalize (screenedge[i].normal);
 
     res_scale = sqrt ((double)(r_refdef.vrect.width * r_refdef.vrect.height) /
-                      (320.0 * 152.0)) *
+                      (min_vid_width * 152.0)) *
                 (2.0 / r_refdef.horizontalFieldOfView);
 
     if (scr_fov.value <= 90.0)
