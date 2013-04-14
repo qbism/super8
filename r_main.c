@@ -1550,7 +1550,6 @@ R_RenderView
 r_refdef must be set before the first call
 ================
 */
-
 void R_RenderView (void) //qb: so can only setup frame once, for fisheye and stereo.
 {
     int		dummy;
@@ -1600,7 +1599,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 #ifdef PASSAGES
     SetVisibilityByPassages ();
 #else
-    R_MarkLeaves ();	// done here so we know if we're in water
+   R_MarkLeaves ();	// done here so we know if we're in water
 #endif
 
 // make FDIV fast. This reduces timing precision after we've been running for a
@@ -1647,7 +1646,6 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 
     R_SortAliasEntities(); //qb: from reckless
     R_DrawEntitiesOnList ();
-
 
     if (r_dspeeds.value)
     {
@@ -1704,8 +1702,8 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
         byte	*src = r_warpbuffer + scr_vrect.y * vid.width + scr_vrect.x;
         byte	*dest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
         for (i=0 ; i<scr_vrect.height ; i++, src += vid.width, dest += vid.rowbytes)
-            memcpy(dest, src, scr_vrect.width);
-    }
+        memcpy(dest, src, scr_vrect.width);
+     }
 #else
     // Manoel Kasimier - buffered video (bloody hack) - end
     if (r_dowarp)

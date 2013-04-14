@@ -37,16 +37,6 @@ HWND mainwindow = NULL;
 
 byte gammatable[256];
 
-typedef struct
-{
-    modestate_t	type;
-    int			width;
-    int			height;
-    int			modenum;
-    int			fullscreen;
-    char		modedesc[13];
-} vmode_t;
-
 static void Check_Gamma (void)
 {
     int i;
@@ -335,7 +325,7 @@ cvar_t vid_ddraw = {"vid_ddraw", "1", true};
 // compatibility
 qboolean		DDActive;
 
-#define MAX_MODE_LIST	30
+#define MAX_MODE_LIST	50 //qb: why take a chance
 #define VID_ROW_SIZE	3
 #define VID_WINDOWED_MODES 3 //qb
 
@@ -382,7 +372,7 @@ int			vid_modenum = NO_MODE;
 int			vid_testingmode, vid_realmode;
 double		vid_testendtime;
 int			vid_default = MODE_FULLSCREEN_DEFAULT; //qb
-int         vid_nativeaspect; //qb
+float         vid_nativeaspect = 1; //qb
 static int	windowed_default;
 
 modestate_t	modestate = MS_UNINIT;
@@ -396,6 +386,16 @@ unsigned short	d_8to16table[256];
 unsigned	d_8to24table[256];
 
 int     mode;
+
+typedef struct
+{
+    modestate_t	type;
+    int			width;
+    int			height;
+    int			modenum;
+    int			fullscreen;
+    char		modedesc[13];
+} vmode_t;
 
 static vmode_t	modelist[MAX_MODE_LIST];
 static int		nummodes = VID_WINDOWED_MODES;	// reserve space for windowed mode  //qb: was 3
@@ -708,7 +708,7 @@ void VID_GetDisplayModes (void)
     originalnummodes = nummodes;
     modenum = 0;
     lowestres = 99999;
-    lowestres = 0;
+    highestres = 0;
 
     do
     {
@@ -761,7 +761,6 @@ void VID_GetDisplayModes (void)
                 }
             }
         }
-
         modenum++;
     }
     while (stat);
@@ -1306,6 +1305,7 @@ void VID_Init (unsigned char *palette)
     vid.colormap = host_colormap;
     vid.fullbright = 256 - LittleLong (*((int *) vid.colormap + 2048));
     vid_testingmode = 0;
+    Sbar_SizeScreen(); //qb: calc sbar scale from MQ 1.6
 
     if (hwnd_dialog)
         DestroyWindow (hwnd_dialog);

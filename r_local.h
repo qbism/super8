@@ -125,7 +125,7 @@ extern	float	verticalFieldOfView;
 extern	float	xOrigin, yOrigin;
 
 extern	int		r_visframecount;
-extern  int     vid_nativeaspect; //qb
+extern  float     vid_nativeaspect; //qb
 
 //=============================================================================
 

@@ -986,11 +986,10 @@ void SCR_BeginLoadingPlaque (void)
     Con_ClearNotify ();
     scr_centertime_off = 0;
     scr_con_current = 0;
-
     scr_drawloading = true;
     scr_fullupdate = 0;
     Sbar_Changed ();
-    SCR_UpdateScreen ();
+    SCR_UpdateScreen (); //qb: debug
     scr_drawloading = false;
 
     scr_disabled_for_loading = true;
@@ -1163,7 +1162,6 @@ void SCR_UpdateScreen (void)
 
     pconupdate = NULL;
 
-
     SCR_SetUpToDrawConsole ();
     SCR_EraseCenterString ();
 
@@ -1171,19 +1169,19 @@ void SCR_UpdateScreen (void)
 
     if (scr_drawdialog)
     {
-        Sbar_Draw ();
+       Sbar_Draw ();
         Draw_FadeScreen ();
         SCR_DrawNotifyString ();
         scr_copyeverything = true;
     }
     else if (scr_drawloading)
     {
-        SCR_DrawLoading ();
+       SCR_DrawLoading ();
 //		Sbar_Draw (); // Manoel Kasimier - removed
     }
     else if (cl.intermission == 1 && key_dest == key_game)
     {
-        Sbar_IntermissionOverlay ();
+       Sbar_IntermissionOverlay ();
     }
     else if (cl.intermission == 2 && key_dest == key_game)
     {
@@ -1192,7 +1190,7 @@ void SCR_UpdateScreen (void)
     }
     else if (cl.intermission == 3 && key_dest == key_game)
     {
-        SCR_CheckDrawCenterString ();
+       SCR_CheckDrawCenterString ();
     }
     else
     {

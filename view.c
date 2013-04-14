@@ -925,7 +925,6 @@ The player's clipping box goes from (-16 -16 -24) to (16 16 32) from
 the entity origin, so any view position inside that will be valid
 ==================
 */
-
 void V_RenderView (void)
 {
     if (con_forcedup)
@@ -954,7 +953,7 @@ void V_RenderView (void)
     }
     else
     {
-        R_RenderView ();
+         R_RenderView ();
     }
 }
 
