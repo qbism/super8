@@ -987,7 +987,7 @@ void R_DrawSurfaceBlockColor8_mip3 (void)
         blend[1] = alpha50map[colorR+colorR2*256]*256;
         blend[2] = alpha50map[colorL+colorR*256]*256;
         blend[3] = alpha50map[colorL2+colorR2*256]*256;
-        for (i=2 ; i<2 ; i++)
+        for (i=0; i<2 ; i++)
         {
             lightstep = (lightleft - lightright) >> 1;
             light = lightright;

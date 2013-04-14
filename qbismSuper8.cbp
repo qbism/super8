@@ -17,7 +17,6 @@
 				<Option compiler="mingw32" />
 				<Option parameters=" -heapsize 999000" />
 				<Compiler>
-					<Add option="-march=pentium-mmx" />
 					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-DDEBUG" />
@@ -42,35 +41,8 @@
 				<Option type="0" />
 				<Option compiler="mingw32" />
 				<Compiler>
-					<Add option="-march=pentium2" />
-					<Add option="-O3" />
-					<Add option="-w" />
-					<Add option="-DWIN32" />
-					<Add option="-DNDEBUG" />
-					<Add option="-D_WINDOWS" />
-					<Add option="-D_WIN32" />
-					<Add option="-DCURL_STATICLIB" />
-					<Add option="-DUSE_CODEC_MP3" />
-					<Add option="-DUSE_CODEC_VORBIS" />
-					<Add option="-DUSE_CODEC_WAVE" />
-					<Add directory="." />
-				</Compiler>
-				<Linker>
-					<Add option="-s" />
-				</Linker>
-				<ExtraCommands>
-					<Add before="version.bat" />
-				</ExtraCommands>
-			</Target>
-			<Target title="Release Win32 icore">
-				<Option output="../../quake/qbismS8_icore" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../../quake" />
-				<Option object_output="s_win32/Release_icore" />
-				<Option type="0" />
-				<Option compiler="mingw32" />
-				<Compiler>
-					<Add option="-march=core2" />
 					<Add option="-fomit-frame-pointer" />
+					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-w" />
 					<Add option="-DWIN32" />
@@ -97,7 +69,8 @@
 				<Option type="0" />
 				<Option compiler="mingw32" />
 				<Compiler>
-					<Add option="-march=pentium2" />
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-w" />
 					<Add option="-DWIN32" />
@@ -105,33 +78,6 @@
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_WIN32" />
 					<Add option="-DCURL_STATICLIB" />
-					<Add directory="." />
-				</Compiler>
-				<Linker>
-					<Add option="-s" />
-				</Linker>
-				<ExtraCommands>
-					<Add before="version.bat" />
-				</ExtraCommands>
-			</Target>
-			<Target title="Release Win32 486">
-				<Option output="../../quake/qbismS8_486" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../../quake" />
-				<Option object_output="s_win32/Release_486" />
-				<Option type="0" />
-				<Option compiler="mingw32" />
-				<Compiler>
-					<Add option="-march=i486" />
-					<Add option="-O3" />
-					<Add option="-w" />
-					<Add option="-DWIN32" />
-					<Add option="-DNDEBUG" />
-					<Add option="-D_WINDOWS" />
-					<Add option="-D_WIN32" />
-					<Add option="-DCURL_STATICLIB" />
-					<Add option="-DUSE_CODEC_MP3" />
-					<Add option="-DUSE_CODEC_VORBIS" />
-					<Add option="-DUSE_CODEC_WAVE" />
 					<Add directory="." />
 				</Compiler>
 				<Linker>
