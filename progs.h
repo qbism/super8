@@ -42,7 +42,7 @@ typedef struct edict_s
 	byte	alpha;				//qb:  johnfitz -- hack to support alpha since it's not part of entvars_t
     float last_grav; //qb: mh gravity fix from inside3d
     int grav_frame;
-
+    float         tracetimer[16];   //qb: r00k - track a visible time for each of the other players.
 	float		freetime;			// sv.time when the object was freed
 	entvars_t	v;					// C exported fields from progs
 // other fields from progs come immediately after
@@ -112,6 +112,7 @@ edict_t *EDICT_NUM(int n);
 #define	E_INT(e,o) (*(int *)&((float*)&e->v)[o])
 #define	E_VECTOR(e,o) (&((float*)&e->v)[o])
 #define	E_STRING(e,o) (pr_strings + *(string_t *)&((float*)&e->v)[o])
+#define offsetrandom(MIN,MAX) ((rand() & 32767) * (((MAX)-(MIN)) * (1.0f / 32767.0f)) + (MIN))//qb: LordHavoc
 
 extern	int		type_size[8];
 

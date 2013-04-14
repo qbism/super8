@@ -270,6 +270,16 @@ void VectorScale (vec3_t in, vec_t scale, vec3_t out)
 	out[2] = in[2]*scale;
 }
 
+//qb: from qrack - distance between two points (x1,x2,x3) and (y1,y2,y3)
+vec_t VectorDistance (vec3_t x,vec3_t y)
+{
+	float a,b,c;
+	a = (y[0]-x[0])*(y[0]-x[0]);
+	b = (y[1]-x[1])*(y[1]-x[1]);
+	c = (y[2]-x[2])*(y[2]-x[2]);
+
+	return sqrt((a+b+c));
+}
 
 int Q_log2(int val)
 {

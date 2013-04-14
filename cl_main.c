@@ -63,6 +63,136 @@ shadow_t		cl_shadows[MAX_SHADOWS];
 int				cl_numvisedicts;
 entity_t		*cl_visedicts[MAX_VISEDICTS];
 
+
+qboolean CL_CullCheck (vec3_t checkpoint, int viewcontents)//qb: from qrack - Modified from MHQuake
+{
+	int i;
+	vec3_t mins;
+	vec3_t maxs;
+
+	// check against world model
+	if ((Mod_PointInLeaf (checkpoint, cl.worldmodel))->contents != viewcontents)
+		return false;
+
+	for (i = 0; i < cl_numvisedicts; i++)
+	{
+		// retrieve the current entity
+		entity_t *e = cl_visedicts[i];
+
+		// don't check against self
+		if (e == &cl_entities[cl.viewentity]) continue;
+
+		if ((!e->model)) continue;
+
+		if ((e->model->type == mod_alias) && (e->model->numframes < 2))//dont clip on item entities
+			continue;
+
+		// derive the bbox
+		if (e->model->type == mod_brush && (e->angles[0] || e->angles[1] || e->angles[2]))
+		{
+			mins[0] = e->origin[0] - e->model->radius;
+			maxs[0] = e->origin[0] + e->model->radius;
+			mins[1] = e->origin[1] - e->model->radius;
+			maxs[1] = e->origin[1] + e->model->radius;
+			mins[2] = e->origin[2] - e->model->radius;
+			maxs[2] = e->origin[2] + e->model->radius;
+		}
+		else if (e->model->type == mod_alias)
+		{
+			aliashdr_t *hdr = (aliashdr_t *)Mod_Extradata (e->model);
+
+			// use per-frame bbox clip tests
+			VectorAdd (e->origin, hdr->frames[e->frame].bboxmin.v, mins);
+			VectorAdd (e->origin, hdr->frames[e->frame].bboxmax.v, maxs);
+		}
+		else
+		{
+			VectorAdd (e->origin, e->model->mins, mins);
+			VectorAdd (e->origin, e->model->maxs, maxs);
+		}
+
+		// check against bbox
+		if (checkpoint[0] < mins[0]) continue;
+		if (checkpoint[1] < mins[1]) continue;
+		if (checkpoint[2] < mins[2]) continue;
+		if (checkpoint[0] > maxs[0]) continue;
+		if (checkpoint[1] > maxs[1]) continue;
+		if (checkpoint[2] > maxs[2]) continue;
+
+		// point inside
+		return false;
+	}
+
+	// it's good now
+	return true;
+}
+
+
+
+/*
+-------------------------------------------------------------------------
+qb: from qrack:	CL_Clip_Test	-- modified code from MHQuake.
+-------------------------------------------------------------------------
+ Returns TRUE if a trace is clipped from our pov to the entity origin.
+-------------------------------------------------------------------------
+*/
+
+qboolean CL_Clip_Test(vec3_t org)
+{
+	int viewcontents = (Mod_PointInLeaf (r_refdef.vieworg, cl.worldmodel))->contents;
+	int best,test;
+	int num_tests = max(360,(VectorDistance(r_refdef.vieworg, org)));
+
+	int dest_vert[] = {0, 0, 1, 1, 2, 2};
+	int dest_offset[] = {4, -4};
+	vec3_t testorg;
+
+	for (best = 0; best < num_tests; best++)
+	{
+		testorg[0] = r_refdef.vieworg[0] + (org[0] - r_refdef.vieworg[0]) * best / num_tests;
+		testorg[1] = r_refdef.vieworg[1] + (org[1] - r_refdef.vieworg[1]) * best / num_tests;
+		testorg[2] = r_refdef.vieworg[2] + (org[2] - r_refdef.vieworg[2]) * best / num_tests;
+
+		// check for a leaf hit with different contents
+		if (!CL_CullCheck (testorg, viewcontents))
+		{
+			// go back to the previous best as this one is bad
+			if (best > 1)
+				best--;
+			else best = num_tests;
+			break;
+		}
+	}
+
+	// move along path from chase_dest to r_refdef.vieworg
+	for (; best >= 0; best--)
+	{
+		// number of matches
+		int nummatches = 0;
+
+		// adjust
+		testorg[0] = r_refdef.vieworg[0] + (org[0] - r_refdef.vieworg[0]) * best / num_tests;
+		testorg[1] = r_refdef.vieworg[1] + (org[1] - r_refdef.vieworg[1]) * best / num_tests;
+		testorg[2] = r_refdef.vieworg[2] + (org[2] - r_refdef.vieworg[2]) * best / num_tests;
+
+		// run 6 tests: -x/+x/-y/+y/-z/+z
+		for (test = 0; test < 6; test++)
+		{
+			// adjust, test and put back.
+			testorg[dest_vert[test]] -= dest_offset[test & 1];
+			if (!(CL_CullCheck(testorg, viewcontents)))
+				return true;
+			testorg[dest_vert[test]] += dest_offset[test & 1];
+		}
+
+		// test result, if all match we're done in here
+		if (nummatches == 6) break;
+	}
+	return false;
+}
+
+
+
 /*
 =====================
 CL_ClearState

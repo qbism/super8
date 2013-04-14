@@ -837,8 +837,10 @@ void R_DrawParticles (void)
         // Manoel Kasimier - begin
 
         float alpha = 1.0 - ((cl.time - p->start_time) / (p->die - cl.time));
-        if (alpha <= 0.41)
+        if (alpha <= 0.43)
             D_DrawParticle_33_C (p);
+        else if (alpha <= 0.60)
+            D_DrawParticle_50_C (p);
         else if (alpha <= 0.76)
             D_DrawParticle_66_C (p);
         else

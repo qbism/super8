@@ -24,6 +24,7 @@ int current_protocol = PROTOCOL_QBS8; //qb
 server_t		sv;
 server_static_t	svs;
 
+cvar_t	sv_cullentities		= {"sv_cullentities","1", false, true}; //qb: qrack
 cvar_t  sv_progs = {"sv_progs", "progs.dat" }; //qb: enginex
 char	localmodels[MAX_MODELS][6];			// inline model names for precache //qb: was 5
 
@@ -31,6 +32,98 @@ char	localmodels[MAX_MODELS][6];			// inline model names for precache //qb: was 
 
 
 cvar_t sv_qcexec = {"sv_qcexec","0", false, true}; // Manoel Kasimier - qcexec
+
+
+/*
+===============
+SV_InvisibleToClient  //qb:  r00k
+===============
+*/
+    qboolean SV_InvisibleToClient(edict_t *viewer, edict_t *seen)
+    {
+       int i;
+       trace_t   tr;
+        vec3_t   start;
+        vec3_t   end;
+       extern trace_t SV_ClipMoveToEntity (edict_t *ent, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end);
+       extern qboolean CL_Clip_Test(vec3_t org);
+       int it;
+       int vi;
+
+       vi = (int)viewer->v.colormap - 1;
+
+       if (seen->tracetimer[vi] > sv.time)
+          return false;
+
+       it = (int)(seen->v.items);
+
+       //R00k: DM players want to see the Quad/Pent glow. Dont cull them at the moment...(fixme)
+          if ((strcmp(pr_strings + seen->v.classname, "player") == 0) && ((it & IT_QUAD) || (it & IT_INVULNERABILITY)))
+       {
+          return false;
+       }
+
+       if (sv_cullentities.value == 1)    //1 only check player models, 2 = check all ents
+       {
+          if (strcmp(pr_strings + seen->v.classname, "player"))
+             return false;
+       }
+
+       if (seen->v.movetype == MOVETYPE_PUSH )
+        {
+          if (sv_cullentities.value == 3)
+          {
+              if (CL_Clip_Test(seen->v.origin)== false)
+                return false;
+          }
+          else
+             return false;
+        }
+
+        memset (&tr, 0, sizeof(tr));
+        tr.fraction = 1;
+
+        start[0] = viewer->v.origin[0];
+        start[1] = viewer->v.origin[1];
+        start[2] = viewer->v.origin[2] + viewer->v.view_ofs[2];
+
+        //aim straight at the center of "seen" from our eyes
+        end[0] = 0.5 * (seen->v.mins[0] + seen->v.maxs[0]);
+        end[1] = 0.5 * (seen->v.mins[1] + seen->v.maxs[1]);
+        end[2] = 0.5 * (seen->v.mins[2] + seen->v.maxs[2]);
+
+        tr = SV_ClipMoveToEntity (sv.edicts, start, vec3_origin, vec3_origin, end);
+
+       if (tr.fraction == 1)// line hit the ent
+       {
+          seen->tracetimer[vi] = sv.time + 0.2;
+            return false;
+       }
+
+        memset (&tr, 0, sizeof(tr));
+        tr.fraction = 1;
+
+       //last attempt to eliminate any flaws...
+        if ((!strcmp(pr_strings + seen->v.classname, "player")) || (sv_cullentities.value > 1))
+        {
+            for (i = 0; i < 8; i++)
+            {
+                end[0] = seen->v.origin[0] + offsetrandom(seen->v.mins[0], seen->v.maxs[0]);
+                end[1] = seen->v.origin[1] + offsetrandom(seen->v.mins[1], seen->v.maxs[1]);
+                end[2] = seen->v.origin[2] + offsetrandom(seen->v.mins[2], seen->v.maxs[2]);
+
+                tr = SV_ClipMoveToEntity (sv.edicts, start, vec3_origin, vec3_origin, end);
+                if (tr.fraction == 1)// line hit the ent
+             {
+                 //Con_DPrintf (va("found ent in %i hits\n", i));
+                seen->tracetimer[vi] = sv.time + 0.2;
+                return false;
+             }
+            }
+        }
+        return true;
+    }
+
 
 /*
 ===============
@@ -72,6 +165,7 @@ void SV_Init (void)
 {
     int		i;
     Cvar_RegisterVariable (&sv_progs); //qb:  fitzquake
+    Cvar_RegisterVariable (&sv_cullentities); //qb: from qrack
     Cvar_RegisterVariable (&sv_cheats); //qb
     Cvar_RegisterVariable (&sv_maxvelocity);
     Cvar_RegisterVariable (&sv_gravity);

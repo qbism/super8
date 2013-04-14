@@ -765,6 +765,79 @@ void D_PolysetDrawSpans8_66 (spanpackage_t *pspanpackage) // Manoel Kasimier - t
     }
     while (pspanpackage->count != -999999);
 }
+
+
+// 50% transparency
+void D_PolysetDrawSpans8_50(spanpackage_t *pspanpackage) //qb
+{
+    int		lcount;
+    byte	*lpdest;
+    byte	*lptex;
+    int		lsfrac, ltfrac;
+    int		llight;
+    int		lzi;
+    short	*lpz;
+
+    do
+    {
+        lcount = d_aspancount - pspanpackage->count;
+
+        errorterm += erroradjustup;
+        if (errorterm >= 0)
+        {
+            d_aspancount += d_countextrastep;
+            errorterm -= erroradjustdown;
+        }
+        else
+        {
+            d_aspancount += ubasestep;
+        }
+
+        if (lcount)
+        {
+            lpdest = pspanpackage->pdest;
+            lptex = pspanpackage->ptex;
+            lpz = pspanpackage->pz;
+            lsfrac = pspanpackage->sfrac;
+            ltfrac = pspanpackage->tfrac;
+            llight = pspanpackage->light;
+            lzi = pspanpackage->zi;
+
+            do
+            {
+                if ((lzi >> 16) >= *lpz)
+                    if (*lptex != 255) // Manoel Kasimier - transparent pixels in alias models
+                    {
+                        // Manoel Kasimier - transparencies - begin
+#define temp ((byte *)acolormap)[*lptex + (llight & 0xFF00)]
+                        *lpdest = alpha50map[*lpdest + temp*256];
+                        // Manoel Kasimier - transparencies - end
+                    }
+                lpdest++;
+                lzi += r_zistepx;
+                lpz++;
+                llight += r_lstepx;
+                lptex += a_ststepxwhole;
+                lsfrac += a_sstepxfrac;
+                lptex += lsfrac >> 16;
+                lsfrac &= 0xFFFF;
+                ltfrac += a_tstepxfrac;
+                if (ltfrac & 0x10000)
+                {
+                    lptex += r_affinetridesc.skinwidth;
+                    ltfrac &= 0xFFFF;
+                }
+            }
+            while (--lcount);
+        }
+
+        pspanpackage++;
+    }
+    while (pspanpackage->count != -999999);
+}
+
+
+
 // 33% transparency
 void D_PolysetDrawSpans8_33 (spanpackage_t *pspanpackage) // Manoel Kasimier - transparencies - edited
 {
@@ -1576,8 +1649,10 @@ void D_RasterizeAliasPolySmooth (void)
     // Manoel Kasimier - transparencies - begin
         else if (sw_stipplealpha.value)
             D_PolysetDrawSpans8_Stippled (a_spans);
-        else if (ENTALPHA_DECODE(currententity->alpha) < 0.5)
+        else if (ENTALPHA_DECODE(currententity->alpha) < 0.43)
             D_PolysetDrawSpans8_33 (a_spans);
+        else if (ENTALPHA_DECODE(currententity->alpha) < 0.60)
+            D_PolysetDrawSpans8_50 (a_spans);
         else
             D_PolysetDrawSpans8_66 (a_spans);
     // Manoel Kasimier - transparencies - end

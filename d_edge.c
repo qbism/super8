@@ -239,8 +239,10 @@ void D_DrawSurfaces (void)
                     Turbulent8 (s->spans);
                 else
                 {
-                    if(r_glassalpha.value <= .5)
+                    if(r_glassalpha.value <= .43)
                         D_DrawSpans16_Blend(s->spans);
+                    else if(r_glassalpha.value <= .60)
+                        D_DrawSpans16_Blend50(s->spans);
                     else
                         D_DrawSpans16_BlendBackwards(s->spans);
                 }
