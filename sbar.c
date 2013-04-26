@@ -1300,7 +1300,7 @@ void Sbar_Draw (void)
 		if (rogue)
 			Sbar_DrawKeys (360 - SBAR_PADDING - 74, 4);
 		else
-			Sbar_DrawKeys (360 - SBAR_PADDING - 156, 4);
+			Sbar_DrawKeys (360 - SBAR_PADDING - 172, 4);
 
 		if (rogue || hipnotic)
 		{
@@ -1311,7 +1311,7 @@ void Sbar_Draw (void)
 		else
 			Sbar_DrawPowerUps (360 - SBAR_PADDING - 100, -12);
 
-		Sbar_DrawRunes (360 - SBAR_PADDING - 72, 4); // sigils
+		Sbar_DrawRunes (360 - SBAR_PADDING - 154, 4); // sigils
 
 //		Sbar_DrawFrags (); // TO DO
 	}
