@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "quakedef.h"
 #include "r_local.h"
 
-//define	PASSAGES
+//#define DITH_RANDS 3947 //qb: number of random floats for fog dithering
 
 void MakeMy15to8();
 void ParseWorldspawn (void);
@@ -91,7 +91,7 @@ float	xOrigin, yOrigin;
 mplane_t	screenedge[4];
 
 byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
-float ditherfog[DITHER_NUMRANDS]; //qb: pseudorandom dither
+int    foglevel[256]; //qb
 //
 // refresh flags
 //
@@ -236,15 +236,22 @@ R_Init
 ===============
 */
 
-void FogDitherInit(void)
+void FogLevelInit(void)
 {
-    int i;
-    float dfactor;
-    dfactor = max(1.0-fog_density,0.01)* 0.33; //qb: would rather hand-tune this multiplier than make cvar.
-    for (i=0; i<DITHER_NUMRANDS; i++)
-        ditherfog[i] = dfactor + (float)(rand()%10000)/100000.0;
+    int i, j;
+    for (i=0; i<32; i++)
+    {
+        j = (int)(i * (1.01-fog_density)*2.5);
+        foglevel[i*8 + 0] = bound(0, j-1 , 31) * 256;
+        foglevel[i*8 + 1] = bound(0, j-2 , 31) * 256;
+        foglevel[i*8 + 2] = bound(0, j-1 , 31) * 256;
+        foglevel[i*8 + 3] = bound(0, j , 31) * 256;
+        foglevel[i*8 + 4] = bound(0, j+1 , 31) * 256;
+        foglevel[i*8 + 5] = bound(0, j+2 , 31) * 256;
+        foglevel[i*8 + 6] = bound(0, j+1 , 31) * 256;
+        foglevel[i*8 + 7] = bound(0, j , 31) * 256;
+    }
 }
-
 
 void R_LoadPalette_f (void); //qb: load an alternate palette
 void R_LoadSky_f (void); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
@@ -276,7 +283,7 @@ void R_Init (void)
     fog_green = 0.17;
     fog_blue = 0.17;
     srand(8);  //leave nothing to chance.
-    FogDitherInit();
+    FogLevelInit();
     Cvar_RegisterVariable (&r_draworder);
     Cvar_RegisterVariable (&r_speeds);
     Cvar_RegisterVariable (&r_timegraph);
@@ -538,21 +545,19 @@ void GrabAlpha50map (void) //qb: 50% / 50% alpha
 }
 
 
-
 void GrabFogmap (void) //qb: yet another lookup
 {
     int c,l, r,g,b;
     byte *colmap;
 
     colmap = fogmap;
-
     for (l=0; l<256; l++)
     {
         for (c=0 ; c<256 ; c++)
         {
-            r = (host_basepal[c*3] + host_basepal[l*3] + (c/32.0));
-            g = (host_basepal[c*3+1] + host_basepal[l*3+1] + (c/32.0));
-            b = (host_basepal[c*3+2] + host_basepal[l*3+2] + (c/32.0));
+            r = (host_basepal[c*3]*.95 + host_basepal[l*3]*0.65);
+            g = (host_basepal[c*3+1]*0.95 + host_basepal[l*3+1]*0.65);
+            b = (host_basepal[c*3+2]*0.95 + host_basepal[l*3+2]*0.65);
             *colmap++ = BestColor(r,g,b, 0, 254); // High quality color tables get best color
         }
     }
@@ -1554,14 +1559,6 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 {
     int		dummy;
     int		delta;
-    //qb: for fog
-    int			x, y, level, fogindex, dither, xref;
-    float   density_factor;
-    byte		*pbuf;
-    short		*pz;
-    extern short		*d_pzbuffer;
-    extern unsigned int	d_zwidth;
-    extern int			d_scantable[1024];
 
     //This causes problems for Flash when not using -O3
 #if !defined(FLASH)
@@ -1599,7 +1596,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 #ifdef PASSAGES
     SetVisibilityByPassages ();
 #else
-   R_MarkLeaves ();	// done here so we know if we're in water
+    R_MarkLeaves ();	// done here so we know if we're in water
 #endif
 
 // make FDIV fast. This reduces timing precision after we've been running for a
@@ -1670,26 +1667,43 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     R_DrawViewModel (false); // Manoel Kasimier
 
     //qb: originally based on Makaqu 1.3 fog.  added global fog, dithering, optimizing
+    int			fogindex, xref, yref;
+    float       density_factor;
+    int        chunk;
+    static byte		*pbuf;
+    static unsigned short		*pz;
+    int  oldlevel, level;
+    int          vidmap;
+    extern short		*d_pzbuffer;
+    extern unsigned int	d_zwidth;
+    extern int			d_scantable[1024];
     static float previous_fog_density;
     if (fog_density && r_fog.value)
     {
-        dither=0;
         if(previous_fog_density != fog_density)
-            FogDitherInit(); //dither includes density factor, so regenerate when it changes
-        fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3]; //qb:fractional value, bright fog is harsh
-        for (y=0 ; y<r_refdef.vrect.height; y++)
-        {
-            pbuf = r_warpbuffer + d_scantable[y+r_refdef.vrect.y];
-            pz = d_pzbuffer + (d_zwidth * (y+r_refdef.vrect.y));
-            for (x=0 ; x<r_refdef.vrect.width; x++)
-            {
-                xref = x+r_refdef.vrect.x;
-                level = (int)( *(pz + xref) * ditherfog[dither++ % DITHER_NUMRANDS]);
-                if (level < 32 && level >= 1) //qb:  0 is sky.  Assumption is that mapper's sky selection looks appropriately foggy.
-                    *(pbuf + xref) = fogmap[*(pbuf + xref) + (int)vid.colormap[fogindex + level*256]*256];
-            }
-        }
+            FogLevelInit(); //dither includes density factor, so regenerate when it changes
         previous_fog_density = fog_density;
+
+        fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
+
+        for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
+        {
+            pbuf = r_warpbuffer + d_scantable[yref];
+            pz = d_pzbuffer + (d_zwidth * yref);
+            for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
+            {
+               level = *(pz++);
+                if(level> 0 && level<253)
+                {
+                    if ((level != oldlevel) || !(chunk % 7))
+                        vidmap = vid.colormap[fogindex + foglevel[level + (xref %4)]]*256;
+                    *pbuf = fogmap[*pbuf + vidmap];
+                }
+                oldlevel = level;
+                pbuf++;
+                chunk++;
+             }
+        }
     }
 
     // Manoel Kasimier - buffered video (bloody hack) - begin
@@ -1702,8 +1716,8 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
         byte	*src = r_warpbuffer + scr_vrect.y * vid.width + scr_vrect.x;
         byte	*dest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
         for (i=0 ; i<scr_vrect.height ; i++, src += vid.width, dest += vid.rowbytes)
-        memcpy(dest, src, scr_vrect.width);
-     }
+            memcpy(dest, src, scr_vrect.width);
+    }
 #else
     // Manoel Kasimier - buffered video (bloody hack) - end
     if (r_dowarp)

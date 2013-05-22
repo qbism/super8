@@ -89,7 +89,7 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-march=pentium-mmx" />
+			<Add option="-O2" />
 			<Add option="-w" />
 			<Add directory="s_win32/codecs/include" />
 		</Compiler>

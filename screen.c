@@ -446,7 +446,7 @@ void SCR_DrawFPS (void)
 
     sprintf(st, "%f FPS", fps);
 
-    x = vid.width - Q_strlen(st) * 8;
+    x = 300; //qb
     if (scr_vrect.y > 0)
         Draw_Fill(x, 0, Q_strlen(st) * 8, 8, 0);
     Draw_UpdateAlignment (2, 0);

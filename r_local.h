@@ -91,10 +91,6 @@ extern cvar_t   fviews; //qb: for model interpolation
 
 //===========================================================================
 
-#define	DIST_NOT_SET	98765
-
-#define DITHER_NUMRANDS 3947 //qb: number of random floats for fog dithering
-
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
 typedef struct clipplane_s
 {
