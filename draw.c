@@ -393,7 +393,8 @@ void Draw_DebugChar (char num)
 
 //=============================================================================
 
-void Draw2Dimage_ScaledMappedTranslatedTransparent (int x, int y, byte *source, int sourcewidth, int sourceheight, int xpadding, int ypadding, int w, int h, qboolean hflip, byte *translation, byte *color_blending_map, qboolean blendbackwards)//, vflip, rotate)
+void Draw2Dimage_ScaledMappedTranslatedTransparent (int x, int y, byte *source, int sourcewidth, int sourceheight, int xpadding, int ypadding,
+        int w, int h, qboolean hflip, byte *translation, byte *color_blending_map, qboolean blendbackwards, byte transcolor)//, vflip, rotate)
 {
     byte  * dest;
     byte  tbyte;
@@ -460,7 +461,7 @@ void Draw2Dimage_ScaledMappedTranslatedTransparent (int x, int y, byte *source, 
         for (v = 0 ; v < h ; v++)
         {
             for (u = 0 ; u < w ; u++)
-                if (((tbyte = source[u]) != TRANSPARENT_COLOR) && tbyte)  //qb: fixme gfx - both 0 and 255...
+                if ((tbyte = source[u]) != transcolor)  //qb: fixme gfx - both 0 and 255...
                 {
                     dest = vid.buffer
                            + ( (int)((y + v) * scr_2d_scale_v - 1) * vid.rowbytes) // v offset
@@ -511,7 +512,7 @@ void Draw2Dimage_ScaledMappedTranslatedTransparent (int x, int y, byte *source, 
 
 void M_DrawCharacter (int x, int y, int num)
 {
-	Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, draw_chars + ( (num & 240) << 6) + ( (num & 15) << 3), 128, 128, 0, 0, 8, 8, false, identityTable, NULL, false);
+	Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, draw_chars + ( (num & 240) << 6) + ( (num & 15) << 3), 128, 128, 0, 0, 8, 8, false, identityTable, NULL, false,0);
 }
 
 /*
@@ -522,12 +523,12 @@ Draw_TransPic
 void M_DrawTransPic (int x, int y, qpic_t *pic)
 {
 	if (pic)
-		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, false, identityTable, NULL, false);
+		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, false, identityTable, NULL, false, TRANSPARENT_COLOR);
 }
 void M_DrawTransPicMirror (int x, int y, qpic_t *pic)
 {
 	if (pic)
-		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, true , identityTable, NULL, false);
+		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, true , identityTable, NULL, false, TRANSPARENT_COLOR);
 }
 
 
@@ -535,12 +536,12 @@ void M_DrawTransPicMirror (int x, int y, qpic_t *pic)
 void M_DrawTransPicTranslate (int x, int y, qpic_t *pic)
 {
 	if (pic)
-		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, false, translationTable, NULL, false);
+		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, false, translationTable, NULL, false, TRANSPARENT_COLOR);
 }
 void M_DrawTransPicTranslateMirror (int x, int y, qpic_t *pic)
 {
 	if (pic)
-		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, true , translationTable, NULL, false);
+		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, true , translationTable, NULL, false, TRANSPARENT_COLOR);
 }
 
 

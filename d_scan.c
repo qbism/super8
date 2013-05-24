@@ -64,7 +64,7 @@ void D_WarpScreen (void)
 
     for (u=0 ; u<scr_vrect.width+AMP2*2 ; u++)
     {
-        column[u] = r_refdef.vrect.x +
+       column[u] = r_refdef.vrect.x +
                     (int)((float)u * wratio * w / (w + AMP2 * 2));
     }
 

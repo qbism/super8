@@ -92,6 +92,7 @@ mplane_t	screenedge[4];
 
 byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
 int    foglevel[256]; //qb
+int    fognoise[256]; //qb
 //
 // refresh flags
 //
@@ -250,6 +251,11 @@ void FogLevelInit(void)
         foglevel[i*8 + 5] = bound(0, j+2 , 31) * 256;
         foglevel[i*8 + 6] = bound(0, j+1 , 31) * 256;
         foglevel[i*8 + 7] = bound(0, j , 31) * 256;
+    }
+    for (i=0; i<256; i++)
+    {
+        j+=7;
+        fognoise[i]=((i*6+j)%9);
     }
 }
 
@@ -1669,10 +1675,10 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     //qb: originally based on Makaqu 1.3 fog.  added global fog, dithering, optimizing
     int			fogindex, xref, yref;
     float       density_factor;
-    int        chunk;
-    static byte		*pbuf;
+    byte		*pbuf, *vidfog;
+    byte        noise;
     static unsigned short		*pz;
-    int  oldlevel, level;
+    int          level;
     int          vidmap;
     extern short		*d_pzbuffer;
     extern unsigned int	d_zwidth;
@@ -1683,8 +1689,8 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
         if(previous_fog_density != fog_density)
             FogLevelInit(); //dither includes density factor, so regenerate when it changes
         previous_fog_density = fog_density;
-
         fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
+        vidfog = vid.colormap+fogindex;
 
         for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
         {
@@ -1692,17 +1698,12 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
             pz = d_pzbuffer + (d_zwidth * yref);
             for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
             {
-               level = *(pz++);
-                if(level> 0 && level<253)
-                {
-                    if ((level != oldlevel) || !(chunk % 7))
-                        vidmap = vid.colormap[fogindex + foglevel[level + (xref %4)]]*256;
-                    *pbuf = fogmap[*pbuf + vidmap];
-                }
-                oldlevel = level;
+                level = *(pz++);
+                if(level> 0 && level<248)
+                    *pbuf = fogmap[*pbuf + vidfog[foglevel[level + fognoise[noise++]]]*256];
                 pbuf++;
-                chunk++;
-             }
+            }
+            noise += 7;
         }
     }
 
