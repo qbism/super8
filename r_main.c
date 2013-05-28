@@ -564,7 +564,7 @@ void GrabFogmap (void) //qb: yet another lookup
             r = (host_basepal[c*3]*.95 + host_basepal[l*3]*0.65);
             g = (host_basepal[c*3+1]*0.95 + host_basepal[l*3+1]*0.65);
             b = (host_basepal[c*3+2]*0.95 + host_basepal[l*3+2]*0.65);
-            *colmap++ = BestColor(r,g,b, 0, 254); // High quality color tables get best color
+            *colmap++ = BestColor(r,g,b, 0, 254);
         }
     }
 }
@@ -1699,11 +1699,11 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
             for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
             {
                 level = *(pz++);
-                if(level> 0 && level<248)
+                if (level && level<248)
                     *pbuf = fogmap[*pbuf + vidfog[foglevel[level + fognoise[noise++]]]*256];
                 pbuf++;
             }
-            noise += 7;
+            noise += 13;
         }
     }
 

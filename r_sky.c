@@ -320,14 +320,14 @@ void Fog_FogCommand_f (void)
         Con_Printf("   \"blue\" is \"%f\"\n", fog_blue);
         break;
     case 2:
-        Fog_Update(max(0.0, atof(Cmd_Argv(1))),
+        Fog_Update(max(0.0, atof(Cmd_Argv(1))*0.7), //qb- need to reduce a tad to match gl density appearance.
                    fog_red,
                    fog_green,
                    fog_blue,
                    0.0);
         break;
     case 3: //TEST
-        Fog_Update(max(0.0, atof(Cmd_Argv(1))),
+        Fog_Update(max(0.0, atof(Cmd_Argv(1))*0.7),
                    fog_red,
                    fog_green,
                    fog_blue,
@@ -341,14 +341,14 @@ void Fog_FogCommand_f (void)
                    0.0);
         break;
     case 5:
-        Fog_Update(max(0.0, atof(Cmd_Argv(1))),
+        Fog_Update(max(0.0, atof(Cmd_Argv(1))*0.7),
                    CLAMP(0.0, atof(Cmd_Argv(2)), 1.0),
                    CLAMP(0.0, atof(Cmd_Argv(3)), 1.0),
                    CLAMP(0.0, atof(Cmd_Argv(4)), 1.0),
                    0.0);
         break;
     case 6: //TEST
-        Fog_Update(max(0.0, atof(Cmd_Argv(1))),
+        Fog_Update(max(0.0, atof(Cmd_Argv(1))*0.7),
                    CLAMP(0.0, atof(Cmd_Argv(2)), 1.0),
                    CLAMP(0.0, atof(Cmd_Argv(3)), 1.0),
                    CLAMP(0.0, atof(Cmd_Argv(4)), 1.0),
