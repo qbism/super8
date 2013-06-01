@@ -47,17 +47,17 @@ qboolean	avi_loaded, acm_loaded;
 
 qboolean Movie_IsActive (void)
 {
-	// don't output whilst console is down or 'loading' is displayed
-	if ((/*!capture_console.value && */ scr_con_current > 0) || scr_drawloading)
-		return false;
+    // don't output whilst console is down or 'loading' is displayed
+    if ((/*!capture_console.value && */ scr_con_current > 0) || scr_drawloading)
+        return false;
 
-	//qb: from FQ Mark V - Never capture the console if capturedemo is running
-	//qb: ...but might want to capture console, such as tutorial vid.
-	//if (cls.capturedemo && scr_con_current > 0)
-	//	return false;
+    //qb: from FQ Mark V - Never capture the console if capturedemo is running
+    //qb: ...but might want to capture console, such as tutorial vid.
+    //if (cls.capturedemo && scr_con_current > 0)
+    //	return false;
 
-	// otherwise output if a file is open to write to
-	return movie_is_capturing;
+    // otherwise output if a file is open to write to
+    return movie_is_capturing;
 }
 
 void Movie_Start_f (void)
@@ -229,44 +229,17 @@ void Movie_UpdateScreen (void)  //qb: add stretch and gamma to capture
         hack_ctr--;
     }
 
-    buffer = Q_malloc (vid.width * vid.height * 3 *(1 + stretched*3));
+    buffer = Q_malloc (vid.width * vid.height * 3);
     p = buffer;
-    if (stretched)
+    for (i = vid.height - 1 ; i >= 0 ; i--)
     {
-        for (i = vid.height - 1 ; i >= 0 ; i--)
+        rowp = i * vid.rowbytes;
+        for (j = 0 ; j < vid.width ; j++)
         {
-            for (k=0; k<2; k++)
-            {
-                rowp = i * vid.rowbytes;
-                for (j = 0 ; j < vid.width ; j++)
-                {
-                    r = gammatable[host_basepal[vid.buffer[rowp]*3+2]];  //qb: gamma lookup
-                    g = gammatable[host_basepal[vid.buffer[rowp]*3+1]];
-                    b = gammatable[host_basepal[vid.buffer[rowp]*3+0]];
-                    *p++ = r;
-                    *p++ = g;
-                    *p++ = b;
-                    *p++ = r;
-                    *p++ = g;
-                    *p++ = b;
-                    rowp++;
-                }
-            }
-
-        }
-    }
-    else
-    {
-        for (i = vid.height - 1 ; i >= 0 ; i--)
-        {
-            rowp = i * vid.rowbytes;
-            for (j = 0 ; j < vid.width ; j++)
-            {
-                r = gammatable[host_basepal[vid.buffer[rowp]*3+2]];  //qb: gamma lookup
-                g = gammatable[host_basepal[vid.buffer[rowp]*3+1]];
-                b = gammatable[host_basepal[vid.buffer[rowp]*3+0]];
-                rowp++;
-            }
+            r = gammatable[host_basepal[vid.buffer[rowp]*3+2]];  //qb: gamma lookup
+            g = gammatable[host_basepal[vid.buffer[rowp]*3+1]];
+            b = gammatable[host_basepal[vid.buffer[rowp]*3+0]];
+            rowp++;
         }
     }
     Capture_WriteVideo (buffer);

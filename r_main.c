@@ -1673,39 +1673,16 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     R_DrawViewModel (false); // Manoel Kasimier
 
     //qb: originally based on Makaqu 1.3 fog.  added global fog, dithering, optimizing
-    int			fogindex, xref, yref;
-    float       density_factor;
-    byte		*pbuf, *vidfog;
-    byte        noise;
-    static unsigned short		*pz;
-    int          level;
-    int          vidmap;
     extern short		*d_pzbuffer;
     extern unsigned int	d_zwidth;
-    extern int			d_scantable[1024];
-    static float previous_fog_density;
-    if (fog_density && r_fog.value)
-    {
-        if(previous_fog_density != fog_density)
-            FogLevelInit(); //dither includes density factor, so regenerate when it changes
-        previous_fog_density = fog_density;
-        fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
-        vidfog = vid.colormap+fogindex;
+    extern int			d_scantable[MAXHEIGHT];
 
-        for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
-        {
-            pbuf = r_warpbuffer + d_scantable[yref];
-            pz = d_pzbuffer + (d_zwidth * yref);
-            for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
-            {
-                level = *(pz++);
-                if (level && level<248)
-                    *pbuf = fogmap[*pbuf + vidfog[foglevel[level + fognoise[noise++]]]*256];
-                pbuf++;
-            }
-            noise += 13;
-        }
-    }
+    static int			fogindex, xref, yref;
+    static byte		*pbuf, *vidfog;
+    static byte        noise;
+    static unsigned short		*pz;
+    static int          level;
+    static float previous_fog_density;
 
     // Manoel Kasimier - buffered video (bloody hack) - begin
 #ifdef _WIN32

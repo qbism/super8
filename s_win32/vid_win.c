@@ -23,7 +23,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 // true if the ddraw driver started up OK
 qboolean    vid_usingddraw = false;
-int	stretched; //qb: added back
 
 int min_vid_width=360; //qb: Dan East - pocketquake (could be less for very low-res display)
 int min_vid_height=200;
@@ -361,7 +360,6 @@ cvar_t		vid_default_mode_win = {"vid_default_mode_win", "2", true};
 cvar_t		vid_wait = {"vid_wait", "1", true};
 cvar_t		vid_config_x = {"vid_config_x", "1280", true};
 cvar_t		vid_config_y = {"vid_config_y", "720", true};
-cvar_t		vid_stretch_by_2 = {"vid_stretch_by_2", "0", true};
 cvar_t		_windowed_mouse = {"_windowed_mouse", "1", true};
 cvar_t		vid_fullscreen_mode = {"vid_fullscreen_mode", "3", true};
 cvar_t		vid_windowed_mode = {"vid_windowed_mode", "0", true};
@@ -871,21 +869,11 @@ qboolean VID_SetWindowedMode (int modenum)
 
     vid.numpages = 1;
 
-    if(DIBWidth >= 640 && vid_stretch_by_2.value && (DIBWidth%2 == 0))  //qb: only if width is multiple of 2
-        stretched = 1;
-    else stretched = 0;
 //	vid.maxwarpwidth = WARP_WIDTH; //qb: from Manoel Kasimier - hi-res waterwarp - removed
 //	vid.maxwarpheight = WARP_HEIGHT; //qb: from Manoel Kasimier - hi-res waterwarp - removed
-    if (stretched )
-    {
-        vid.height = vid.conheight = DIBHeight/2;
-        vid.width = vid.conwidth = DIBWidth/2;
-    }
-    else
-    {
-        vid.height = vid.conheight = DIBHeight;
-        vid.width = vid.conwidth = DIBWidth;
-    }
+
+    vid.height = vid.conheight = DIBHeight;
+    vid.width = vid.conwidth = DIBWidth;
 
     vid.maxwarpwidth = vid.width; //qb: from  Manoel Kasimier - hi-res waterwarp
     vid.maxwarpheight = vid.height; //qb: from  Manoel Kasimier - hi-res waterwarp
@@ -947,19 +935,10 @@ qboolean VID_SetFullDIBMode (int modenum)
     vid.numpages = 1;
 //	vid.maxwarpwidth = WARP_WIDTH; //qb: from Manoel Kasimier - hi-res waterwarp - removed
 //	vid.maxwarpheight = WARP_HEIGHT; //qb: from Manoel Kasimier - hi-res waterwarp - removed
-    if(DIBWidth >= 640 && vid_stretch_by_2.value && (DIBWidth%2 == 0))  //qb
-        stretched = 1;
-    else stretched = 0;
-    if (stretched )
-    {
-        vid.height = vid.conheight = DIBHeight/2;
-        vid.width = vid.conwidth = DIBWidth/2;
-    }
-    else
-    {
+
         vid.height = vid.conheight = DIBHeight;
         vid.width = vid.conwidth = DIBWidth;
-    }
+
     vid.maxwarpwidth = vid.width; //qb: from  Manoel Kasimier - hi-res waterwarp
     vid.maxwarpheight = vid.height; //qb: from  Manoel Kasimier - hi-res waterwarp
     Sbar_SizeScreen(); //qb: calc sbar scale from MQ 1.6
@@ -1151,8 +1130,8 @@ int VID_SetMode (int modenum, unsigned char *palette)
     vid_modenum = modenum;
     Cvar_SetValue ("vid_mode", (float) vid_modenum);
 
-  //  if (vid.width<320) min_vid_width=vid.width; //qb: Dan East
-  //  else min_vid_width=320;
+    //  if (vid.width<320) min_vid_width=vid.width; //qb: Dan East
+    //  else min_vid_width=320;
 
     if (!VID_AllocBuffers (vid.width, vid.height))
     {
@@ -1281,7 +1260,6 @@ void VID_Init (unsigned char *palette)
         Cvar_RegisterVariable (&vid_windowed_mode);
         Cvar_RegisterVariable (&vid_window_x);
         Cvar_RegisterVariable (&vid_window_y);
-        Cvar_RegisterVariable (&vid_stretch_by_2);
 
         Cmd_AddCommand ("vid_testmode", VID_TestMode_f);
         Cmd_AddCommand ("vid_nummodes", VID_NumModes_f);
@@ -1367,6 +1345,17 @@ void FlipScreen (vrect_t *rects)
 {
     int numrects = 0;
 
+    //qb: originally based on Makaqu 1.3 fog.  added global fog, dithering, optimizing
+    extern short		*d_pzbuffer;
+    extern unsigned int	d_zwidth;
+
+    static int			fogindex, xref, yref;
+    static byte		*pbuf, *vidfog;
+    static byte        noise;
+    static unsigned short		*pz;
+    static int          level;
+    static float previous_fog_density;
+
     while (rects)
     {
         if (vid_usingddraw)
@@ -1400,120 +1389,28 @@ void FlipScreen (vrect_t *rects)
                 ddsd.lPitch >>= 2;
 
                 // because we created a 32 bit backbuffer we need to copy from the 8 bit memory buffer to it before flipping
-                if (stretched) //qb:
+                if (fog_density && r_fog.value)
                 {
-                    rects->height = DIBHeight;
-                    rects->width = DIBWidth;
-                    if (!(DIBWidth & 15))
+                    if(previous_fog_density != fog_density)
+                        FogLevelInit(); //dither includes density factor, so regenerate when it changes
+                    previous_fog_density = fog_density;
+                    fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
+                    vidfog = vid.colormap+fogindex;
+                    noise = 0;
+
+                    for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
                     {
-                        for (y = 0; y < DIBHeight; y++, dst += ddsd.lPitch)
+                        byte *psrc = src;
+                        unsigned int *pdst = dst;
+                        pz = d_pzbuffer + (d_zwidth * y);
+                        for (x = 0; x < rects->width; x++)
                         {
-                            src += (vid.rowbytes * (y%2)); //qb: only update every other row
-                            byte *psrc = src;
-                            unsigned int *pdst = dst;
-
-                            for (x = 0; x < DIBWidth; x += 16, psrc += 8, pdst += 16)
-                            {
-                                pdst[0] = ddpal[psrc[0]];
-                                pdst[1] = ddpal[psrc[0]];
-                                pdst[2] = ddpal[psrc[1]];
-                                pdst[3] = ddpal[psrc[1]];
-
-                                pdst[4] = ddpal[psrc[2]];
-                                pdst[5] = ddpal[psrc[2]];
-                                pdst[6] = ddpal[psrc[3]];
-                                pdst[7] = ddpal[psrc[3]];
-
-                                pdst[8] = ddpal[psrc[4]];
-                                pdst[9] = ddpal[psrc[4]];
-                                pdst[10] = ddpal[psrc[5]];
-                                pdst[11] = ddpal[psrc[5]];
-
-                                pdst[12] = ddpal[psrc[6]];
-                                pdst[13] = ddpal[psrc[6]];
-                                pdst[14] = ddpal[psrc[7]];
-                                pdst[15] = ddpal[psrc[7]];
-                            }
+                            level = *(pz++);
+                            if (level && level<248)
+                                *pdst++ = ddpal[fogmap[*psrc++ + vidfog[foglevel[level + fognoise[noise++]]]*256]];
+                            else *pdst++ = ddpal[*psrc++];
                         }
-                    }
-                    else if (!(DIBWidth % 10))
-                    {
-                        for (y = 0; y < DIBHeight; y++, dst += ddsd.lPitch)
-                        {
-                            src += (vid.rowbytes * (y%2)); //qb: only update every other row
-                            byte *psrc = src;
-                            unsigned int *pdst = dst;
-
-                            for (x = 0; x < DIBWidth; x += 10, psrc += 5, pdst += 10)
-                            {
-                                pdst[0] = ddpal[psrc[0]];
-                                pdst[1] = ddpal[psrc[0]];
-                                pdst[2] = ddpal[psrc[1]];
-                                pdst[3] = ddpal[psrc[1]];
-                                pdst[4] = ddpal[psrc[2]];
-
-                                pdst[5] = ddpal[psrc[2]];
-                                pdst[6] = ddpal[psrc[3]];
-                                pdst[7] = ddpal[psrc[3]];
-                                pdst[8] = ddpal[psrc[4]];
-                                pdst[9] = ddpal[psrc[4]];
-                            }
-                        }
-                    }
-                    else if (!(DIBWidth & 7))
-                    {
-                        for (y = 0; y < DIBHeight; y++, dst += ddsd.lPitch)
-                        {
-                            src += (vid.rowbytes * (y%2)); //qb: only update every other row
-                            byte *psrc = src;
-                            unsigned int *pdst = dst;
-
-                            for (x = 0; x < DIBWidth; x += 8, psrc += 4, pdst += 8)
-                            {
-                                pdst[0] = ddpal[psrc[0]];
-                                pdst[1] = ddpal[psrc[0]];
-                                pdst[2] = ddpal[psrc[1]];
-                                pdst[3] = ddpal[psrc[1]];
-
-                                pdst[4] = ddpal[psrc[2]];
-                                pdst[5] = ddpal[psrc[2]];
-                                pdst[6] = ddpal[psrc[3]];
-                                pdst[7] = ddpal[psrc[3]];
-                            }
-                        }
-                    }
-
-                    else if (!(DIBWidth & 3))
-                    {
-                        for (y = 0; y < DIBHeight; y++, dst += ddsd.lPitch)
-                        {
-                            src += (vid.rowbytes * (y%2));
-                            byte *psrc = src;
-                            unsigned int *pdst = dst;
-
-                            for (x = 0; x < DIBWidth; x += 4, psrc += 2, pdst += 4)
-                            {
-                                pdst[0] = ddpal[psrc[0]];
-                                pdst[1] = ddpal[psrc[0]];
-                                pdst[2] = ddpal[psrc[1]];
-                                pdst[3] = ddpal[psrc[1]];
-                            }
-                        }
-                    }
-                    else
-                    {
-                        for (y = 0; y < DIBHeight; y++, dst += ddsd.lPitch)
-                        {
-                            src += (vid.rowbytes * (y%2));
-                            byte *psrc = src;
-                            unsigned int *pdst = dst;
-
-                            for (x = 0; x < DIBWidth; x += 2, psrc += 1, pdst += 2)
-                            {
-                                pdst[0] = ddpal[psrc[0]];
-                                pdst[1] = ddpal[psrc[0]];
-                            }
-                        }
+                        noise += 13;
                     }
                 }
                 else

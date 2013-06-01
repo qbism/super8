@@ -243,12 +243,12 @@ qboolean Capture_Open (char *filename)
 	}
 
 	// initialize video data
-	m_video_frame_size = vid.width * vid.height * 3 *(1 + stretched*3);
+	m_video_frame_size = vid.width * vid.height * 3;
 
 	memset (&bitmap_info_header, 0, sizeof(bitmap_info_header));
 	bitmap_info_header.biSize = sizeof(BITMAPINFOHEADER);
-	bitmap_info_header.biWidth = vid.width*(1 + stretched);
-	bitmap_info_header.biHeight = vid.height*(1 + stretched);
+	bitmap_info_header.biWidth = vid.width;
+	bitmap_info_header.biHeight = vid.height;
 	bitmap_info_header.biPlanes = 1;
 	bitmap_info_header.biBitCount = 24;
 	bitmap_info_header.biCompression = BI_RGB;
@@ -385,7 +385,7 @@ void Capture_WriteVideo (byte *pixel_buffer) //qb: call from vid_win.c
     int	bufsize;
 	HRESULT	hr;
 
-	bufsize = vid.width * vid.height * 3 *(1 + stretched*3);
+	bufsize = vid.width * vid.height * 3;
 
 	if (m_video_frame_size != bufsize)
 	{

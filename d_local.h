@@ -82,6 +82,13 @@ void R_ShowSubDiv (void);
 void (*prealspandrawer)(void);
 surfcache_t	*D_CacheSurface (msurface_t *surface, int miplevel);
 
+//qb: fog
+extern float fog_density, fog_red, fog_green, fog_blue;
+extern float old_density, old_red, old_green, old_blue;
+extern int    foglevel[256];
+extern int    fognoise[256];
+extern cvar_t r_fog;
+
 extern int D_MipLevelForScale (float scale);
 
 extern short *d_pzbuffer;
