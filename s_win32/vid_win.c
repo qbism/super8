@@ -356,7 +356,7 @@ viddef_t	vid;				// global video state
 
 // Note that 0 is MODE_WINDOWED
 cvar_t		vid_mode = {"vid_mode", "3", true}; //qb: was false
-cvar_t		vid_default_mode_win = {"vid_default_mode_win", "2", true};
+cvar_t		vid_default_mode_win = {"vid_default_mode_win", "0", true};
 cvar_t		vid_wait = {"vid_wait", "1", true};
 cvar_t		vid_config_x = {"vid_config_x", "1280", true};
 cvar_t		vid_config_y = {"vid_config_y", "720", true};
@@ -1610,7 +1610,9 @@ void VID_Update (vrect_t *rects)
                 Cvar_SetValue ("vid_default_mode_win", windowed_default);
             }
 
-            Cvar_SetValue ("vid_mode", vid_default_mode_win.value);
+           // Cvar_SetValue ("vid_mode", vid_default_mode_win.value);
+           Cvar_SetValue ("vid_mode", nummodes);  //qb: this should be native res
+
         }
     }
     else

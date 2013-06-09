@@ -80,8 +80,6 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-O2" />
-			<Add option="-w" />
 			<Add directory="s_win32/codecs/include" />
 		</Compiler>
 		<Linker>
