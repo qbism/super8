@@ -3707,13 +3707,13 @@ char *quitMessage =  //qb: show credits
 Press N to Reconsider.\n\
 \n\
 qbism Super8 engine\n\
-Forked from Makaqu\n\
+Forked from Makaqu.\n\
 Thanks to ToChriS Quake,\n\
 FlashProQuake, joequake,\n\
 Qrack, FTEQW, FitzQuake,\n\
 DarkPlaces, GoldQuake,\n\
-and BJP's WinQuake\n\
-Tutes from inside3d.com";
+engoo, BJP's WinQuake, &\n\
+inside3d.com tutorials.";
 
 void M_Quit_f (void)
 {

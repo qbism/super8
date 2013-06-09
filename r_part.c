@@ -795,7 +795,7 @@ void R_DrawParticles (void)
     VectorCopy (vpn, r_ppn);
 
     if(r_fisheye.value)
-        frametime = fabs(cl.time - cl.oldtime)/(float)fviews.value; //qb: divide by # of fisheye views, or runs too fast.
+        frametime = fabs(cl.time - cl.oldtime)/(float)r_fviews; //qb: divide by # of fisheye views, or runs too fast.
     else
         frametime = fabs(cl.time - cl.oldtime); //DEMO_REWIND - qb: Baker change (no, it is not supposed to be 'ctime')
     // cl.oldtime = cl.time; //qb:  shouldn't this be reset each time it's touched?

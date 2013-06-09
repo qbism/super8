@@ -47,8 +47,7 @@ typedef struct
 	unsigned		conheight;
 	int				maxwarpwidth;
 	int				maxwarpheight;
-	pixel_t			*direct;		// direct drawing to framebuffer, if not
-									//  NULL
+	pixel_t			*direct;		// direct drawing to framebuffer, if not NULL
 } viddef_t;
 
 extern	viddef_t	vid;				// global video state

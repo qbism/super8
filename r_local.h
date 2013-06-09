@@ -80,7 +80,7 @@ extern cvar_t	r_coloredlights; //qb: at last!
 extern cvar_t	r_clcolorweight;
 
 extern cvar_t   r_fog; //qb: fog!  not TOO bad...
-extern cvar_t   fviews; //qb: for model interpolation
+extern int      r_fviews; //qb: for model interpolation
 
 #define XCENTERING	(1.0 / 2.0)
 #define YCENTERING	(1.0 / 2.0)

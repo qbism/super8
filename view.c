@@ -32,9 +32,9 @@ when crossing a water boudnary.
 //qb - Aardappel fisheye begin
 void R_RenderView_Fisheye();
 cvar_t  ffov = {"ffov", "180", true};
-cvar_t  fviews = {"fviews", "6", true};
 cvar_t  r_fisheye = {"r_fisheye", "0", true}; //qb added
 cvar_t  r_fishaccel = {"r_fishaccel", "0", false}; //qb:  for cheeezy zoom effect
+int r_fviews;
 //qb - Aardappel fisheye end
 
 cvar_t	scr_ofsx = {"scr_ofsx","0", false};
@@ -1008,7 +1008,6 @@ void V_Init (void)
 
 //qb Aardappel fisheye begin
     Cvar_RegisterVariable (&ffov);
-    Cvar_RegisterVariable (&fviews);
     Cvar_RegisterVariable (&r_fisheye); //qb added
     Cvar_RegisterVariable (&r_fishaccel); //qb
 //qb Aardappel fisheye end
@@ -1391,11 +1390,10 @@ void R_RenderView_Fisheye()
     int height = vid.height; //r_refdef.vrect.height;
     int scrsize = width*height;
     int fov = (int)ffov.value;
-    if ((int)fviews.value <1) //qb: just in case
-        fviews.value = 1;
-    else if ((int)fviews.value >6)
-        fviews.value = 6;
-    int views = (int)fviews.value;
+    if (fov < 86) r_fviews = 1;
+    else if (fov < 139) r_fviews = 3;
+    else if (fov < 229) r_fviews = 5;
+    else r_fviews = 6;
     double yaw = r_refdef.viewangles[YAW];
     double pitch = r_refdef.viewangles[PITCH];
     double roll = 0;//r_refdef.viewangles[ROLL];
@@ -1421,14 +1419,14 @@ void R_RenderView_Fisheye()
         fisheyelookuptable(offs,width,height,scrbufs,((double)fov)*PI/180.0);
     };
 
-    if(views!=pviews)
+    if(r_fviews!=pviews)
     {
         int i;
-        pviews = views;
+        pviews = r_fviews;
         for(i = 0; i<scrsize*6; i++) scrbufs[i] = 0;
     };
 
-    switch(views)
+    switch(r_fviews)
     {
     case 6:
         renderside(scrbufs+scrsize*2,yaw,pitch,roll, BOX_BEHIND);

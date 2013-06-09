@@ -30,9 +30,6 @@
 				<ResourceCompiler>
 					<Add directory="./dxsdk/sdk/inc" />
 				</ResourceCompiler>
-				<ExtraCommands>
-					<Add before="version.bat" />
-				</ExtraCommands>
 			</Target>
 			<Target title="Release Win32">
 				<Option output="../../quake/qbismS8" prefix_auto="1" extension_auto="1" />
@@ -58,9 +55,6 @@
 				<Linker>
 					<Add option="-s" />
 				</Linker>
-				<ExtraCommands>
-					<Add before="version.bat" />
-				</ExtraCommands>
 			</Target>
 			<Target title="Release Win32 no music">
 				<Option output="../../quake/qbismS8_nomusic" prefix_auto="1" extension_auto="1" />
@@ -83,9 +77,6 @@
 				<Linker>
 					<Add option="-s" />
 				</Linker>
-				<ExtraCommands>
-					<Add before="version.bat" />
-				</ExtraCommands>
 			</Target>
 		</Build>
 		<Compiler>

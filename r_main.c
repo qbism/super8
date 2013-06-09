@@ -23,6 +23,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 void MakeMy15to8();
 void ParseWorldspawn (void);
+void R_LoadPalette_f (void); //qb: load an alternate palette
+
 void		*colormap;
 //vec3_t		viewlightvec; // Manoel Kasimier - changed alias models lighting - removed
 //alight_t	r_viewlighting = {128, 192, viewlightvec}; // Manoel Kasimier - changed alias models lighting - removed
@@ -259,7 +261,7 @@ void FogLevelInit(void)
     }
 }
 
-void R_LoadPalette_f (void); //qb: load an alternate palette
+int R_LoadPalette (char *name); //qb: load an alternate palette
 void R_LoadSky_f (void); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 void R_Init (void)
 {
