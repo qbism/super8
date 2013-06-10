@@ -2052,8 +2052,6 @@ void Host_Startdemos_f (void)
             continue;
         }
         fclose (f);
-        if( !R_LoadPalette(r_palette.string)) //qb: load custom palette if it exists.
-            R_LoadPalette("palette"); //qb: default to standard palette.
         f = NULL;
         Q_strncpy (cls.demos[i-i2-1], Cmd_Argv(i), sizeof(cls.demos[0])-1);
     }
