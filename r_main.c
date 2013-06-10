@@ -756,7 +756,7 @@ int R_LoadPalette (char *name) //qb: load an alternate palette
         r_colmapgreen.value = 0;
         r_colmapblue.value = 0;
     }
-
+    coloredlights = (int)r_coloredlights.value; // sanity check
     GrabColormap();
     GrabAlphamap();
     GrabLightcolormap();
