@@ -60,9 +60,10 @@ float		scr_disabled_time;
 qboolean	scr_skipupdate;
 
 qboolean	block_drawing;
+int    takescreenshot;
 
 void SCR_ScreenShot_f (void);
-
+void                                                                              SCR_ScreenShotTrigger_f (void); //qb:
 /*
 ===============================================================================
 
@@ -136,58 +137,59 @@ void SCR_EraseCenterString (void)
 
 void SCR_DrawCenterString (void)
 {
-	char	*start;
-	int		l;
-	int		j;
-	int		x, y;
-	int		remaining;
+    char	*start;
+    int		l;
+    int		j;
+    int		x, y;
+    int		remaining;
 
 // the finale prints the characters one at a time
-	if (cl.intermission)
-		remaining = scr_printspeed.value * (cl.time - scr_centertime_start);
-	else
-		remaining = 9999;
+    if (cl.intermission)
+        remaining = scr_printspeed.value * (cl.time - scr_centertime_start);
+    else
+        remaining = 9999;
 
-	scr_erase_center = 0;
-	start = scr_centerstring;
+    scr_erase_center = 0;
+    start = scr_centerstring;
 
-	Draw_UpdateAlignment (1, 1);
-	// mankrip - svc_letterbox - begin
-	if (cl.letterbox)
-	{
-		y = (scr_vrect.y + scr_vrect.height + 4) / scr_2d_scale_v;
-		Draw_UpdateAlignment (1, 0);
-	}
-	else
-	// mankrip - svc_letterbox - end
-	if (scr_center_lines <= 4)
-		y = 200*0.35; // mankrip - edited
-	else
-		y = 44;//28+16;//48; // mankrip - edited
+    Draw_UpdateAlignment (1, 1);
+    // mankrip - svc_letterbox - begin
+    if (cl.letterbox)
+    {
+        y = (scr_vrect.y + scr_vrect.height + 4) / scr_2d_scale_v;
+        Draw_UpdateAlignment (1, 0);
+    }
+    else
+        // mankrip - svc_letterbox - end
+        if (scr_center_lines <= 4)
+            y = 200*0.35; // mankrip - edited
+        else
+            y = 44;//28+16;//48; // mankrip - edited
 
-	do
-	{
-	// scan the width of the line
-		for (l=0 ; l<40 ; l++)
-			if (start[l] == '\n' || !start[l])
-				break;
-		x = (320 - l*8)/2;
-		for (j=0 ; j<l ; j++, x+=8)
-		{
-			M_DrawCharacter (x, y, start[j]);
-			if (!remaining--)
-				return;
-		}
+    do
+    {
+        // scan the width of the line
+        for (l=0 ; l<40 ; l++)
+            if (start[l] == '\n' || !start[l])
+                break;
+        x = (320 - l*8)/2;
+        for (j=0 ; j<l ; j++, x+=8)
+        {
+            M_DrawCharacter (x, y, start[j]);
+            if (!remaining--)
+                return;
+        }
 
-		y += 8;
+        y += 8;
 
-		while (*start && *start != '\n')
-			start++;
+        while (*start && *start != '\n')
+            start++;
 
-		if (!*start)
-			break;
-		start++;		// skip the \n
-	} while (1);
+        if (!*start)
+            break;
+        start++;		// skip the \n
+    }
+    while (1);
 }
 
 void SCR_CheckDrawCenterString (void)
@@ -388,7 +390,7 @@ void SCR_Init (void)
 //
 // register our commands
 //
-    Cmd_AddCommand ("screenshot",SCR_ScreenShot_f);
+    Cmd_AddCommand ("screenshot",SCR_ScreenShotTrigger_f); //qb: set a trigger first
     Cmd_AddCommand ("sizeup",SCR_SizeUp_f);
     Cmd_AddCommand ("sizedown",SCR_SizeDown_f);
 
@@ -485,8 +487,8 @@ void SCR_DrawLoading (void)
         return;
 
     pic = Draw_CachePic ("gfx/loading.lmp");
-	Draw_UpdateAlignment (1, 1); // mankrip
-	M_DrawTransPic ( (min_vid_width - pic->width) / 2, (min_vid_height - pic->height - (float)sb_lines / scr_2d_scale_v) / 2, pic);
+    Draw_UpdateAlignment (1, 1); // mankrip
+    M_DrawTransPic ( (min_vid_width - pic->width) / 2, (min_vid_height - pic->height - (float)sb_lines / scr_2d_scale_v) / 2, pic);
 }
 
 
@@ -853,6 +855,8 @@ void LoadPCX (char *filename, byte **pic, int *width, int *height)
 }
 // Manoel Kasimier - skyboxes - end
 
+
+
 /*
 ==============
 WritePCXfile
@@ -921,21 +925,29 @@ void WritePCXfile (char *filename, byte *data, int width, int height,
 
 /*
 ==================
+SCR_ScreenShotTrigger_f
+==================
+*/
+void SCR_ScreenShotTrigger_f (void)
+{
+    takescreenshot = 1;
+}
+
+/*
+==================
 SCR_ScreenShot_f
 ==================
 */
 void SCR_ScreenShot_f (void)
 {
 #ifndef FLASH //qb:
-    int     i;
-    char		pcxname[80];
-    char		checkname[MAX_OSPATH];
-
+    int i;
+    char	pcxname[80];
+    char	checkname[MAX_OSPATH];
 //
 // find a file name to save it to
 //
     Q_strcpy(pcxname,"qbs8_000.pcx"); //qb: screenshots dir
-
     for (i=0 ; i<=999 ; i++)
     {
         pcxname[5] = i/100 + '0';
@@ -950,13 +962,12 @@ void SCR_ScreenShot_f (void)
         Con_Printf ("SCR_ScreenShot_f: Too many PCX files in directory.\n");
         return;
     }
-
 //
 // save the pcx file
 //
+
     WritePCXfile (pcxname, vid.buffer, vid.width, vid.height, vid.rowbytes,
                   host_basepal);
-
     Con_Printf ("Wrote %s\n", pcxname);
 #endif // FLASH
 }
@@ -1025,7 +1036,7 @@ void SCR_DrawNotifyString (void)
     start = scr_notifystring;
 
     y = vid.height*0.35;
-	Draw_UpdateAlignment (0, 0); // mankrip
+    Draw_UpdateAlignment (0, 0); // mankrip
     do
     {
         // scan the width of the line
@@ -1169,19 +1180,19 @@ void SCR_UpdateScreen (void)
 
     if (scr_drawdialog)
     {
-       Sbar_Draw ();
+        Sbar_Draw ();
         Draw_FadeScreen ();
         SCR_DrawNotifyString ();
         scr_copyeverything = true;
     }
     else if (scr_drawloading)
     {
-       SCR_DrawLoading ();
+        SCR_DrawLoading ();
 //		Sbar_Draw (); // Manoel Kasimier - removed
     }
     else if (cl.intermission == 1 && key_dest == key_game)
     {
-       Sbar_IntermissionOverlay ();
+        Sbar_IntermissionOverlay ();
     }
     else if (cl.intermission == 2 && key_dest == key_game)
     {
@@ -1190,7 +1201,7 @@ void SCR_UpdateScreen (void)
     }
     else if (cl.intermission == 3 && key_dest == key_game)
     {
-       SCR_CheckDrawCenterString ();
+        SCR_CheckDrawCenterString ();
     }
     else
     {
@@ -1215,6 +1226,12 @@ void SCR_UpdateScreen (void)
 #ifdef _WIN32 //qb: jqavi
     Movie_UpdateScreen ();
 #endif
+
+    if(takescreenshot)  //qb:  make sure we've got all effects prior to screenshot.
+    {
+        SCR_ScreenShot_f();
+        takescreenshot = 0;
+    }
 
 // update one of three areas
     if (scr_copyeverything)

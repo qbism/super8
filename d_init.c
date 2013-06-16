@@ -60,22 +60,8 @@ void D_SetupFrame (void)
 {
     int		i;
 
-    // Manoel Kasimier - buffered video (bloody hack) - begin
-#ifdef _WIN32
-    d_viewbuffer = r_warpbuffer;
+    d_viewbuffer = vid.buffer;
     screenwidth = vid.width;
-#else
-    // Manoel Kasimier - buffered video (bloody hack) - end
-    if (r_dowarp)
-        d_viewbuffer = r_warpbuffer;
-    else
-        d_viewbuffer = (void *)(byte *)vid.buffer;
-
-    if (r_dowarp)
-        screenwidth = vid.width;//WARP_WIDTH; // Manoel Kasimier - hi-res waterwarp & buffered video - edited
-    else
-        screenwidth = vid.rowbytes;
-#endif // Manoel Kasimier - buffered video (bloody hack)
 
     d_roverwrapped = false;
     d_initial_rover = sc_rover;

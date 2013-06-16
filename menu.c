@@ -853,7 +853,7 @@ void M_PopUp_f (char *s, char *cmd)
 
 void M_PopUp_Draw (void)
 {
-    int y = (200/*vid.height*/ - 48) / 2 + 24 + 16;
+    int y = (min_vid_height/*vid.height*/ - 48) / 2 + 24 + 16;
 
     if (wasInMenus)
     {
@@ -862,8 +862,8 @@ void M_PopUp_Draw (void)
         M_Draw ();
         m_state = m_popup;
     }
-    M_DrawTextBox (48, (200/*vid.height*/ - 110) / 2, 25*8, 12*8);
-    M_PrintText (popup_message, 64, (200/*vid.height*/ - 32) / 2, 24, 4, ALIGN_CENTER);
+    M_DrawTextBox (48, (min_vid_height/*vid.height*/ - 110) / 2, 25*8, 12*8);
+    M_PrintText (popup_message, 64, (min_vid_height/*vid.height*/ - 32) / 2, 24, 4, ALIGN_CENTER);
 }
 
 void M_PopUp_Key (int key)
@@ -1164,7 +1164,7 @@ static int DCM_ScanInt(FILE *file)
 
 int		liststart[4]; // Manoel Kasimier [m_state - m_load]
 int		load_cursormax; // Manoel Kasimier
-#define	MAX_SAVEGAMES		13 //qb
+#define	MAX_SAVEGAMES		30 //qb
 char	m_filenames[MAX_SAVEGAMES][SAVEGAME_COMMENT_LENGTH+1];
 char	*m_fileinfo[MAX_SAVEGAMES]; // Manoel Kasimier
 int		loadable[MAX_SAVEGAMES];
@@ -1408,7 +1408,7 @@ void M_Save_Key (int k)
     // Manoel Kasimier - begin
     qboolean saving = (m_state == m_save || m_state == m_savesmall);
     int		i, i2, numsaves;
-    numsaves = (int)((vid.height - (28) - 8*7) / 8) - 1;
+    numsaves = (int)((min_vid_height - (28) - 8*7) / 8) - 1;
     if (m_state == m_savesmall || m_state == m_loadsmall)
         numsaves += 3;
     // Manoel Kasimier - end
@@ -1855,8 +1855,8 @@ void M_GameOptions_Draw (void)
     // Manoel Kasimier - edited - end
 
     // Manoel Kasimier - begin
-    M_DrawTextBox (56, vid.height - 32, 24*8, 2*8);
-    M_PrintText ("Changes take effect\nwhen starting a new game", 64, vid.height - 24, 24, 2, ALIGN_CENTER);
+    M_DrawTextBox (56, min_vid_height - 32, 24*8, 2*8);
+    M_PrintText ("Changes take effect\nwhen starting a new game", 64, min_vid_height - 24, 24, 2, ALIGN_CENTER);
 
     M_DrawCursor (144, 28, m_cursor[m_state]);
     // Manoel Kasimier - end
@@ -2786,7 +2786,7 @@ void M_Keys_Draw (void)
     if (m_keys_pages > 0)
         M_Print (128, 28, "Page 1/1");
     top = 28 + (m_keys_pages > 0)*16;
-    bottom = vid.height - 48; // vid.height, textbox height
+    bottom = min_vid_height - 48; // textbox height
 
     M_DrawTextBox (0, bottom + 8, 37*8, 3*8);
     if (bind_grab)
@@ -2844,7 +2844,7 @@ void M_Keys_Key (int k)
 {
     char	cmd[80];
     int		keys[MAXKEYS]; // Manoel Kasimier
-    int		menulines = (vid.height - 28 - (m_keys_pages>0)*16 - 48) / 8; // Manoel Kasimier
+    int		menulines = (min_vid_height - 28 - (m_keys_pages>0)*16 - 48) / 8; // Manoel Kasimier
 
     M_FillKeyList(); // Manoel Kasimier
 

@@ -217,5 +217,5 @@ extern float	skyshift; // Manoel Kasimier - skyboxes // Code taken from the ToCh
 
 extern int		c_surf;
 extern vrect_t	scr_vrect;
-extern byte		*r_warpbuffer;
+//qb: move it to d_scan, static.  extern byte		*r_warpbuffer;
 extern int			d_aflatcolor;

@@ -365,7 +365,7 @@ extern	int			sb_lines;			// scan lines to draw
 extern	float			scr_2d_scale_h, scr_2d_scale_v;
 extern int min_vid_width, min_vid_height;  //qb: Dan East
 
-
+ extern int takescreenshot; //qbL flag to set up fog for screenshots.
 extern int		minimum_memory;
 extern byte     palmapnofb[32][32][32];
 extern byte	    palmap[32][32][32];

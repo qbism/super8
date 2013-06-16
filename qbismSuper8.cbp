@@ -65,7 +65,7 @@
 				<Compiler>
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-fexpensive-optimizations" />
-					<Add option="-O3" />
+					<Add option="-O2" />
 					<Add option="-w" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
@@ -91,6 +91,7 @@
 			<Add library="wsock32" />
 			<Add library="dinput" />
 			<Add library="dxguid" />
+			<Add library="jpeg" />
 			<Add directory="s_win32/codecs/x86" />
 		</Linker>
 		<ExtraCommands>
