@@ -92,7 +92,7 @@ float	xOrigin, yOrigin;
 
 mplane_t	screenedge[4];
 
-byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
+//qb: move to d_scam.c byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
 int    foglevel[256]; //qb
 int    fognoise[256]; //qb
 //
@@ -263,6 +263,7 @@ void FogLevelInit(void)
 
 int R_LoadPalette (char *name); //qb: load an alternate palette
 void R_LoadSky_f (void); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
+
 void R_Init (void)
 {
     int i;
@@ -273,7 +274,7 @@ void R_Init (void)
     r_stack_start = (byte *)&dummy;
 #endif
 
-    MakeMy15to8(); //qb: engoo doesn't use it yet, so might as well
+    MakeMy15to8(); //qb: from engoo
     R_InitTurb ();
 
     Cmd_AddCommand ("loadpalette", R_LoadPalette_f);
@@ -1587,12 +1588,12 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     //byte	warpbuffer[WARP_WIDTH * WARP_HEIGHT]; // Manoel Kasimier - hi-res waterwarp & buffered video - removed
     // Manoel Kasimier - hi-res waterwarp & buffered video - begin
 
-    if (warpbuffer)
-        Q_free(warpbuffer);
-    warpbuffer = Q_malloc(vid.rowbytes*vid.height);
+ //qb: move to D_WarpScreen   if (warpbuffer)
+ //       Q_free(warpbuffer);
+ //   warpbuffer = Q_malloc(vid.rowbytes*vid.height);
     // Manoel Kasimier - hi-res waterwarp & buffered video - end
 
-    r_warpbuffer = warpbuffer;
+//    r_warpbuffer = vid.buffer; //qb: warpbuffer;
 
     if (r_timegraph.value || r_speeds.value || r_dspeeds.value)
         r_time1 = Sys_DoubleTime ();
@@ -1621,16 +1622,6 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     }
 
     r_foundwater = r_drawwater = false; // Manoel Kasimier - translucent water
-#if 0
-    if (((int)developer.value & 64)) // Manoel Kasimier - for betatesting
-    {
-        extern short		*d_pzbuffer;
-        memset (d_pzbuffer, 0, vid.width * vid.height * sizeof(d_pzbuffer));
-        memset (vid.buffer, 8, vid.width * vid.height);
-        memset (r_warpbuffer, 8, vid.width * vid.height);
-    }
-    else
-#endif
         R_EdgeDrawing ();
 
     if (!r_dspeeds.value)
@@ -1674,7 +1665,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     R_DrawViewModel (true); //qb: draw after particles.  it's worth the overdraw.
     R_DrawViewModel (false); // Manoel Kasimier
 
-    //qb: originally based on Makaqu 1.3 fog.  added global fog, dithering, optimizing
+    //qb: originally based on Makaqu fog.  added global fog, dithering, optimizing
     extern short		*d_pzbuffer;
     extern unsigned int	d_zwidth;
     extern int			d_scantable[MAXHEIGHT];
@@ -1686,23 +1677,32 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     static int          level;
     static float previous_fog_density;
 
-    // Manoel Kasimier - buffered video (bloody hack) - begin
-#ifdef _WIN32
-    if (r_dowarp)
-        D_WarpScreen ();
-    else // copy buffer to video
+    if (fog_density && r_fog.value && takescreenshot)  //qb: only do it here for screenshots.
     {
-        int		i;
-        byte	*src = r_warpbuffer + scr_vrect.y * vid.width + scr_vrect.x;
-        byte	*dest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
-        for (i=0 ; i<scr_vrect.height ; i++, src += vid.width, dest += vid.rowbytes)
-            memcpy(dest, src, scr_vrect.width);
+        if(previous_fog_density != fog_density)
+            FogLevelInit(); //dither includes density factor, so regenerate when it changes
+        previous_fog_density = fog_density;
+        fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
+        vidfog = vid.colormap+fogindex;
+
+        for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
+        {
+            pbuf = vid.buffer + d_scantable[yref];
+            pz = d_pzbuffer + (d_zwidth * yref);
+            for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
+            {
+                level = *(pz++);
+                if (level && level<248)
+                    *pbuf = fogmap[*pbuf + vidfog[foglevel[level + fognoise[noise++]]]*256];
+                pbuf++;
+            }
+            noise += 13;
+        }
     }
-#else
-    // Manoel Kasimier - buffered video (bloody hack) - end
+
     if (r_dowarp)
         D_WarpScreen ();
-#endif // Manoel Kasimier - buffered video (bloody hack)
+        //qb:  move copy buffer to D_WarpScreen, so it only has to be done if warped
 
     V_SetContentsColor (r_viewleaf->contents);
     if (r_timegraph.value)
@@ -1722,6 +1722,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 
     if (r_reportedgeout.value && r_outofedges)
         Con_Printf ("Short roughly %d edges\n", r_outofedges * 2 / 3);
+
 }
 
 /*

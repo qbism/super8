@@ -324,7 +324,7 @@ cvar_t vid_ddraw = {"vid_ddraw", "1", true};
 // compatibility
 qboolean		DDActive;
 
-#define MAX_MODE_LIST	50 //qb: why take a chance
+#define MAX_MODE_LIST	18 //qb: this many will fit on menu, I think
 #define VID_ROW_SIZE	3
 #define VID_WINDOWED_MODES 3 //qb
 
@@ -936,8 +936,8 @@ qboolean VID_SetFullDIBMode (int modenum)
 //	vid.maxwarpwidth = WARP_WIDTH; //qb: from Manoel Kasimier - hi-res waterwarp - removed
 //	vid.maxwarpheight = WARP_HEIGHT; //qb: from Manoel Kasimier - hi-res waterwarp - removed
 
-        vid.height = vid.conheight = DIBHeight;
-        vid.width = vid.conwidth = DIBWidth;
+    vid.height = vid.conheight = DIBHeight;
+    vid.width = vid.conwidth = DIBWidth;
 
     vid.maxwarpwidth = vid.width; //qb: from  Manoel Kasimier - hi-res waterwarp
     vid.maxwarpheight = vid.height; //qb: from  Manoel Kasimier - hi-res waterwarp
@@ -1335,6 +1335,9 @@ void VID_Shutdown (void)
     }
 }
 
+//qb: fog
+extern short		*d_pzbuffer;
+extern unsigned int	d_zwidth;
 
 /*
 ================
@@ -1346,8 +1349,6 @@ void FlipScreen (vrect_t *rects)
     int numrects = 0;
 
     //qb: originally based on Makaqu 1.3 fog.  added global fog, dithering, optimizing
-    extern short		*d_pzbuffer;
-    extern unsigned int	d_zwidth;
 
     static int			fogindex, xref, yref;
     static byte		*pbuf, *vidfog;
@@ -1362,7 +1363,7 @@ void FlipScreen (vrect_t *rects)
         {
             int x, y;
             HRESULT hr = S_OK;
-            unsigned char *src = NULL;
+            byte *src = NULL;
             unsigned int *dst = NULL;
 
             if (dd_BackBuffer)
@@ -1389,7 +1390,8 @@ void FlipScreen (vrect_t *rects)
                 ddsd.lPitch >>= 2;
 
                 // because we created a 32 bit backbuffer we need to copy from the 8 bit memory buffer to it before flipping
-                if (fog_density && r_fog.value)
+                //qb: do fog here
+                if (fog_density && r_fog.value && !takescreenshot)
                 {
                     if(previous_fog_density != fog_density)
                         FogLevelInit(); //dither includes density factor, so regenerate when it changes
@@ -1405,7 +1407,7 @@ void FlipScreen (vrect_t *rects)
                         pz = d_pzbuffer + (d_zwidth * y);
                         for (x = 0; x < rects->width; x++)
                         {
-                            level = *(pz++);
+                            level = *pz++;
                             if (level && level<248)
                                 *pdst++ = ddpal[fogmap[*psrc++ + vidfog[foglevel[level + fognoise[noise++]]]*256]];
                             else *pdst++ = ddpal[*psrc++];
@@ -1413,6 +1415,7 @@ void FlipScreen (vrect_t *rects)
                         noise += 13;
                     }
                 }
+
                 else
                 {
                     if (!(rects->width & 15))
@@ -1610,8 +1613,8 @@ void VID_Update (vrect_t *rects)
                 Cvar_SetValue ("vid_default_mode_win", windowed_default);
             }
 
-           // Cvar_SetValue ("vid_mode", vid_default_mode_win.value);
-           Cvar_SetValue ("vid_mode", nummodes);  //qb: this should be native res
+            // Cvar_SetValue ("vid_mode", vid_default_mode_win.value);
+            Cvar_SetValue ("vid_mode", nummodes);  //qb: this should be native res
 
         }
     }

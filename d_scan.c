@@ -26,6 +26,7 @@ unsigned char	*r_turb_pbase, *r_turb_pdest;
 static fixed16_t		r_turb_s, r_turb_t, r_turb_sstep, r_turb_tstep;
 int				*r_turb_turb;
 int				r_turb_spancount;
+static byte	*r_warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
 
 void D_DrawTurbulent8Span (void);
 
@@ -41,48 +42,52 @@ D_WarpScreen
 
 void D_WarpScreen (void)
 {
-    int		w, h;
-    int		u,v;
+    int	w, h;
+    int	u,v;
     byte	*dest;
-    int		*turb;
-    int		*col;
+    int	*turb;
+    int	*col;
     byte	**row;
     byte	*rowptr[MAXHEIGHT+(AMP2*2)];
-    int		column[MAXWIDTH+(AMP2*2)];
+    int	column[MAXWIDTH+(AMP2*2)];
     float	wratio, hratio;
-
     w = r_refdef.vrect.width;
     h = r_refdef.vrect.height;
     wratio = w / (float)scr_vrect.width;
     hratio = h / (float)scr_vrect.height;
+
+            if (r_warpbuffer)
+        Q_free(r_warpbuffer);
+    r_warpbuffer = Q_malloc(vid.rowbytes*vid.height);
 
     for (v=0 ; v<scr_vrect.height+AMP2*2 ; v++)
     {
         rowptr[v] = d_viewbuffer + (r_refdef.vrect.y * screenwidth) +
                     (screenwidth * (int)((float)v * hratio * h / (h + AMP2 * 2)));
     }
-
     for (u=0 ; u<scr_vrect.width+AMP2*2 ; u++)
     {
-       column[u] = r_refdef.vrect.x +
+        column[u] = r_refdef.vrect.x +
                     (int)((float)u * wratio * w / (w + AMP2 * 2));
     }
-
     turb = intsintable + ((int)(cl.ctime*SPEED)&(CYCLE-1)); //DEMO_REWIND - qb: Baker change (ctime)
-    dest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
-
+    dest = r_warpbuffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
     for (v=0 ; v<scr_vrect.height ; v++, dest += vid.rowbytes)
     {
         col = &column[turb[v]];
         row = &rowptr[v];
-
         for (u=0 ; u<scr_vrect.width ; u++) //qb: was +=4
         {
             dest[u] = row[turb[u]][col[u]];
         }
     }
+// copy buffer to video
+        int		i;
+        byte	*src = r_warpbuffer + scr_vrect.y * vid.width + scr_vrect.x;
+        dest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
+        for (i=0 ; i<scr_vrect.height ; i++, src += vid.width, dest += vid.rowbytes)
+            memcpy(dest, src, scr_vrect.width);
 }
-
 
 /*
 =============
