@@ -2346,13 +2346,12 @@ void M_Setup_Draw (void)
     // Manoel Kasimier - crosshair - begin
     M_Print (64, y + setup_cursor_table[i++]/*88*/, "Crosshair");
     M_Print (64, y + setup_cursor_table[i]/*96*/, "Color");
-    if (!setup_crosshair_color)
-        Draw_Fill  (169 + ((vid.width - min_vid_width)>>1), y + setup_cursor_table[i]-7/*80*/, 4+11*(vid.width/ min_vid_width), 4+11*(vid.height<480 ? vid.height/200 : vid.height/240), 8);
+	M_DrawTextBox (160, y + setup_cursor_table[i]-16/*80*/, 2*8, 2*8);
     i1 = crosshair.value;
     i2 = crosshair_color.value;
     crosshair.value = setup_crosshair;
     crosshair_color.value = setup_crosshair_color;
-    Crosshair_Start(171 + ((vid.width - min_vid_width)>>1), y + setup_cursor_table[i]-5/*91*/);
+     Crosshair_Start(191 * scr_2d_scale_h, (y + (setup_cursor_table[i]-5))*scr_2d_scale_v);
     crosshair.value = i1;
     crosshair_color.value = i2;
     // Manoel Kasimier - crosshair - end
