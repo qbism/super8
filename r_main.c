@@ -275,7 +275,8 @@ void R_Init (void)
 #endif
 
     MakeMy15to8(); //qb: from engoo
-    R_InitTurb ();
+    //qb: R_InitTurb ();
+    R_InitSin(); //qb: from MK tute on inside3d
 
     Cmd_AddCommand ("loadpalette", R_LoadPalette_f);
     Cmd_AddCommand ("timerefresh", R_TimeRefresh_f);
@@ -1677,7 +1678,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     static int          level;
     static float previous_fog_density;
 
-    if (fog_density && r_fog.value && takescreenshot)  //qb: only do it here for screenshots.
+    if (fog_density && r_fog.value && (takescreenshot || r_dowarp))  //qb: only do it here for screenshots.
     {
         if(previous_fog_density != fog_density)
             FogLevelInit(); //dither includes density factor, so regenerate when it changes
@@ -1725,20 +1726,18 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 
 }
 
-/*
-================
-R_InitTurb
-================
-*/
-void R_InitTurb (void)
-{
-    int		i;
+// mankrip - collecting all the turbulence code in one place only...
 
-    for (i=0 ; i<(SIN_BUFFER_SIZE) ; i++)
-    {
-        sintable[i] = AMP + sin(i*3.14159*2/CYCLE)*AMP;
-        intsintable[i] = AMP2 + sin(i*3.14159*2/CYCLE)*AMP2;	// AMP2, not 20
-    }
+int      sintable[SIN_BUFFER_SIZE];
+
+void R_InitSin (void)
+{
+   int
+      x
+      ;
+   // run this only once, at engine startup
+   for (x = 0 ; x < SIN_BUFFER_SIZE ; x++)
+      sintable[x] = (int) (AMP + sin ( (double)x * 3.14159 * 2.0 / CYCLE) * AMP);
 }
 
 

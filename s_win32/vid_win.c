@@ -1391,7 +1391,7 @@ void FlipScreen (vrect_t *rects)
 
                 // because we created a 32 bit backbuffer we need to copy from the 8 bit memory buffer to it before flipping
                 //qb: do fog here
-                if (fog_density && r_fog.value && !takescreenshot)
+                if (fog_density && r_fog.value && !takescreenshot && !r_dowarp)
                 {
                     if(previous_fog_density != fog_density)
                         FogLevelInit(); //dither includes density factor, so regenerate when it changes
