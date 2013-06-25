@@ -25,6 +25,10 @@ void MakeMy15to8();
 void ParseWorldspawn (void);
 void R_LoadPalette_f (void); //qb: load an alternate palette
 
+extern short		*d_pzbuffer;
+extern unsigned int	d_zwidth;
+extern int			d_scantable[MAXHEIGHT];
+
 void		*colormap;
 //vec3_t		viewlightvec; // Manoel Kasimier - changed alias models lighting - removed
 //alight_t	r_viewlighting = {128, 192, viewlightvec}; // Manoel Kasimier - changed alias models lighting - removed
@@ -94,7 +98,7 @@ mplane_t	screenedge[4];
 
 //qb: move to d_scam.c byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
 int    foglevel[256]; //qb
-int    fognoise[256]; //qb
+int    fognoise[256]; //qb: pseudonoise table
 //
 // refresh flags
 //
@@ -125,6 +129,8 @@ int		d_lightstylevalue[256];	// 8.8 fraction of base light value
 
 float	dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
 float	se_time1, se_time2, de_time1, de_time2, dv_time1, dv_time2;
+
+ pthread_t thread[NUMTHREADS]; //qb:  use as required
 
 void R_MarkLeaves (void);
 
@@ -1558,6 +1564,37 @@ void R_EdgeDrawing (void)
 }
 
 
+typedef struct fogslice_s  //qb: for multithreading
+{
+    int rowstart, rowend;
+    byte		*vidfog;
+} fogslice_t;
+
+
+void* FogLoop (fogslice_t* fs)
+{
+    static byte		*pbuf;
+    byte        noise;
+    static unsigned short		*pz;
+    static int          level;
+    {
+        int xref, yref;
+        for (yref=fs->rowstart ; yref<fs->rowend; yref++)
+        {
+            pbuf = vid.buffer + d_scantable[yref];
+            pz = d_pzbuffer + (d_zwidth * yref);
+            for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
+            {
+                level = *(pz++);
+                if (level && level<248)
+                    *pbuf = fogmap[*pbuf + fs->vidfog[foglevel[level + fognoise[noise++]]]*256];
+                pbuf++;
+            }
+            noise += 13;
+        }
+    }
+}
+
 /*
 ================
 R_RenderView
@@ -1589,9 +1626,9 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     //byte	warpbuffer[WARP_WIDTH * WARP_HEIGHT]; // Manoel Kasimier - hi-res waterwarp & buffered video - removed
     // Manoel Kasimier - hi-res waterwarp & buffered video - begin
 
- //qb: move to D_WarpScreen   if (warpbuffer)
- //       Q_free(warpbuffer);
- //   warpbuffer = Q_malloc(vid.rowbytes*vid.height);
+//qb: move to D_WarpScreen   if (warpbuffer)
+//       Q_free(warpbuffer);
+//   warpbuffer = Q_malloc(vid.rowbytes*vid.height);
     // Manoel Kasimier - hi-res waterwarp & buffered video - end
 
 //    r_warpbuffer = vid.buffer; //qb: warpbuffer;
@@ -1623,7 +1660,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     }
 
     r_foundwater = r_drawwater = false; // Manoel Kasimier - translucent water
-        R_EdgeDrawing ();
+    R_EdgeDrawing ();
 
     if (!r_dspeeds.value)
     {
@@ -1667,43 +1704,41 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     R_DrawViewModel (false); // Manoel Kasimier
 
     //qb: originally based on Makaqu fog.  added global fog, dithering, optimizing
-    extern short		*d_pzbuffer;
-    extern unsigned int	d_zwidth;
-    extern int			d_scantable[MAXHEIGHT];
-
-    static int			fogindex, xref, yref;
-    static byte		*pbuf, *vidfog;
-    static byte        noise;
-    static unsigned short		*pz;
-    static int          level;
+    static int			fogindex;
     static float previous_fog_density;
 
-    if (fog_density && r_fog.value && (takescreenshot || r_dowarp))  //qb: only do it here for screenshots.
+    //qb:  threads
+        fogslice_t fs[NUMTHREADS];
+    int i;
+
+    if (fog_density && r_fog.value)  //qb: only do it here for screenshots.
     {
         if(previous_fog_density != fog_density)
             FogLevelInit(); //dither includes density factor, so regenerate when it changes
         previous_fog_density = fog_density;
         fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
-        vidfog = vid.colormap+fogindex;
 
-        for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
+        for (i=0; i<NUMTHREADS; i++)
         {
-            pbuf = vid.buffer + d_scantable[yref];
-            pz = d_pzbuffer + (d_zwidth * yref);
-            for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
-            {
-                level = *(pz++);
-                if (level && level<248)
-                    *pbuf = fogmap[*pbuf + vidfog[foglevel[level + fognoise[noise++]]]*256];
-                pbuf++;
-            }
-            noise += 13;
+            fs[i].vidfog = vid.colormap+fogindex;
+            fs[i].rowstart= r_refdef.vrect.y + i*(r_refdef.vrect.height/NUMTHREADS);
+            if (i+1 == NUMTHREADS)
+                fs[i].rowend = r_refdef.vrect.height;
+            else
+                fs[i].rowend = fs[i].rowstart + r_refdef.vrect.height/NUMTHREADS;
+            pthread_create(&thread[i], NULL, FogLoop, &fs[i]);
+        }
+
+        /* Wait for Threads to Finish */
+        for (i=0; i<NUMTHREADS; i++)
+        {
+           pthread_join(thread[i], NULL);
         }
     }
 
     if (r_dowarp)
         D_WarpScreen ();
-        //qb:  move copy buffer to D_WarpScreen, so it only has to be done if warped
+    //qb:  move copy buffer to D_WarpScreen, so it only has to be done if warped
 
     V_SetContentsColor (r_viewleaf->contents);
     if (r_timegraph.value)
@@ -1732,12 +1767,12 @@ int      sintable[SIN_BUFFER_SIZE];
 
 void R_InitSin (void)
 {
-   int
-      x
-      ;
-   // run this only once, at engine startup
-   for (x = 0 ; x < SIN_BUFFER_SIZE ; x++)
-      sintable[x] = (int) (AMP + sin ( (double)x * 3.14159 * 2.0 / CYCLE) * AMP);
+    int
+    x
+    ;
+    // run this only once, at engine startup
+    for (x = 0 ; x < SIN_BUFFER_SIZE ; x++)
+        sintable[x] = (int) (AMP + sin ( (double)x * 3.14159 * 2.0 / CYCLE) * AMP);
 }
 
 

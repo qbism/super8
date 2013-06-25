@@ -19,6 +19,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // quakedef.h -- primary header for client
 
+#include <math.h>
+#include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <setjmp.h>
+#include <pthread.h>  //qb: multithreaded functions
+
 //#define	GLTEST			// experimental stuff
 
 #define	QUAKE_GAME			// as opposed to utilities
@@ -27,16 +35,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	WINQUAKE_VERSION	7
 #define	LINUX_VERSION		0
 
+#define NUMTHREADS          4   //qb: for multithreaded functions
+extern pthread_t thread[NUMTHREADS];
+
 //define	PARANOID			// speed sapping error checking
-
 #define	GAMENAME	"id1"
-
-#include <math.h>
-#include <string.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <setjmp.h>
 
 #ifdef FLASH
 #include "AS3.h"
@@ -365,7 +368,6 @@ extern	int			sb_lines;			// scan lines to draw
 extern	float			scr_2d_scale_h, scr_2d_scale_v;
 extern int min_vid_width, min_vid_height;  //qb: Dan East
 
- extern int takescreenshot; //qbL flag to set up fog for screenshots.
 extern int		minimum_memory;
 extern byte     palmapnofb[32][32][32];
 extern byte	    palmap[32][32][32];
