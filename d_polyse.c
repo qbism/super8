@@ -56,6 +56,8 @@ byte		*d_pcolormap;
 int			d_aflatcolor;
 int			d_xdenom;
 
+int	r_drawoutlines; // Manoel Kasimier - EF_CELSHADING
+
 edgetable	*pedgetable;
 
 edgetable	edgetables[12] =

@@ -229,7 +229,7 @@ extern float			leftclip, topclip, rightclip, bottomclip;
 extern int				r_acliptype;
 extern finalvert_t		*pfinalverts;
 extern auxvert_t		*pauxverts;
-int	r_drawoutlines; // Manoel Kasimier - EF_CELSHADING
+extern int	r_drawoutlines; // Manoel Kasimier - EF_CELSHADING
 
 qboolean R_AliasCheckBBox (void);
 
@@ -295,6 +295,12 @@ extern int		r_clipflags;
 //qb: silly!  extern int		r_dlightframecount;
 extern qboolean	r_fov_greater_than_90;
 byte *pointcolormap; //qb: palettized color
+
+// mankrip - hi-res waterwarp - begin
+extern int *intsintable_x ,   *intsintable_y,   *warpcolumn,   *warprow;
+extern byte *turbdest,   *turbsrc;
+extern float  uwarpscale, vwarpscale;
+// mankrip - hi-res waterwarp - end
 
 //qb: fog
 extern float fog_density, fog_red, fog_green, fog_blue;

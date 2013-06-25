@@ -60,10 +60,9 @@ float		scr_disabled_time;
 qboolean	scr_skipupdate;
 
 qboolean	block_drawing;
-int    takescreenshot;
 
 void SCR_ScreenShot_f (void);
-void                                                                              SCR_ScreenShotTrigger_f (void); //qb:
+
 /*
 ===============================================================================
 
@@ -390,7 +389,7 @@ void SCR_Init (void)
 //
 // register our commands
 //
-    Cmd_AddCommand ("screenshot",SCR_ScreenShotTrigger_f); //qb: set a trigger first
+    Cmd_AddCommand ("screenshot",SCR_ScreenShot_f); //qb: set a trigger first
     Cmd_AddCommand ("sizeup",SCR_SizeUp_f);
     Cmd_AddCommand ("sizedown",SCR_SizeDown_f);
 
@@ -922,17 +921,6 @@ void WritePCXfile (char *filename, byte *data, int width, int height,
 }
 
 
-
-/*
-==================
-SCR_ScreenShotTrigger_f
-==================
-*/
-void SCR_ScreenShotTrigger_f (void)
-{
-    takescreenshot = 1;
-}
-
 /*
 ==================
 SCR_ScreenShot_f
@@ -1226,12 +1214,6 @@ void SCR_UpdateScreen (void)
 #ifdef _WIN32 //qb: jqavi
     Movie_UpdateScreen ();
 #endif
-
-    if(takescreenshot)  //qb:  make sure we've got all effects prior to screenshot.
-    {
-        SCR_ScreenShot_f();
-        takescreenshot = 0;
-    }
 
 // update one of three areas
     if (scr_copyeverything)

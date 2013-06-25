@@ -1166,6 +1166,11 @@ int VID_SetMode (int modenum, unsigned char *palette)
     VID_SetPalette (palette);
     in_mode_set = false;
     vid.recalc_refdef = 1;
+
+    if (r_warpbuffer) //qb: only do this once, whenever vid mode changes.
+        Q_free(r_warpbuffer);
+    r_warpbuffer = Q_malloc(vid.rowbytes*vid.height);
+
     return true;
 }
 
@@ -1339,23 +1344,159 @@ void VID_Shutdown (void)
 extern short		*d_pzbuffer;
 extern unsigned int	d_zwidth;
 
+#define UNROLL_SPAN_SHIFT   5  //qb: from MK unroll
+#define UNROLL_SPAN_MAX   (1 << UNROLL_SPAN_SHIFT) // 32
+
 /*
 ================
 FlipScreen
 ================
 */
+
+typedef struct flipslice_s  //qb: for multithreading
+{
+    int rowstart, rowend;
+    byte *src;
+    unsigned int *dst;
+    unsigned int lpitch;
+    vrect_t *rects;
+} flipslice_t;
+
+
+void* FlipLoop (flipslice_t* fs)
+{
+    byte *psrc, *src;
+    unsigned int *pdst, *dst;
+    int spancount, rollcount, y;
+
+    dst = fs->dst;
+    src = fs->src;
+
+    for (y = fs->rowstart; y < fs->rowend; y++, src += vid.rowbytes, dst += fs->lpitch)
+    {
+        psrc = src;
+        pdst = dst;
+
+        rollcount = fs->rects->width >> UNROLL_SPAN_SHIFT; // divided by 32
+        spancount = fs->rects->width %  UNROLL_SPAN_MAX; // remainder of the above division (min zero, max 32)
+        while (rollcount--)
+        {
+            pdst[0] = ddpal[psrc[0]];
+            pdst[1] = ddpal[psrc[1]];
+            pdst[2] = ddpal[psrc[2]];
+            pdst[3] = ddpal[psrc[3]];
+            pdst[4] = ddpal[psrc[4]];
+            pdst[5] = ddpal[psrc[5]];
+            pdst[6] = ddpal[psrc[6]];
+            pdst[7] = ddpal[psrc[7]];
+            pdst[8] = ddpal[psrc[8]];
+            pdst[9] = ddpal[psrc[9]];
+            pdst[10] = ddpal[psrc[10]];
+            pdst[11] = ddpal[psrc[11]];
+            pdst[12] = ddpal[psrc[12]];
+            pdst[13] = ddpal[psrc[13]];
+            pdst[14] = ddpal[psrc[14]];
+            pdst[15] = ddpal[psrc[15]];
+            pdst[16] = ddpal[psrc[16]];
+            pdst[17] = ddpal[psrc[17]];
+            pdst[18] = ddpal[psrc[18]];
+            pdst[19] = ddpal[psrc[19]];
+            pdst[20] = ddpal[psrc[20]];
+            pdst[21] = ddpal[psrc[21]];
+            pdst[22] = ddpal[psrc[22]];
+            pdst[23] = ddpal[psrc[23]];
+            pdst[24] = ddpal[psrc[24]];
+            pdst[25] = ddpal[psrc[25]];
+            pdst[26] = ddpal[psrc[26]];
+            pdst[27] = ddpal[psrc[27]];
+            pdst[28] = ddpal[psrc[28]];
+            pdst[29] = ddpal[psrc[29]];
+            pdst[30] = ddpal[psrc[30]];
+            pdst[31] = ddpal[psrc[31]];
+            psrc+= UNROLL_SPAN_MAX;
+            pdst+= UNROLL_SPAN_MAX;
+        }
+
+        if (spancount)
+        {
+            switch (spancount)
+            {
+            case 0:
+                pdst[0] = ddpal[psrc[0]];
+            case 1:
+                pdst[0] = ddpal[psrc[1]];
+            case 2:
+                pdst[0] = ddpal[psrc[2]];
+            case 3:
+                pdst[0] = ddpal[psrc[3]];
+            case 4:
+                pdst[0] = ddpal[psrc[4]];
+            case 5:
+                pdst[0] = ddpal[psrc[5]];
+            case 6:
+                pdst[0] = ddpal[psrc[6]];
+            case 7:
+                pdst[0] = ddpal[psrc[7]];
+            case 8:
+                pdst[0] = ddpal[psrc[8]];
+            case 9:
+                pdst[0] = ddpal[psrc[9]];
+            case 10:
+                pdst[10] = ddpal[psrc[10]];
+            case 11:
+                pdst[11] = ddpal[psrc[11]];
+            case 12:
+                pdst[12] = ddpal[psrc[12]];
+            case 13:
+                pdst[13] = ddpal[psrc[13]];
+            case 14:
+                pdst[14] = ddpal[psrc[14]];
+            case 15:
+                pdst[15] = ddpal[psrc[15]];
+            case 16:
+                pdst[16] = ddpal[psrc[16]];
+            case 17:
+                pdst[17] = ddpal[psrc[17]];
+            case 18:
+                pdst[18] = ddpal[psrc[18]];
+            case 19:
+                pdst[19] = ddpal[psrc[19]];
+            case 20:
+                pdst[20] = ddpal[psrc[20]];
+            case 21:
+                pdst[21] = ddpal[psrc[21]];
+            case 22:
+                pdst[22] = ddpal[psrc[22]];
+            case 23:
+                pdst[23] = ddpal[psrc[23]];
+            case 24:
+                pdst[24] = ddpal[psrc[24]];
+            case 25:
+                pdst[25] = ddpal[psrc[25]];
+            case 26:
+                pdst[26] = ddpal[psrc[26]];
+            case 27:
+                pdst[27] = ddpal[psrc[27]];
+            case 28:
+                pdst[28] = ddpal[psrc[28]];
+            case 29:
+                pdst[29] = ddpal[psrc[29]];
+            case 30:
+                pdst[30] = ddpal[psrc[30]];
+            case 31:
+                pdst[31] = ddpal[psrc[31]];
+            }
+        }
+    }
+}
+
+
 void FlipScreen (vrect_t *rects)
 {
-    int numrects = 0;
+    int i, numrects = 0;
 
-    //qb: originally based on Makaqu 1.3 fog.  added global fog, dithering, optimizing
-
-    static int			fogindex, xref, yref;
-    static byte		*pbuf, *vidfog;
-    static byte        noise;
-    static unsigned short		*pz;
-    static int          level;
-    static float previous_fog_density;
+    //qb:  threads
+     flipslice_t fs[NUMTHREADS];
 
     while (rects)
     {
@@ -1389,154 +1530,26 @@ void FlipScreen (vrect_t *rects)
                 // convert pitch to unsigned int addressable
                 ddsd.lPitch >>= 2;
 
-                // because we created a 32 bit backbuffer we need to copy from the 8 bit memory buffer to it before flipping
-                //qb: do fog here
-                if (fog_density && r_fog.value && !takescreenshot && !r_dowarp)
+                for (i=0; i<NUMTHREADS; i++)
                 {
-                    if(previous_fog_density != fog_density)
-                        FogLevelInit(); //dither includes density factor, so regenerate when it changes
-                    previous_fog_density = fog_density;
-                    fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
-                    vidfog = vid.colormap+fogindex;
-                    noise = 0;
-
-                    for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
-                    {
-                        byte *psrc = src;
-                        unsigned int *pdst = dst;
-                        pz = d_pzbuffer + (d_zwidth * y);
-                        for (x = 0; x < rects->width; x++)
-                        {
-                            level = *pz++;
-                            if (level && level<248)
-                                *pdst++ = ddpal[fogmap[*psrc++ + vidfog[foglevel[level + fognoise[noise++]]]*256]];
-                            else *pdst++ = ddpal[*psrc++];
-                        }
-                        noise += 13;
-                    }
-                }
-
-                else
-                {
-                    if (!(rects->width & 15))
-                    {
-                        for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
-                        {
-                            byte *psrc = src;
-                            unsigned int *pdst = dst;
-
-                            for (x = 0; x < rects->width; x += 16, psrc += 16, pdst += 16)
-                            {
-                                pdst[0] = ddpal[psrc[0]];
-                                pdst[1] = ddpal[psrc[1]];
-                                pdst[2] = ddpal[psrc[2]];
-                                pdst[3] = ddpal[psrc[3]];
-
-                                pdst[4] = ddpal[psrc[4]];
-                                pdst[5] = ddpal[psrc[5]];
-                                pdst[6] = ddpal[psrc[6]];
-                                pdst[7] = ddpal[psrc[7]];
-
-                                pdst[8] = ddpal[psrc[8]];
-                                pdst[9] = ddpal[psrc[9]];
-                                pdst[10] = ddpal[psrc[10]];
-                                pdst[11] = ddpal[psrc[11]];
-
-                                pdst[12] = ddpal[psrc[12]];
-                                pdst[13] = ddpal[psrc[13]];
-                                pdst[14] = ddpal[psrc[14]];
-                                pdst[15] = ddpal[psrc[15]];
-                            }
-                        }
-                    }
-                    else if (!(rects->width % 10))
-                    {
-                        for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
-                        {
-                            byte *psrc = src;
-                            unsigned int *pdst = dst;
-
-                            for (x = 0; x < rects->width; x += 10, psrc += 10, pdst += 10)
-                            {
-                                pdst[0] = ddpal[psrc[0]];
-                                pdst[1] = ddpal[psrc[1]];
-                                pdst[2] = ddpal[psrc[2]];
-                                pdst[3] = ddpal[psrc[3]];
-                                pdst[4] = ddpal[psrc[4]];
-
-                                pdst[5] = ddpal[psrc[5]];
-                                pdst[6] = ddpal[psrc[6]];
-                                pdst[7] = ddpal[psrc[7]];
-                                pdst[8] = ddpal[psrc[8]];
-                                pdst[9] = ddpal[psrc[9]];
-                            }
-                        }
-                    }
-                    else if (!(rects->width & 7))
-                    {
-                        for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
-                        {
-                            byte *psrc = src;
-                            unsigned int *pdst = dst;
-
-                            for (x = 0; x < rects->width; x += 8, psrc += 8, pdst += 8)
-                            {
-                                pdst[0] = ddpal[psrc[0]];
-                                pdst[1] = ddpal[psrc[1]];
-                                pdst[2] = ddpal[psrc[2]];
-                                pdst[3] = ddpal[psrc[3]];
-
-                                pdst[4] = ddpal[psrc[4]];
-                                pdst[5] = ddpal[psrc[5]];
-                                pdst[6] = ddpal[psrc[6]];
-                                pdst[7] = ddpal[psrc[7]];
-                            }
-                        }
-                    }
-                    else if (!(rects->width % 5))
-                    {
-                        for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
-                        {
-                            byte *psrc = src;
-                            unsigned int *pdst = dst;
-
-                            for (x = 0; x < rects->width; x += 5, psrc += 5, pdst += 5)
-                            {
-                                pdst[0] = ddpal[psrc[0]];
-                                pdst[1] = ddpal[psrc[1]];
-                                pdst[2] = ddpal[psrc[2]];
-                                pdst[3] = ddpal[psrc[3]];
-                                pdst[4] = ddpal[psrc[4]];
-                            }
-                        }
-                    }
-                    else if (!(rects->width & 3))
-                    {
-                        for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
-                        {
-                            byte *psrc = src;
-                            unsigned int *pdst = dst;
-
-                            for (x = 0; x < rects->width; x += 4, psrc += 4, pdst += 4)
-                            {
-                                pdst[0] = ddpal[psrc[0]];
-                                pdst[1] = ddpal[psrc[1]];
-                                pdst[2] = ddpal[psrc[2]];
-                                pdst[3] = ddpal[psrc[3]];
-                            }
-                        }
-                    }
+                    fs[i].src = src + vid.rowbytes * i * (rects->height/NUMTHREADS);
+                    fs[i].dst = dst + ddsd.lPitch * i * (rects->height/NUMTHREADS);
+                    fs[i].lpitch = ddsd.lPitch;
+                    fs[i].rects = rects;
+                    fs[i].rowstart= i*(rects->height/NUMTHREADS);
+                    if (i+1 == NUMTHREADS)
+                        fs[i].rowend = rects->height;
                     else
-                    {
-                        for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
-                        {
-                            for (x = 0; x < rects->width; x++)
-                            {
-                                dst[x] = ddpal[src[x]];
-                            }
-                        }
-                    }
+                        fs[i].rowend = (i+1)*(rects->height/NUMTHREADS);
+                    pthread_create(&thread[i], NULL, FlipLoop, &fs[i]);
                 }
+
+                //wait for threads to finish
+                for (i=0; i<NUMTHREADS; i++)
+                {
+                    pthread_join(thread[i], NULL);
+                }
+
 
                 IDirectDrawSurface_Unlock (dd_BackBuffer, NULL);
 
@@ -2048,7 +2061,7 @@ LONG WINAPI MainWndProc (
         // crash on Win95)
         if (!in_mode_set)
         {
-            if (MessageBox (hWndWinQuake, "Are you sure you want to quit?", "Confirm Exit",
+            if (MessageBox (hWndWinQuake, "Are you sure you want to quit qbism Super8?", "Confirm Exit",
                             MB_YESNO | MB_SETFOREGROUND | MB_ICONQUESTION) == IDYES)
             {
                 Sys_Quit ();

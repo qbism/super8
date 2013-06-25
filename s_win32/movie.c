@@ -42,7 +42,7 @@ cvar_t	capture_hack	= {"capture_hack", "0", true};
 cvar_t	capture_mp3	= {"capture_mp3", "0", true};
 cvar_t	capture_mp3_kbps = {"capture_mp3_kbps", "192", true};
 
-static qboolean movie_is_capturing = false;
+qboolean movie_is_capturing = false;
 qboolean	avi_loaded, acm_loaded;
 
 qboolean Movie_IsActive (void)
@@ -239,11 +239,14 @@ void Movie_UpdateScreen (void)  //qb: add stretch and gamma to capture
             r = gammatable[host_basepal[vid.buffer[rowp]*3+2]];  //qb: gamma lookup
             g = gammatable[host_basepal[vid.buffer[rowp]*3+1]];
             b = gammatable[host_basepal[vid.buffer[rowp]*3+0]];
+            *p++ = r;
+            *p++ = g;
+            *p++ = b;
             rowp++;
         }
     }
     Capture_WriteVideo (buffer);
-    free (buffer);
+    Q_free (buffer);
 }
 
 
