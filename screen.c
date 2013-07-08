@@ -939,7 +939,7 @@ void SCR_ScreenShot_f (void)
     for (i=0 ; i<=999 ; i++)
     {
         pcxname[5] = i/100 + '0';
-        pcxname[6] = i/10 + '0';
+        pcxname[6] = (i/10)%10 + '0';
         pcxname[7] = i%10 + '0';
         sprintf (checkname, "%s/%s", com_gamedir, pcxname);
         if (Sys_FileTime(checkname) == -1)
@@ -1211,9 +1211,10 @@ void SCR_UpdateScreen (void)
 
     V_UpdatePalette ();
 
-#ifdef _WIN32 //qb: jqavi
-    Movie_UpdateScreen ();
-#endif
+//qb:  try moving lower, capture is not getting cshifts.
+//#ifdef _WIN32 //qb: jqavi
+//    Movie_UpdateScreen ();
+//#endif
 
 // update one of three areas
     if (scr_copyeverything)
@@ -1246,6 +1247,9 @@ void SCR_UpdateScreen (void)
 
         VID_Update (&vrect);
     }
+    #ifdef _WIN32 //qb: jqavi
+    Movie_UpdateScreen ();
+    #endif
 }
 
 
