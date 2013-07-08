@@ -21,6 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../quakedef.h"
 #include "movie_avi.h"
+extern unsigned int ddpal[256];
 
 // Variables for buffering audio
 short	capture_audio_samples[44100];	// big enough buffer for 1fps at 44100Hz
@@ -72,7 +73,7 @@ void Movie_Start_f (void)
         for (i=0 ; i<=999 ; i++)
         {
             name[5] = i/100 + '0';
-            name[6] = i/10 + '0';
+            name[6] = (i/10)%10 + '0';
             name[7] = i%10 + '0';
             sprintf (path, "%s/%s", com_gamedir, name);
             if (Sys_FileTime(path) == -1)
@@ -103,8 +104,7 @@ void Movie_Start_f (void)
     }
 
     movie_is_capturing = Capture_Open (path);
-    V_UpdatePalette (); //qb: just in case
-}
+ }
 
 void Movie_Stop (void)
 {
@@ -211,7 +211,7 @@ void Movie_UpdateScreen (void)  //qb: add stretch and gamma to capture
 {
     int	i, j, k, rowp;
     int r,g,b; //qb:
-    byte	*buffer, *p;
+    byte	*buffer, *p, *hwpal;
 
     if (!Movie_IsActive())
         return;
@@ -229,6 +229,7 @@ void Movie_UpdateScreen (void)  //qb: add stretch and gamma to capture
         hack_ctr--;
     }
 
+    hwpal = (byte *) &ddpal;
     buffer = Q_malloc (vid.width * vid.height * 3);
     p = buffer;
     for (i = vid.height - 1 ; i >= 0 ; i--)
@@ -236,9 +237,12 @@ void Movie_UpdateScreen (void)  //qb: add stretch and gamma to capture
         rowp = i * vid.rowbytes;
         for (j = 0 ; j < vid.width ; j++)
         {
-            r = gammatable[host_basepal[vid.buffer[rowp]*3+2]];  //qb: gamma lookup
-            g = gammatable[host_basepal[vid.buffer[rowp]*3+1]];
-            b = gammatable[host_basepal[vid.buffer[rowp]*3+0]];
+//            r = gammatable[host_basepal[vid.buffer[rowp]*3+2]];  //qb: gamma lookup
+//            g = gammatable[host_basepal[vid.buffer[rowp]*3+1]];
+//            b = gammatable[host_basepal[vid.buffer[rowp]*3+0]];
+            r = hwpal[vid.buffer[rowp]*4+0];  //qb: *4 because ddpal is 32bit (alpha)
+            g = hwpal[vid.buffer[rowp]*4+1];
+            b = hwpal[vid.buffer[rowp]*4+2];
             *p++ = r;
             *p++ = g;
             *p++ = b;
