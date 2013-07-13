@@ -663,7 +663,7 @@ void Con_DrawNotify (void)
 
         x = 0;
 
-        Draw_String (0, v, "say:"); // Manoel Kasimier - screen positioning - edited
+        Draw_String (0, v, "say:", false); // Manoel Kasimier - screen positioning - edited
         while(chat_buffer[x])
         {
             Draw_Character ( ((x+4)<<3), v, chat_buffer[x]); // Manoel Kasimier - screen positioning - edited

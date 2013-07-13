@@ -588,7 +588,7 @@ void Host_SavegameComment (char *text)
 // Manoel Kasimier - small saves - begin
 //
 //======================================
-char *MK_cleanftos (float f); // Manoel Kasimier - reduced savegames
+char *COM_NiceFloatString (float f); // Manoel Kasimier - reduced savegames
 
 /*
 ====================
@@ -665,7 +665,7 @@ void Host_SmallSavegame_f (void)
     Host_SavegameComment (comment);
     fprintf (f, "%s\n", comment);
     for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
-        fprintf (f, "%s\n", MK_cleanftos(svs.clients->spawn_parms[i])); // Manoel Kasimier - reduced savegames
+        fprintf (f, "%s\n", COM_NiceFloatString(svs.clients->spawn_parms[i])); // Manoel Kasimier - reduced savegames
     fprintf (f, "%d\n", current_skill);
     fprintf (f, "%s\n", sv.name);
     fprintf (f, "%i\n", svs.serverflags); // serverflags
@@ -815,11 +815,11 @@ void Host_Savegame_f (void)
     Host_SavegameComment (comment);
     fprintf (f, "%s\n", comment);
     for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
-        fprintf (f, "%s\n", MK_cleanftos(svs.clients->spawn_parms[i])); // Manoel Kasimier - reduced savegames
+        fprintf (f, "%s\n", COM_NiceFloatString(svs.clients->spawn_parms[i])); // Manoel Kasimier - reduced savegames
     fprintf (f, "%d\n", current_skill);
     fprintf (f, "%s\n", sv.name);
 
-    fprintf (f, "%s\n", MK_cleanftos(sv.time)); // Manoel Kasimier - reduced savegames
+    fprintf (f, "%s\n", COM_NiceFloatString(sv.time)); // Manoel Kasimier - reduced savegames
     fprintf (f, "%i\n", svs.serverflags); // Manoel Kasimier - serverflags bugfix
 
     // write the light styles

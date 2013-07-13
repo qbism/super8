@@ -32,14 +32,13 @@ void Draw_ConsoleBackground (int lines);
 void Draw_TileClear (int x, int y, int w, int h);
 void Draw_Fill (int x, int y, int w, int h, int c);
 void Draw_FadeScreen (void);
-void Draw_String (int x, int y, char *str);
+void Draw_String (int x, int y, char *str, qboolean sscale);
 qpic_t *Draw_PicFromWad (char *name);
 qpic_t *Draw_CachePic (char *path);
 // Manoel Kasimier - begin
 void M_Print (int cx, int cy, char *str);
 void M_PrintWhite (int cx, int cy, char *str);
-void M_DrawTransPic (int x, int y, qpic_t *pic);
+void M_DrawTransPic (int x, int y, qpic_t *pic, qboolean sscale);
 void M_DrawTextBox (int x, int y, int width, int lines);
 void M_DrawPlaque (char *c, qboolean b);
-void Draw_UpdateAlignment (int h, int v); // aligns the drawing area
 // Manoel Kasimier - end

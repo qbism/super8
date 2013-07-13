@@ -160,6 +160,7 @@ extern	cvar_t	axis_strafe_dz;
 extern	cvar_t	snd_stereo;
 extern	cvar_t	snd_swapstereo;
 
+extern	cvar_t	sbar_scale; //qb: added
 extern	cvar_t	sbar_show_scores;
 extern	cvar_t	sbar_show_ammolist;
 extern	cvar_t	sbar_show_weaponlist;
@@ -441,32 +442,6 @@ void BuildColorTranslationTable (int top, int bottom, byte *source, byte *dest)
 }
 
 
-void Draw_UpdateAlignment (int h, int v) // aligns the drawing area
-{
-    // calculate offsets
-    switch (h)
-    {
-    case 0: // left, no adjust
-        scr_2d_offset_x = 0;
-    case 1: // h-center
-        scr_2d_offset_x = (r_refdef.vrect.width- 360.0 * scr_2d_scale_h)/2.0;
-    default: // right
-        scr_2d_offset_x = r_refdef.vrect.width - 360.0 * scr_2d_scale_h;
-    }
-
-    switch (v)
-    {
-    case 0: // top, no adjust
-        scr_2d_offset_y = 0;
-    case 1: // v-center
-        scr_2d_offset_y = (r_refdef.vrect.height - 200.0 * scr_2d_scale_v)/2.0;
-    default: // bottom
-        scr_2d_offset_y = r_refdef.vrect.height - 200.0 * scr_2d_scale_v;
-    }
-}
-
-
-
 /*
 at position x and y on the screen,
 get a source image data with dimensions determined by sourcewidth & sourceheight,
@@ -480,7 +455,7 @@ void M_Print (int cx, int cy, char *str)
 {
     while (*str)
     {
-        M_DrawCharacter (cx, cy, (*str)+128);
+        M_DrawCharacter (cx, cy, (*str)+128, false);
         cx += 8;
         str++;
     }
@@ -490,7 +465,7 @@ void M_PrintWhite (int cx, int cy, char *str)
 {
     while (*str)
     {
-        M_DrawCharacter (cx, cy, *str);
+        M_DrawCharacter (cx, cy, *str, false);
         cx += 8;
         str++;
     }
@@ -508,15 +483,15 @@ void M_DrawTextBox (int x, int y, int width, int lines)
     cx = x;
     cy = y;
     p = Draw_CachePic ("gfx/box_tl.lmp");
-    M_DrawTransPic (cx, cy, p);
+    M_DrawTransPic (cx, cy, p, false);
     p = Draw_CachePic ("gfx/box_ml.lmp");
     for (n = 0; n < lines; n+=8)//-------------
     {
         cy += 8;
-        M_DrawTransPic (cx, cy, p);
+        M_DrawTransPic (cx, cy, p, false);
     }
     p = Draw_CachePic ("gfx/box_bl.lmp");
-    M_DrawTransPic (cx, cy+8 - h, p);//------------
+    M_DrawTransPic (cx, cy+8 - h, p, false);//------------
 
     // draw middle
     cx += 8;
@@ -524,17 +499,17 @@ void M_DrawTextBox (int x, int y, int width, int lines)
     {
         cy = y;
         p = Draw_CachePic ("gfx/box_tm.lmp");
-        M_DrawTransPic (cx, cy, p);
+        M_DrawTransPic (cx, cy, p, false);
         p = Draw_CachePic ("gfx/box_mm.lmp");
         for (n = 0; n < lines; n+=8) //---------
         {
             cy += 8;
             if (n/8 == 1)//-----------
                 p = Draw_CachePic ("gfx/box_mm2.lmp");
-            M_DrawTransPic (cx, cy, p);
+            M_DrawTransPic (cx, cy, p, false);
         }
         p = Draw_CachePic ("gfx/box_bm.lmp");
-        M_DrawTransPic (cx, cy+8 - h, p);//-----------!!!!!!!!
+        M_DrawTransPic (cx, cy+8 - h, p, false);//-----------!!!!!!!!
         width -= 2*8;
         cx += 16;
     }
@@ -542,15 +517,15 @@ void M_DrawTextBox (int x, int y, int width, int lines)
     // draw right side
     cy = y;
     p = Draw_CachePic ("gfx/box_tr.lmp");
-    M_DrawTransPic (cx - w, cy, p); // Manoel Kasimier - crosshair - edited
+    M_DrawTransPic (cx - w, cy, p, false); // Manoel Kasimier - crosshair - edited
     p = Draw_CachePic ("gfx/box_mr.lmp");
     for (n = 0; n < lines; n+=8)//--------
     {
         cy += 8;
-        M_DrawTransPic (cx - w, cy, p); // Manoel Kasimier - crosshair - edited
+        M_DrawTransPic (cx - w, cy, p, false); // Manoel Kasimier - crosshair - edited
     }
     p = Draw_CachePic ("gfx/box_br.lmp");
-    M_DrawTransPic (cx - w, cy+8 - h, p); // Manoel Kasimier - crosshair - edited
+    M_DrawTransPic (cx - w, cy+8 - h, p, false); // Manoel Kasimier - crosshair - edited
 }
 
 #define	SLIDER_RANGE	10
@@ -562,11 +537,11 @@ void M_DrawSlider (int x, int y, float range)
         range = 0;
     if (range > 1)
         range = 1;
-    M_DrawCharacter (x-8, y, 128);
+    M_DrawCharacter (x-8, y, 128, false);
     for (i=0 ; i<SLIDER_RANGE ; i++)
-        M_DrawCharacter (x + i*8, y, 129);
-    M_DrawCharacter (x+i*8, y, 130);
-    M_DrawCharacter (x + (SLIDER_RANGE-1)*8 * range, y, 131);
+        M_DrawCharacter (x + i*8, y, 129, false);
+    M_DrawCharacter (x+i*8, y, 130, false);
+    M_DrawCharacter (x + (SLIDER_RANGE-1)*8 * range, y, 131, false);
 }
 
 void M_DrawCheckbox (int x, int y, int on)
@@ -608,9 +583,9 @@ void M_DrawPlaque (char *c, qboolean b)
 {
 	qpic_t	*p;
 	if (b)
-		M_DrawTransPic (16, 0, Draw_CachePic ("gfx/qplaque.lmp") );
+		M_DrawTransPic (16, 0, Draw_CachePic ("gfx/qplaque.lmp") , false);
 	p = Draw_CachePic (c);
-	M_DrawTransPic ( (360-p->width)/2, 0, p);
+	M_DrawTransPic ( (360-p->width)/2, 0, p, false);
 }
 void M_DrawCursor (int x, int y, int itemindex)
 {
@@ -624,9 +599,9 @@ void M_DrawCursor (int x, int y, int itemindex)
         cursortime = realtime;
     }
     if ((cursortime + 0.5) >= realtime)
-        M_DrawCharacter (x, y + itemindex*8, 13);
+        M_DrawCharacter (x, y + itemindex*8, 13, false);
     else
-        M_DrawCharacter (x, y + itemindex*8, 12+((int)(realtime*4)&1));
+        M_DrawCharacter (x, y + itemindex*8, 12+((int)(realtime*4)&1), false);
 }
 
 void M_PrintText (char *s, int x, int y, int w, int h, int alignment)
@@ -662,7 +637,7 @@ void M_PrintText (char *s, int x, int y, int w, int h, int alignment)
         }
         else
         {
-            M_DrawCharacter (xpos + ((w - line_w[l])*alignment), y + (l*8), (*s)+128);
+            M_DrawCharacter (xpos + ((w - line_w[l])*alignment), y + (l*8), (*s)+128, false);
             xpos += 8;
         }
         s++;
@@ -744,17 +719,17 @@ void M_OnScreenKeyboard_Draw (int y)
 
     if (keyboard_cursor < 48)
     {
-        M_DrawCharacter (27+ keyboard_cursor*16 - (256*(keyboard_cursor/16)), y+12+(8*(keyboard_cursor/16)), 16);
-        M_DrawCharacter (44+ keyboard_cursor*16 - (256*(keyboard_cursor/16)), y+12+(8*(keyboard_cursor/16)), 17);
+        M_DrawCharacter (27+ keyboard_cursor*16 - (256*(keyboard_cursor/16)), y+12+(8*(keyboard_cursor/16)), 16, false);
+        M_DrawCharacter (44+ keyboard_cursor*16 - (256*(keyboard_cursor/16)), y+12+(8*(keyboard_cursor/16)), 17, false);
     }
     else if (keyboard_cursor == 48)
-        M_DrawCharacter (28			, y+36, 12+((int)(realtime*4)&1));
+        M_DrawCharacter (28			, y+36, 12+((int)(realtime*4)&1), false);
     else if (keyboard_cursor == 49)
-        M_DrawCharacter (28+11*8	, y+36, 12+((int)(realtime*4)&1));
+        M_DrawCharacter (28+11*8	, y+36, 12+((int)(realtime*4)&1), false);
     else if (keyboard_cursor == 50)
-        M_DrawCharacter (28+18*8	, y+36, 12+((int)(realtime*4)&1));
+        M_DrawCharacter (28+18*8	, y+36, 12+((int)(realtime*4)&1), false);
     else if (keyboard_cursor == 51)
-        M_DrawCharacter (28+23*8	, y+36, 12+((int)(realtime*4)&1));
+        M_DrawCharacter (28+23*8	, y+36, 12+((int)(realtime*4)&1), false);
 }
 
 int M_OnScreenKeyboard_Key (int key)
@@ -955,9 +930,9 @@ void M_Main_Draw (void)
 {
     M_DrawPlaque ("gfx/ttl_main.lmp", true); // Manoel Kasimier
 
-    M_DrawTransPic (72, 28, Draw_CachePic ("gfx/mainmenu.lmp") );
+    M_DrawTransPic (72, 28, Draw_CachePic ("gfx/mainmenu.lmp"), false );
 
-    M_DrawTransPic (54, 28 + m_cursor[m_state] * 20, Draw_CachePic( va("gfx/menudot%i.lmp", 1+((int)(realtime * 10)%6) ) ) ); // edited by Manoel Kasimier
+    M_DrawTransPic (54, 28 + m_cursor[m_state] * 20, Draw_CachePic( va("gfx/menudot%i.lmp", 1+((int)(realtime * 10)%6))), false); // edited by Manoel Kasimier
 }
 
 
@@ -1046,13 +1021,13 @@ void M_SinglePlayer_Draw (void)
         return;
     }
 
-    M_DrawTransPic (16, 0 /*4*/, Draw_CachePic("gfx/qplaque.lmp"));
+    M_DrawTransPic (16, 0 /*4*/, Draw_CachePic("gfx/qplaque.lmp"), false);
     p = Draw_CachePic ("gfx/ttl_sgl.lmp");
-    M_DrawTransPic ((360 - p->width) >> 1, 0 /*4*/, p);
-    M_DrawTransPic (72, 28 /*32*/, Draw_CachePic("gfx/sp_menu.lmp"));
+    M_DrawTransPic ((360 - p->width) >> 1, 0 /*4*/, p, false);
+    M_DrawTransPic (72, 28 /*32*/, Draw_CachePic("gfx/sp_menu.lmp"), false);
 
     f = (int)(host_time*10) % 6;
-    M_DrawTransPic (54, 28 /*32*/ + m_singleplayer_cursor * 20, Draw_CachePic(va("gfx/menudot%i.lmp", f+1)));
+    M_DrawTransPic (54, 28 /*32*/ + m_singleplayer_cursor * 20, Draw_CachePic(va("gfx/menudot%i.lmp", f+1)), false);
 }
 
 static void StartNewGame (void)
@@ -2078,14 +2053,14 @@ void M_MapList_Draw (void)
     qpic_t   *p;
     int      x;
 
-    M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
+    M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"), false );
     p = Draw_CachePic ("gfx/p_multi.lmp");
-    M_DrawTransPic ( (min_vid_width-p->width)/2, 4, p);
+    M_DrawTransPic ( (min_vid_width-p->width)/2, 4, p, false);
 
     M_DrawTextBox (56, 27, 23, 15);
     FileNames(listaFiles, numFileList);
 
-    M_DrawCharacter (64, arrowY, 12 + ((int)(realtime * 4) & 1));
+    M_DrawCharacter (64, arrowY, 12 + ((int)(realtime * 4) & 1), false);
 }
 
 void M_MapList_Key (int key)
@@ -2339,19 +2314,20 @@ void M_Setup_Draw (void)
     M_Print (64, y + setup_cursor_table[i++]/*32*/, "Shirt color");
     M_Print (64, y + setup_cursor_table[i]/*56*/, "Pants color");
 
-    M_DrawTransPic (160, y + setup_cursor_table[i]-40/*16*/, Draw_CachePic ("gfx/bigbox.lmp"));
+    M_DrawTransPic (160, y + setup_cursor_table[i]-40/*16*/, Draw_CachePic ("gfx/bigbox.lmp"), false);
     BuildColorTranslationTable (setup_top, setup_bottom, identityTable, translationTable);
-    M_DrawTransPicTranslate (172, y + setup_cursor_table[i++]-32/*24*/, Draw_CachePic ("gfx/menuplyr.lmp"));
+    M_DrawTransPicTranslate (172, y + setup_cursor_table[i++]-32/*24*/, Draw_CachePic ("gfx/menuplyr.lmp"), false);
     // Manoel Kasimier - edited - end
     // Manoel Kasimier - crosshair - begin
     M_Print (64, y + setup_cursor_table[i++]/*88*/, "Crosshair");
     M_Print (64, y + setup_cursor_table[i]/*96*/, "Color");
-	M_DrawTextBox (160, y + setup_cursor_table[i]-16/*80*/, 2*8, 2*8);
+	M_DrawTextBox (160, y + setup_cursor_table[i]-16/*80*/, 2*12, 2*16);
     i1 = crosshair.value;
     i2 = crosshair_color.value;
     crosshair.value = setup_crosshair;
     crosshair_color.value = setup_crosshair_color;
-     Crosshair_Start(191 * scr_2d_scale_h, (y + (setup_cursor_table[i]-5))*scr_2d_scale_v);
+     Crosshair_Start((184 + (360-320)/2- (360.0 - 360.0/sbar_scale.value)/2) * scr_2d_scale_h - 6*(vid.width/min_vid_width),
+                      (144 + (100.0/sbar_scale.value)-100) * scr_2d_scale_v - 6*(vid.width/min_vid_width));
     crosshair.value = i1;
     crosshair_color.value = i2;
     // Manoel Kasimier - crosshair - end
@@ -2361,11 +2337,11 @@ void M_Setup_Draw (void)
     // Manoel Kasimier - edited - begin
     if (m_cursor[m_state] == 0)
 #if NET_MENUS // Manoel Kasimier - removed multiplayer menus
-        M_DrawCharacter (168 + 8*strlen(setup_hostname), y + setup_cursor_table [m_cursor[m_state]], 10+((int)(realtime*4)&1));
+        M_DrawCharacter (168 + 8*strlen(setup_hostname), y + setup_cursor_table [m_cursor[m_state]], 10+((int)(realtime*4)&1), false);
 
     if (m_cursor[m_state] == 1)
 #endif
-        M_DrawCharacter (168 + 8*strlen(setup_myname  ), y + setup_cursor_table [m_cursor[m_state]], 10+((int)(realtime*4)&1));
+        M_DrawCharacter (168 + 8*strlen(setup_myname  ), y + setup_cursor_table [m_cursor[m_state]], 10+((int)(realtime*4)&1), false);
     // Manoel Kasimier - edited - end
 //24
     M_OnScreenKeyboard_Draw (setup_cursor_table [m_cursor[m_state]] + 12+20/*28 + 16*/); // Manoel Kasimier
@@ -2834,7 +2810,7 @@ void M_Keys_Draw (void)
 
     M_FillKeyList(); // Manoel Kasimier
     if (bind_grab)
-        M_DrawCharacter (186, top + (cmd_position[cmd_for_position[m_cursor[m_state]]] - keyliststart)*8, '='); // Manoel Kasimier
+        M_DrawCharacter (186, top + (cmd_position[cmd_for_position[m_cursor[m_state]]] - keyliststart)*8, '=', false); // Manoel Kasimier
     else
         M_DrawCursor (186, top, (m_cursor[m_state] - keyliststart)); // Manoel Kasimier
 }
@@ -3621,7 +3597,7 @@ void M_Help_Draw (void)
 	if (m_cursor[m_state] < help_pages.value)
 	{
 		p = Draw_CachePic ( va("gfx/help%i.lmp", m_cursor[m_state]));
-		M_DrawTransPic (0, 0, p);
+		M_DrawTransPic (0, 0, p, false);
 	}
 	else
 	{
@@ -3741,9 +3717,9 @@ void M_MultiPlayer_Draw (void)
 {
     M_DrawPlaque ("gfx/p_multi.lmp", true); // Manoel Kasimier
 
-    M_DrawTransPic (72, 28/*32*/, Draw_CachePic ("gfx/mp_menu.lmp") ); // Manoel Kasimier - edited
+    M_DrawTransPic (72, 28/*32*/, Draw_CachePic ("gfx/mp_menu.lmp"), false ); // Manoel Kasimier - edited
 
-    M_DrawTransPic (54, 28/*32*/ + m_multiplayer_cursor * 20,Draw_CachePic( va("gfx/menudot%i.lmp", 1+((int)(realtime * 10)%6) ) ) ); // Manoel Kasimier - edited
+    M_DrawTransPic (54, 28/*32*/ + m_multiplayer_cursor * 20,Draw_CachePic( va("gfx/menudot%i.lmp", 1+((int)(realtime * 10)%6))), false ); // Manoel Kasimier - edited
 
     if (ipxAvailable || tcpipAvailable)
         return;
@@ -3856,7 +3832,7 @@ void M_Net_Draw (void)
 #endif
 
     if (p)
-        M_DrawTransPic (72, f, p);
+        M_DrawTransPic (72, f, p, false);
 
     f += 19;
 
@@ -3867,29 +3843,29 @@ void M_Net_Draw (void)
 #endif
 
     if (p)
-        M_DrawTransPic (72, f, p);
+        M_DrawTransPic (72, f, p, false);
 
     f += 19;
     if (ipxAvailable)
         p = Draw_CachePic ("gfx/netmen3.lmp");
     else
         p = Draw_CachePic ("gfx/dim_ipx.lmp");
-    M_DrawTransPic (72, f, p);
+    M_DrawTransPic (72, f, p, false);
 
     f += 19;
     if (tcpipAvailable)
         p = Draw_CachePic ("gfx/netmen4.lmp");
     else
         p = Draw_CachePic ("gfx/dim_tcp.lmp");
-    M_DrawTransPic (72, f, p);
+    M_DrawTransPic (72, f, p, false);
 
     if (m_net_items == 5)	// JDC, could just be removed
     {
         f += 19;
         p = Draw_CachePic ("gfx/netmen5.lmp");
-        M_DrawTransPic (72, f, p);
+        M_DrawTransPic (72, f, p, false);
     }
-    M_DrawTransPic (54, 28/*32*/ + m_net_cursor * 20,Draw_CachePic( va("gfx/menudot%i.lmp", 1+((int)(realtime * 10)%6) ) ) ); // Manoel Kasimier - edited
+    M_DrawTransPic (54, 28/*32*/ + m_net_cursor * 20,Draw_CachePic( va("gfx/menudot%i.lmp", 1+((int)(realtime * 10)%6))), false ); // Manoel Kasimier - edited
 }
 
 
@@ -4025,13 +4001,13 @@ void M_LanConfig_Draw (void)
         M_Print (basex+8, f+lanConfig_cursor_table[1], "OK");
     }
 
-    M_DrawCharacter (basex-8, f+lanConfig_cursor_table [lanConfig_cursor], 12+((int)(realtime*4)&1));
+    M_DrawCharacter (basex-8, f+lanConfig_cursor_table [lanConfig_cursor], 12+((int)(realtime*4)&1), false);
 
     if (lanConfig_cursor == 0)
-        M_DrawCharacter (basex+9*8 + 8*strlen(lanConfig_portname), f+lanConfig_cursor_table [0], 10+((int)(realtime*4)&1));
+        M_DrawCharacter (basex+9*8 + 8*strlen(lanConfig_portname), f+lanConfig_cursor_table [0], 10+((int)(realtime*4)&1), false);
 
     if (lanConfig_cursor == 2)
-        M_DrawCharacter (basex+16 + 8*strlen(lanConfig_joinname), f+lanConfig_cursor_table [2], 10+((int)(realtime*4)&1));
+        M_DrawCharacter (basex+16 + 8*strlen(lanConfig_joinname), f+lanConfig_cursor_table [2], 10+((int)(realtime*4)&1), false);
 
     if (*m_return_reason)
         M_PrintWhite (basex, f+116/*148*/, m_return_reason);
@@ -4265,7 +4241,7 @@ void M_ServerList_Draw (void)
             sprintf(string, "%-15.15s %-15.15s\n", hostcache[n].name, hostcache[n].map);
         M_Print (16, 32 + 8*n, string);
     }
-    M_DrawCharacter (0, 32 + slist_cursor*8, 12+((int)(realtime*4)&1));
+    M_DrawCharacter (0, 32 + slist_cursor*8, 12+((int)(realtime*4)&1), false);
 
     if (*m_return_reason)
         M_PrintWhite (16, 148, m_return_reason);
@@ -4383,7 +4359,6 @@ void M_Draw (void)
     {
         m_recursiveDraw = false;
     }
-    Draw_UpdateAlignment (1, 1);
 
     switch (m_state)
     {

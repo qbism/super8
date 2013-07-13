@@ -213,6 +213,10 @@ void as3ReadFileSharedObject(const char* filename);
 #define ALIGN_RIGHT 8
 #define ALIGN_CENTER 4
 
+//qb: for Draw2Dimage_ScaledMappedTranslatedTransparent
+#define JUSTIFY_BOTTOM 1
+#define JUSTIFY_CENTER 2
+
 #include "common.h"
 #include "bspfile.h"
 #include "vid.h"
@@ -349,10 +353,7 @@ qboolean SV_RecursiveHullCheck (hull_t *hull, int num, float p1f, float p2f, vec
 void M_Video_f (void); //qb: from Manoel Kasimier - edited
 void M_Print (int cx, int cy, char *str);
 void M_PrintWhite (int cx, int cy, char *str);
-void M_DrawCharacter (int cx, int line, int num);
-void M_DrawTransPic (int x, int y, qpic_t *pic);
-void Draw_UpdateAlignment (int h, int v);
-
+void M_DrawCharacter (int cx, int line, int num, qboolean sscale);
 
 extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output
 //  an fullscreen DIB focus gain/loss
@@ -365,7 +366,7 @@ extern int	coloredlights; //qb: colored lights on, set at map load.
 
 extern qboolean		isDedicated;
 extern	int			sb_lines;			// scan lines to draw
-extern	float			scr_2d_scale_h, scr_2d_scale_v;
+extern	float		scr_2d_scale_h, scr_2d_scale_v;
 extern int min_vid_width, min_vid_height;  //qb: Dan East
 
 extern int		minimum_memory;

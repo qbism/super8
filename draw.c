@@ -57,6 +57,7 @@ qpic_t	*Draw_PicFromWad (char *name)
     return W_GetLumpName (name);
 }
 
+extern cvar_t sbar_scale; //qb:
 // mankrip - begin
 extern int		LongSwap (int l);
 extern short	ShortSwap (short l);
@@ -330,12 +331,12 @@ void Draw_Character (int x, int y, int num)
 Draw_String
 ================
 */
-void Draw_String (int x, int y, char *str)
+void Draw_String (int x, int y, char *str, qboolean sscale)
 {
     while (*str)
     {
         //qb Draw_Character (x, y, *str);
-        M_DrawCharacter (x, y, *str);
+        M_DrawCharacter (x, y, *str, sscale);
         str++;
         x += 8;
     }
@@ -394,14 +395,15 @@ void Draw_DebugChar (char num)
 //=============================================================================
 
 void Draw2Dimage_ScaledMappedTranslatedTransparent (int x, int y, byte *source, int sourcewidth, int sourceheight, int xpadding, int ypadding,
-        int w, int h, qboolean hflip, byte *translation, byte *color_blending_map, qboolean blendbackwards, byte transcolor)//, vflip, rotate)
+        int w, int h, qboolean sscale, qboolean hflip, byte *translation, byte *color_blending_map, qboolean blendbackwards, byte transcolor)//, vflip, rotate)
 {
     byte  * dest;
     byte  tbyte;
     unsigned short   * pusdest;
     int    v, u, vscale, uscale;
 
-    x += (360-320)/2; //qb: square aspect is 320x180 or 360x202.5  ...sigh...
+    x += (360-320)/2- (360.0 - 360.0/sbar_scale.value)/2; //qb: square aspect is 320x180 or 360x202.5  ...sigh...
+    y += (sscale ?(200.0/sbar_scale.value) - 200.0 : (100.0/sbar_scale.value)-100);
      if (xpadding < 0)
         Sys_Error ("Draw2Dimage_ScaledMappedTranslatedTransparent: xpadding < 0");
     if (ypadding < 0)
@@ -510,9 +512,9 @@ void Draw2Dimage_ScaledMappedTranslatedTransparent (int x, int y, byte *source, 
 }
 
 
-void M_DrawCharacter (int x, int y, int num)
+void M_DrawCharacter (int x, int y, int num, qboolean sscale)
 {
-	Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, draw_chars + ( (num & 240) << 6) + ( (num & 15) << 3), 128, 128, 0, 0, 8, 8, false, identityTable, NULL, false,0);
+	Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, draw_chars + ( (num & 240) << 6) + ( (num & 15) << 3), 128, 128, 0, 0, 8, 8, sscale, false, identityTable, NULL, false,0);
 }
 
 /*
@@ -520,28 +522,27 @@ void M_DrawCharacter (int x, int y, int num)
 Draw_TransPic
 =============
 */
-void M_DrawTransPic (int x, int y, qpic_t *pic)
+void M_DrawTransPic (int x, int y, qpic_t *pic, qboolean sscale)
 {
 	if (pic)
-		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, false, identityTable, NULL, false, TRANSPARENT_COLOR);
+		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, sscale, false, identityTable, NULL, false, TRANSPARENT_COLOR);
 }
-void M_DrawTransPicMirror (int x, int y, qpic_t *pic)
+void M_DrawTransPicMirror (int x, int y, qpic_t *pic, qboolean sscale)
 {
 	if (pic)
-		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, true , identityTable, NULL, false, TRANSPARENT_COLOR);
+		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, sscale, true , identityTable, NULL, false, TRANSPARENT_COLOR);
 }
 
 
-
-void M_DrawTransPicTranslate (int x, int y, qpic_t *pic)
+void M_DrawTransPicTranslate (int x, int y, qpic_t *pic, qboolean sscale)
 {
 	if (pic)
-		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, false, translationTable, NULL, false, TRANSPARENT_COLOR);
+		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, sscale, false, translationTable, NULL, false, TRANSPARENT_COLOR);
 }
-void M_DrawTransPicTranslateMirror (int x, int y, qpic_t *pic)
+void M_DrawTransPicTranslateMirror (int x, int y, qpic_t *pic, qboolean sscale)
 {
 	if (pic)
-		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, true , translationTable, NULL, false, TRANSPARENT_COLOR);
+		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, sscale, true , translationTable, NULL, false, TRANSPARENT_COLOR);
 }
 
 
