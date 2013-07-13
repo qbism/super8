@@ -56,6 +56,7 @@ int         hipweapons[4] = {HIT_LASER_CANNON_BIT,HIT_MJOLNIR_BIT,4,HIT_PROXIMIT
 //MED 01/04/97 added hipnotic items array
 qpic_t      *hsb_items[2];
 
+cvar_t	sbar_scale	= {"sbar_scale","0.8", true}; //qb:
 // Manoel Kasimier - begin
 cvar_t	sbar_show_scores	= {"sbar_show_scores","0", false}; //qb: let pros set w/ custom cfg
 cvar_t	sbar_show_ammolist	= {"sbar_show_ammolist","1", false};
@@ -67,7 +68,7 @@ cvar_t	sbar_show_armor		= {"sbar_show_armor","1", false};
 cvar_t	sbar_show_health	= {"sbar_show_health","1", false};
 cvar_t	sbar_show_ammo		= {"sbar_show_ammo","1", false};
 cvar_t	sbar_show_bg		= {"sbar_show_bg","0", false};
-cvar_t	sbar                = {"sbar","4", false};
+cvar_t	sbar                = {"sbar","1", true};
 
 cvar_t	crosshair_color		= {"crosshair_color","12", true};
 // Manoel Kasimier - end
@@ -109,17 +110,23 @@ void Sbar_Changed (void)
 }
 
 
+void CheckSbarScale (void)  //qb: bound sbar_scale value
+{
+    float sbsmin = 360.0/(float)vid.width + 0.01;
+    if (sbar_scale.value < sbsmin)
+    {
+        //Con_Printf("minvalue %f \n", sbsmin);
+        Cvar_SetValue("sbar_scale", sbsmin);
+    }
+    if (sbar_scale.value > 1.0)
+        Cvar_SetValue("sbar_scale", 1.0);
+}
+
+
 // mankrip - begin
 void Sbar_SizeScreen (void)
 {
     sb_lines = 0;
-
-    scr_2d_scale_h = vid.width / 360.0;
-    if (scr_2d_scale_h < 1)
-        scr_2d_scale_h = 1;
-    scr_2d_scale_v =  vid.height / 200.0;
-    if (scr_2d_scale_v < 1)
-        scr_2d_scale_v = 1;
 
     if (sbar_show_bg.value)
         if (sbar.value > 0 && sbar.value < 4)
@@ -136,7 +143,8 @@ void Sbar_Init (void)
 {
     int		i;
 
-    // Manoel Kasimier - begin
+    Cvar_RegisterVariableWithCallback(&sbar_scale, CheckSbarScale); //qb: added
+   // Manoel Kasimier - begin
     Cvar_RegisterVariable (&sbar_show_scores);
     Cvar_RegisterVariable (&sbar_show_ammolist);
     Cvar_RegisterVariable (&sbar_show_weaponlist);
@@ -301,12 +309,12 @@ Sbar_DrawTransPic
 */
 void Sbar_DrawTransPic (int x, int y, qpic_t *pic)
 {
-    M_DrawTransPic (x, y + (200-SBAR_HEIGHT), pic); // mankrip
+    M_DrawTransPic (x, y + (200-SBAR_HEIGHT), pic, true); // mankrip
 }
 
 void Sbar_DrawTransPicMirror (int x, int y, qpic_t *pic)
 {
-    M_DrawTransPicMirror (x, y + (200-SBAR_HEIGHT), pic); // mankrip
+    M_DrawTransPicMirror (x, y + (200-SBAR_HEIGHT), pic, true); // mankrip
 }
 
 /*
@@ -318,7 +326,7 @@ Draws one solid graphics character
 */
 void Sbar_DrawCharacter (int x, int y, int num)
 {
-    M_DrawCharacter (x + 4, y + 200 - SBAR_HEIGHT, num);
+    M_DrawCharacter (x + 4, y + 200 - SBAR_HEIGHT, num, true);
 }
 
 /*
@@ -328,7 +336,7 @@ Sbar_DrawString
 */
 void Sbar_DrawString (int x, int y, char *str)
 {
-    Draw_String (x, y + 200 - SBAR_HEIGHT, str); // mankrip - edited
+    Draw_String (x, y + 200 - SBAR_HEIGHT, str, true); // mankrip - edited
 }
 
 /*
@@ -1187,7 +1195,6 @@ Sbar_Draw
 */
 void Sbar_Draw (void)
 {
-    int x, y; // Manoel Kasimier - crosshair
     if (scr_con_current == vid.height)
         return;		// console is full screen
 
@@ -1205,17 +1212,15 @@ void Sbar_Draw (void)
     {
         if (crosshair.value < 0 || crosshair.value > 5)
             crosshair.value = 0;
-        x = cl_crossx.value + scr_vrect.x + scr_vrect.width/2 - 6*(vid.width/min_vid_width);
-        y = cl_crossy.value + scr_vrect.y + scr_vrect.height/2 - 6*(vid.width/min_vid_width);
-        Crosshair_Start(x, y); // Manoel Kasimier - crosshair
+        Crosshair_Start(cl_crossx.value + scr_vrect.x + scr_vrect.width/2 - 6*(vid.width/min_vid_width),
+                         cl_crossy.value + scr_vrect.y + scr_vrect.height/2 - 6*(vid.width/min_vid_width)); // Manoel Kasimier - crosshair
     }
     // Manoel Kasimier - crosshair - end
 
     scr_copyeverything = 1;
 
 // Manoel Kasimier - begin
-    Draw_UpdateAlignment (1, 2);
-    Sbar_SizeScreen ();
+     Sbar_SizeScreen ();
 
     if ( (sb_showscores || sbar.value > 0) && sbar.value < 4)
     {
@@ -1281,7 +1286,6 @@ void Sbar_Draw (void)
     else if (sbar.value == 4)
     {
 		#define SBAR_PADDING 4
-		Draw_UpdateAlignment (0, 2);
 		if (rogue || hipnotic)
 			Sbar_SoloScoreboard (SBAR_PADDING, -29, 1);
 		else
@@ -1289,7 +1293,6 @@ void Sbar_Draw (void)
         Sbar_DrawArmor	(SBAR_PADDING +54, SBAR_PADDING -24, -28);  //qb- icon on right
 		Sbar_DrawHealth	(SBAR_PADDING +54, SBAR_PADDING -24, -4);  //qb- icon on right
 
-		Draw_UpdateAlignment (2, 2);
 		Sbar_DrawAmmoList	(360 - SBAR_PADDING - 48, -12, 1);
 		Sbar_DrawWeaponList	(360 - SBAR_PADDING - 44, -52, 1);
 		Sbar_DrawAmmo (360 - SBAR_PADDING -42, 360 - SBAR_PADDING - 122, -4);
@@ -1349,7 +1352,7 @@ void Sbar_IntermissionNumber (int x, int y, int num, int digits, int color)
         else
             frame = *ptr -'0';
 
-        M_DrawTransPic(x,y,sb_nums[color][frame]);
+        M_DrawTransPic(x,y,sb_nums[color][frame], true);
         x += 24;
         ptr++;
     }
@@ -1402,12 +1405,12 @@ void Sbar_DeathmatchOverlay (void)
         f = s->frags;
         sprintf (num, "%3i",f);
 
-        M_DrawCharacter ( x+8 , y, num[0]);
-        M_DrawCharacter ( x+16 , y, num[1]);
-        M_DrawCharacter ( x+24 , y, num[2]);
+        M_DrawCharacter ( x+8 , y, num[0], true);
+        M_DrawCharacter ( x+16 , y, num[1], true);
+        M_DrawCharacter ( x+24 , y, num[2], true);
 
         if (k == cl.viewentity - 1)
-            M_DrawCharacter ( x - 8, y, 12);
+            M_DrawCharacter ( x - 8, y, 12, true);
 
 #if 0
         {
@@ -1428,7 +1431,7 @@ void Sbar_DeathmatchOverlay (void)
 #endif
 
         // draw name
-        Draw_String (x+64, y, s->name);
+        Draw_String (x+64, y, s->name, true);
 
         y += 10;
     }
@@ -1505,14 +1508,14 @@ void Sbar_MiniDeathmatchOverlay (void)
         f = s->frags;
         sprintf (num, "%3i",f);
 
-        M_DrawCharacter ( x+8 , y, num[0]);
-        M_DrawCharacter ( x+16 , y, num[1]);
-        M_DrawCharacter ( x+24 , y, num[2]);
+        M_DrawCharacter ( x+8 , y, num[0], true);
+        M_DrawCharacter ( x+16 , y, num[1], true);
+        M_DrawCharacter ( x+24 , y, num[2], true);
 
         if (k == cl.viewentity - 1)
         {
-            M_DrawCharacter ( x - 2, y, 16); // Manoel Kasimier - edited
-            M_DrawCharacter ( x + 33, y, 17); // Manoel Kasimier - edited
+            M_DrawCharacter ( x - 2, y, 16, true); // Manoel Kasimier - edited
+            M_DrawCharacter ( x + 33, y, 17, true); // Manoel Kasimier - edited
         }
 
 #if 0
@@ -1534,7 +1537,7 @@ void Sbar_MiniDeathmatchOverlay (void)
 #endif
 
         // draw name
-        Draw_String (x+48, y, s->name);
+        Draw_String (x+48, y, s->name, true);
 
         y += 8;
     }
@@ -1561,9 +1564,8 @@ void Sbar_IntermissionOverlay (void)
 	}
 
 	// mankrip - begin
-	Draw_UpdateAlignment (1, 1);
 	M_DrawPlaque ("gfx/complete.lmp", false);
-	M_DrawTransPic (0, y, Draw_CachePic ("gfx/inter.lmp"));
+	M_DrawTransPic (0, y, Draw_CachePic ("gfx/inter.lmp"), true);
 	// mankrip - end
 
 // time
@@ -1571,16 +1573,16 @@ void Sbar_IntermissionOverlay (void)
 	num = cl.completed_time/60;
 	Sbar_IntermissionNumber (160, y+=8/*64*/, num, 3, 0);
 	num = cl.completed_time - num*60;
-	M_DrawTransPic (234, y/*64*/, sb_colon);
-	M_DrawTransPic (246, y/*64*/, sb_nums[0][num/10]);
-	M_DrawTransPic (266, y/*64*/, sb_nums[0][num%10]);
+	M_DrawTransPic (234, y/*64*/, sb_colon, true);
+	M_DrawTransPic (246, y/*64*/, sb_nums[0][num/10], true);
+	M_DrawTransPic (266, y/*64*/, sb_nums[0][num%10], true);
 
 	Sbar_IntermissionNumber (160, y+=40/*104*/, cl.stats[STAT_SECRETS], 3, 0);
-	M_DrawTransPic			(232, y/*104*/, sb_slash);
+	M_DrawTransPic			(232, y/*104*/, sb_slash, true);
 	Sbar_IntermissionNumber (240, y/*104*/, cl.stats[STAT_TOTALSECRETS], 3, 0);
 
 	Sbar_IntermissionNumber (160, y+=40/*144*/, cl.stats[STAT_MONSTERS], 3, 0);
-	M_DrawTransPic			(232, y/*144*/, sb_slash);
+	M_DrawTransPic			(232, y/*144*/, sb_slash, true);
 	Sbar_IntermissionNumber (240, y/*144*/, cl.stats[STAT_TOTALMONSTERS], 3, 0);
 // mankrip - edited - end
 }
@@ -1594,6 +1596,5 @@ Sbar_FinaleOverlay
 void Sbar_FinaleOverlay (void)
 {
     scr_copyeverything = 1;
-    Draw_UpdateAlignment (1, 1);
     M_DrawPlaque ("gfx/finale.lmp", false); // Manoel Kasimier
 }

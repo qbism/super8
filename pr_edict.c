@@ -369,35 +369,6 @@ char *PR_ValueString (etype_t type, eval_t *val)
     return line;
 }
 
-// Manoel Kasimier - reduced savegames - begin
-char *MK_cleanftos (float f)
-{
-    int i = (int)f;
-    if (fabs(f) < 0.000001)
-        return "0";
-    if (f == i)
-        return va("%i", i);
-    else
-    {
-        char s[256];
-        Q_strcpy(s, va("%f", f));
-        for (i = Q_strlen(s)-1 ; i >= 0 ; i--)
-        {
-            if (s[i]!='0' && s[i]!='.')
-                break;
-            if (s[i]=='0')
-                s[i]=0;
-            else if (s[i]=='.')
-            {
-                s[i]=0;
-                break;
-            }
-        }
-        return va("%s", s);
-    }
-}
-// Manoel Kasimier - reduced savegames - end
-
 /*
 ============
 PR_UglyValueString
@@ -434,13 +405,13 @@ char *PR_UglyValueString (etype_t type, eval_t *val)
         sprintf (line, "void");
         break;
     case ev_float:
-        sprintf (line, "%s", MK_cleanftos(val->_float)); // Manoel Kasimier - reduced savegames
+        sprintf (line, "%s", COM_NiceFloatString(val->_float)); // Manoel Kasimier - reduced savegames
         break;
     case ev_vector:
         // Manoel Kasimier - reduced savegames - begin
-        sprintf (line,	  "%s",		  MK_cleanftos(val->vector[0]));
-        sprintf (line, "%s %s", line, MK_cleanftos(val->vector[1]));
-        sprintf (line, "%s %s", line, MK_cleanftos(val->vector[2]));
+        sprintf (line,	  "%s",		  COM_NiceFloatString(val->vector[0]));
+        sprintf (line, "%s %s", line, COM_NiceFloatString(val->vector[1]));
+        sprintf (line, "%s %s", line, COM_NiceFloatString(val->vector[2]));
         // Manoel Kasimier - reduced savegames - end
         break;
     default:

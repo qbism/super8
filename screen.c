@@ -22,6 +22,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "s_win32/movie_avi.h"
 #endif
 
+
+extern	cvar_t	sbar_scale; //qb: added
 // only the refresh window will be updated unless these variables are flagged
 int			scr_copytop;
 int			scr_copyeverything;
@@ -151,13 +153,11 @@ void SCR_DrawCenterString (void)
     scr_erase_center = 0;
     start = scr_centerstring;
 
-    Draw_UpdateAlignment (1, 1);
     // mankrip - svc_letterbox - begin
     if (cl.letterbox)
     {
         y = (scr_vrect.y + scr_vrect.height + 4) / scr_2d_scale_v;
-        Draw_UpdateAlignment (1, 0);
-    }
+     }
     else
         // mankrip - svc_letterbox - end
         if (scr_center_lines <= 4)
@@ -174,7 +174,7 @@ void SCR_DrawCenterString (void)
         x = (320 - l*8)/2;
         for (j=0 ; j<l ; j++, x+=8)
         {
-            M_DrawCharacter (x, y, start[j]);
+            M_DrawCharacter (x, y, start[j], false);
             if (!remaining--)
                 return;
         }
@@ -316,15 +316,16 @@ void SCR_SizeDown_f (void)
 }
 
 
-void SCR_SbarUp_f (void)  //qb:
+void SCR_SbarUp_f (void)  //qb: change sbar view
 {
-    sbar.value +=1;
-    if (sbar.value >4) sbar.value = 4;
-}
+   if (sbar.value ==4) return;
+    Cvar_SetValue("sbar", (float)(sbar.value + 1));
+ }
 void SCR_SbarDown_f (void)  //qb:
 {
-    sbar.value -=1;
-    if (sbar.value <0) sbar.value = 0;
+   if (sbar.value ==0) return;
+    Cvar_SetValue("sbar", (float)(sbar.value - 1));
+
 }
 
 
@@ -419,8 +420,7 @@ void SCR_DrawNet (void)
     if (cls.demoplayback)
         return;
 
-    Draw_UpdateAlignment (0, 0); // mankrip
-    M_DrawTransPic (scr_vrect.x+64, scr_vrect.y, scr_net); // Manoel Kasimier - edited
+    M_DrawTransPic (scr_vrect.x+64, scr_vrect.y, scr_net, false); // Manoel Kasimier - edited
 }
 
 //qb: improved drawfps adapted from Proquake
@@ -450,8 +450,7 @@ void SCR_DrawFPS (void)
     x = 300; //qb
     if (scr_vrect.y > 0)
         Draw_Fill(x, 0, Q_strlen(st) * 8, 8, 0);
-    Draw_UpdateAlignment (2, 0);
-    Draw_String(x, 0, st);
+    Draw_String(x, 0, st, false);
 }
 
 
@@ -467,7 +466,6 @@ void SCR_DrawPause (void)
 
     if (!cl.paused)
         return;
-    Draw_UpdateAlignment (1, 2);
     M_DrawPlaque ("gfx/pause.lmp", false); // Manoel Kasimier
 }
 
@@ -486,8 +484,7 @@ void SCR_DrawLoading (void)
         return;
 
     pic = Draw_CachePic ("gfx/loading.lmp");
-    Draw_UpdateAlignment (1, 1); // mankrip
-    M_DrawTransPic ( (min_vid_width - pic->width) / 2, (min_vid_height - pic->height - (float)sb_lines / scr_2d_scale_v) / 2, pic);
+    M_DrawTransPic ( (min_vid_width - pic->width) / 2, (min_vid_height - pic->height - (float)sb_lines / scr_2d_scale_v) / 2, pic, false);
 }
 
 
@@ -1024,7 +1021,6 @@ void SCR_DrawNotifyString (void)
     start = scr_notifystring;
 
     y = vid.height*0.35;
-    Draw_UpdateAlignment (0, 0); // mankrip
     do
     {
         // scan the width of the line
@@ -1165,6 +1161,14 @@ void SCR_UpdateScreen (void)
     SCR_EraseCenterString ();
 
     V_RenderView ();
+
+            //qb: dump this here
+        scr_2d_scale_h = vid.width / (360.0/sbar_scale.value);
+    if (scr_2d_scale_h < 1)
+        scr_2d_scale_h = 1;
+    scr_2d_scale_v =  vid.height / (200.0/sbar_scale.value);
+    if (scr_2d_scale_v < 1)
+        scr_2d_scale_v = 1;
 
     if (scr_drawdialog)
     {

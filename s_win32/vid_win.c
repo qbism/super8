@@ -1129,6 +1129,7 @@ int VID_SetMode (int modenum, unsigned char *palette)
     ReleaseDC (NULL, hdc);
     vid_modenum = modenum;
     Cvar_SetValue ("vid_mode", (float) vid_modenum);
+    CheckSbarScale();
 
     //  if (vid.width<320) min_vid_width=vid.width; //qb: Dan East
     //  else min_vid_width=320;
@@ -2112,7 +2113,7 @@ void VID_MenuDraw (void)
     vmode_t		*pv;
     modedesc_t	tmodedesc;
     p = Draw_CachePic ("gfx/vidmodes.lmp");
-    M_DrawTransPic ( ( min_vid_width-p->width)/2, 4, p); //qb: from Manoel Kasimier + Dan East
+    M_DrawTransPic ( ( min_vid_width-p->width)/2, 4, p, false); //qb: from Manoel Kasimier + Dan East
 
     for (i = 0; i < 3; i++)
     {
@@ -2267,7 +2268,7 @@ void VID_MenuDraw (void)
         if (vid_line >= 3)
             row += 3 * 8;
 
-        M_DrawCharacter (column, row, 12 + ((int) (realtime * 4) & 1));
+        M_DrawCharacter (column, row, 12 + ((int) (realtime * 4) & 1), false);
     }
 }
 

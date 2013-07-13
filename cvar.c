@@ -162,7 +162,7 @@ void Cvar_SetValue (char *var_name, float value)
 {
 	char	val[32];
 
-	sprintf (val, "%s", MK_cleanftos(value)); // Manoel Kasimier - reduced config file
+	sprintf (val, "%f",value); //qb: both COM_NiceFloatString and MK_cleanftos fail here when passed float variable.
 	Cvar_Set (var_name, val);
 }
 

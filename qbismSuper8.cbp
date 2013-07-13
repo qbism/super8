@@ -40,7 +40,7 @@
 				<Compiler>
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-fexpensive-optimizations" />
-					<Add option="-O3" />
+					<Add option="-O2" />
 					<Add option="-w" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
@@ -87,7 +87,7 @@
 					<Add option="-march=corei7" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-fexpensive-optimizations" />
-					<Add option="-O3" />
+					<Add option="-O2" />
 					<Add option="-w" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />

@@ -29,7 +29,7 @@ extern	int		edit_line;
 extern	int		key_linepos;
 extern char chat_buffer[];
 extern qboolean team_message;
-extern char *MK_cleanftos (float f); // Manoel Kasimier - reduced config file
+extern char *COM_NiceFloatString (float f); //qb: from FQmV
 
 extern void M_Main_f (void); // edited
 

@@ -418,6 +418,26 @@ void Q_snprintfz (char *dest, size_t size, char *fmt, ...)
     dest[size - 1] = 0;
 }
 
+
+//qb: swapped MK_cleanftos with FQmV function
+char *COM_NiceFloatString (float floatvalue)
+{
+	static char buildstring[32];
+	int			i;
+
+	sprintf (buildstring, "%f", floatvalue);
+
+	// Strip off ending zeros
+	for (i = strlen(buildstring) - 1 ; i > 0 && buildstring[i] == '0' ; i--)
+		buildstring[i] = 0;
+
+	// Strip off ending period
+	if (buildstring[i] == '.')
+		buildstring[i] = 0;
+
+	return buildstring;
+}
+
 /*
 ==================
 COM_ForceExtension
