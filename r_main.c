@@ -154,7 +154,7 @@ cvar_t	r_drawviewmodel = {"r_drawviewmodel","1", true}; // Manoel Kasimier - sav
 cvar_t	r_aliasstats = {"r_polymodelstats","0"};
 cvar_t	r_dspeeds = {"r_dspeeds","0"};
 cvar_t	r_drawflat = {"r_drawflat", "0"};
-cvar_t	r_ambient = {"r_ambient", "0"};
+cvar_t	r_ambient = {"r_ambient", "15"}; //qb: avoid total black
 //qb: nolerp list from FQ
 cvar_t	r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs/braztall.mdl,progs/brazshrt.mdl,progs/longtrch.mdl,progs/flame_pyre.mdl,progs/v_saw.mdl,progs/v_xfist.mdl,progs/h2stuff/newfire.mdl"};
 
