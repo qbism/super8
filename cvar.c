@@ -160,10 +160,10 @@ Cvar_SetValue
 */
 void Cvar_SetValue (char *var_name, float value)
 {
-	char	val[32];
-
-	sprintf (val, "%f",value); //qb: both COM_NiceFloatString and MK_cleanftos fail here when passed float variable.
-	Cvar_Set (var_name, val);
+Cvar_Set (var_name, COM_NiceFloatString(value));
+	//char	val[32];
+	//sprintf (val, "%f", value); //qb: both COM_NiceFloatString and MK_cleanftos fail here when passed float variable.
+	//Cvar_Set (var_name, val);
 }
 
 
@@ -181,7 +181,7 @@ void Cvar_RegisterVariable (cvar_t *variable)
 // first check to see if it has allready been defined
 	if (Cvar_FindVar (variable->name))
 	{
-		Con_Printf ("Can't register variable %s, allready defined\n", variable->name);
+		Con_Printf ("Can't register variable %s, already defined\n", variable->name);
 		return;
 	}
 
@@ -197,6 +197,11 @@ void Cvar_RegisterVariable (cvar_t *variable)
 	variable->string = Q_calloc (Q_strlen(variable->string)+1);
 	Q_strcpy (variable->string, oldstr);
 	variable->value = Q_atof (variable->string);
+
+	//qb:  remember default
+	variable->defaultstring = Q_calloc (Q_strlen(variable->string));
+	Q_strcpy (variable->defaultstring, variable->string);
+
 
 // link the variable in
 	variable->next = cvar_vars;
@@ -241,7 +246,13 @@ qboolean	Cvar_Command (void)
 // perform a variable print or set
 	if (Cmd_Argc() == 1)
 	{
-		Con_Printf ("\"%s\" is \"%s\"\n", v->name, v->string);
+		Con_Printf ("Current value is %s\n", v->string);
+		Con_Printf ("Default value is %s\n", v->defaultstring); //qb: default
+		Con_Printf ("Usage: %s\n",  v->helpstring);  //qb: help
+		if (v->archive)
+            Con_Printf ("Value gets saved in super8.cfg: YES\n\n");
+        else
+            Con_Printf ("Value gets saved in super8.cfg: NO\n\n");
 		return true;
 	}
 

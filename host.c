@@ -35,7 +35,7 @@ Memory is cleared / released when a server or client begins, not when they end.
 
 // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
 double	host_org_frametime;
-cvar_t	host_timescale = {"host_timescale", "0"};
+cvar_t	host_timescale = {"host_timescale", "0", "IOU help string - qbism."};
 // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
 
 void Palette_Init (void);
@@ -65,32 +65,32 @@ byte		*host_colormap;//qb:
 byte        *alphamap, *alpha50map, *additivemap, *fogmap; //qb: moved here
 byte        *lightcolormap; //qb:
 
-cvar_t	r_skyalpha = {"r_skyalpha","0.5"}; //0.6 Manoel Kasimier - translucent sky
+cvar_t	r_skyalpha = {"r_skyalpha","0.5", "IOU help string - qbism."}; //0.6 Manoel Kasimier - translucent sky
 
-cvar_t  r_palette =  {"r_palette", "s8pal", true}; //qb: the default palette to load
+cvar_t  r_palette =  {"r_palette", "s8pal", "IOU help string - qbism.", true}; //qb: the default palette to load
 
-cvar_t	host_framerate = {"host_framerate","0"};	// set for slow motion
-cvar_t	host_speeds = {"host_speeds","0"};			// set for running times
+cvar_t	host_framerate = {"host_framerate","0", "IOU help string - qbism."};	// set for slow motion
+cvar_t	host_speeds = {"host_speeds","0", "IOU help string - qbism."};			// set for running times
 
-cvar_t	sys_ticrate = {"sys_ticrate","0.05"};
-cvar_t	serverprofile = {"serverprofile","0"};
+cvar_t	sys_ticrate = {"sys_ticrate","0.05", "IOU help string - qbism."};
+cvar_t	serverprofile = {"serverprofile","0", "IOU help string - qbism."};
 
-cvar_t	fraglimit = {"fraglimit","0",false,true};
-cvar_t	timelimit = {"timelimit","0",false,true};
-cvar_t	teamplay = {"teamplay","0",false,true};
+cvar_t	fraglimit = {"fraglimit","0", "IOU help string - qbism.",false,true};
+cvar_t	timelimit = {"timelimit","0", "IOU help string - qbism.",false,true};
+cvar_t	teamplay = {"teamplay","0", "IOU help string - qbism.",false,true};
 
-cvar_t	samelevel = {"samelevel","0"};
-cvar_t	noexit = {"noexit","0",false,true};
+cvar_t	samelevel = {"samelevel","0", "IOU help string - qbism."};
+cvar_t	noexit = {"noexit","0", "IOU help string - qbism.",false,true};
 
-cvar_t	developer = {"developer","0"};
+cvar_t	developer = {"developer","0", "IOU help string - qbism."};
 
-cvar_t	skill = {"skill","1"};						// 0 - 3
-cvar_t	deathmatch = {"deathmatch","0"};			// 0, 1, or 2
-cvar_t	coop = {"coop","0"};			// 0 or 1
+cvar_t	skill = {"skill","1", "IOU help string - qbism."};						// 0 - 3
+cvar_t	deathmatch = {"deathmatch","0", "IOU help string - qbism."};			// 0, 1, or 2
+cvar_t	coop = {"coop","0", "IOU help string - qbism."};			// 0 or 1
 
-cvar_t	pausable = {"pausable","1"};
+cvar_t	pausable = {"pausable","1", "IOU help string - qbism."};
 
-cvar_t	temp1 = {"temp1","0"};
+cvar_t	temp1 = {"temp1","0", "IOU help string - qbism."};
 
 
 /*

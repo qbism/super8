@@ -24,14 +24,14 @@ int current_protocol = PROTOCOL_QBS8; //qb
 server_t		sv;
 server_static_t	svs;
 
-cvar_t	sv_cullentities		= {"sv_cullentities","1", false, true}; //qb: qrack
-cvar_t  sv_progs = {"sv_progs", "progs.dat" }; //qb: enginex
+cvar_t	sv_cullentities		= {"sv_cullentities","1", "IOU help string - qbism.", false, true}; //qb: qrack
+cvar_t  sv_progs = {"sv_progs", "progs.dat", "IOU help string - qbism." }; //qb: enginex
 char	localmodels[MAX_MODELS][6];			// inline model names for precache //qb: was 5
 
 //============================================================================
 
 
-cvar_t sv_qcexec = {"sv_qcexec","0", false, true}; // Manoel Kasimier - qcexec
+cvar_t sv_qcexec = {"sv_qcexec","0", "IOU help string - qbism.", false, true}; // Manoel Kasimier - qcexec
 
 
 /*

@@ -18,14 +18,15 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 
-cvar_t	chase_back = {"chase_back", "100", true}; // Manoel Kasimier - edited
-cvar_t	chase_up = {"chase_up", "16", true}; // Manoel Kasimier - edited
-cvar_t	chase_right = {"chase_right", "0", true};
-cvar_t	chase_active = {"chase_active", "0", true}; // Manoel Kasimier - edited
+cvar_t	chase_back = {"chase_back", "100", "chase_back [distance] Camera location behind player if chase_active = 1 or 2.", true};
+cvar_t	chase_up = {"chase_up", "16", "chase_up [distance] Camera location behind player if chase_active = 1 or 2.", true};
+cvar_t	chase_right = {"chase_right", "0", "chase_right [distance] Camera location behind player, when chase_active = 1 or 2.", true};
 
-cvar_t  chase_roll = {"chase_roll", "0", true};  //qb:  custom chase by frag.machine
-cvar_t  chase_yaw = {"chase_yaw", "180", true};
-cvar_t  chase_pitch = {"chase_pitch", "45", true};
+//qb:  custom chase by frag.machine
+cvar_t	chase_active = {"chase_active", "0", "chase_active[ 0/1/2] Third-person cam.\n[1] Camera faces player direction.\n[2] Fixed camera direction.", true};
+cvar_t  chase_roll = {"chase_roll", "0", "chase_roll [angle] Camera roll when chase_active = 2.", true};
+cvar_t  chase_yaw = {"chase_yaw", "180", "chase_yaw [angle] Camera yaw when chase_active = 2.", true};
+cvar_t  chase_pitch = {"chase_pitch", "45", "chase_pitch [angle] Camera pitch when chase_active = 2.", true};
 
 vec3_t	chase_dest;
 vec3_t	chase_dest_angles;

@@ -31,48 +31,48 @@ when crossing a water boudnary.
 
 //qb - Aardappel fisheye begin
 void R_RenderView_Fisheye();
-cvar_t  ffov = {"ffov", "180", true};
-cvar_t  r_fisheye = {"r_fisheye", "0", true}; //qb added
-cvar_t  r_fishaccel = {"r_fishaccel", "0", false}; //qb:  for cheeezy zoom effect
+cvar_t  ffov = {"ffov", "180", "IOU help string - qbism.", true};
+cvar_t  r_fisheye = {"r_fisheye", "0", "IOU help string - qbism.", true}; //qb added
+cvar_t  r_fishaccel = {"r_fishaccel", "0", "IOU help string - qbism.", false}; //qb:  for cheeezy zoom effect
 int r_fviews;
 //qb - Aardappel fisheye end
 
-cvar_t	scr_ofsx = {"scr_ofsx","0", false};
-cvar_t	scr_ofsy = {"scr_ofsy","0", true}; // Manoel Kasimier - saved in the config file - edited
-cvar_t	scr_ofsz = {"scr_ofsz","0", false};
+cvar_t	scr_ofsx = {"scr_ofsx","0", "IOU help string - qbism.", false};
+cvar_t	scr_ofsy = {"scr_ofsy","0", "IOU help string - qbism.", true}; // Manoel Kasimier - saved in the config file - edited
+cvar_t	scr_ofsz = {"scr_ofsz","0", "IOU help string - qbism.", false};
 
-cvar_t	v_deathtilt = {"v_deathtilt", "1"}; // Manoel Kasimier
-cvar_t	v_deathtiltangle = {"v_deathtiltangle", "80"}; // Manoel Kasimier
-cvar_t	cl_rollspeed = {"cl_rollspeed", "200"};
-cvar_t	cl_rollangle = {"cl_rollangle", "2.0"};
+cvar_t	v_deathtilt = {"v_deathtilt", "1", "IOU help string - qbism."}; // Manoel Kasimier
+cvar_t	v_deathtiltangle = {"v_deathtiltangle", "80", "IOU help string - qbism."}; // Manoel Kasimier
+cvar_t	cl_rollspeed = {"cl_rollspeed", "200", "IOU help string - qbism."};
+cvar_t	cl_rollangle = {"cl_rollangle", "2.0", "IOU help string - qbism."};
 
-cvar_t	cl_bob = {"cl_bob","0.007", false};
-cvar_t	cl_bobcycle = {"cl_bobcycle","0.6", false};
-cvar_t	cl_bobup = {"cl_bobup","0.5", false};
+cvar_t	cl_bob = {"cl_bob","0.007", "IOU help string - qbism.", false};
+cvar_t	cl_bobcycle = {"cl_bobcycle","0.6", "IOU help string - qbism.", false};
+cvar_t	cl_bobup = {"cl_bobup","0.5", "IOU help string - qbism.", false};
 
-cvar_t	v_kicktime = {"v_kicktime", "0.5", false};
-cvar_t	v_kickroll = {"v_kickroll", "0.6", false};
-cvar_t	v_kickpitch = {"v_kickpitch", "0.6", false};
-cvar_t  v_gunkick = {"v_gunkick", "1", true}; //qb - from directq
+cvar_t	v_kicktime = {"v_kicktime", "0.5", "IOU help string - qbism.", false};
+cvar_t	v_kickroll = {"v_kickroll", "0.6", "IOU help string - qbism.", false};
+cvar_t	v_kickpitch = {"v_kickpitch", "0.6", "IOU help string - qbism.", false};
+cvar_t  v_gunkick = {"v_gunkick", "1", "IOU help string - qbism.", true}; //qb - from directq
 
-cvar_t	v_iyaw_cycle = {"v_iyaw_cycle", "2", false};
-cvar_t	v_iroll_cycle = {"v_iroll_cycle", "0.5", false};
-cvar_t	v_ipitch_cycle = {"v_ipitch_cycle", "1", false};
-cvar_t	v_iyaw_level = {"v_iyaw_level", "0.3", false};
-cvar_t	v_iroll_level = {"v_iroll_level", "0.1", false};
-cvar_t	v_ipitch_level = {"v_ipitch_level", "0.3", false};
+cvar_t	v_iyaw_cycle = {"v_iyaw_cycle", "2", "IOU help string - qbism.", false};
+cvar_t	v_iroll_cycle = {"v_iroll_cycle", "0.5", "IOU help string - qbism.", false};
+cvar_t	v_ipitch_cycle = {"v_ipitch_cycle", "1", "IOU help string - qbism.", false};
+cvar_t	v_iyaw_level = {"v_iyaw_level", "0.3", "IOU help string - qbism.", false};
+cvar_t	v_iroll_level = {"v_iroll_level", "0.1", "IOU help string - qbism.", false};
+cvar_t	v_ipitch_level = {"v_ipitch_level", "0.3", "IOU help string - qbism.", false};
 
-cvar_t	v_idlescale = {"v_idlescale", "0", false};
+cvar_t	v_idlescale = {"v_idlescale", "0", "IOU help string - qbism.", false};
 
-cvar_t	crosshair = {"crosshair", "2", true};
-cvar_t	cl_crossx = {"cl_crossx", "0", false};
-cvar_t	cl_crossy = {"cl_crossy", "0", false};
+cvar_t	crosshair = {"crosshair", "2", "IOU help string - qbism.", true};
+cvar_t	cl_crossx = {"cl_crossx", "0", "IOU help string - qbism.", false};
+cvar_t	cl_crossy = {"cl_crossy", "0", "IOU help string - qbism.", false};
 
 //qb replace gl_polyblend with r_polyblend
-cvar_t	r_polyblend = {"r_polyblend", "1", false}; // Manoel Kasimier - r_polyblend
+cvar_t	r_polyblend = {"r_polyblend", "1", "IOU help string - qbism.", false}; // Manoel Kasimier - r_polyblend
 int	r_polyblend_old; // Manoel Kasimier - r_polyblend
 
-cvar_t	cl_nobob = {"cl_nobob","0", true}; // Manoel Kasimier - cl_nobob
+cvar_t	cl_nobob = {"cl_nobob","0", "IOU help string - qbism.", true}; // Manoel Kasimier - cl_nobob
 
 float	v_dmg_time, v_dmg_roll, v_dmg_pitch;
 
@@ -151,8 +151,8 @@ float V_CalcBob (void)
 //=============================================================================
 
 
-cvar_t	v_centermove = {"v_centermove", "0.15", false};
-cvar_t	v_centerspeed = {"v_centerspeed","200"}; // 500 // Manoel Kasimier - edited
+cvar_t	v_centermove = {"v_centermove", "0.15", "IOU help string - qbism.", false};
+cvar_t	v_centerspeed = {"v_centerspeed","200", "IOU help string - qbism."}; // 500 // Manoel Kasimier - edited
 
 
 void V_StartPitchDrift (void)
@@ -268,7 +268,7 @@ cshift_t	cshift_water = { {130,80,50}, 128 };
 cshift_t	cshift_slime = { {0,25,5}, 150 };
 cshift_t	cshift_lava = { {255,80,0}, 150 };
 
-cvar_t		v_gamma = {"gamma", "0.88", true};
+cvar_t		v_gamma = {"gamma", "0.88", "IOU help string - qbism.", true};
 
 byte		gammatable[256];	// palette is sent through this
 
