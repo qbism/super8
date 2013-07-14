@@ -53,9 +53,9 @@ int messagesReceived = 0;
 int unreliableMessagesSent = 0;
 int unreliableMessagesReceived = 0;
 
-cvar_t	net_messagetimeout = {"net_messagetimeout","300"};
-cvar_t	net_connecttimeout = {"net_connecttimeout","10"};	//qb: Baker net fix - From ProQuake - qkick/qflood protection
-cvar_t	hostname = {"hostname", "UNNAMED"};
+cvar_t	net_messagetimeout = {"net_messagetimeout","300", "IOU help string - qbism."};
+cvar_t	net_connecttimeout = {"net_connecttimeout","10", "IOU help string - qbism."};	//qb: Baker net fix - From ProQuake - qkick/qflood protection
+cvar_t	hostname = {"hostname", "UNNAMED", "IOU help string - qbism."};
 
 qboolean	configRestored = false;
 

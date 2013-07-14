@@ -20,7 +20,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "quakedef.h"
 
 edict_t	*sv_player;
-cvar_t	sv_edgefriction = {"edgefriction", "2"};
+cvar_t	sv_edgefriction = {"edgefriction", "2", "IOU help string - qbism."};
 
 static	vec3_t		forward, right, up;
 
@@ -36,8 +36,8 @@ qboolean	onground;
 
 usercmd_t	cmd;
 
-cvar_t	sv_idealpitchscale = {"sv_idealpitchscale","0.8", true}; // Manoel Kasimier - saved in the config file - edited
-cvar_t	sv_enable_use_button = {"sv_enable_use_button","0", true}; // Manoel Kasimier - +USE fix
+cvar_t	sv_idealpitchscale = {"sv_idealpitchscale","0.8", "IOU help string - qbism.", true}; // Manoel Kasimier - saved in the config file - edited
+cvar_t	sv_enable_use_button = {"sv_enable_use_button","0", "IOU help string - qbism.", true}; // Manoel Kasimier - +USE fix
 
 
 /*
@@ -160,8 +160,8 @@ void SV_UserFriction (void)
 SV_Accelerate
 ==============
 */
-cvar_t	sv_maxspeed = {"sv_maxspeed", "320", false, true};
-cvar_t	sv_accelerate = {"sv_accelerate", "10"};
+cvar_t	sv_maxspeed = {"sv_maxspeed", "320", "IOU help string - qbism.", false, true};
+cvar_t	sv_accelerate = {"sv_accelerate", "10", "IOU help string - qbism."};
 #if 0
 void SV_Accelerate (vec3_t wishvel)
 {

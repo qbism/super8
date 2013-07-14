@@ -136,72 +136,71 @@ void R_MarkLeaves (void);
 
 extern cvar_t		vid_windowed_mode; //qb
 
-cvar_t	r_draworder = {"r_draworder","0"};
-cvar_t	r_speeds = {"r_speeds","0"};
+cvar_t	r_draworder = {"r_draworder","0", "IOU help string - qbism."};
+cvar_t	r_speeds = {"r_speeds","0", "IOU help string - qbism."};
 
 //qb: fte stain cvars
-cvar_t r_stainfadeamount = {"r_stainfadeamount", "1"};
-cvar_t r_stainfadetime = {"r_stainfadetime", "1"};
-cvar_t r_stains = {"r_stains", "0.75"}; //zero to one
+cvar_t r_stainfadeamount = {"r_stainfadeamount", "1", "IOU help string - qbism."};
+cvar_t r_stainfadetime = {"r_stainfadetime", "1", "IOU help string - qbism."};
+cvar_t r_stains = {"r_stains", "0.75", "IOU help string - qbism."}; //zero to one
 
-cvar_t	r_timegraph = {"r_timegraph","0"};
-cvar_t	r_graphheight = {"r_graphheight","10"};
-cvar_t	r_clearcolor = {"r_clearcolor","2"};
-cvar_t	r_waterwarp = {"r_waterwarp","1"};
-cvar_t	r_fullbright = {"r_fullbright","0"};
-cvar_t	r_drawentities = {"r_drawentities","1"};
-cvar_t	r_drawviewmodel = {"r_drawviewmodel","1", true}; // Manoel Kasimier - saved in the config file - edited
-cvar_t	r_aliasstats = {"r_polymodelstats","0"};
-cvar_t	r_dspeeds = {"r_dspeeds","0"};
-cvar_t	r_drawflat = {"r_drawflat", "0"};
-cvar_t	r_ambient = {"r_ambient", "15"}; //qb: avoid total black
+cvar_t	r_timegraph = {"r_timegraph","0", "IOU help string - qbism."};
+cvar_t	r_graphheight = {"r_graphheight","10", "IOU help string - qbism."};
+cvar_t	r_clearcolor = {"r_clearcolor","2", "IOU help string - qbism."};
+cvar_t	r_waterwarp = {"r_waterwarp","1", "IOU help string - qbism."};
+cvar_t	r_fullbright = {"r_fullbright","0", "IOU help string - qbism."};
+cvar_t	r_drawentities = {"r_drawentities","1", "IOU help string - qbism."};
+cvar_t	r_drawviewmodel = {"r_drawviewmodel","1", "IOU help string - qbism.", true}; // Manoel Kasimier - saved in the config file - edited
+cvar_t	r_aliasstats = {"r_polymodelstats","0", "IOU help string - qbism."};
+cvar_t	r_dspeeds = {"r_dspeeds","0", "IOU help string - qbism."};
+cvar_t	r_drawflat = {"r_drawflat", "0", "IOU help string - qbism."};
+cvar_t	r_ambient = {"r_ambient", "15", "IOU help string - qbism."}; //qb: avoid total black
 //qb: nolerp list from FQ
-cvar_t	r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs/braztall.mdl,progs/brazshrt.mdl,progs/longtrch.mdl,progs/flame_pyre.mdl,progs/v_saw.mdl,progs/v_xfist.mdl,progs/h2stuff/newfire.mdl"};
+cvar_t	r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs/braztall.mdl,progs/brazshrt.mdl,progs/longtrch.mdl,progs/flame_pyre.mdl,progs/v_saw.mdl,progs/v_xfist.mdl,progs/h2stuff/newfire.mdl", "IOU help string - qbism."};
 
 
-cvar_t	r_coloredlights = {"r_coloredlights", "1", true}; //qb:
-cvar_t	r_clbaseweight = {"r_clbaseweight", "0.8", true}; //qb: base pixel weight for color map blending
-cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", true}; //qb: color weight for color map blending
-//qb:  too dangerous... cvar_t	r_colmaprange= {"r_colmaprange", "1.0", true}; //qb: colormap range for overbright
+cvar_t	r_coloredlights = {"r_coloredlights", "1", "IOU help string - qbism.", true}; //qb:
+cvar_t	r_clbaseweight = {"r_clbaseweight", "0.8", "IOU help string - qbism.", true}; //qb: base pixel weight for color map blending
+cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", "IOU help string - qbism.", true}; //qb: color weight for color map blending
 
-cvar_t r_fog = {"r_fog", "1", true}; //qb:  draw fog?
+cvar_t r_fog = {"r_fog", "1", "IOU help string - qbism.", true}; //qb:  draw fog?
 
-cvar_t	r_reportsurfout = {"r_reportsurfout", "0"};
-cvar_t	r_maxsurfs = {"r_maxsurfs", "0"};
-cvar_t	r_numsurfs = {"r_numsurfs", "0"};
-cvar_t	r_reportedgeout = {"r_reportedgeout", "0"};
-cvar_t	r_maxedges = {"r_maxedges", "0"};
-cvar_t	r_numedges = {"r_numedges", "0"};
-cvar_t	r_aliastransadj = {"r_aliastransadj", "100"};
+cvar_t	r_reportsurfout = {"r_reportsurfout", "0", "IOU help string - qbism."};
+cvar_t	r_maxsurfs = {"r_maxsurfs", "0", "IOU help string - qbism."};
+cvar_t	r_numsurfs = {"r_numsurfs", "0", "IOU help string - qbism."};
+cvar_t	r_reportedgeout = {"r_reportedgeout", "0", "IOU help string - qbism."};
+cvar_t	r_maxedges = {"r_maxedges", "0", "IOU help string - qbism."};
+cvar_t	r_numedges = {"r_numedges", "0", "IOU help string - qbism."};
+cvar_t	r_aliastransadj = {"r_aliastransadj", "100", "IOU help string - qbism."};
 
-cvar_t	r_colmapred = {"r_colmapred", "0"};  //qb: boost overall light tint for colormap.
-cvar_t	r_colmapblue = {"r_colmapblue", "0"};  //qb: boost overall light tint for colormap.
-cvar_t	r_colmapgreen = {"r_colmapgreen", "0"};  //qb: boost overall light tint for colormap.
+cvar_t	r_colmapred = {"r_colmapred", "0", "IOU help string - qbism."};  //qb: boost overall light tint for colormap.
+cvar_t	r_colmapblue = {"r_colmapblue", "0", "IOU help string - qbism."};  //qb: boost overall light tint for colormap.
+cvar_t	r_colmapgreen = {"r_colmapgreen", "0", "IOU help string - qbism."};  //qb: boost overall light tint for colormap.
 
 //cvar_t	r_letterbox = {"r_letterbox","0"}; // Manoel Kasimier - r_letterbox
 // Manoel Kasimier - changed alias models lighting - begin
-cvar_t	r_light_vec_x = {"r_light_vec_x", "-1"};
-cvar_t	r_light_vec_y = {"r_light_vec_y", "0"};
-cvar_t	r_light_vec_z = {"r_light_vec_z", "-1"};
-cvar_t	r_light_style = {"r_light_style", "1", true};
+cvar_t	r_light_vec_x = {"r_light_vec_x", "-1", "IOU help string - qbism."};
+cvar_t	r_light_vec_y = {"r_light_vec_y", "0", "IOU help string - qbism."};
+cvar_t	r_light_vec_z = {"r_light_vec_z", "-1", "IOU help string - qbism."};
+cvar_t	r_light_style = {"r_light_style", "1", "IOU help string - qbism.", true};
 // Manoel Kasimier - changed alias models lighting - end
-cvar_t	r_wateralpha = {"r_wateralpha","0.50", true}; // Manoel Kasimier - translucent water
-cvar_t	r_glassalpha = {"r_glassalpha","0.33", true}; //qb: *glass
-cvar_t	r_shadowhack = {"r_shadowhack", "0", false};
-cvar_t	r_shadowhacksize = {"r_shadowhacksize", "2.7", true};
+cvar_t	r_wateralpha = {"r_wateralpha","0.50", "IOU help string - qbism.", true}; // Manoel Kasimier - translucent water
+cvar_t	r_glassalpha = {"r_glassalpha","0.33", "IOU help string - qbism.", true}; //qb: *glass
+cvar_t	r_shadowhack = {"r_shadowhack", "0", "IOU help string - qbism.", false};
+cvar_t	r_shadowhacksize = {"r_shadowhacksize", "2.7", "IOU help string - qbism.", true};
 
 //qb: particle cvars
-cvar_t  r_part_scale = {"r_part_scale", "1.0", true};
-cvar_t  r_part_blob_count = {"r_part_blob_count", "256", true};
-cvar_t  r_part_blob_time = {"r_part_blob_time", "0.2", true};
-cvar_t  r_part_blob_vel = {"r_part_blob_vel", "200", true};
-cvar_t  r_part_explo1_count = {"r_part_explo1_count", "400", true};
-cvar_t  r_part_explo1_time = {"r_part_explo1_time", "5", true};
-cvar_t  r_part_explo1_vel = {"r_part_explo1_vel", "400", true};
-cvar_t  r_part_explo2_count = {"r_part_explo2_count", "200", true};
-cvar_t  r_part_explo2_time = {"r_part_explo2_time", "0.3", true};
-cvar_t  r_part_explo2_vel = {"r_part_explo2_vel", "300", true};
-cvar_t  r_part_sticky_time = {"r_part_sticky_time", "18", true};
+cvar_t  r_part_scale = {"r_part_scale", "1.0", "IOU help string - qbism.", true};
+cvar_t  r_part_blob_count = {"r_part_blob_count", "256", "IOU help string - qbism.", true};
+cvar_t  r_part_blob_time = {"r_part_blob_time", "0.2", "IOU help string - qbism.", true};
+cvar_t  r_part_blob_vel = {"r_part_blob_vel", "200", "IOU help string - qbism.", true};
+cvar_t  r_part_explo1_count = {"r_part_explo1_count", "400", "IOU help string - qbism.", true};
+cvar_t  r_part_explo1_time = {"r_part_explo1_time", "5", "IOU help string - qbism.", true};
+cvar_t  r_part_explo1_vel = {"r_part_explo1_vel", "400", "IOU help string - qbism.", true};
+cvar_t  r_part_explo2_count = {"r_part_explo2_count", "200", "IOU help string - qbism.", true};
+cvar_t  r_part_explo2_time = {"r_part_explo2_time", "0.3", "IOU help string - qbism.", true};
+cvar_t  r_part_explo2_vel = {"r_part_explo2_vel", "300", "IOU help string - qbism.", true};
+cvar_t  r_part_sticky_time = {"r_part_sticky_time", "18", "IOU help string - qbism.", true};
 
 //void CreatePassages (void); // Manoel Kasimier - removed
 //void SetVisibilityByPassages (void); // Manoel Kasimier - removed

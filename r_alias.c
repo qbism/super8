@@ -74,15 +74,9 @@ static aedge_t	aedges[12] =
 #define NUMVERTEXNORMALS	162
 
 //qb: dumped from r_2d.c (deleted)
-cvar_t	r_interpolation = {"r_interpolation", "1"}; // Manoel Kasimier - model interpolation
-cvar_t	sw_stipplealpha = {"sw_stipplealpha","0", true};
+cvar_t	r_interpolation = {"r_interpolation", "1", "IOU help string - qbism."}; // Manoel Kasimier - model interpolation
+cvar_t	sw_stipplealpha = {"sw_stipplealpha","0", "IOU help string - qbism.", true};
 /* qb: alias models show through completely- cvar_t	r_sprite_addblend = {"r_sprite_addblend","0", true}; */
-
-cvar_t		scr_left	= {"scr_left",	"1", true};
-cvar_t		scr_right	= {"scr_right",	"1", true};
-cvar_t		scr_top		= {"scr_top",	"1", true};
-cvar_t		scr_bottom	= {"scr_bottom","1", true};
-
 
 float	r_avertexnormals[NUMVERTEXNORMALS][3] =
 {

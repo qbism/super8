@@ -32,7 +32,7 @@ extern byte translationTable[256];
 float scr_2d_scale_h = 1.0,	scr_2d_scale_v = 1.0;
 int scr_2d_offset_x, scr_2d_offset_y;
 
-cvar_t	savename = {"savename","QBS8____"}; // 8 uppercase characters
+cvar_t	savename = {"savename","QBS8____", "IOU help string - qbism."}; // 8 uppercase characters
 
 //qb: needed for Rikku2000 maplist, but not included w/ mingw
 #ifndef FLASH
@@ -108,7 +108,7 @@ void SetSavename ()
     savename.value = 0;
     free(s);
 }
-cvar_t	help_pages = {"help_pages","6"};
+cvar_t	help_pages = {"help_pages","6", "IOU help string - qbism."};
 
 extern	cvar_t	samelevel;
 
@@ -3322,12 +3322,14 @@ void M_Video_Draw (void)
     M_DrawPlaque ("gfx/p_option.lmp", true);
 
     M_Print (16, y+=8, "           Video modes    ...");
-    M_Print (16, y+=8, "    FOV- field of view");
+    M_Print (16, y+=8, "     FOV-field of view");
     M_DrawSlider (220, y, (scr_fov.value - 30.0) / 110.0); //qb:
     M_Print (16, y+=8, "            Brightness");
     M_DrawSlider (220, y, (1.0 - v_gamma.value) / 0.5);
     M_Print (16, y+=8, "            Status bar");
     M_DrawSlider (220, y, sbar.value / 4.0);
+    M_Print (16, y+=8, "      Status bar scale");
+    M_DrawSlider (220, y, sbar_scale.value / 1.0);
     M_Print (16, y+=8, "            Background");
     M_DrawCheckbox (220, y, sbar_show_bg.value);
     M_Print (16, y+=8, "          Level status");
@@ -3369,6 +3371,7 @@ void M_Video_Change (int dir)
     if (c == i++) ChangeCVar("fov", scr_fov.value, dir * 5, 30, 140, false); //qb:
     if (c == i++) ChangeCVar("gamma", v_gamma.value, dir * -0.05, 0.5, 1, true);
     if (c == i++) ChangeCVar("sbar", sbar.value, dir, 0, 4, true);
+    if (c == i++) ChangeCVar("sbar_scale", sbar_scale.value, dir * 0.005, 0.05, 1.0, true);
     if (c == i++) Cvar_SetValue ("sbar_show_bg", !sbar_show_bg.value);
     if (c == i++) Cvar_SetValue ("sbar_show_scores", !sbar_show_scores.value);
     if (c == i++) Cvar_SetValue ("sbar_show_weaponlist", !sbar_show_weaponlist.value);

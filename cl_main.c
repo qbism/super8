@@ -25,29 +25,29 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 int BestColor (int r, int g, int b, int start, int stop);
 
 // these two are not intended to be set directly
-cvar_t	cl_name = {"_cl_name", "player", true};
-cvar_t	cl_color = {"_cl_color", "22", true}; // edited
+cvar_t	cl_name = {"_cl_name", "player", "Warning - do not set directly.", true};
+cvar_t	cl_color = {"_cl_color", "22", "Warning - do not set directly.", true}; // edited
 
-cvar_t	cl_vibration = {"cl_vibration","1", true}; // Manoel Kasimier
-cvar_t	cl_showfps = {"cl_showfps","0"};	// 2001-11-31 FPS display by QuakeForge/Muff
-cvar_t	cl_shownet = {"cl_shownet","0"};	// can be 0, 1, or 2
-cvar_t	cl_nolerp = {"cl_nolerp","0"};
-cvar_t	cl_maxfps = {"cl_maxfps", "60", true, true};
+cvar_t	cl_vibration = {"cl_vibration","0", "Unused haptic feedback stub.", true}; // Manoel Kasimier
+cvar_t	cl_showfps = {"cl_showfps","0", "cl_showfps [0/1] Display frames-per-second."};	// 2001-11-31 FPS display by QuakeForge/Muff
+cvar_t	cl_shownet = {"cl_shownet","0", "cl_shownet [0/1/2] Display network traffic.\n 1 shows message size, 2 shows message names."};	// can be 0, 1, or 2
+cvar_t	cl_nolerp = {"cl_nolerp","0", "cl_nolerp [0/1] Turn off position interpolation (smoothing) in multiplayer."};
+cvar_t	cl_maxfps = {"cl_maxfps", "60", "cl_maxfps [value] Maximum frames-per-second.  Typically set to screen refresh rate or less.", true, true};
 
-cvar_t	lookspring = {"lookspring","0", true};
-cvar_t	lookstrafe = {"lookstrafe","0", true};
-cvar_t	sensitivity = {"sensitivity","11", true}; // edited
+cvar_t	lookspring = {"lookspring","0", "lookspring [0/1] Toggles view recenter when mlook is not active.", true};
+cvar_t	lookstrafe = {"lookstrafe","0", "lookstrafe [0/1] Toggles mouse strafe when mlook is active.", true};
+cvar_t	sensitivity = {"sensitivity","11", "sensitivity [value] Sets mouse sensitivity.", true}; // edited
 
-cvar_t	m_pitch = {"m_pitch","0.022", true};
-cvar_t	m_yaw = {"m_yaw","0.022", true};
-cvar_t	m_forward = {"m_forward","1", true};
-cvar_t	m_side = {"m_side","0.8", true};
-cvar_t	m_look = {"m_look","1", true}; // Manoel Kasimier - m_look
-cvar_t	cutscene = {"cutscene", "1"}; // Nehahra
+cvar_t	m_pitch = {"m_pitch","0.022", "m_pitch [value] Sets speed of mouse lookup and lookdown when mlook is active. Negative value will reverse direction.", true};
+cvar_t	m_yaw = {"m_yaw","0.022", "m_yaw [value] Sets speed of left and right turns with mouse.", true};
+cvar_t	m_forward = {"m_forward","1", "m_forward [value] Forward and reverse mouse speed.", true};
+cvar_t	m_side = {"m_side","0.8", "m_side [value] Strafe speed with mouse.", true};
+cvar_t	m_look = {"m_look","1", "m_look [0/1] Mouse look toggle.", true}; // Manoel Kasimier - m_look
+cvar_t	cutscene = {"cutscene", "1", "cutscene [0/1] Toggles whether or not to show cutscenes."};
 
 #ifdef WEBDL    //qb: sometimes works, needs more testing
-cvar_t cl_web_download = {"cl_web_download", "1", true}; //qb: R00k / Baker tute
-cvar_t cl_web_download_url = {"cl_web_download_url", "http://qb:.com/_q1maps/", true};
+cvar_t cl_web_download = {"cl_web_download", "1", "IOU help string - qbism.", true}; //qb: R00k / Baker tute
+cvar_t cl_web_download_url = {"cl_web_download_url", "http://qb:.com/_q1maps/", "IOU help string - qbism.", true};
 #endif // WEBDL
 
 client_static_t	cls;

@@ -70,20 +70,20 @@ int sound_started=0;
 int		s_rawend; //qb: QS
 portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
 
-cvar_t bgmvolume = {"bgmvolume", "0.4", true};
-cvar_t sfxvolume = {"sfxvolume", "0.7", true};
+cvar_t bgmvolume = {"bgmvolume", "0.4", "IOU help string - qbism.", true};
+cvar_t sfxvolume = {"sfxvolume", "0.7", "IOU help string - qbism.", true};
 
-cvar_t nosound = {"nosound", "0"};
-cvar_t precache = {"precache", "1"};
-cvar_t bgmbuffer = {"bgmbuffer", "4096"};
-cvar_t ambient_level = {"ambient_level", "0.3"};
-cvar_t ambient_fade = {"ambient_fade", "100"};
-cvar_t snd_noextraupdate = {"snd_noextraupdate", "0"};
-cvar_t snd_show = {"snd_show", "0"};
-cvar_t snd_speed = {"snd_speed", "44100"};  //qb:
-cvar_t _snd_mixahead = {"_snd_mixahead", "0.2", true}; //qb: Dan East was 0.1
-cvar_t snd_stereo = {"snd_stereo", "1", true}; // Manoel Kasimier
-cvar_t snd_swapstereo = {"snd_swapstereo", "0", true}; // Manoel Kasimier
+cvar_t nosound = {"nosound", "0", "IOU help string - qbism."};
+cvar_t precache = {"precache", "1", "IOU help string - qbism."};
+cvar_t bgmbuffer = {"bgmbuffer", "4096", "IOU help string - qbism."};
+cvar_t ambient_level = {"ambient_level", "0.3", "IOU help string - qbism."};
+cvar_t ambient_fade = {"ambient_fade", "100", "IOU help string - qbism."};
+cvar_t snd_noextraupdate = {"snd_noextraupdate", "0", "IOU help string - qbism."};
+cvar_t snd_show = {"snd_show", "0", "IOU help string - qbism."};
+cvar_t snd_speed = {"snd_speed", "44100", "IOU help string - qbism."};  //qb:
+cvar_t _snd_mixahead = {"_snd_mixahead", "0.2", "IOU help string - qbism.", true}; //qb: Dan East was 0.1
+cvar_t snd_stereo = {"snd_stereo", "1", "IOU help string - qbism.", true}; // Manoel Kasimier
+cvar_t snd_swapstereo = {"snd_swapstereo", "0", "IOU help string - qbism.", true}; // Manoel Kasimier
 
 
 // ====================================================================

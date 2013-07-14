@@ -37,7 +37,7 @@ HRESULT (WINAPI *pDirectInputCreate)(HINSTANCE hinst, DWORD dwVersion,
                                      LPDIRECTINPUT * lplpDirectInput, LPUNKNOWN punkOuter);
 
 // mouse variables
-cvar_t	m_filter = {"m_filter","0"};
+cvar_t	m_filter = {"m_filter","0", "IOU help string - qbism."};
 
 int			mouse_buttons;
 int			mouse_oldbuttonstate;
@@ -87,25 +87,25 @@ PDWORD	pdwRawValue[JOY_MAX_AXES];
 // each time.  this avoids any problems with getting back to a default usage
 // or when changing from one controller to another.  this way at least something
 // works.
-cvar_t	in_joystick = {"joystick","0", true};
-cvar_t	joy_name = {"joyname", "joystick"};
-cvar_t	joy_advanced = {"joyadvanced", "0"};
-cvar_t	joy_advaxisx = {"joyadvaxisx", "0"};
-cvar_t	joy_advaxisy = {"joyadvaxisy", "0"};
-cvar_t	joy_advaxisz = {"joyadvaxisz", "0"};
-cvar_t	joy_advaxisr = {"joyadvaxisr", "0"};
-cvar_t	joy_advaxisu = {"joyadvaxisu", "0"};
-cvar_t	joy_advaxisv = {"joyadvaxisv", "0"};
-cvar_t	joy_forwardthreshold = {"joyforwardthreshold", "0.15"};
-cvar_t	joy_sidethreshold = {"joysidethreshold", "0.15"};
-cvar_t	joy_pitchthreshold = {"joypitchthreshold", "0.15"};
-cvar_t	joy_yawthreshold = {"joyyawthreshold", "0.15"};
-cvar_t	joy_forwardsensitivity = {"joyforwardsensitivity", "-1.0"};
-cvar_t	joy_sidesensitivity = {"joysidesensitivity", "-1.0"};
-cvar_t	joy_pitchsensitivity = {"joypitchsensitivity", "1.0"};
-cvar_t	joy_yawsensitivity = {"joyyawsensitivity", "-1.0"};
-cvar_t	joy_wwhack1 = {"joywwhack1", "0.0"};
-cvar_t	joy_wwhack2 = {"joywwhack2", "0.0"};
+cvar_t	in_joystick = {"joystick","0", "IOU help string - qbism.", true};
+cvar_t	joy_name = {"joyname", "joystick", "IOU help string - qbism."};
+cvar_t	joy_advanced = {"joyadvanced", "0", "IOU help string - qbism."};
+cvar_t	joy_advaxisx = {"joyadvaxisx", "0", "IOU help string - qbism."};
+cvar_t	joy_advaxisy = {"joyadvaxisy", "0", "IOU help string - qbism."};
+cvar_t	joy_advaxisz = {"joyadvaxisz", "0", "IOU help string - qbism."};
+cvar_t	joy_advaxisr = {"joyadvaxisr", "0", "IOU help string - qbism."};
+cvar_t	joy_advaxisu = {"joyadvaxisu", "0", "IOU help string - qbism."};
+cvar_t	joy_advaxisv = {"joyadvaxisv", "0", "IOU help string - qbism."};
+cvar_t	joy_forwardthreshold = {"joyforwardthreshold", "0.15", "IOU help string - qbism."};
+cvar_t	joy_sidethreshold = {"joysidethreshold", "0.15", "IOU help string - qbism."};
+cvar_t	joy_pitchthreshold = {"joypitchthreshold", "0.15", "IOU help string - qbism."};
+cvar_t	joy_yawthreshold = {"joyyawthreshold", "0.15", "IOU help string - qbism."};
+cvar_t	joy_forwardsensitivity = {"joyforwardsensitivity", "-1.0", "IOU help string - qbism."};
+cvar_t	joy_sidesensitivity = {"joysidesensitivity", "-1.0", "IOU help string - qbism."};
+cvar_t	joy_pitchsensitivity = {"joypitchsensitivity", "1.0", "IOU help string - qbism."};
+cvar_t	joy_yawsensitivity = {"joyyawsensitivity", "-1.0", "IOU help string - qbism."};
+cvar_t	joy_wwhack1 = {"joywwhack1", "0.0", "IOU help string - qbism."};
+cvar_t	joy_wwhack2 = {"joywwhack2", "0.0", "IOU help string - qbism."};
 
 qboolean	joy_avail, joy_advancedinit, joy_haspov;
 DWORD		joy_oldbuttonstate, joy_oldpovstate;

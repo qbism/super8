@@ -26,8 +26,8 @@ static char     *argvdummy = " ";
 static char     *safeargvs[NUM_SAFE_ARGVS] =
 {"-nolan", "-nosound", "-nocdaudio", "-nojoy", "-nomouse"};
 
-cvar_t  registered = {"registered","0"};
-cvar_t  cmdline = {"cmdline","0", false, true};
+cvar_t  registered = {"registered","0", "IOU help string - qbism."};
+cvar_t  cmdline = {"cmdline","0", "IOU help string - qbism.", false, true};
 
 qboolean        com_modified;   // set true if using non-id files
 

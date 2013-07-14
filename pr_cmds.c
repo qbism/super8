@@ -1501,9 +1501,9 @@ Pick a vector for the player to shoot along
 vector aim(entity, missilespeed)
 =============
 */
-cvar_t	sv_aim_h = {"sv_aim_h", "1", true}; // Manoel Kasimier - horizontal autoaim
+cvar_t	sv_aim_h = {"sv_aim_h", "1", "IOU help string - qbism.", true}; // Manoel Kasimier - horizontal autoaim
 
-cvar_t	sv_aim = {"sv_aim", "1", true}; // Manoel Kasimier - saving aim value
+cvar_t	sv_aim = {"sv_aim", "1", "IOU help string - qbism.", true}; // Manoel Kasimier - saving aim value
 void PF_aim (void)
 {
     edict_t	*ent, *check, *bestent;

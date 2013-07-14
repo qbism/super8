@@ -56,21 +56,21 @@ int         hipweapons[4] = {HIT_LASER_CANNON_BIT,HIT_MJOLNIR_BIT,4,HIT_PROXIMIT
 //MED 01/04/97 added hipnotic items array
 qpic_t      *hsb_items[2];
 
-cvar_t	sbar_scale	= {"sbar_scale","0.8", true}; //qb:
+cvar_t	sbar_scale	= {"sbar_scale","0.8", "IOU help string - qbism.", true}; //qb:
 // Manoel Kasimier - begin
-cvar_t	sbar_show_scores	= {"sbar_show_scores","0", false}; //qb: let pros set w/ custom cfg
-cvar_t	sbar_show_ammolist	= {"sbar_show_ammolist","1", false};
-cvar_t	sbar_show_weaponlist= {"sbar_show_weaponlist","1", false};
-cvar_t	sbar_show_keys		= {"sbar_show_keys","1", false};
-cvar_t	sbar_show_runes		= {"sbar_show_runes","1", false};
-cvar_t	sbar_show_powerups	= {"sbar_show_powerups","1", false};
-cvar_t	sbar_show_armor		= {"sbar_show_armor","1", false};
-cvar_t	sbar_show_health	= {"sbar_show_health","1", false};
-cvar_t	sbar_show_ammo		= {"sbar_show_ammo","1", false};
-cvar_t	sbar_show_bg		= {"sbar_show_bg","0", false};
-cvar_t	sbar                = {"sbar","1", true};
+cvar_t	sbar_show_scores	= {"sbar_show_scores","0", "IOU help string - qbism.", false}; //qb: let pros set w/ custom cfg
+cvar_t	sbar_show_ammolist	= {"sbar_show_ammolist","1", "IOU help string - qbism.", false};
+cvar_t	sbar_show_weaponlist= {"sbar_show_weaponlist","1", "IOU help string - qbism.", false};
+cvar_t	sbar_show_keys		= {"sbar_show_keys","1", "IOU help string - qbism.", false};
+cvar_t	sbar_show_runes		= {"sbar_show_runes","1", "IOU help string - qbism.", false};
+cvar_t	sbar_show_powerups	= {"sbar_show_powerups","1", "IOU help string - qbism.", false};
+cvar_t	sbar_show_armor		= {"sbar_show_armor","1", "IOU help string - qbism.", false};
+cvar_t	sbar_show_health	= {"sbar_show_health","1", "IOU help string - qbism.", false};
+cvar_t	sbar_show_ammo		= {"sbar_show_ammo","1", "IOU help string - qbism.", false};
+cvar_t	sbar_show_bg		= {"sbar_show_bg","0", "IOU help string - qbism.", false};
+cvar_t	sbar                = {"sbar","1", "IOU help string - qbism.", true};
 
-cvar_t	crosshair_color		= {"crosshair_color","12", true};
+cvar_t	crosshair_color		= {"crosshair_color","12", "IOU help string - qbism.", true};
 // Manoel Kasimier - end
 
 void Sbar_MiniDeathmatchOverlay (void);
@@ -466,9 +466,8 @@ void Sbar_SoloScoreboard (int x, int y, int vertical) // default 0, -48, 0
     char	str[80];
 //	int		minutes, seconds, tens, units; // Manoel Kasimier - removed
     int		l;
-    if (sbar.value > 3)
-        if (!sb_showscores && !sbar_show_scores.value)
-            return;
+    if (!sb_showscores && !sbar_show_scores.value && (sbar.value < 3))
+        return;
 
     sprintf (str,"Monsters:%3i /%3i", cl.stats[STAT_MONSTERS], cl.stats[STAT_TOTALMONSTERS]);
     if (vertical)
@@ -1220,12 +1219,12 @@ void Sbar_Draw (void)
     scr_copyeverything = 1;
 
 // Manoel Kasimier - begin
-     Sbar_SizeScreen ();
-
+    Sbar_SizeScreen ();
+    Sbar_SoloScoreboard (0, -48, 0);
     if ( (sb_showscores || sbar.value > 0) && sbar.value < 4)
     {
         sb_lines = sbar.value*24 * scr_2d_scale_v;
-        if (sbar_show_bg.value)
+                if (sbar_show_bg.value)
             Draw_TileClear (scr_vrect.x, vid.height - sb_lines, scr_vrect.width, sb_lines);
         else
         {
@@ -1236,11 +1235,11 @@ void Sbar_Draw (void)
         }
         if (sbar.value > 1 || sb_showscores) // inventory bar
         {
+
             if (sbar.value > 2 || sb_showscores) // score bar
             {
                 if (sbar_show_bg.value)
                     Sbar_DrawTransPic (0, -48, sb_scorebar);
-                Sbar_SoloScoreboard (0, -48, 0);
             }
             if (sbar_show_bg.value)
             {
@@ -1286,10 +1285,6 @@ void Sbar_Draw (void)
     else if (sbar.value == 4)
     {
 		#define SBAR_PADDING 4
-		if (rogue || hipnotic)
-			Sbar_SoloScoreboard (SBAR_PADDING, -29, 1);
-		else
-			Sbar_SoloScoreboard (SBAR_PADDING, -13, 1);
         Sbar_DrawArmor	(SBAR_PADDING +54, SBAR_PADDING -24, -28);  //qb- icon on right
 		Sbar_DrawHealth	(SBAR_PADDING +54, SBAR_PADDING -24, -4);  //qb- icon on right
 
