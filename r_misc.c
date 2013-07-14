@@ -321,7 +321,7 @@ void R_SetupFrame (void)
     {
         Cvar_Set ("r_draworder", "0");
         Cvar_Set ("r_fullbright", "0");
-        Cvar_Set ("r_ambient", "0");
+        Cvar_Set ("r_ambient", "12"); //qb: the glquake players aren't looking at total black...
         Cvar_Set ("r_drawflat", "0");
     }
 

@@ -563,7 +563,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                         r = data[k++];
                         g = data[k++];
                         b = data[k++];
-                        *out++ = BestColor(r, g, b, 0, 254);
+                        *out++ = BestColor(r*1.1, g*1.2, b*1.1, 0, 254); //qb: need a little boost on colored light
                     }
                     Q_free(fileinfo);
                     return;
