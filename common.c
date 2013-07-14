@@ -1966,11 +1966,14 @@ void COM_InitFilesystem (void)
 // start up with GAMENAME by default (id1)
 //
     AddDir (true, basedir, gamedir, GAMENAME);
+    AddDir (true, basedir, gamedir, "super8"); //qb: put super8 junk in own dir
+
 //qb: not supported	AddDir (nehahra, basedir, gamedir, "nehahra"); // Add Nehahra
     AddDir (COM_CheckParm ("-rogue"), basedir, gamedir, "rogue");
     AddDir (COM_CheckParm ("-hipnotic"), basedir, gamedir, "hipnotic");
     AddDir (COM_CheckParm ("-quoth"), basedir, gamedir, "quoth");
     AddDir (COM_CheckParm ("-drake"), basedir, gamedir, "drake"); //qb: added
+
 
 //
 // -game <gamedir>
