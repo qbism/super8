@@ -402,7 +402,7 @@ void SV_SendServerinfo (client_t *client)
     }
 
     MSG_WriteByte (&client->message, svc_print);
-    sprintf (message, "QBISM SERVER BUILD %s\n", BUILDVERSION); //johnfitz -- include fitzquake version
+    sprintf (message, "\nQBISM SERVER BUILD %s\n", BUILDVERSION); //johnfitz -- include fitzquake version
     MSG_WriteString (&client->message,message);
 
     MSG_WriteByte (&client->message, svc_serverinfo);
