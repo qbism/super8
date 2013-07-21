@@ -37,13 +37,13 @@ solid_edge items only clip against bsp models.
 
 */
 
-cvar_t	sv_friction = {"sv_friction","4", "IOU help string - qbism.",false,true};
-cvar_t	sv_stopspeed = {"sv_stopspeed","100", "IOU help string - qbism."};
-cvar_t	sv_gravity = {"sv_gravity","800", "IOU help string - qbism.",false,true};
-cvar_t	sv_maxvelocity = {"sv_maxvelocity","2000", "IOU help string - qbism."};
-cvar_t	sv_nostep = {"sv_nostep","0", "IOU help string - qbism."};
-cvar_t	sv_novis = {"sv_novis","0", "IOU help string - qbism.", false, true}; //qb: from FitzQuake
-cvar_t	sv_freezephysics = {"sv_freezephysics", "0", "IOU help string - qbism."}; //qb - inspired by r00k's nomonsters
+cvar_t	sv_friction = {"sv_friction","4", "sv_friction[value] Physics friction.",false,true};
+cvar_t	sv_stopspeed = {"sv_stopspeed","100", "sv_stopspeed[value] Sets how quickly objects stop moving."};
+cvar_t	sv_gravity = {"sv_gravity","800", "sv_gravity[value] Sets amount of gravity.",false,true};
+cvar_t	sv_maxvelocity = {"sv_maxvelocity","2000", "sv_maxvelocity[value] Sets maximum speed limit for anything."};
+cvar_t	sv_nostep = {"sv_nostep","0", "sv_nostep[0/1] Toggles if players automatically walk up steps or if jumping is required."};
+cvar_t	sv_novis = {"sv_novis","0", "sv_novis[0/1] Toggles off visibility culling of entities.", false, true}; //qb: from FitzQuake
+cvar_t	sv_freezephysics = {"sv_freezephysics", "0", "sv_freezephysics[0/1] Toggle freeze physics processing except for players."}; //qb - inspired by r00k's nomonsters
 #define	MOVE_EPSILON	0.01
 
 void SV_Physics_Toss (edict_t *ent);

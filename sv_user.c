@@ -20,7 +20,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "quakedef.h"
 
 edict_t	*sv_player;
-cvar_t	sv_edgefriction = {"edgefriction", "2", "IOU help string - qbism."};
+cvar_t	sv_edgefriction = {"sv_edgefriction", "2", "sv_edgefriction[value] Increase player friction at dropoffs."};
 
 static	vec3_t		forward, right, up;
 
@@ -36,8 +36,8 @@ qboolean	onground;
 
 usercmd_t	cmd;
 
-cvar_t	sv_idealpitchscale = {"sv_idealpitchscale","0.8", "IOU help string - qbism.", true}; // Manoel Kasimier - saved in the config file - edited
-cvar_t	sv_enable_use_button = {"sv_enable_use_button","0", "IOU help string - qbism.", true}; // Manoel Kasimier - +USE fix
+cvar_t	sv_idealpitchscale = {"sv_idealpitchscale","0.8", "sv_idealpitchscale[value] Set player view angle change (pitch) on incline.", true}; // Manoel Kasimier - saved in the config file - edited
+cvar_t	sv_enable_use_button = {"sv_enable_use_button","0", "sv_enable_use_button[0/1] Toggle ability to bind use key.", true}; // Manoel Kasimier - +USE fix
 
 
 /*
@@ -160,8 +160,8 @@ void SV_UserFriction (void)
 SV_Accelerate
 ==============
 */
-cvar_t	sv_maxspeed = {"sv_maxspeed", "320", "IOU help string - qbism.", false, true};
-cvar_t	sv_accelerate = {"sv_accelerate", "10", "IOU help string - qbism."};
+cvar_t	sv_maxspeed = {"sv_maxspeed", "320", "sv_maxspeed[value] Maximum player speed.", false, true};
+cvar_t	sv_accelerate = {"sv_accelerate", "10", "sv_accelerate[value] Maximum player accelleration."};
 #if 0
 void SV_Accelerate (vec3_t wishvel)
 {

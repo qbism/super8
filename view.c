@@ -31,48 +31,48 @@ when crossing a water boudnary.
 
 //qb - Aardappel fisheye begin
 void R_RenderView_Fisheye();
-cvar_t  ffov = {"ffov", "180", "IOU help string - qbism.", true};
-cvar_t  r_fisheye = {"r_fisheye", "0", "IOU help string - qbism.", true}; //qb added
-cvar_t  r_fishaccel = {"r_fishaccel", "0", "IOU help string - qbism.", false}; //qb:  for cheeezy zoom effect
+cvar_t  ffov = {"ffov", "129", "ffov[value] fisheye ffov.", true};
+cvar_t  r_fisheye = {"r_fisheye", "0", "r_fisheye[0/1] Toggle fisheye view.", true}; //qb added
+cvar_t  r_fishaccel = {"r_fishaccel", "0", "r_fishaccel[value] Accelleration of fisheye fov change.  Bind keys to positive and negative values for zoom effects.", false}; //qb:  for cheeezy zoom effect
 int r_fviews;
 //qb - Aardappel fisheye end
 
-cvar_t	scr_ofsx = {"scr_ofsx","0", "IOU help string - qbism.", false};
-cvar_t	scr_ofsy = {"scr_ofsy","0", "IOU help string - qbism.", true}; // Manoel Kasimier - saved in the config file - edited
-cvar_t	scr_ofsz = {"scr_ofsz","0", "IOU help string - qbism.", false};
+cvar_t	scr_ofsx = {"scr_ofsx","0", "scr_ofsx[value] video screen x offset", false};
+cvar_t	scr_ofsy = {"scr_ofsy","0", "scr_ofsy[value] video screen y offset", true}; // Manoel Kasimier - saved in the config file - edited
+cvar_t	scr_ofsz = {"scr_ofsz","0", "scr_ofsz[value] video screen x offset", false};
 
-cvar_t	v_deathtilt = {"v_deathtilt", "1", "IOU help string - qbism."}; // Manoel Kasimier
-cvar_t	v_deathtiltangle = {"v_deathtiltangle", "80", "IOU help string - qbism."}; // Manoel Kasimier
-cvar_t	cl_rollspeed = {"cl_rollspeed", "200", "IOU help string - qbism."};
-cvar_t	cl_rollangle = {"cl_rollangle", "2.0", "IOU help string - qbism."};
+cvar_t	v_fragtilt = {"v_fragtilt", "1", "v_fragtilt[0/1] Toggle tilt view when fragged."}; // Manoel Kasimier
+cvar_t	v_fragtiltangle = {"v_fragtiltangle", "80", "v_fragtiltangle[angle] view angle when fragged."}; // Manoel Kasimier
+cvar_t	cl_rollspeed = {"cl_rollspeed", "200", "cl_rollspeed[time] How quickly to tilt view to roll angle."};
+cvar_t	cl_rollangle = {"cl_rollangle", "2.0", "cl_rollangle[angle] Angle to tilt view when turning."};
 
-cvar_t	cl_bob = {"cl_bob","0.007", "IOU help string - qbism.", false};
-cvar_t	cl_bobcycle = {"cl_bobcycle","0.6", "IOU help string - qbism.", false};
-cvar_t	cl_bobup = {"cl_bobup","0.5", "IOU help string - qbism.", false};
+cvar_t	cl_bob = {"cl_bob","0.007", "cl_bob[value] Amount of view bob when moving.", false};
+cvar_t	cl_bobcycle = {"cl_bobcycle","0.6", "cl_bobcycle[value] View bob frequency.", false};
+cvar_t	cl_bobup = {"cl_bobup","0.5", "cl_bobup[0.0 - 1.0] Proportion view bob up.", false};
 
-cvar_t	v_kicktime = {"v_kicktime", "0.5", "IOU help string - qbism.", false};
-cvar_t	v_kickroll = {"v_kickroll", "0.6", "IOU help string - qbism.", false};
-cvar_t	v_kickpitch = {"v_kickpitch", "0.6", "IOU help string - qbism.", false};
-cvar_t  v_gunkick = {"v_gunkick", "1", "IOU help string - qbism.", true}; //qb - from directq
+cvar_t	v_kicktime = {"v_kicktime", "0.5", "v_kicktime[time] Time length of view kick.", false};
+cvar_t	v_kickroll = {"v_kickroll", "0.6", "v_kickroll[angle] View roll for kick.", false};
+cvar_t	v_kickpitch = {"v_kickpitch", "0.6", "v_kickpitch[angle] View pitch for kick.", false};
+cvar_t  v_gunkick = {"v_gunkick", "1", "v_gunkick[0/1] Toggles view 'kick' from recoil.", true}; //qb - from directq
 
-cvar_t	v_iyaw_cycle = {"v_iyaw_cycle", "2", "IOU help string - qbism.", false};
-cvar_t	v_iroll_cycle = {"v_iroll_cycle", "0.5", "IOU help string - qbism.", false};
-cvar_t	v_ipitch_cycle = {"v_ipitch_cycle", "1", "IOU help string - qbism.", false};
-cvar_t	v_iyaw_level = {"v_iyaw_level", "0.3", "IOU help string - qbism.", false};
-cvar_t	v_iroll_level = {"v_iroll_level", "0.1", "IOU help string - qbism.", false};
-cvar_t	v_ipitch_level = {"v_ipitch_level", "0.3", "IOU help string - qbism.", false};
+cvar_t	v_iyaw_cycle = {"v_iyaw_cycle", "2", "v_iyaw_cycle[time] Yaw cycle when v_idlescale is active.", false};
+cvar_t	v_iroll_cycle = {"v_iroll_cycle", "0.5", "v_iroll_cycle[time] Roll cycle when v_idlescale is active.", false};
+cvar_t	v_ipitch_cycle = {"v_ipitch_cycle", "1", "v_ipitch_cycle[time] Pitch cycle when v_idlescale is active.", false};
+cvar_t	v_iyaw_level = {"v_iyaw_level", "0.3", "v_iyaw_level[value] Yaw level when v_idlescale is active.", false};
+cvar_t	v_iroll_level = {"v_iroll_level", "0.1", "v_iroll_level[value] Roll level when v_idlescale is active.", false};
+cvar_t	v_ipitch_level = {"v_ipitch_level", "0.3", "v_ipitch_level[value] Pitch level when v_idlescale is active.", false};
 
-cvar_t	v_idlescale = {"v_idlescale", "0", "IOU help string - qbism.", false};
+cvar_t	v_idlescale = {"v_idlescale", "0", "v_idlescale [value] – Scale of view idle effect.  0 is off. Otherwise generates view drift when player is idle.", false};
 
-cvar_t	crosshair = {"crosshair", "2", "IOU help string - qbism.", true};
-cvar_t	cl_crossx = {"cl_crossx", "0", "IOU help string - qbism.", false};
-cvar_t	cl_crossy = {"cl_crossy", "0", "IOU help string - qbism.", false};
+cvar_t	crosshair = {"crosshair", "2", "crosshair[0-5] Crosshair type.  0 is off.", true};
+cvar_t	cl_crossx = {"cl_crossx", "0", "cl_crossx[value] Crosshair center x offset.", false};
+cvar_t	cl_crossy = {"cl_crossy", "0", "cl_crossy[value] Crosshair center y offset.", false};
 
 //qb replace gl_polyblend with r_polyblend
-cvar_t	r_polyblend = {"r_polyblend", "1", "IOU help string - qbism.", false}; // Manoel Kasimier - r_polyblend
+cvar_t	r_polyblend = {"r_polyblend", "1", "r_polyblend[0/1] Toggle full-screen color tint effects, like powerups and underwater.", false}; // Manoel Kasimier - r_polyblend
 int	r_polyblend_old; // Manoel Kasimier - r_polyblend
 
-cvar_t	cl_nobob = {"cl_nobob","0", "IOU help string - qbism.", true}; // Manoel Kasimier - cl_nobob
+cvar_t	cl_nobob = {"cl_nobob","0", "cl_nobob[0/1] Toggle to turn off view bobbing.", true}; // Manoel Kasimier - cl_nobob
 
 float	v_dmg_time, v_dmg_roll, v_dmg_pitch;
 
@@ -151,8 +151,8 @@ float V_CalcBob (void)
 //=============================================================================
 
 
-cvar_t	v_centermove = {"v_centermove", "0.15", "IOU help string - qbism.", false};
-cvar_t	v_centerspeed = {"v_centerspeed","200", "IOU help string - qbism."}; // 500 // Manoel Kasimier - edited
+cvar_t	v_centermove = {"v_centermove", "0.15", "v_centermove [value] How far the player must move forward before the view recenters when lookspring is active.", false};
+cvar_t	v_centerspeed = {"v_centerspeed","200", "v_centerspeed[value]  How quickly view recenters when lookspring is active."}; // 500 // Manoel Kasimier - edited
 
 
 void V_StartPitchDrift (void)
@@ -268,7 +268,7 @@ cshift_t	cshift_water = { {130,80,50}, 128 };
 cshift_t	cshift_slime = { {0,25,5}, 150 };
 cshift_t	cshift_lava = { {255,80,0}, 150 };
 
-cvar_t		v_gamma = {"gamma", "0.88", "IOU help string - qbism.", true};
+cvar_t		v_gamma = {"gamma", "0.88", "gamma [value] Sets the darkness level. Lower values are brighter. Recommended range is 0.7 to 1.3.", true};
 
 byte		gammatable[256];	// palette is sent through this
 
@@ -734,9 +734,9 @@ void V_CalcViewRoll (void)
     }
     // Manoel Kasimier - end
 
-    if (cl.stats[STAT_HEALTH] <= 0 && !chase_active.value && v_deathtilt.value) // Manoel Kasimier - edited
+    if (cl.stats[STAT_HEALTH] <= 0 && !chase_active.value && v_fragtilt.value)
     {
-        r_refdef.viewangles[ROLL] = v_deathtiltangle.value;	// dead view angle
+        r_refdef.viewangles[ROLL] = v_fragtiltangle.value;	// dead view angle
         return;
     }
 
@@ -986,8 +986,8 @@ void V_Init (void)
     Cvar_RegisterVariable (&cl_crossy);
     Cvar_RegisterVariable (&r_polyblend); // Manoel Kasimier - r_polyblend
     Cvar_RegisterVariable (&cl_nobob); // Manoel Kasimier - cl_nobob
-    Cvar_RegisterVariable (&v_deathtilt); // Manoel Kasimier
-    Cvar_RegisterVariable (&v_deathtiltangle); // Manoel Kasimier
+    Cvar_RegisterVariable (&v_fragtilt); // Manoel Kasimier
+    Cvar_RegisterVariable (&v_fragtiltangle); // Manoel Kasimier
 
     Cvar_RegisterVariable (&scr_ofsx);
     Cvar_RegisterVariable (&scr_ofsy);

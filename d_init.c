@@ -21,9 +21,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define NUM_MIPS	4
 
-cvar_t	d_mipcap = {"d_mipcap", "0", "IOU help string - qbism."};
-cvar_t	d_mipscale = {"d_mipscale", "1", "IOU help string - qbism."};
-cvar_t	d_subdiv16 = {"d_subdiv16", "1", "IOU help string - qbism.", true};
+cvar_t	d_mipcap = {"d_mipcap", "0", "d_mipcap [0-3] max undetail texture level."};
+cvar_t	d_mipscale = {"d_mipscale", "1", "d_mipscale [value] undetail distance."};
 
 surfcache_t		*d_initial_rover;
 qboolean		d_roverwrapped;

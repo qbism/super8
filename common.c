@@ -26,8 +26,8 @@ static char     *argvdummy = " ";
 static char     *safeargvs[NUM_SAFE_ARGVS] =
 {"-nolan", "-nosound", "-nocdaudio", "-nojoy", "-nomouse"};
 
-cvar_t  registered = {"registered","0", "IOU help string - qbism."};
-cvar_t  cmdline = {"cmdline","0", "IOU help string - qbism.", false, true};
+cvar_t  registered = {"registered","0", "registered[0/1] 0 is shareware, 1 is full game version."};
+cvar_t  cmdline = {"cmdline","0", "cmdline[string] command line read by stuffcmds for dynamic mod loading.", false, true};
 
 qboolean        com_modified;   // set true if using non-id files
 

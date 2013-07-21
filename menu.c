@@ -32,7 +32,7 @@ extern byte translationTable[256];
 float scr_2d_scale_h = 1.0,	scr_2d_scale_v = 1.0;
 int scr_2d_offset_x, scr_2d_offset_y;
 
-cvar_t	savename = {"savename","QBS8____", "IOU help string - qbism."}; // 8 uppercase characters
+cvar_t	savename = {"savename","QBS8____", "savename[name] Save game name prefix."}; // 8 uppercase characters
 
 //qb: needed for Rikku2000 maplist, but not included w/ mingw
 #ifndef FLASH
@@ -108,7 +108,7 @@ void SetSavename ()
     savename.value = 0;
     free(s);
 }
-cvar_t	help_pages = {"help_pages","6", "IOU help string - qbism."};
+cvar_t	help_pages = {"help_pages","6", "help_pages[value] Number of pages in help."};
 
 extern	cvar_t	samelevel;
 

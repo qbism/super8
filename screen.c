@@ -32,13 +32,13 @@ float		scr_con_current;
 float		scr_conlines;		// lines of console to display
 
 float		oldfov; // edited
-cvar_t		scr_viewsize = {"viewsize","100", "IOU help string - qbism.", true};
-cvar_t		scr_fov = {"fov","91.25", "IOU help string - qbism."};	// 10 - 170 //qb: 91.25 works best for fisheye
-cvar_t		scr_conspeed = {"scr_conspeed","1000", "IOU help string - qbism."};
-cvar_t		scr_showpause = {"showpause","1", "IOU help string - qbism."};
-cvar_t		scr_centertime = {"scr_centertime","2", "IOU help string - qbism."};
-cvar_t		scr_printspeed = {"scr_printspeed","16", "IOU help string - qbism."}; // 8 // Manoel Kasimier - edited
-cvar_t      scr_fadecolor = {"scr_fadecolor","4", "IOU help string - qbism.", true};  //qb: background color for fadescreen2
+cvar_t		scr_viewsize = {"viewsize","100", "viewsize[value] Reduce view size by adding a border around the screen.", true};
+cvar_t		scr_fov = {"fov","91.25", "fov[1.0 to 170.0] Field-of-view angle."};	// 10 - 170 //qb: 91.25 works best for fisheye
+cvar_t		scr_conspeed = {"scr_conspeed","1000", "scr_conspeed[value] Console screen scroll speed."};
+cvar_t		scr_showpause = {"showpause","1", "scr_showpause[0/1] Show 'pause' plaque. Turn off for screenshots."};
+cvar_t		scr_centertime = {"scr_centertime","2.5", "scr_centertime[time] How long center print hint messages are displayed."};
+cvar_t		scr_printspeed = {"scr_printspeed","16", "scr_printspeed[time] Time between each letter during episode end messages."}; // 8 // Manoel Kasimier - edited
+cvar_t      scr_fadecolor = {"scr_fadecolor","4", "scr_fadecolor[value] Screen tint during menu display.", true};  //qb: background color for fadescreen2
 
 qboolean	scr_initialized;		// ready to draw
 

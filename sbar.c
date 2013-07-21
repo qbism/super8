@@ -56,21 +56,23 @@ int         hipweapons[4] = {HIT_LASER_CANNON_BIT,HIT_MJOLNIR_BIT,4,HIT_PROXIMIT
 //MED 01/04/97 added hipnotic items array
 qpic_t      *hsb_items[2];
 
-cvar_t	sbar_scale	= {"sbar_scale","0.8", "IOU help string - qbism.", true}; //qb:
+cvar_t	sbar_scale	= {"sbar_scale","0.8", "sbar_scale[0.0 - 1.0] Status bar and menu scale.", true}; //qb:
 // Manoel Kasimier - begin
-cvar_t	sbar_show_scores	= {"sbar_show_scores","0", "IOU help string - qbism.", false}; //qb: let pros set w/ custom cfg
-cvar_t	sbar_show_ammolist	= {"sbar_show_ammolist","1", "IOU help string - qbism.", false};
-cvar_t	sbar_show_weaponlist= {"sbar_show_weaponlist","1", "IOU help string - qbism.", false};
-cvar_t	sbar_show_keys		= {"sbar_show_keys","1", "IOU help string - qbism.", false};
-cvar_t	sbar_show_runes		= {"sbar_show_runes","1", "IOU help string - qbism.", false};
-cvar_t	sbar_show_powerups	= {"sbar_show_powerups","1", "IOU help string - qbism.", false};
-cvar_t	sbar_show_armor		= {"sbar_show_armor","1", "IOU help string - qbism.", false};
-cvar_t	sbar_show_health	= {"sbar_show_health","1", "IOU help string - qbism.", false};
-cvar_t	sbar_show_ammo		= {"sbar_show_ammo","1", "IOU help string - qbism.", false};
-cvar_t	sbar_show_bg		= {"sbar_show_bg","0", "IOU help string - qbism.", false};
-cvar_t	sbar                = {"sbar","1", "IOU help string - qbism.", true};
+cvar_t	sbar_show_scores	= {"sbar_show_scores","0", "sbar_show_scores[0/1] Toggles display of status bar.", false}; //qb: let pros set w/ custom cfg
+cvar_t	sbar_show_ammolist	= {"sbar_show_ammolist","1", "[0/1] Toggles display of status bar ammo list.", false};
+cvar_t	sbar_show_weaponlist= {"sbar_show_weaponlist","1", "[0/1] Toggles display of status bar weapon list.", false};
+cvar_t	sbar_show_keys		= {"sbar_show_keys","1", "[0/1] Toggles display of status bar keys.", false};
+cvar_t	sbar_show_runes		= {"sbar_show_runes","1", "[0/1] Toggles display of status bar runes.", false};
+cvar_t	sbar_show_powerups	= {"sbar_show_powerups","1", "[0/1] Toggles display of status bar powerups.", false};
+cvar_t	sbar_show_armor		= {"sbar_show_armor","1", "[0/1] Toggles display of status bar armor.", false};
+cvar_t	sbar_show_health	= {"sbar_show_health","1", "[0/1] Toggles display of status bar health.", false};
+cvar_t	sbar_show_ammo		= {"sbar_show_ammo","1", "[0/1] Toggles display of status bar ammo.", false};
+cvar_t	sbar_show_bg		= {"sbar_show_bg","0", "[0/1] Toggles display of status bar background.", false};
+cvar_t	sbar                = {"sbar","1", "sbar[0-4] Status bar mode. 0 is off, 1-3 are 'classic' modes, 4 is a different mode.", true};
 
-cvar_t	crosshair_color		= {"crosshair_color","12", "IOU help string - qbism.", true};
+cvar_t	crosshair_color		= {"crosshair_color","12", "crosshair_color[0-17] 0-15 are built-in colors, 16 is crosshair_custom1, and 17 is crosshair_custom2.", true};
+cvar_t	crosshair_custom16	= {"crosshair_custom16","244", "crosshair_custom16[palette index] Custom color slot for crosshair.  Set crosshair_color to 16.", true};
+cvar_t	crosshair_custom17	= {"crosshair_custom17","251", "crosshair_custom17[palette index] Custom color slot for crosshair.  Set crosshair_color to 17.", true};
 // Manoel Kasimier - end
 
 void Sbar_MiniDeathmatchOverlay (void);
@@ -156,9 +158,11 @@ void Sbar_Init (void)
     Cvar_RegisterVariable (&sbar_show_ammo);
     Cvar_RegisterVariable (&sbar_show_bg);
     Cvar_RegisterVariable (&sbar);
+    // Manoel Kasimier - end
 
     Cvar_RegisterVariable (&crosshair_color);
-    // Manoel Kasimier - end
+    Cvar_RegisterVariable (&crosshair_custom16); //qb: custom color
+    Cvar_RegisterVariable (&crosshair_custom17); //qb: custom color
 
     for (i=0 ; i<10 ; i++)
     {
@@ -1169,14 +1173,14 @@ void Crosshair_Draw (int x, int y, int color)
 }
 void Crosshair_Start (int x, int y)
 {
-    byte color = (int)crosshair_color.value;
+    byte color = (byte)crosshair_color.value;
     if (!crosshair.value || color > 17)
         return;
     // custom colors
-    if (color == 16) // sky blue
-        Crosshair_Draw (x, y, 244);
-    else if (color == 17) // red
-        Crosshair_Draw (x, y, 251);
+    if (color == 16) //qb: set by cvar
+        Crosshair_Draw (x, y, crosshair_custom16.value);
+    else if (color == 17) //qb: set by cvar
+        Crosshair_Draw (x, y, crosshair_custom17.value);
     // palette colors
     else if (color > 8 && color < 15)
         Crosshair_Draw (x, y, (color-1)*16);
