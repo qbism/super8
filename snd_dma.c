@@ -70,20 +70,20 @@ int sound_started=0;
 int		s_rawend; //qb: QS
 portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
 
-cvar_t bgmvolume = {"bgmvolume", "0.4", "IOU help string - qbism.", true};
-cvar_t sfxvolume = {"sfxvolume", "0.7", "IOU help string - qbism.", true};
+cvar_t bgmvolume = {"snd_bgmvolume", "0.4", "bgmvolume[0.0 - 1.0] background music volume.", true};
+cvar_t sfxvolume = {"snd_sfxvolume", "0.7", "sfxvolume[0.0 - 1.0] sound effects volume.", true};
 
-cvar_t nosound = {"nosound", "0", "IOU help string - qbism."};
-cvar_t precache = {"precache", "1", "IOU help string - qbism."};
-cvar_t bgmbuffer = {"bgmbuffer", "4096", "IOU help string - qbism."};
-cvar_t ambient_level = {"ambient_level", "0.3", "IOU help string - qbism."};
-cvar_t ambient_fade = {"ambient_fade", "100", "IOU help string - qbism."};
-cvar_t snd_noextraupdate = {"snd_noextraupdate", "0", "IOU help string - qbism."};
-cvar_t snd_show = {"snd_show", "0", "IOU help string - qbism."};
-cvar_t snd_speed = {"snd_speed", "44100", "IOU help string - qbism."};  //qb:
-cvar_t _snd_mixahead = {"_snd_mixahead", "0.2", "IOU help string - qbism.", true}; //qb: Dan East was 0.1
-cvar_t snd_stereo = {"snd_stereo", "1", "IOU help string - qbism.", true}; // Manoel Kasimier
-cvar_t snd_swapstereo = {"snd_swapstereo", "0", "IOU help string - qbism.", true}; // Manoel Kasimier
+cvar_t nosound = {"snd_nosound", "0", "nosound[0/1] Toggle sound off/on."};
+cvar_t precache = {"snd_precache", "1", "snd_precache[0/1] Toggle precaching of sounds."};
+cvar_t bgmbuffer = {"snd_bgmbuffer", "4096", "snd_bgmbuffer[value] Size of background music buffer."};
+cvar_t ambient_level = {"snd_ambient_level", "0.3", "snd_ambient_level[0.0 - 1.0] ambient sound volume."};
+cvar_t ambient_fade = {"snd_ambient_fade", "100", "snd_ambient_fade[distance] - ambient volume fade distance."};
+cvar_t snd_noextraupdate = {"snd_noextraupdate", "1", "snd_noextraupdate[0/1] Toggles extra update off.  Set to 0 if sound is choppy."};
+cvar_t snd_show = {"snd_show", "0", "snd_show[0/1] Toggles listing of sounds currently being played."};
+cvar_t snd_speed = {"snd_speed", "48000", "snd_speed[frequency] Sound khz resolution."};  //qb:
+cvar_t _snd_mixahead = {"snd_mixahead", "0.15", "snd_mixahead[time] Audio mix ahead in seconds.", true};
+cvar_t snd_stereo = {"snd_stereo", "1", "snd_stereo[0/1] Toggles stereo audio.", true}; // Manoel Kasimier
+cvar_t snd_swapstereo = {"snd_swapstereo", "0", "snd_swapstereo[0/1] Toggles swap stereo channels.", true}; // Manoel Kasimier
 
 
 // ====================================================================

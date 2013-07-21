@@ -213,7 +213,7 @@ R_PrintAliasStats
 */
 void R_PrintAliasStats (void)
 {
-    Con_Printf ("%3i polygon model drawn\n", r_amodels_drawn);
+    Con_Printf ("%3i polygon models drawn\n", r_amodels_drawn);
 }
 
 /*

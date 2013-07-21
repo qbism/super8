@@ -24,7 +24,7 @@ extern cvar_t	pausable;
 
 int	current_skill;
 
-cvar_t sv_cheats = {"sv_cheats", "0", "IOU help string - qbism."};//qb: sv_cheats similar to DP
+cvar_t sv_cheats = {"sv_cheats", "0", "sv_cheats[0/1] Toggles allow server cheats."};//qb: sv_cheats similar to DP
 qboolean allowcheats = false; //qb: sv_cheat similar to DP
 
 void Mod_Print (void);

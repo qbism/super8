@@ -29,7 +29,7 @@ float	skyspeed, skyspeed2;
 float		skytime;
 
 byte	*skyunderlay, *skyoverlay; // Manoel Kasimier - smooth sky
-cvar_t	r_skyname = { "r_skyname", "", "IOU help string - qbism."}; // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
+cvar_t	r_skyname = { "r_skyname", "", "r_skyname[name] Name of current skybox."}; // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic
 
 /*
 =============

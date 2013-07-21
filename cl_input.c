@@ -342,17 +342,17 @@ float CL_KeyState (kbutton_t *key)
 
 //==========================================================================
 
-cvar_t	cl_upspeed = {"cl_upspeed","200", "cl_upspeed [value] Maximum move up/down speed."};
-cvar_t	cl_forwardspeed = {"cl_forwardspeed","400", "cl_forwardspeed [value] Maximum forward speed.", true}; //qb: always run by default
-cvar_t	cl_backspeed = {"cl_backspeed","200", "cl_backspeed [value] Maximum backwards speed.", true};
-cvar_t	cl_sidespeed = {"cl_sidespeed","350", "cl_sidespeed [value] Maximum strafe speed.", true};
+cvar_t	cl_upspeed = {"cl_upspeed","200", "cl_upspeed[value] Maximum move up/down speed."};
+cvar_t	cl_forwardspeed = {"cl_forwardspeed","400", "cl_forwardspeed[value] Maximum forward speed.", true}; //qb: always run by default
+cvar_t	cl_backspeed = {"cl_backspeed","200", "cl_backspeed[value] Maximum backwards speed.", true};
+cvar_t	cl_sidespeed = {"cl_sidespeed","350", "cl_sidespeed[value] Maximum strafe speed.", true};
 
-cvar_t	cl_movespeedkey = {"cl_movespeedkey","2.0", "cl_movespeedkey [value] Maximum run speed."};
+cvar_t	cl_movespeedkey = {"cl_movespeedkey","2.0", "cl_movespeedkey[value] Maximum run speed."};
 
-cvar_t	cl_yawspeed = {"cl_yawspeed","140", "cl_yawspeed [value] Maximum yaw speed."};
-cvar_t	cl_pitchspeed = {"cl_pitchspeed","150", "cl_pitchspeed [value] Maximum pitch speed."};
+cvar_t	cl_yawspeed = {"cl_yawspeed","140", "cl_yawspeed[value] Maximum yaw speed."};
+cvar_t	cl_pitchspeed = {"cl_pitchspeed","150", "cl_pitchspeed[value] Maximum pitch speed."};
 
-cvar_t	cl_anglespeedkey = {"cl_anglespeedkey","1.5", "cl_anglespeedkey [value] Maximum angle change speed."};
+cvar_t	cl_anglespeedkey = {"cl_anglespeedkey","1.5", "cl_anglespeedkey[value] Maximum angle change speed."};
 
 
 /*

@@ -45,8 +45,8 @@ int		mod_numknown;
 #define NL_NEEDS_LOADED	1
 #define NL_UNREFERENCED	2
 
-cvar_t	external_ent = {"external_ent","1", "IOU help string - qbism."};	// 2001-09-12 .ENT support by Maddes
-cvar_t	external_vis = {"external_vis","1", "IOU help string - qbism."};	// 2001-12-28 .VIS support by Maddes
+cvar_t	external_ent = {"external_ent","1", "external_ent[0/1] Toggles use of external entity files."};	// 2001-09-12 .ENT support by Maddes
+cvar_t	external_vis = {"external_vis","1", "external_vis[0/1] Toggles use of external visibility files."};	// 2001-12-28 .VIS support by Maddes
 
 /*
 ===============

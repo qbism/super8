@@ -35,7 +35,7 @@ Memory is cleared / released when a server or client begins, not when they end.
 
 // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
 double	host_org_frametime;
-cvar_t	host_timescale = {"host_timescale", "0", "IOU help string - qbism."};
+cvar_t	host_timescale = {"host_timescale", "0", "host_timescale[0.0 to 10.0] scales the passage of time on client and server."};
 // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
 
 void Palette_Init (void);
@@ -65,32 +65,30 @@ byte		*host_colormap;//qb:
 byte        *alphamap, *alpha50map, *additivemap, *fogmap; //qb: moved here
 byte        *lightcolormap; //qb:
 
-cvar_t	r_skyalpha = {"r_skyalpha","0.5", "IOU help string - qbism."}; //0.6 Manoel Kasimier - translucent sky
+cvar_t	r_skyalpha = {"r_skyalpha","0.5", "r_skyalpha[0.0 to 1.0] Sky layer transparency."}; //0.6 Manoel Kasimier - translucent sky
 
-cvar_t  r_palette =  {"r_palette", "s8pal", "IOU help string - qbism.", true}; //qb: the default palette to load
+cvar_t  r_palette =  {"r_palette", "s8pal", "r_palette[name] Default palette.", true}; //qb: the default palette to load
 
-cvar_t	host_framerate = {"host_framerate","0", "IOU help string - qbism."};	// set for slow motion
-cvar_t	host_speeds = {"host_speeds","0", "IOU help string - qbism."};			// set for running times
+cvar_t	host_framerate = {"host_framerate","0", " host_framerate[0.0 - 0.99] When non-zero, this value will override the calculated framerate."};	// set for slow motion
+cvar_t	host_speeds = {"host_speeds","0", "host_speeds[0/1] Toggle the display of host info."};			// set for running times
 
-cvar_t	sys_ticrate = {"sys_ticrate","0.05", "IOU help string - qbism."};
-cvar_t	serverprofile = {"serverprofile","0", "IOU help string - qbism."};
+cvar_t	sys_ticrate = {"sys_ticrate","0.05", "sys_ticrate[value] Dedicated server update rate to clients."};
+cvar_t	serverprofile = {"serverprofile","0", "serverprofile[0/1] Toggle server stats display."};
 
-cvar_t	fraglimit = {"fraglimit","0", "IOU help string - qbism.",false,true};
-cvar_t	timelimit = {"timelimit","0", "IOU help string - qbism.",false,true};
-cvar_t	teamplay = {"teamplay","0", "IOU help string - qbism.",false,true};
+cvar_t	fraglimit = {"fraglimit","0", "fraglimit[value] Maximum frags per map.",false,true};
+cvar_t	timelimit = {"timelimit","0", "timelimit[value] Max time per map for multiplayer.",false,true};
+cvar_t	teamplay = {"teamplay","0", "teamplay[0/1] Toggles teamplay.",false,true};
 
-cvar_t	samelevel = {"samelevel","0", "IOU help string - qbism."};
-cvar_t	noexit = {"noexit","0", "IOU help string - qbism.",false,true};
+cvar_t	samelevel = {"samelevel","0", "samelevel[0/1] Toggles whether exiting a level advances to the next one."};
+cvar_t	noexit = {"noexit","0", "noexit[0/1] Toggles off map exit trigger.",false,true};
 
-cvar_t	developer = {"developer","0", "IOU help string - qbism."};
+cvar_t	developer = {"developer","0", "developer[0/1] Toggles extra info displayed in console for developers."};
 
-cvar_t	skill = {"skill","1", "IOU help string - qbism."};						// 0 - 3
-cvar_t	deathmatch = {"deathmatch","0", "IOU help string - qbism."};			// 0, 1, or 2
-cvar_t	coop = {"coop","0", "IOU help string - qbism."};			// 0 or 1
+cvar_t	skill = {"skill","1", "skill [1-4] – Set the skill level of the game."};						// 0 - 3
+cvar_t	deathmatch = {"deathmatch","0", "deathmatch[0/1] Toggles dm mode."};			// 0, 1, or 2
+cvar_t	coop = {"coop","0", "coop[0/1] Toggles coop mode."};			// 0 or 1
 
-cvar_t	pausable = {"pausable","1", "IOU help string - qbism."};
-
-cvar_t	temp1 = {"temp1","0", "IOU help string - qbism."};
+cvar_t	pausable = {"pausable","1", "pausable [0/1] Toggles if players can pause the game."};
 
 
 /*
@@ -266,8 +264,6 @@ void Host_InitLocal (void)
     Cvar_RegisterVariableWithCallback (&coop, Host_CheckCoopValue); // Manoel Kasimier - Deathmatch/Coop not at the same time - edited
 
     Cvar_RegisterVariable (&pausable);
-
-    Cvar_RegisterVariable (&temp1);
 
     Host_FindMaxClients ();
 

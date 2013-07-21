@@ -36,9 +36,9 @@ int			con_current;		// where next message will be printed
 int			con_x;				// offset in current line for next print
 char		*con_text=0;
 
-cvar_t		con_notifytime = {"con_notifytime","3", "IOU help string - qbism."};		//seconds
-cvar_t		con_alpha = {"con_alpha","0.5", "IOU help string - qbism."}; // Manoel Kasimier - transparent console
-cvar_t		con_logcenterprint = {"con_logcenterprint", "1", "IOU help string - qbism."}; //qb:  from johnfitz
+cvar_t		con_notifytime = {"con_notifytime","3", "con_notifytime[time] Sets how long messages are displayed in seconds."};		//seconds
+cvar_t		con_alpha = {"con_alpha","0.5", "con_alpha[0.0 to 1.0] Console alpha."}; // Manoel Kasimier - transparent console
+cvar_t		con_logcenterprint = {"con_logcenterprint", "1", "con_logcenterprint[0/1] Toggle log centerprint to console."}; //qb:  from johnfitz
 
 #define	NUM_CON_TIMES 4
 float		con_times[NUM_CON_TIMES];	// realtime time the line was generated

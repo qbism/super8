@@ -29,7 +29,7 @@
 #define MUSIC_DIRNAME	"music"
 
 qboolean	bgmloop;
-cvar_t		bgm_extmusic = {"bgm_extmusic", "1", "bgm_extmusic [0/1] toggles playing music if track file exists.", true};
+cvar_t		bgm_extmusic = {"bgm_extmusic", "1", "bgm_extmusic[0/1] Toggles playing music if track file exists.", true};
 
 static qboolean	no_extmusic= false;
 static float	old_volume = -1.0f;

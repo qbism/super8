@@ -136,71 +136,67 @@ void R_MarkLeaves (void);
 
 extern cvar_t		vid_windowed_mode; //qb
 
-cvar_t	r_draworder = {"r_draworder","0", "IOU help string - qbism."};
-cvar_t	r_speeds = {"r_speeds","0", "IOU help string - qbism."};
+cvar_t	r_draworder = {"r_draworder","0", "r_draworder[0/1] Toggle draw backward spans."};
+cvar_t	r_speeds = {"r_speeds","0", "r_speeds[0/1] Toggle display of drawing time, face clips, polygon count, drawn polygon count, and surfaces per frame."};
 
 //qb: fte stain cvars
-cvar_t r_stainfadeamount = {"r_stainfadeamount", "1", "IOU help string - qbism."};
-cvar_t r_stainfadetime = {"r_stainfadetime", "1", "IOU help string - qbism."};
-cvar_t r_stains = {"r_stains", "0.75", "IOU help string - qbism."}; //zero to one
+cvar_t r_stainfadeamount = {"r_stainfadeamount", "0.5", "r_stainfadeamount[value] Amount to fade stain each cycle."};
+cvar_t r_stainfadetime = {"r_stainfadetime", "5.0", "r_stainfadetime[time] How long a stain will stay before fading."};
+cvar_t r_stains = {"r_stains", "0.75", "r_stains[0.0 - 1.0] Stainmap opacity.  Set to 0 to turn off stains."}; //zero to one
 
-cvar_t	r_timegraph = {"r_timegraph","0", "IOU help string - qbism."};
-cvar_t	r_graphheight = {"r_graphheight","10", "IOU help string - qbism."};
-cvar_t	r_clearcolor = {"r_clearcolor","2", "IOU help string - qbism."};
-cvar_t	r_waterwarp = {"r_waterwarp","1", "IOU help string - qbism."};
-cvar_t	r_fullbright = {"r_fullbright","0", "IOU help string - qbism."};
-cvar_t	r_drawentities = {"r_drawentities","1", "IOU help string - qbism."};
-cvar_t	r_drawviewmodel = {"r_drawviewmodel","1", "IOU help string - qbism.", true}; // Manoel Kasimier - saved in the config file - edited
-cvar_t	r_aliasstats = {"r_polymodelstats","0", "IOU help string - qbism."};
-cvar_t	r_dspeeds = {"r_dspeeds","0", "IOU help string - qbism."};
-cvar_t	r_drawflat = {"r_drawflat", "0", "IOU help string - qbism."};
-cvar_t	r_ambient = {"r_ambient", "15", "IOU help string - qbism."}; //qb: avoid total black
+cvar_t	r_timegraph = {"r_timegraph","0", "r_timegraph[0/1] Toggle display of a performance graph. (Lower levels means better performance.)"};
+cvar_t	r_graphheight = {"r_graphheight","10", "r_graphheight[value] Set the number of lines displayed in the timegraph."};
+cvar_t	r_clearcolor = {"r_clearcolor","2", "r_clearcolor[palette index] The color for areas outside of the current map. Only seen if moving with noclip."};
+cvar_t	r_waterwarp = {"r_waterwarp","1", "r_waterwarp[0/1] Toggles whether the view is warped when in a liquid."};
+cvar_t	r_fullbright = {"r_fullbright","0", "r_fullbright[0/1] Toggles shading off."};
+cvar_t	r_drawentities = {"r_drawentities","1", "r_drawentities[0/1] Toggles the drawing of all objects (entities)."};
+cvar_t	r_drawviewmodel = {"r_drawviewmodel","1", "r_drawviewmodel[0/1] Toggles drawing of first-person model.", true}; // Manoel Kasimier - saved in the config file - edited
+cvar_t	r_aliasstats = {"r_polymodelstats","0", "r_polymodelstats[0/1] Show number of polygon models drawn per frame."};
+cvar_t	r_dspeeds = {"r_dspeeds","0", "r_dspeeds[0/1]-Toggles the display of drawing times per frame:  render time, particles, world, brushes, scan edges, entities, and viewmodel."};
+cvar_t	r_drawflat = {"r_drawflat", "0", "r_drawflat[0/1] Toggles the drawing of texture maps (0=use texture maps.)"};
+cvar_t	r_ambient = {"r_ambient", "15", "r_ambient[value] Set minimum value for map lighting."}; //qb: avoid total black
 //qb: nolerp list from FQ
-cvar_t	r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs/braztall.mdl,progs/brazshrt.mdl,progs/longtrch.mdl,progs/flame_pyre.mdl,progs/v_saw.mdl,progs/v_xfist.mdl,progs/h2stuff/newfire.mdl", "IOU help string - qbism."};
+cvar_t	r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs/braztall.mdl,progs/brazshrt.mdl,progs/longtrch.mdl,progs/flame_pyre.mdl,progs/v_saw.mdl,progs/v_xfist.mdl,progs/h2stuff/newfire.mdl",
+"r_nolerp_list[models] Do not smooth animation for these models."};
 
 
-cvar_t	r_coloredlights = {"r_coloredlights", "1", "IOU help string - qbism.", true}; //qb:
-cvar_t	r_clbaseweight = {"r_clbaseweight", "0.8", "IOU help string - qbism.", true}; //qb: base pixel weight for color map blending
-cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", "IOU help string - qbism.", true}; //qb: color weight for color map blending
+cvar_t	r_coloredlights = {"r_coloredlights", "1", "r_coloredlights[0/1] Toggle use of colored lighting.", true}; //qb:
+cvar_t	r_clbaseweight = {"r_clbaseweight", "0.8", "r_clbaseweight[0.0 - 1.0] Importance of texture color in colored lighting precalculation.", true}; //qb: base pixel weight for color map blending
+cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", "r_clcolorweight[0.0 - 1.0] Importance of lighting color in colored lighting precalculation.", true}; //qb: color weight for color map blending
 
-cvar_t r_fog = {"r_fog", "1", "IOU help string - qbism.", true}; //qb:  draw fog?
+cvar_t r_fog = {"r_fog", "1", "r_fog[0/1] Toggle rendering of fog.", true}; //qb:  draw fog?
 
-cvar_t	r_reportsurfout = {"r_reportsurfout", "0", "IOU help string - qbism."};
-cvar_t	r_maxsurfs = {"r_maxsurfs", "0", "IOU help string - qbism."};
-cvar_t	r_numsurfs = {"r_numsurfs", "0", "IOU help string - qbism."};
-cvar_t	r_reportedgeout = {"r_reportedgeout", "0", "IOU help string - qbism."};
-cvar_t	r_maxedges = {"r_maxedges", "0", "IOU help string - qbism."};
-cvar_t	r_numedges = {"r_numedges", "0", "IOU help string - qbism."};
-cvar_t	r_aliastransadj = {"r_aliastransadj", "100", "IOU help string - qbism."};
-
-cvar_t	r_colmapred = {"r_colmapred", "0", "IOU help string - qbism."};  //qb: boost overall light tint for colormap.
-cvar_t	r_colmapblue = {"r_colmapblue", "0", "IOU help string - qbism."};  //qb: boost overall light tint for colormap.
-cvar_t	r_colmapgreen = {"r_colmapgreen", "0", "IOU help string - qbism."};  //qb: boost overall light tint for colormap.
+cvar_t	r_reportsurfout = {"r_reportsurfout", "0", "r_reportsurfout[0/1] Toggle report of surfaces dropped because > r_maxsurfs."};
+cvar_t	r_maxsurfs = {"r_maxsurfs", "0", "r_maxsurfs[value] Sets the maximum number of surfaces. Setting take effect on map restart."};
+cvar_t	r_numsurfs = {"r_numsurfs", "0", "r_numsurfs[0/1] Toggles display of number of surfaces in current view."};
+cvar_t	r_reportedgeout = {"r_reportedgeout", "0", "r_reportedgeout[0/1] Toggle report of edges dropped because > r_maxedges."};
+cvar_t	r_maxedges = {"r_maxedges", "0", "r_maxedges[value] Sets the maximum number of edges. Setting take effect on map restart."};
+cvar_t	r_numedges = {"r_numedges", "0", "r_numedges[0/1] Toggles display of number of surfaces in current view."};
 
 //cvar_t	r_letterbox = {"r_letterbox","0"}; // Manoel Kasimier - r_letterbox
 // Manoel Kasimier - changed alias models lighting - begin
-cvar_t	r_light_vec_x = {"r_light_vec_x", "-1", "IOU help string - qbism."};
-cvar_t	r_light_vec_y = {"r_light_vec_y", "0", "IOU help string - qbism."};
-cvar_t	r_light_vec_z = {"r_light_vec_z", "-1", "IOU help string - qbism."};
-cvar_t	r_light_style = {"r_light_style", "1", "IOU help string - qbism.", true};
+cvar_t	r_light_vec_x = {"r_light_vec_x", "-1", "r_light_vec_x[value] X vector when r_light_style is active."};
+cvar_t	r_light_vec_y = {"r_light_vec_y", "0", "r_light_vec_y[value] Y vector when r_light_style is active."};
+cvar_t	r_light_vec_z = {"r_light_vec_z", "-1", "r_light_vec_z[value] Z vector when r_light_style is active."};
+cvar_t	r_light_style = {"r_light_style", "1", "r_light_style[0/1] Toggle dramatic lighting of models.", true};
 // Manoel Kasimier - changed alias models lighting - end
-cvar_t	r_wateralpha = {"r_wateralpha","0.50", "IOU help string - qbism.", true}; // Manoel Kasimier - translucent water
-cvar_t	r_glassalpha = {"r_glassalpha","0.33", "IOU help string - qbism.", true}; //qb: *glass
-cvar_t	r_shadowhack = {"r_shadowhack", "0", "IOU help string - qbism.", false};
-cvar_t	r_shadowhacksize = {"r_shadowhacksize", "2.7", "IOU help string - qbism.", true};
+cvar_t	r_wateralpha = {"r_wateralpha","0.50", "r_wateralpha[0.0 - 1.0] Alpha of water surfaces.", true}; // Manoel Kasimier - translucent water
+cvar_t	r_glassalpha = {"r_glassalpha","0.33", "r_glassalpha[0.0 - 1.0] Alpha of glass surfaces.", true}; //qb: *glass
+cvar_t	r_shadowhack = {"r_shadowhack", "0", "r_shadowhack[0/1] Toggle use of darklights to fake entity shadows.", false};
+cvar_t	r_shadowhacksize = {"r_shadowhacksize", "2.7", "r_shadowhacksize[value] Radius factor of fake entity shadows.", true};
 
 //qb: particle cvars
-cvar_t  r_part_scale = {"r_part_scale", "1.0", "IOU help string - qbism.", true};
-cvar_t  r_part_blob_count = {"r_part_blob_count", "256", "IOU help string - qbism.", true};
-cvar_t  r_part_blob_time = {"r_part_blob_time", "0.2", "IOU help string - qbism.", true};
-cvar_t  r_part_blob_vel = {"r_part_blob_vel", "200", "IOU help string - qbism.", true};
-cvar_t  r_part_explo1_count = {"r_part_explo1_count", "400", "IOU help string - qbism.", true};
-cvar_t  r_part_explo1_time = {"r_part_explo1_time", "5", "IOU help string - qbism.", true};
-cvar_t  r_part_explo1_vel = {"r_part_explo1_vel", "400", "IOU help string - qbism.", true};
-cvar_t  r_part_explo2_count = {"r_part_explo2_count", "200", "IOU help string - qbism.", true};
-cvar_t  r_part_explo2_time = {"r_part_explo2_time", "0.3", "IOU help string - qbism.", true};
-cvar_t  r_part_explo2_vel = {"r_part_explo2_vel", "300", "IOU help string - qbism.", true};
-cvar_t  r_part_sticky_time = {"r_part_sticky_time", "18", "IOU help string - qbism.", true};
+cvar_t  r_part_scale = {"r_part_scale", "1.0", "r_part_scale[value] Particle scale.", true};
+cvar_t  r_part_blob_count = {"r_part_blob_count", "256", "r_part_blob_count[value] Number of particles in blob explosion.", true};
+cvar_t  r_part_blob_time = {"r_part_blob_time", "0.2", "r_part_blob_time[value] Particle lifespan for blob explosion.", true};
+cvar_t  r_part_blob_vel = {"r_part_blob_vel", "200", "r_part_blob_vel[value] Particle velocity for blob explosion.", true};
+cvar_t  r_part_explo1_count = {"r_part_explo1_count", "400", "r_part_explo1_count[value] Number of particles for explo1 effect.", true};
+cvar_t  r_part_explo1_time = {"r_part_explo1_time", "5", "r_part_explo1_time[value] Particle lifespan for explo1 effect.", true};
+cvar_t  r_part_explo1_vel = {"r_part_explo1_vel", "400", "r_part_explo1_vel[value] Particle velocity for explo1 effect.", true};
+cvar_t  r_part_explo2_count = {"r_part_explo2_count", "200", "r_part_explo2_count[value] Number of particles for explo2 effect.", true};
+cvar_t  r_part_explo2_time = {"r_part_explo2_time", "0.3", "r_part_explo2_time[value] Particle lifespan for explo2 effect.", true};
+cvar_t  r_part_explo2_vel = {"r_part_explo2_vel", "300", "r_part_explo2_vel[value] Particle velocity for explo2 effect.", true};
+cvar_t  r_part_sticky_time = {"r_part_sticky_time", "24", "r_part_sticky_time[value] Lifespan for sticky particles.", true};
 
 //void CreatePassages (void); // Manoel Kasimier - removed
 //void SetVisibilityByPassages (void); // Manoel Kasimier - removed
@@ -322,10 +318,6 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_numsurfs);
     Cvar_RegisterVariable (&r_reportedgeout);
     Cvar_RegisterVariable (&r_maxedges);
-
-    Cvar_RegisterVariable (&r_colmapred); //qb:
-    Cvar_RegisterVariable (&r_colmapblue);
-    Cvar_RegisterVariable (&r_colmapgreen);
 
     Cvar_RegisterVariable (&r_skyname); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 //	Cvar_RegisterVariableWithCallback (&r_letterbox, SCR_Adjust); // Manoel Kasimier - r_letterbox
@@ -672,7 +664,7 @@ fullbright colors start at the top of the palette.
 void GrabColormap (void)  //qb: fixed, was a little screwy
 {
     int		l, c, red, green, blue;
-    float	frac, cscale, fracscaled;
+    float	frac, fracscaled;
     float   rscaled, gscaled, bscaled;
     byte *colmap;
 
@@ -682,17 +674,11 @@ void GrabColormap (void)  //qb: fixed, was a little screwy
 //   for (l=0 ; l<256 ; l++)
 //       *colmap++ = l;
 
-    cscale = (float)(255 - max(max(r_colmapred.value, r_colmapgreen.value),  r_colmapblue.value))
-             / 255.0;
-
 // shaded levels
     for (l=0; l<COLORLEVELS; l++)
     {
         frac = (float)l/(COLORLEVELS-1);
-        frac = 1.0  - (frac ); //qb: obsolete... r_colmaprange.value - (frac );  //qb: was 1.0.... boost!
-        //rscaled = r_colmapred.value*cscale;
-        // gscaled = r_colmapgreen.value*cscale;
-        // bscaled = r_colmapblue.value*cscale;
+        frac = 1.0  - (frac );
 
         for (c=0 ; c<256-PALBRIGHTS ; c++)
         {
@@ -750,19 +736,7 @@ int R_LoadPalette (char *name) //qb: load an alternate palette
         return 0;
     }
     memcpy (host_basepal, fileinfo->data, 768);
-    //qb: if color 255 (transparent) isn't the default color, use it for lighting tint.
-    if ((host_basepal[765] != 159) && (host_basepal[766] != 91) && (host_basepal[767] != 83))
-    {
-        r_colmapred.value = host_basepal[765];
-        r_colmapgreen.value = host_basepal[766];
-        r_colmapblue.value = host_basepal[767];
-    }
-    else
-    {
-        r_colmapred.value = 0;
-        r_colmapgreen.value = 0;
-        r_colmapblue.value = 0;
-    }
+
     coloredlights = (int)r_coloredlights.value; // sanity check
     GrabColormap();
     GrabAlphamap();
@@ -862,7 +836,6 @@ void R_NewMap (void)
 R_SetVrect
 ===============
 */
-extern cvar_t temp1;
 void R_SetVrect (vrect_t *pvrectin, vrect_t *pvrect, int lineadj)
 {
     int		h;
