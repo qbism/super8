@@ -3244,8 +3244,8 @@ void M_Audio_Change (int dir)
 
     if (c == i++) Cvar_SetValue ("snd_stereo", !snd_stereo.value);
     if (c == i++) Cvar_SetValue ("snd_swapstereo", !snd_swapstereo.value);
-    if (c == i++) ChangeCVar("sfxvolume", sfxvolume.value, dir * 0.1, 0, 1, true);
-    if (c == i++) ChangeCVar("bgmvolume", bgmvolume.value, dir * 0.1, 0, 1, true);
+    if (c == i++) ChangeCVar("snd_sfxvolume", sfxvolume.value, dir * 0.1, 0, 1, true);
+    if (c == i++) ChangeCVar("snd_bgmvolume", bgmvolume.value, dir * 0.1, 0, 1, true);
     if (c == i++) Cvar_SetValue ("cd_enabled", !cd_enabled.value);
     if (c == i++)
     {
