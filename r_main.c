@@ -1545,10 +1545,10 @@ typedef struct fogslice_s  //qb: for multithreading
 
 void* FogLoop (fogslice_t* fs)
 {
-    static byte		*pbuf;
+    byte		*pbuf;
     byte        noise;
-    static unsigned short		*pz;
-    static int          level;
+    unsigned short		*pz;
+    int          level;
     {
         int xref, yref;
         for (yref=fs->rowstart ; yref<fs->rowend; yref++)
@@ -1680,7 +1680,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     static float previous_fog_density;
 
     //qb:  threads
-        fogslice_t fs[NUMTHREADS];
+        fogslice_t fogs[NUMTHREADS];
     int i;
 
     if (fog_density && r_fog.value)  //qb: only do it here for screenshots.
@@ -1692,13 +1692,13 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 
         for (i=0; i<NUMTHREADS; i++)
         {
-            fs[i].vidfog = vid.colormap+fogindex;
-            fs[i].rowstart= r_refdef.vrect.y + i*(r_refdef.vrect.height/NUMTHREADS);
+            fogs[i].vidfog = vid.colormap+fogindex;
+            fogs[i].rowstart= r_refdef.vrect.y + i*(r_refdef.vrect.height/NUMTHREADS);
             if (i+1 == NUMTHREADS)
-                fs[i].rowend = r_refdef.vrect.height;
+                fogs[i].rowend = r_refdef.vrect.height;
             else
-                fs[i].rowend = fs[i].rowstart + r_refdef.vrect.height/NUMTHREADS;
-            pthread_create(&thread[i], NULL, FogLoop, &fs[i]);
+                fogs[i].rowend = fogs[i].rowstart + r_refdef.vrect.height/NUMTHREADS;
+            pthread_create(&thread[i], NULL, FogLoop, &fogs[i]);
         }
 
         /* Wait for Threads to Finish */
