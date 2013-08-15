@@ -1139,7 +1139,7 @@ static int DCM_ScanInt(FILE *file)
 
 int		liststart[4]; // Manoel Kasimier [m_state - m_load]
 int		load_cursormax; // Manoel Kasimier
-#define	MAX_SAVEGAMES		30 //qb
+#define	MAX_SAVEGAMES		40 //qb
 char	m_filenames[MAX_SAVEGAMES][SAVEGAME_COMMENT_LENGTH+1];
 char	*m_fileinfo[MAX_SAVEGAMES]; // Manoel Kasimier
 int		loadable[MAX_SAVEGAMES];

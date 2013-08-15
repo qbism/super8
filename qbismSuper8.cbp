@@ -117,7 +117,7 @@
 			<Add library="wsock32" />
 			<Add library="dinput" />
 			<Add library="dxguid" />
-			<Add library="pthread" />
+			<Add library="winpthread" />
 			<Add directory="s_win32/codecs/x86" />
 		</Linker>
 		<ExtraCommands>
