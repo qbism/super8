@@ -783,7 +783,7 @@ void R_DrawParticles (void)
     int				i;
     float			time2, time3;
     float			time1;
-    float			dvel;
+    float			alpha, dvel;
     float			frametime;
 
 // hexen 2
@@ -836,7 +836,7 @@ void R_DrawParticles (void)
             }
         // Manoel Kasimier - begin
 
-        float alpha = 1.0 - ((cl.time - p->start_time) / (p->die - cl.time));
+        alpha = 1.0 - ((cl.time - p->start_time) / (p->die - cl.time));
         if (alpha <= 0.43)
             D_DrawParticle_33_C (p);
         else if (alpha <= 0.60)

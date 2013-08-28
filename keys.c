@@ -41,7 +41,7 @@ qboolean	consolekeys[256];	// if true, can't be rebound while in console
 qboolean	menubound[256];	// if true, can't be rebound while in menu
 qboolean	demokeys[256];					// Manoel Kasimier
 qboolean	key_menurepeats[256];			// Manoel Kasimier
-int		keyboard_active;					// Manoel Kasimier - on-screen keyboard
+extern int	keyboard_active;					// Manoel Kasimier - on-screen keyboard
 int		M_OnScreenKeyboard_Key (int key);	// Manoel Kasimier - on-screen keyboard
 int		keyshift[256];		// key to map to if shift held down in console
 int		key_repeats[256];	// if > 1, it is autorepeating

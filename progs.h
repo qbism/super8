@@ -62,7 +62,7 @@ extern	globalvars_t	*pr_global_struct;
 extern	float			*pr_globals;			// same as pr_global_struct
 
 extern	int				pr_edict_size;	// in bytes
-func_t	EndFrame; // FrikaC - EndFrame function
+extern func_t	EndFrame; // FrikaC - EndFrame function
 
 //============================================================================
 

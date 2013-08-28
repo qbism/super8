@@ -35,13 +35,13 @@ float	hack_ctr;
 
 static qboolean OnChange_capture_dir (cvar_t *var, char *string);
 
-cvar_t   capture_codec   = {"capture_codec", "XVID", "IOU help string - qbism.", true}; //qb: jqavi, change to XVID default
+cvar_t   capture_codec   = {"capture_codec", "XVID", "capture_codec[code] A 4-letter code for the desired codec.", true}; //qb: jqavi, change to XVID default
 
-cvar_t	capture_fps	= {"capture_fps", "30.0", "IOU help string - qbism.", true};
+cvar_t	capture_fps	= {"capture_fps", "30.0", "capture_fps[value] Captured video frames-per-second.", true};
 //qb: removed, broken.... cvar_t	capture_console	= {"capture_console", "1", true};
-cvar_t	capture_hack	= {"capture_hack", "0", "IOU help string - qbism.", true};
-cvar_t	capture_mp3	= {"capture_mp3", "0", "IOU help string - qbism.", true};
-cvar_t	capture_mp3_kbps = {"capture_mp3_kbps", "192", "IOU help string - qbism.", true};
+cvar_t	capture_hack	= {"capture_hack", "0", "capture_hack[value] Set to low value like 1 or 2 to fix sync problems.", true};
+cvar_t	capture_mp3	= {"capture_mp3", "0", "capture_mp3[0/1] Toggle capture audio in mp3 format rather than wav.", true};
+cvar_t	capture_mp3_kbps = {"capture_mp3_kbps", "192", "capture_mp3_kbps[value] mp3 capture rate.", true};
 
 qboolean movie_is_capturing = false;
 qboolean	avi_loaded, acm_loaded;

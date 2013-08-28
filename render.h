@@ -45,7 +45,7 @@ extern cvar_t	scr_fov;
 extern cvar_t r_interpolation; // Manoel Kasimier - model interpolation
 extern cvar_t r_wateralpha; // Manoel Kasimier - translucent water
 extern cvar_t r_glassalpha; //qb: *glass
-byte r_foundwater, r_drawwater; // Manoel Kasimier - translucent water
+extern byte r_foundwater, r_drawwater; // Manoel Kasimier - translucent water
 extern byte       *alphamap, *alpha50map, *additivemap, *fogmap; // Manoel Kasimier - transparencies
 extern byte       *lightcolormap;  //qb: light colors
 
@@ -156,7 +156,7 @@ extern vec3_t	r_origin, vpn, vright, vup;
 
 extern	struct texture_s	*r_notexture_mip;
 
-float fovscale; // Manoel Kasimier - FOV-based scaling
+extern float fovscale; // Manoel Kasimier - FOV-based scaling
 
 void R_Init (void);
 void R_InitTextures (void);

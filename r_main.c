@@ -29,6 +29,8 @@ extern short		*d_pzbuffer;
 extern unsigned int	d_zwidth;
 extern int			d_scantable[MAXHEIGHT];
 
+pthread_t thread[NUMTHREADS]; //qb:  use as required
+
 void		*colormap;
 //vec3_t		viewlightvec; // Manoel Kasimier - changed alias models lighting - removed
 //alight_t	r_viewlighting = {128, 192, viewlightvec}; // Manoel Kasimier - changed alias models lighting - removed
@@ -67,7 +69,7 @@ byte		*r_stack_start;
 
 byte		*r_warpbuffer;
 
-qboolean	r_fov_greater_than_90;
+//qboolean	r_fov_greater_than_90;
 
 //
 // view origin
@@ -129,8 +131,6 @@ int		d_lightstylevalue[256];	// 8.8 fraction of base light value
 
 float	dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
 float	se_time1, se_time2, de_time1, de_time2, dv_time1, dv_time2;
-
- pthread_t thread[NUMTHREADS]; //qb:  use as required
 
 void R_MarkLeaves (void);
 
@@ -929,7 +929,7 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj)
     }
     else
     {
-        pixelAspect = vid_nativeaspect; //qb
+        pixelAspect = 1/vid_nativeaspect; //qb Lavent correction
         if(vid_windowed_mode.value)
             screenAspect = 1;
         else screenAspect = r_refdef.vrect.width*pixelAspect /r_refdef.vrect.height;
@@ -997,10 +997,10 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj)
                       (min_vid_width * 152.0)) *
                 (2.0 / r_refdef.horizontalFieldOfView);
 
-    if (scr_fov.value <= 90.0)
-        r_fov_greater_than_90 = false;
-    else
-        r_fov_greater_than_90 = true;
+ //qb- not used   if (scr_fov.value <= 90.0)
+ //       r_fov_greater_than_90 = false;
+ //   else
+//        r_fov_greater_than_90 = true;
     D_ViewChanged ();
 }
 
@@ -1477,12 +1477,12 @@ void R_DrawBEntitiesOnList (void)
 R_EdgeDrawing
 ================
 */
+static edge_t	ledges[NUMSTACKEDGES +
+                   ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
+static surf_t	lsurfs[NUMSTACKSURFACES +
+                   ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
 void R_EdgeDrawing (void)
 {
-    edge_t	ledges[NUMSTACKEDGES +
-                   ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
-    surf_t	lsurfs[NUMSTACKSURFACES +
-                   ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
 
     if (auxedges)
     {
@@ -1533,38 +1533,6 @@ void R_EdgeDrawing (void)
     }
 
     R_ScanEdges ();
-}
-
-
-typedef struct fogslice_s  //qb: for multithreading
-{
-    int rowstart, rowend;
-    byte		*vidfog;
-} fogslice_t;
-
-
-void* FogLoop (fogslice_t* fs)
-{
-    byte		*pbuf;
-    byte        noise;
-    unsigned short		*pz;
-    int          level;
-    {
-        int xref, yref;
-        for (yref=fs->rowstart ; yref<fs->rowend; yref++)
-        {
-            pbuf = vid.buffer + d_scantable[yref];
-            pz = d_pzbuffer + (d_zwidth * yref);
-            for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
-            {
-                level = *(pz++);
-                if (level && level<248)
-                    *pbuf = fogmap[*pbuf + fs->vidfog[foglevel[level + fognoise[noise++]]]*256];
-                pbuf++;
-            }
-            noise += 13;
-        }
-    }
 }
 
 /*
@@ -1676,35 +1644,33 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     R_DrawViewModel (false); // Manoel Kasimier
 
     //qb: originally based on Makaqu fog.  added global fog, dithering, optimizing
-    static int			fogindex;
+    static int			fogindex, xref, yref;
+    static byte		*pbuf, *vidfog;
+    static byte        noise;
+    static unsigned short		*pz;
+    static int          level;
     static float previous_fog_density;
 
-    //qb:  threads
-        fogslice_t fogs[NUMTHREADS];
-    int i;
-
-    if (fog_density && r_fog.value)  //qb: only do it here for screenshots.
+    if (fog_density && r_fog.value )  //qb: fog
     {
         if(previous_fog_density != fog_density)
             FogLevelInit(); //dither includes density factor, so regenerate when it changes
         previous_fog_density = fog_density;
         fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
+        vidfog = vid.colormap+fogindex;
 
-        for (i=0; i<NUMTHREADS; i++)
+        for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
         {
-            fogs[i].vidfog = vid.colormap+fogindex;
-            fogs[i].rowstart= r_refdef.vrect.y + i*(r_refdef.vrect.height/NUMTHREADS);
-            if (i+1 == NUMTHREADS)
-                fogs[i].rowend = r_refdef.vrect.height;
-            else
-                fogs[i].rowend = fogs[i].rowstart + r_refdef.vrect.height/NUMTHREADS;
-            pthread_create(&thread[i], NULL, FogLoop, &fogs[i]);
-        }
-
-        /* Wait for Threads to Finish */
-        for (i=0; i<NUMTHREADS; i++)
-        {
-           pthread_join(thread[i], NULL);
+            pbuf = vid.buffer + d_scantable[yref];
+            pz = d_pzbuffer + (d_zwidth * yref);
+            for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
+            {
+                level = *(pz++);
+                if (level && level<248)
+                    *pbuf = fogmap[*pbuf + vidfog[foglevel[level + fognoise[noise++]]]*256];
+                pbuf++;
+            }
+            noise += 13;
         }
     }
 

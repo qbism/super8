@@ -59,7 +59,6 @@ extern cvar_t r_part_explo2_vel;
 extern cvar_t r_part_sticky_time;   //new type for gib trail or similar, sticks to walls and floors
 
 extern int	sintable[SIN_BUFFER_SIZE];
-extern int	intsintable[SIN_BUFFER_SIZE];
 
 extern	vec3_t	vup, base_vup;
 extern	vec3_t	vpn, base_vpn;

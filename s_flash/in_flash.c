@@ -26,7 +26,7 @@ byte _asToQKey[256];
 float	mouse_x, mouse_y;
 float	old_mouse_x, old_mouse_y;
 
-cvar_t	m_filter = {"m_filter","0", "IOU help string - qbism."};
+cvar_t	m_filter = {"m_filter","0", "m_filter[0/1] Toggle smoothing (averaging) of mouse movement."};
 
 
 void IN_Init (void)

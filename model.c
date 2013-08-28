@@ -1414,7 +1414,7 @@ int Mod_FindExternalVIS (loadedfile_t *brush_fileinfo)
 
     fhandle = -1;
 
-    if (external_vis.value)
+     if (external_vis.value)
     {
         // check for a .VIS file
         Q_strcpy(visfilename, loadmodel->name);

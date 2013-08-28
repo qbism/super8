@@ -753,7 +753,8 @@ float MSG_ReadFloat (void)
 char *MSG_ReadString (void)
 {
     static char     string[2048];
-    int             l,c;
+    int             c;
+    unsigned        l;
 
     l = 0;
     do
@@ -1423,7 +1424,7 @@ needed.  This is for the convenience of developers using ISDN from home.
 void COM_CopyFile (char *netpath, char *cachepath)
 {
     int             in, out;
-    int             remaining, count;
+    unsigned             remaining, count;
     char    buf[4096];
 
     remaining = Sys_FileOpenRead (netpath, &in);

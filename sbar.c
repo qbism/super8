@@ -41,7 +41,7 @@ qpic_t	*sb_face_invis_invuln;
 qboolean	sb_showscores;
 
 int			sb_lines;			// scan lines to draw
-float scr_2d_scale_h, scr_2d_scale_v;
+extern float scr_2d_scale_h, scr_2d_scale_v;
 
 qpic_t      *rsb_invbar[2];
 qpic_t      *rsb_weapons[5];

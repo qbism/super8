@@ -64,7 +64,7 @@ void Sys_SendKeyEvents (void);
 // Perform Key_Event () callbacks until the input que is empty
 
 // Manoel Kasimier - begin
-int  vibration_update[2];
+extern int  vibration_update[2];
 void Vibration_Update (void);
 void Vibration_Stop (int player); // 0=player1, 1=player2
 // Manoel Kasimier - end

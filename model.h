@@ -296,7 +296,8 @@ typedef struct mtriangle_s {
 	int					vertindex[3];
 	int					drawn; // Manoel Kasimier - EF_CELSHADING
 } mtriangle_t;
-int celtri_drawn; // Manoel Kasimier - EF_CELSHADING
+
+extern int celtri_drawn; // Manoel Kasimier - EF_CELSHADING
 
 typedef struct {
 	int					model;

@@ -23,6 +23,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define LIGHT_MIN	5		// lowest light value we'll allow, to avoid the
 //  need for inner-loop light clamping
 
+int celtri_drawn; // Manoel Kasimier - EF_CELSHADING
+
 mtriangle_t		*ptriangles;
 affinetridesc_t	r_affinetridesc;
 
@@ -74,7 +76,7 @@ static aedge_t	aedges[12] =
 #define NUMVERTEXNORMALS	162
 
 //qb: dumped from r_2d.c (deleted)
-cvar_t	r_interpolation = {"r_interpolation", "1", "r_interpolation[0/1] Toggle model interpolation."}; // Manoel Kasimier - model interpolation
+cvar_t	r_interpolation = {"r_interpolation", "1", "r_interpolation[0/1] Toggle model animation interpolation."}; // Manoel Kasimier - model interpolation
 cvar_t	sw_stipplealpha = {"sw_stipplealpha","0", "sw_stipplealpha[0/1] Toggle use of stippling rather than transparency.", true};
 /* qb: alias models show through completely- cvar_t	r_sprite_addblend = {"r_sprite_addblend","0", true}; */
 

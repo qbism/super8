@@ -302,6 +302,8 @@ int CL_WebDownloadProgress (double percent)
 }
 #endif
 
+static char	model_precache[MAX_MODELS][MAX_QPATH];
+static char	sound_precache[MAX_SOUNDS][MAX_QPATH];
 /*
 ==================
 CL_ParseServerInfo
@@ -312,8 +314,7 @@ void CL_ParseServerInfo (void)
     char	*str;
     int		i;
     int		nummodels, numsounds;
-    char	model_precache[MAX_MODELS][MAX_QPATH];
-    char	sound_precache[MAX_SOUNDS][MAX_QPATH];
+
 #ifdef WEBDL
     char url[1024];  //qb: R00k / Baker tute
 #endif
@@ -1141,7 +1142,7 @@ CL_ParseServerMessage
 void CL_ParseServerMessage (void)
 {
     int			cmd;
-    int         i, lastpos;
+    int         i, lastpos=0;
     int			lastcmd=0; //qb:  johnfitz
 
 //

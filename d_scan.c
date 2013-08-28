@@ -122,7 +122,6 @@ void R_InitTurb (void)
 }
 #define UNROLL_SPAN_SHIFT   5
 #define UNROLL_SPAN_MAX   (1 << UNROLL_SPAN_SHIFT) // 32
-#define SIN_BUFFER_SIZE (CYCLE * 2)
 
 /*
 =============

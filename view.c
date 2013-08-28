@@ -37,6 +37,8 @@ cvar_t  r_fishaccel = {"r_fishaccel", "0", "r_fishaccel[value] Accelleration of 
 int r_fviews;
 //qb - Aardappel fisheye end
 
+int  vibration_update[2];
+
 cvar_t	scr_ofsx = {"scr_ofsx","0", "scr_ofsx[value] video screen x offset", false};
 cvar_t	scr_ofsy = {"scr_ofsy","0", "scr_ofsy[value] video screen y offset", true}; // Manoel Kasimier - saved in the config file - edited
 cvar_t	scr_ofsz = {"scr_ofsz","0", "scr_ofsz[value] video screen x offset", false};
@@ -953,7 +955,7 @@ void V_RenderView (void)
     }
     else
     {
-         R_RenderView ();
+        R_RenderView ();
     }
 }
 
@@ -1390,10 +1392,6 @@ void R_RenderView_Fisheye()
     int height = vid.height; //r_refdef.vrect.height;
     int scrsize = width*height;
     int fov = (int)ffov.value;
-    if (fov < 86) r_fviews = 1;
-    else if (fov < 139) r_fviews = 3;
-    else if (fov < 229) r_fviews = 5;
-    else r_fviews = 6;
     double yaw = r_refdef.viewangles[YAW];
     double pitch = r_refdef.viewangles[PITCH];
     double roll = 0;//r_refdef.viewangles[ROLL];
@@ -1403,6 +1401,11 @@ void R_RenderView_Fisheye()
     static int pviews = -1;
     static B *scrbufs = NULL;
     static B **offs = NULL;
+
+    if (fov < 86) r_fviews = 1;
+    else if (fov < 139) r_fviews = 3;
+    else if (fov < 229) r_fviews = 5;
+    else r_fviews = 6;
 
     if(fov<1) fov = 1;
 
