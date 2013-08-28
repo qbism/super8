@@ -293,8 +293,8 @@ extern vec3_t	r_emins, r_emaxs;
 extern mnode_t	*r_pefragtopnode;
 extern int		r_clipflags;
 //qb: silly!  extern int		r_dlightframecount;
-extern qboolean	r_fov_greater_than_90;
-byte *pointcolormap; //qb: palettized color
+//extern qboolean	r_fov_greater_than_90;
+extern byte *pointcolormap; //qb: palettized color
 
 // mankrip - hi-res waterwarp - begin
 extern int *intsintable_x ,   *intsintable_y,   *warpcolumn,   *warprow;

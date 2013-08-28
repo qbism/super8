@@ -32,9 +32,10 @@ static qboolean	wasPlaying = false;
 //static qboolean playLooping = false; // Manoel Kasimier - CD player in menu - removed
 static float	cdvolume;
 static byte 	remap[100];
+byte audioTrack[1+99+1];
 //static byte		playTrack; // Manoel Kasimier - CD player in menu - removed
 //static byte		maxTrack; // Manoel Kasimier - CD player in menu - removed
-cvar_t cd_enabled = {"cd_enabled", "1", "IOU help string - qbism.", true}; // Manoel Kasimier
+cvar_t cd_enabled = {"cd_enabled", "1", "cd_enabled[0/1] Toggle CD player enable.", true}; // Manoel Kasimier
 
 // Hexen 2 - begin
 static UINT CD_ID;

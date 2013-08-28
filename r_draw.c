@@ -32,9 +32,9 @@ unsigned int	cacheoffset;
 int			c_faceclip;					// number of faces clipped
 
 zpointdesc_t	r_zpointdesc;
-
 polydesc_t		r_polydesc;
 
+byte r_foundwater, r_drawwater;
 
 
 clipplane_t	*entity_clipplanes;
@@ -46,9 +46,6 @@ medge_t			*r_pedge;
 qboolean		r_leftclipped, r_rightclipped;
 static qboolean	makeleftedge, makerightedge;
 qboolean		r_nearzionly;
-
-int		sintable[SIN_BUFFER_SIZE];
-int		intsintable[SIN_BUFFER_SIZE];
 
 mvertex_t	r_leftenter, r_leftexit;
 mvertex_t	r_rightenter, r_rightexit;

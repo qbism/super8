@@ -207,6 +207,8 @@ void Cvar_RegisterVariable (cvar_t *variable)
 	variable->next = cvar_vars;
 	cvar_vars = variable;
 }
+
+
 //Manoel Kasimier & Heffo - Cvar Callback Function - begin
 void Cvar_RegisterVariableWithCallback (cvar_t *variable, void *function)
 {

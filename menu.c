@@ -1036,8 +1036,8 @@ static void StartNewGame (void)
     if (sv.active)
         Cbuf_AddText ("disconnect\n");
     Cbuf_AddText ("maxplayers 1\n");
-    Cvar_SetValue (&teamplay, 0);
-    Cvar_SetValue (&coop, 0);
+    Cvar_SetValue (teamplay.name, 0); //qb: cleanups from Levent
+    Cvar_SetValue (coop.name, 0);
     Cbuf_AddText ("map start\n");
 }
 

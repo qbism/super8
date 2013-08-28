@@ -35,7 +35,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 typedef struct
 {
-	int			width, height;
+	unsigned			width, height;
 	byte		data[4];			// variably sized
 } qpic_t;
 
@@ -43,7 +43,7 @@ typedef struct
 typedef struct
 {
 	short		palette[256];
-	int			width, height;
+	unsigned			width, height;
 	byte		data[4];			// variably sized
 } satpic_t;
 // mankrip - end

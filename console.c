@@ -22,7 +22,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include <fcntl.h>
 #include "quakedef.h"
 
-int 		con_linewidth;
+unsigned 		con_linewidth;
 
 float		con_cursorspeed = 4;
 
@@ -301,7 +301,8 @@ If no console is visible, the notify window will pop up.
 void Con_Print (char *txt)
 {
     int		y;
-    int		c, l;
+    int		c;
+    unsigned    l;
     static int	cr;
     int		mask;
 

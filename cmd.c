@@ -1100,10 +1100,10 @@ extern	int	con_x;
 
 static void PaddedPrint (char *s)
 {
-    int		nextcolx = 0;
+    unsigned		nextcolx = 0;
 
     if (con_x)
-        nextcolx = (int)((con_x + COLUMNWIDTH) / COLUMNWIDTH) * COLUMNWIDTH;
+        nextcolx = (unsigned)((con_x + COLUMNWIDTH) / COLUMNWIDTH) * COLUMNWIDTH;
 
     if (nextcolx > con_linewidth - MINCOLUMNWIDTH
             || (con_x && nextcolx + Q_strlen(s) >= con_linewidth))

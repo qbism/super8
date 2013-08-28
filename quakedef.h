@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	WINQUAKE_VERSION	7
 #define	LINUX_VERSION		0
 
-#define NUMTHREADS          3   //qb: for multithreaded functions
+#define NUMTHREADS          8   //qb: for multithreaded functions
 extern pthread_t thread[NUMTHREADS];
 
 //define	PARANOID			// speed sapping error checking
@@ -306,7 +306,6 @@ extern	double		realtime;			// not bounded in any way, changed at
 
 extern double	newtime;
 
-extern int 	con_linewidth; //qb: Dan East
 extern int min_vid_width; //qb: Dan East
 
 //qb: qrack complete command begin
@@ -320,7 +319,7 @@ static	int	compl_clen;
 
 //qb: qrack complete command end
 
-extern	int	con_linewidth;
+extern	unsigned  con_linewidth;
 
 void Host_ClearMemory (void);
 void Host_ServerFrame (void);

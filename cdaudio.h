@@ -34,6 +34,6 @@ static byte 	remap[100];
 static byte		cdrom;
 static byte		playTrack;
 static byte		maxTrack;
-byte audioTrack[1+99+1]; // first and last values are dummy, and should always be zero
+extern byte audioTrack[1+99+1]; // first and last values are dummy, and should always be zero
 extern	cvar_t cd_enabled;
 // Manoel Kasimier - CD player in menu - end

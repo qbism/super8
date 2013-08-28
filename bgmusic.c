@@ -46,8 +46,8 @@ typedef struct music_handler_s
 	unsigned int	type;	/* 1U << n (see snd_codec.h)	*/
 	bgm_player_t	player;	/* Enumerated bgm player type	*/
 	int	is_available;	/* -1 means not present		*/
-	const char	*ext;	/* Expected file extension	*/
-	const char	*dir;	/* Where to look for music file */
+	char	*ext;	/* Expected file extension	*/
+	char	*dir;	/* Where to look for music file */
 	struct music_handler_s	*next;
 } music_handler_t;
 
@@ -214,10 +214,10 @@ static void BGM_Play_noext (const char *filename, unsigned int allowed_types)
 	Con_Printf("Can't find music file %s\n", filename);
 }
 
-void BGM_Play (const char *filename)
+void BGM_Play (char *filename)
 {
     char tmp[MAX_QPATH];
-    const char *ext;
+    char *ext;
     music_handler_t *handler;
 
     BGM_Stop();

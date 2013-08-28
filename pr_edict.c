@@ -21,6 +21,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 qboolean		pr_alpha_supported; //qb: from Fitzquake
 
+func_t	EndFrame; // FrikaC - EndFrame function
+
 dprograms_t		*progs;
 dfunction_t		*pr_functions;
 char			*pr_strings;

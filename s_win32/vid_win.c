@@ -319,7 +319,7 @@ void VID_UnloadAllDrivers (void)
 
 
 // prefer to startup with directdraw
-cvar_t vid_ddraw = {"vid_ddraw", "1", "IOU help string - qbism.", true};
+cvar_t vid_ddraw = {"vid_ddraw", "1", "vid_ddraw[0/1] Toggle use direct draw.", true};
 
 // compatibility
 qboolean		DDActive;
@@ -355,16 +355,16 @@ viddef_t	vid;				// global video state
 #define MODE_FULLSCREEN_DEFAULT	(MODE_WINDOWED + VID_WINDOWED_MODES) //qb: was 3
 
 // Note that 0 is MODE_WINDOWED
-cvar_t		vid_mode = {"vid_mode", "3", "IOU help string - qbism.", true}; //qb: was false
-cvar_t		vid_default_mode_win = {"vid_default_mode_win", "0", "IOU help string - qbism.", true};
-cvar_t		vid_wait = {"vid_wait", "1", "IOU help string - qbism.", true};
-cvar_t		vid_config_x = {"vid_config_x", "1280", "IOU help string - qbism.", true};
-cvar_t		vid_config_y = {"vid_config_y", "720", "IOU help string - qbism.", true};
-cvar_t		_windowed_mouse = {"_windowed_mouse", "1", "IOU help string - qbism.", true};
-cvar_t		vid_fullscreen_mode = {"vid_fullscreen_mode", "3", "IOU help string - qbism.", true};
-cvar_t		vid_windowed_mode = {"vid_windowed_mode", "0", "IOU help string - qbism.", true};
-cvar_t		vid_window_x = {"vid_window_x", "0", "IOU help string - qbism.", false}; //qb: was true
-cvar_t		vid_window_y = {"vid_window_y", "0", "IOU help string - qbism.", false};
+cvar_t		vid_mode = {"vid_mode", "3", "vid_mode[value] Video mode.", true}; //qb: was false
+cvar_t		vid_default_mode_win = {"vid_default_mode_win", "0", "vid_default_mode_win[value] Default windowed mode.", true};
+cvar_t		vid_wait = {"vid_wait", "1", "vid_wait[0/1] Toggle wait for vertical refresh.", true};
+cvar_t		vid_config_x = {"vid_config_x", "1280", "vid_config_x[value] Custom windowed mode width.", true};
+cvar_t		vid_config_y = {"vid_config_y", "720", "vid_config_y[value] Custom windowed mode height.", true};
+cvar_t		_windowed_mouse = {"_windowed_mouse", "1", "_windowed_mouse[0/1] Toggle allow mouse in windowed mode.", true};
+cvar_t		vid_fullscreen_mode = {"vid_fullscreen_mode", "3", "vid_fullscreen_mode[value]  Initial fullscreen mode.", true};
+cvar_t		vid_windowed_mode = {"vid_windowed_mode", "0", "vid_windowed_mode[value]  Initial windowed mode.", true};
+cvar_t		vid_window_x = {"vid_window_x", "0", "vid_window_x[value] Window placement on screen.", false}; //qb: was true
+cvar_t		vid_window_y = {"vid_window_y", "0", "vid_window_y[value] Window placement on screen.", false};
 
 int			vid_modenum = NO_MODE;
 int			vid_testingmode, vid_realmode;

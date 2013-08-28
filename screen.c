@@ -31,6 +31,7 @@ int			scr_copyeverything;
 float		scr_con_current;
 float		scr_conlines;		// lines of console to display
 
+float       fovscale;
 float		oldfov; // edited
 cvar_t		scr_viewsize = {"viewsize","100", "viewsize[value] Reduce view size by adding a border around the screen.", true};
 cvar_t		scr_fov = {"fov","91.25", "fov[1.0 to 170.0] Field-of-view angle."};	// 10 - 170 //qb: 91.25 works best for fisheye
@@ -51,7 +52,7 @@ int			scr_fullupdate;
 int			clearconsole;
 int			clearnotify;
 
-viddef_t	vid;				// global video state
+extern viddef_t	vid;				//qb: extern, thx Levent global video state
 
 vrect_t		*pconupdate;
 vrect_t		scr_vrect;
