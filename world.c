@@ -288,7 +288,7 @@ void SV_TouchLinks ( edict_t *ent, areanode_t *node )
    if (!list)
    {
       // alloc first time (to keep it off the stack - 256K - ouch!)
-      list = (edict_t **) Q_malloc (MAX_EDICTS * sizeof (edict_t *));
+      list = (edict_t **) Q_malloc (MAX_EDICTS * sizeof (edict_t *), "touchlinks list");
    }
 loc0:;
    // ensure

@@ -33,6 +33,7 @@ HWND hWndWinQuake = NULL;
 // compatibility
 HWND mainwindow = NULL;
 
+RGBQUAD		colors[256];  //qb: make global (used in movie.c)
 
 byte gammatable[256];
 
@@ -112,7 +113,7 @@ void VID_CreateDDrawDriver (int width, int height, unsigned char *palette, unsig
     dd_window_width = width;
     dd_window_height = height;
 
-    vidbuf = (unsigned char *) Q_malloc (width * height); //qb: was malloc
+    vidbuf = (unsigned char *) Q_malloc (width * height, "vidbuf"); //qb: was malloc
     buffer[0] = vidbuf;
     rowbytes[0] = width;
 
@@ -182,7 +183,7 @@ HDC hdcDIBSection = NULL;
 HDC hdcGDI = NULL;
 
 
-void VID_CreateGDIDriver (int width, int height, unsigned char *palette, unsigned char **buffer, int *rowbytes)
+void VID_CreateGDIDriver (int width, int height, unsigned char *palette)
 {
     dibinfo_t   dibheader;
     BITMAPINFO *pbmiDIB = (BITMAPINFO *) &dibheader;
@@ -223,17 +224,11 @@ void VID_CreateGDIDriver (int width, int height, unsigned char *palette, unsigne
 
     // set video buffers
     if (pbmiDIB->bmiHeader.biHeight > 0)
-    {
-        // bottom up
-        buffer[0] = pDIBBase + (height - 1) * width;
-        rowbytes[0] = -width;
-    }
-    else
-    {
-        // top down
-        buffer[0] = pDIBBase;
-        rowbytes[0] = width;
-    }
+        vid.bottomup = true;
+
+    // top down
+    vid.buffer = pDIBBase;
+    vid.rowbytes = width;
 
     // clear the buffer
     memset (pDIBBase, 0xff, width * height);
@@ -253,43 +248,44 @@ void VID_CreateGDIDriver (int width, int height, unsigned char *palette, unsigne
 void VID_UnloadAllDrivers (void)
 {
     // shut down ddraw
-    if (vidbuf)
-    {
-        free (vidbuf);
-        vidbuf = NULL;
-    }
+       if (vidbuf)
+       {
+           free (vidbuf);
+           vidbuf = NULL;
+       }
 
-    if (dd_Clipper)
-    {
-        IDirectDrawClipper_Release (dd_Clipper);
-        dd_Clipper = NULL;
-    }
+       if (dd_Clipper)
+       {
+           IDirectDrawClipper_Release (dd_Clipper);
+           dd_Clipper = NULL;
+       }
 
-    if (dd_FrontBuffer)
-    {
-        IDirectDrawSurface_Release (dd_FrontBuffer);
-        dd_FrontBuffer = NULL;
-    }
+       if (dd_FrontBuffer)
+       {
+           IDirectDrawSurface_Release (dd_FrontBuffer);
+           dd_FrontBuffer = NULL;
+       }
 
-    if (dd_BackBuffer)
-    {
-        IDirectDrawSurface_Release (dd_BackBuffer);
-        dd_BackBuffer = NULL;
-    }
+       if (dd_BackBuffer)
+       {
+           IDirectDrawSurface_Release (dd_BackBuffer);
+           dd_BackBuffer = NULL;
+       }
 
-    if (dd_Object)
-    {
-        IDirectDraw_Release (dd_Object);
-        dd_Object = NULL;
-    }
+       if (dd_Object)
+       {
+           IDirectDraw_Release (dd_Object);
+           dd_Object = NULL;
+       }
 
-    if (hInstDDraw)
-    {
-        FreeLibrary (hInstDDraw);
-        hInstDDraw = NULL;
-    }
+       if (hInstDDraw)
+       {
+           FreeLibrary (hInstDDraw);
+           hInstDDraw = NULL;
+       }
 
-    QDirectDrawCreate = NULL;
+       QDirectDrawCreate = NULL;
+
 
     // shut down gdi
     if (hdcDIBSection)
@@ -314,7 +310,7 @@ void VID_UnloadAllDrivers (void)
     }
 
     // not using ddraw now
-    vid_usingddraw = false;
+   vid_usingddraw = false;
 }
 
 
@@ -568,7 +564,7 @@ qboolean VID_AllocBuffers (int width, int height)
         d_pzbuffer = NULL;
     }
 
-    d_pzbuffer = Q_malloc (tbuffersize); //qb: was Z_Malloc
+    d_pzbuffer = Q_malloc (tbuffersize, "d_pzbuffer"); //qb: was Z_Malloc
     vid_surfcache = (byte *) d_pzbuffer +
                     width * height * sizeof (*d_pzbuffer);
 
@@ -1064,24 +1060,24 @@ int VID_SetMode (int modenum, unsigned char *palette)
     ReleaseDC (hWndWinQuake, hdc);
 
     // create the new driver
-    vid_usingddraw = false;
+   vid_usingddraw = false;
 
     // attempt to create a direct draw driver
-    if (vid_ddraw.value)
+   if (vid_ddraw.value)
         VID_CreateDDrawDriver (DIBWidth, DIBHeight, palette, &vid.buffer, &vid.rowbytes);
 
     // create a gdi driver if directdraw failed or if we preferred not to use it
-    if (!vid_usingddraw)
-    {
-        // because directdraw may have been partially created we must shut it down again first
-        VID_UnloadAllDrivers ();
+   if (!vid_usingddraw)
+   {
+    // because directdraw may have been partially created we must shut it down again first
+    VID_UnloadAllDrivers ();
 
-        // now create the gdi driver
-        VID_CreateGDIDriver (DIBWidth, DIBHeight, palette, &vid.buffer, &vid.rowbytes);
+    // now create the gdi driver
+    VID_CreateGDIDriver (DIBWidth, DIBHeight, palette);
     }
 
     // if ddraw failed to come up we disable the cvar too
-    if (vid_ddraw.value && !vid_usingddraw) Cvar_Set ("vid_ddraw", "0");
+   if (vid_ddraw.value && !vid_usingddraw) Cvar_Set ("vid_ddraw", "0");
 
     // set the rest of the buffers we need (why not just use one single buffer instead of all this crap? oh well, it's Quake...)
     vid.direct = (unsigned char *) vid.buffer;
@@ -1170,7 +1166,8 @@ int VID_SetMode (int modenum, unsigned char *palette)
 
     if (r_warpbuffer) //qb: only do this once, whenever vid mode changes.
         Q_free(r_warpbuffer);
-    r_warpbuffer = Q_malloc(vid.rowbytes*vid.height);
+    //qb: debug   Sys_Error("vid.rowbytes %i vid.height %i", vid.rowbytes, vid.height);
+    r_warpbuffer = Q_malloc(vid.rowbytes*vid.height, "r_warpbuffer");
 
     return true;
 }
@@ -1183,40 +1180,32 @@ void VID_SetPalette (unsigned char *palette)
 
     if (!Minimized)
     {
-        if (vid_usingddraw)
-        {
-            // incoming palette is 3 component
-            for (i = 0; i < 256; i++, pal += 3)
-            {
-                PALETTEENTRY *p = (PALETTEENTRY *) &ddpal[i];
+         if (vid_usingddraw)
+         {
+             // incoming palette is 3 component
+             for (i = 0; i < 256; i++, pal += 3)
+             {
+                 PALETTEENTRY *p = (PALETTEENTRY *) &ddpal[i];
 
-                p->peRed = gammatable[pal[2]];
-                p->peGreen = gammatable[pal[1]];
-                p->peBlue = gammatable[pal[0]];
-                p->peFlags = 255;
-            }
-        }
-        else
+                 p->peRed = gammatable[pal[2]];
+                 p->peGreen = gammatable[pal[1]];
+                 p->peBlue = gammatable[pal[0]];
+                 p->peFlags = 255;
+             }
+         }
+         else
         {
             HDC			hdc;
-            RGBQUAD		colors[256];
 
             if (hdcDIBSection)
             {
                 // incoming palette is 3 component
                 for (i = 0; i < 256; i++, pal += 3)
                 {
-                    PALETTEENTRY *p = (PALETTEENTRY *) &ddpal[i];
-
                     colors[i].rgbRed   = gammatable[pal[0]];
                     colors[i].rgbGreen = gammatable[pal[1]];
                     colors[i].rgbBlue  = gammatable[pal[2]];
                     colors[i].rgbReserved = 0;
-
-                    p->peRed = gammatable[pal[2]];
-                    p->peGreen = gammatable[pal[1]];
-                    p->peBlue = gammatable[pal[0]];
-                    p->peFlags = 255;
                 }
 
                 //qb: no thanks.... colors[0].rgbRed = 0;
@@ -1497,91 +1486,109 @@ void FlipScreen (vrect_t *rects)
     int i, numrects = 0;
 
     //qb:  threads
-     flipslice_t fs[NUMTHREADS];
+   flipslice_t fs[NUMTHREADS];
 
     while (rects)
     {
-        if (vid_usingddraw)
+          if (vid_usingddraw)
+          {
+              int x, y;
+              HRESULT hr = S_OK;
+              byte *src = NULL;
+              unsigned int *dst = NULL;
+
+              if (dd_BackBuffer)
+              {
+                  RECT TheRect;
+                  RECT sRect, dRect;
+                  DDSURFACEDESC ddsd;
+
+                  memset (&ddsd, 0, sizeof (ddsd));
+                  ddsd.dwSize = sizeof (DDSURFACEDESC);
+
+                  // lock the correct subrect
+                  TheRect.left = rects->x;
+                  TheRect.right = rects->x + rects->width;
+                  TheRect.top = rects->y;
+                  TheRect.bottom = rects->y + rects->height;
+
+                  if ((hr = IDirectDrawSurface_Lock (dd_BackBuffer, &TheRect, &ddsd, DDLOCK_WRITEONLY | DDLOCK_SURFACEMEMORYPTR, NULL)) == DDERR_WASSTILLDRAWING) return;
+
+                  src = (unsigned char *) vidbuf + rects->y * vid.rowbytes + rects->x;
+                  dst = (unsigned int *) ddsd.lpSurface;
+
+                  // convert pitch to unsigned int addressable
+                  ddsd.lPitch >>= 2;
+
+                  for (i=0; i<NUMTHREADS; i++)
+                  {
+                      fs[i].src = src + vid.rowbytes * i * (rects->height/NUMTHREADS);
+                      fs[i].dst = dst + ddsd.lPitch * i * (rects->height/NUMTHREADS);
+                      fs[i].lpitch = ddsd.lPitch;
+                      fs[i].rects = rects;
+                      fs[i].rowstart= i*(rects->height/NUMTHREADS);
+                      if (i+1 == NUMTHREADS)
+                          fs[i].rowend = rects->height;
+                      else
+                          fs[i].rowend = (i+1)*(rects->height/NUMTHREADS);
+                      pthread_create(&thread[i], NULL, FlipLoop, &fs[i]);
+                  }
+
+                  //wait for threads to finish
+                  for (i=0; i<NUMTHREADS; i++)
+                  {
+                      pthread_join(thread[i], NULL);
+                  }
+
+
+                  IDirectDrawSurface_Unlock (dd_BackBuffer, NULL);
+
+                  // correctly offset source
+                  sRect.left = SrcRect.left + rects->x;
+                  sRect.right = SrcRect.left + rects->x + rects->width;
+                  sRect.top = SrcRect.top + rects->y;
+                  sRect.bottom = SrcRect.top + rects->y + rects->height;
+
+                  // correctly offset dest
+                  dRect.left = DstRect.left + rects->x;
+                  dRect.right = DstRect.left + rects->x + rects->width;
+                  dRect.top = DstRect.top + rects->y;
+                  dRect.bottom = DstRect.top + rects->y + rects->height;
+
+                  // copy to front buffer
+                  IDirectDrawSurface_Blt (dd_FrontBuffer, &dRect, dd_BackBuffer, &sRect, 0, NULL);
+              }
+          }
+          else if (hdcDIBSection)
         {
-            int x, y;
-            HRESULT hr = S_OK;
-            byte *src = NULL;
-            unsigned int *dst = NULL;
+            if (vid.bottomup)
 
-            if (dd_BackBuffer)
-            {
-                RECT TheRect;
-                RECT sRect, dRect;
-                DDSURFACEDESC ddsd;
-
-                memset (&ddsd, 0, sizeof (ddsd));
-                ddsd.dwSize = sizeof (DDSURFACEDESC);
-
-                // lock the correct subrect
-                TheRect.left = rects->x;
-                TheRect.right = rects->x + rects->width;
-                TheRect.top = rects->y;
-                TheRect.bottom = rects->y + rects->height;
-
-                if ((hr = IDirectDrawSurface_Lock (dd_BackBuffer, &TheRect, &ddsd, DDLOCK_WRITEONLY | DDLOCK_SURFACEMEMORYPTR, NULL)) == DDERR_WASSTILLDRAWING) return;
-
-                src = (unsigned char *) vidbuf + rects->y * vid.rowbytes + rects->x;
-                dst = (unsigned int *) ddsd.lpSurface;
-
-                // convert pitch to unsigned int addressable
-                ddsd.lPitch >>= 2;
-
-                for (i=0; i<NUMTHREADS; i++)
-                {
-                    fs[i].src = src + vid.rowbytes * i * (rects->height/NUMTHREADS);
-                    fs[i].dst = dst + ddsd.lPitch * i * (rects->height/NUMTHREADS);
-                    fs[i].lpitch = ddsd.lPitch;
-                    fs[i].rects = rects;
-                    fs[i].rowstart= i*(rects->height/NUMTHREADS);
-                    if (i+1 == NUMTHREADS)
-                        fs[i].rowend = rects->height;
-                    else
-                        fs[i].rowend = (i+1)*(rects->height/NUMTHREADS);
-                    pthread_create(&thread[i], NULL, FlipLoop, &fs[i]);
-                }
-
-                //wait for threads to finish
-                for (i=0; i<NUMTHREADS; i++)
-                {
-                    pthread_join(thread[i], NULL);
-                }
-
-
-                IDirectDrawSurface_Unlock (dd_BackBuffer, NULL);
-
-                // correctly offset source
-                sRect.left = SrcRect.left + rects->x;
-                sRect.right = SrcRect.left + rects->x + rects->width;
-                sRect.top = SrcRect.top + rects->y;
-                sRect.bottom = SrcRect.top + rects->y + rects->height;
-
-                // correctly offset dest
-                dRect.left = DstRect.left + rects->x;
-                dRect.right = DstRect.left + rects->x + rects->width;
-                dRect.top = DstRect.top + rects->y;
-                dRect.bottom = DstRect.top + rects->y + rects->height;
-
-                // copy to front buffer
-                IDirectDrawSurface_Blt (dd_FrontBuffer, &dRect, dd_BackBuffer, &sRect, 0, NULL);
-            }
-        }
-        else if (hdcDIBSection)
-        {
-            BitBlt
-            (
-                hdcGDI,
-                rects->x, rects->y,
-                rects->x + rects->width,
-                rects->y + rects->height,
-                hdcDIBSection,
-                rects->x, rects->y,
-                SRCCOPY
-            );
+                StretchBlt
+                (
+                    hdcGDI,
+                    rects->x, rects->y,
+                    rects->x + rects->width,
+                    rects->y + rects->height,
+                    hdcDIBSection,
+                    rects->x,
+                    rects->y + rects->height,
+                    rects->width,
+                    0 - rects->height,
+                    SRCCOPY
+                );
+            else
+                BitBlt
+                (
+                    hdcGDI,
+                    rects->x,
+                    rects->y,
+                    rects->x + rects->width,
+                    rects->y + rects->height,
+                    hdcDIBSection,
+                    rects->x,
+                    rects->y,
+                    SRCCOPY
+                );
         }
 
         numrects++;

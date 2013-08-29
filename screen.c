@@ -656,7 +656,7 @@ void LoadTGA_as8bit (char *filename, byte **pic, int *width, int *height)
     *width = filedata->width;
     *height = filedata->height;
 
-    *pic = output = Q_malloc (numPixels);
+    *pic = output = Q_malloc (numPixels, "TGA pic");
     input = (byte *) filedata + sizeof (TargaHeader) + filedata->id_length; // skip TARGA image comment
 
     if (filedata->image_type == 2) // Uncompressed, RGB images
@@ -829,7 +829,7 @@ void LoadPCX (char *filename, byte **pic, int *width, int *height)
     if (height)
         *height = pcx->ymax+1;
 
-    *pic = out = Q_malloc ((pcx->xmax+1) * (pcx->ymax+1));
+    *pic = out = Q_malloc ((pcx->xmax+1) * (pcx->ymax+1), "PCX pic");
 
     for (y=0 ; y<=pcx->ymax ; y++, out += pcx->xmax+1)
     {

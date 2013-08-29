@@ -155,9 +155,9 @@ void Q_strncpy (char *dest, char *src, int count)
         *dest++ = 0;
 }
 
-int Q_strlen (char *str)
+unsigned Q_strlen (char *str)
 {
-    int             count;
+    unsigned      count;
 
     count = 0;
     while (str[count])
@@ -168,7 +168,7 @@ int Q_strlen (char *str)
 
 char *Q_strrchr(char *s, char c)
 {
-    int len = Q_strlen(s);
+    unsigned len = Q_strlen(s);
     s += len;
     while (len--)
         if (*--s == c) return s;

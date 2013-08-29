@@ -21,7 +21,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "../quakedef.h"
 #include "movie_avi.h"
+#include "windows.h"
 extern unsigned int ddpal[256];
+extern RGBQUAD		colors[256];
+extern cvar_t vid_ddraw;
 
 // Variables for buffering audio
 short	capture_audio_samples[44100];	// big enough buffer for 1fps at 44100Hz
@@ -229,8 +232,11 @@ void Movie_UpdateScreen (void)  //qb: add stretch and gamma to capture
         hack_ctr--;
     }
 
-    hwpal = (byte *) &ddpal;
-    buffer = Q_malloc (vid.width * vid.height * 3);
+    if (vid_ddraw.value) //qb: make GDI vid work.
+        hwpal = (byte *) &ddpal;
+    else
+        hwpal = (byte *) &colors;
+    buffer = Q_malloc (vid.width * vid.height * 3, "movie buffer");
     p = buffer;
     for (i = vid.height - 1 ; i >= 0 ; i--)
     {

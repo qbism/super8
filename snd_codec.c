@@ -239,7 +239,7 @@ snd_stream_t *S_CodecUtilOpen(const char *filename, snd_codec_t *codec)
 	}
 
 	/* Allocate a stream, malloc zeroes its content */
-	stream = (snd_stream_t *) Q_malloc(sizeof(snd_stream_t));
+	stream = (snd_stream_t *) Q_malloc(sizeof(snd_stream_t), "snd stream");
 	stream->codec = codec;
 	stream->fh.file = handle;
 	stream->fh.start = ftell(handle);

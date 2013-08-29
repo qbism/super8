@@ -384,7 +384,7 @@ void Host_Changelevel_f (void)
 {
 
     char	level[MAX_QPATH];
-    int		i;
+    unsigned		i;
 
     if (Cmd_Argc() != 2)
     {

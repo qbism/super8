@@ -48,6 +48,7 @@ typedef struct
 	int				maxwarpwidth;
 	int				maxwarpheight;
 	pixel_t			*direct;		// direct drawing to framebuffer, if not NULL
+	qboolean    bottomup; //qb:
 } viddef_t;
 
 extern	viddef_t	vid;				// global video state

@@ -800,23 +800,23 @@ void Palette_Init (void) //qb: idea from Engoo
     host_basepal = fileinfo->data;
 
 //qb: colormap, alphamap, and addivemap are generated
-    host_colormap = Q_malloc(256*COLORLEVELS);
+    host_colormap = Q_malloc(256*COLORLEVELS, "host_colormap");
     GrabColormap();
     {
         int i;
         for (i=0; i<COLORLEVELS; i++)
             memcpy(colormap_cel+i*256, host_colormap+(i-(i%16))*256, 256); // 4 shades
     }
-    alphamap = Q_malloc(256*256);
+    alphamap = Q_malloc(256*256, "alphamap");
     GrabAlphamap();
-    alpha50map = Q_malloc(256*256);
+    alpha50map = Q_malloc(256*256, "alpha50map");
     GrabAlpha50map();
-    fogmap = Q_malloc(256*256);
+    fogmap = Q_malloc(256*256, "fogmap");
     GrabFogmap();
-    lightcolormap = Q_malloc(256*256);
+    lightcolormap = Q_malloc(256*256, "lightcolormap");
     //qb: need to do this AFTER r_init.... GrabLightcolormap();
 
-    additivemap = Q_malloc(256*256);
+    additivemap = Q_malloc(256*256, "additivemap");
     GrabAdditivemap();
 }
 
