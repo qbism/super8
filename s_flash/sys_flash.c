@@ -440,7 +440,7 @@ int swcQuakeInit (int argc, char **argv)
 	static quakeparms_t    parms;
 
 	parms.memsize = 8*1024*1024*4;
-	parms.membase = Q_malloc (parms.memsize);
+	parms.membase = Q_malloc (parms.memsize, "parms.membase");
 	parms.basedir = ".";
 
 	COM_InitArgv (argc, argv);

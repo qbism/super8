@@ -85,7 +85,7 @@ static snd_stream_t *S_OGG_CodecOpenStream (const char *filename)
 	if (!stream)
 		return NULL;
 
-	ovFile = (OggVorbis_File *) Q_malloc(sizeof(OggVorbis_File));
+	ovFile = (OggVorbis_File *) Q_malloc(sizeof(OggVorbis_File), "ovFile");
 	res = OV_OPEN_CALLBACKS(&stream->fh, ovFile, NULL, 0, ovc_qfs);
 	if (res != 0)
 	{

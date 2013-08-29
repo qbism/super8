@@ -745,12 +745,12 @@ the program exits with a message saying there's not enough memory
 instead of crashing after trying to use a NULL pointer
 ===================
 */
-void *Q_malloc (size_t size)
+void *Q_malloc (size_t size, char *caller)
 {
     void   *p;
 
     if (!(p = malloc(size)))
-        Sys_Error ("Insufficient free memory for Q_malloc.");
+        Sys_Error ("Insufficient free memory for Q_malloc. Caller: %s", caller);
 
     return p;
 }

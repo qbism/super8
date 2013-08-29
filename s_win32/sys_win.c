@@ -805,7 +805,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 			parms.memsize = Q_atoi (com_argv[t]) * 1024;
 	}
 
-	parms.membase = Q_malloc (parms.memsize);
+	parms.membase = Q_malloc (parms.memsize, "parms.membase");
 
 	if (!parms.membase)
 		Sys_Error ("Not enough memory free; check disk space\n");
@@ -877,12 +877,12 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 		else
 		{
 		// yield the CPU for a little while when paused, minimized, or not the focus
-			if ((cl.paused && (!ActiveApp && !DDActive)) || Minimized || block_drawing)
+			if ((cl.paused && (!ActiveApp /*&& !DDActive*/)) || Minimized || block_drawing)
 			{
 				SleepUntilInput (PAUSE_SLEEP);
 				scr_skipupdate = 1;		// no point in bothering to draw
 			}
-			else if (!ActiveApp && !DDActive)
+			else if (!ActiveApp /* && !DDActive*/)
 			{
 				SleepUntilInput (NOT_FOCUS_SLEEP);
 			}

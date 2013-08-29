@@ -1413,8 +1413,8 @@ void R_RenderView_Fisheye()
     {
         if(scrbufs) free(scrbufs);
         if(offs) free(offs);
-        scrbufs = (B*)Q_malloc(scrsize*6); // front|right|back|left|top|bottom
-        offs = (B**)Q_malloc(scrsize*sizeof(B*));
+        scrbufs = (B*)Q_malloc(scrsize*6, "scrbufs"); // front|right|back|left|top|bottom
+        offs = (B**)Q_malloc(scrsize*sizeof(B*), "offs");
         if(!scrbufs || !offs) Sys_Error ("R_RenderView_Fisheye: Memory allocation error.") ; // the rude way
         pwidth = width;
         pheight = height;
