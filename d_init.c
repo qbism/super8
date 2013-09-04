@@ -60,7 +60,7 @@ void D_SetupFrame (void)
     int		i;
 
     d_viewbuffer = vid.buffer;
-    screenwidth = vid.width;
+    screenwidth = vid.rowbytes;  //qb: was vid.width
 
     d_roverwrapped = false;
     d_initial_rover = sc_rover;

@@ -39,8 +39,8 @@
 				<Option compiler="mingw32" />
 				<Compiler>
 					<Add option="-fomit-frame-pointer" />
-					<Add option="-O2" />
-					<Add option="-Wextra" />
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-O3" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
@@ -105,8 +105,6 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-Wno-missing-field-initializers" />
-			<Add option="-Wno-maybe-uninitialized" />
 			<Add directory="s_win32/codecs/include" />
 		</Compiler>
 		<Linker>

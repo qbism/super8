@@ -30,7 +30,6 @@ byte	*r_warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered vide
 
 void D_DrawTurbulent8Span (void);
 
-
 // mankrip - hi-res waterwarp - begin
 int *intsintable_x = NULL,   *intsintable_y = NULL,   *warpcolumn = NULL,   *warprow = NULL;
 byte *turbdest = NULL,   *turbsrc = NULL;
@@ -274,22 +273,17 @@ void* WarpLoop (warpslice_t* ws)
     }
 }
 
+#define NUMWARPTHREADS          4   //qb: for multithreaded functions
 
 void D_WarpScreen (void)
 {
     // mankrip - hi-res waterwarp - begin
-    byte
-    * dest
-    ,   * src
-    ;
-
-    int   * turb_x
-    ,   * turb_y
-    ;
-    int i;
-    float    timeoffset = (float) ( (int) (cl.time * SPEED) & (CYCLE - 1)); // turbulence phase offset
-    //qb:  threads
-    warpslice_t ws[NUMTHREADS];
+    static byte    *dest, *src;
+    static int   *turb_x, *turb_y;
+    static int i;
+    const float    timeoffset = (float) ( (int) (cl.time * SPEED) & (CYCLE - 1)); // turbulence phase offset
+    static warpslice_t ws[NUMWARPTHREADS];  //qb:  threads
+    static pthread_t warpthread[NUMWARPTHREADS];
 
     R_InitTurb (); // calling this here because vid.recalc_refdef doesn't seem to always be set properly
 
@@ -299,24 +293,24 @@ void D_WarpScreen (void)
     src = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
     dest= r_warpbuffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
 
-    for (i=0; i<NUMTHREADS; i++)
+    for (i=0; i<NUMWARPTHREADS; i++)
     {
         ws[i].src = src;
-        ws[i].dest = dest + vid.rowbytes * i * (r_refdef.vrect.height/NUMTHREADS);
+        ws[i].dest = dest + vid.rowbytes * i * (r_refdef.vrect.height/NUMWARPTHREADS);
         ws[i].turb_x = turb_x;
         ws[i].turb_y = turb_y;
-        ws[i].rowstart= i*(r_refdef.vrect.height/NUMTHREADS);
-        if (i+1 == NUMTHREADS)
+        ws[i].rowstart= i*(r_refdef.vrect.height/NUMWARPTHREADS);
+        if (i+1 == NUMWARPTHREADS)
             ws[i].rowend = r_refdef.vrect.height;
         else
-            ws[i].rowend = (i+1)*(r_refdef.vrect.height/NUMTHREADS);
-        pthread_create(&thread[i], NULL, WarpLoop, &ws[i]);
+            ws[i].rowend = (i+1)*(r_refdef.vrect.height/NUMWARPTHREADS);
+        pthread_create(&warpthread[i], NULL, WarpLoop, &ws[i]);
     }
 
     //wait for threads to finish
-    for (i=0; i<NUMTHREADS; i++)
+    for (i=0; i<NUMWARPTHREADS; i++)
     {
-        pthread_join(thread[i], NULL);
+        pthread_join(warpthread[i], NULL);
     }
     // mankrip - hi-res waterwarp - end
 
@@ -357,12 +351,12 @@ Turbulent8
 */
 void Turbulent8 (espan_t *pspan)
 {
-    int				count;
-    int				izi, izistep, izistep2, sturb, tturb, teste; // Manoel Kasimier - translucent water
-    short			*pz; // Manoel Kasimier - translucent water
-    fixed16_t		snext, tnext;
-    float			sdivz, tdivz, zi, z, du, dv, spancountminus1;
-    float			sdivz16stepu, tdivz16stepu, zi16stepu;
+    static int				count;  //qb: do more static.
+    static int				izi, izistep, izistep2, sturb, tturb, teste; // Manoel Kasimier - translucent water
+    static short			*pz; // Manoel Kasimier - translucent water
+    static fixed16_t		snext, tnext;
+    static float			sdivz, tdivz, zi, z, du, dv, spancountminus1;
+    static float			sdivz16stepu, tdivz16stepu, zi16stepu;
 
     r_turb_turb = sintable + ((int)(cl.time*SPEED)&(CYCLE-1));
 
@@ -609,11 +603,11 @@ static int zistepu_fix;
 //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
 void D_DrawSpans16_C (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll = big speed gain!
 {
-    int         count, spancount;
-    byte      *pbase, *pdest;
-    fixed16_t   s, t, snext, tnext, sstep, tstep;
-    float      sdivz, tdivz, zi, z, du, dv, spancountminus1;
-    float      sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
+    static int         count, spancount;
+    static byte      *pbase, *pdest;
+    static fixed16_t   s, t, snext, tnext, sstep, tstep;
+    static float      sdivz, tdivz, zi, z, du, dv, spancountminus1;
+    static float      sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
 
     sstep = 0;   // keep compiler happy
     tstep = 0;   // ditto
@@ -860,13 +854,13 @@ void D_DrawSpans16_C (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll =
 
 void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
 {
-    int			count, spancount;
-    byte		*pbase, *pdest;
-    fixed16_t	s, t, snext, tnext, sstep, tstep;
-    float		sdivz, tdivz, zi, z, du, dv, spancountminus1; // zi = z interpolation?; du = decimal u; dv = decimal v
-    float		sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
-    int			izi, izistep; // mankrip
-    short		*pz; // mankrip
+    static int			count, spancount;
+    static byte		    *pbase, *pdest;
+    static fixed16_t	s, t, snext, tnext, sstep, tstep;
+    static float		sdivz, tdivz, zi, z, du, dv, spancountminus1; // zi = z interpolation?; du = decimal u; dv = decimal v
+    static float		sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
+    static int			izi, izistep; // mankrip
+    static short		*pz; // mankrip
 
     sstep = 0;	// keep compiler happy
     tstep = 0;	// ditto
@@ -1144,13 +1138,13 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
 
 void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
 {
-    int			count, spancount;
-    byte		*pbase, *pdest;
-    fixed16_t	s, t, snext, tnext, sstep, tstep;
-    float		sdivz, tdivz, zi, z, du, dv, spancountminus1; // zi = z interpolation?; du = decimal u; dv = decimal v
-    float		sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
-    int			izi, izistep; // mankrip
-    short		*pz; // mankrip
+    static int			count, spancount;
+    static byte		    *pbase, *pdest;
+    static fixed16_t	s, t, snext, tnext, sstep, tstep;
+    static float		sdivz, tdivz, zi, z, du, dv, spancountminus1; // zi = z interpolation?; du = decimal u; dv = decimal v
+    static float		sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
+    static int			izi, izistep; // mankrip
+    static short		*pz; // mankrip
 
     sstep = 0;	// keep compiler happy
     tstep = 0;	// ditto
@@ -1430,13 +1424,13 @@ void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
 
 void D_DrawSpans16_BlendBackwards (espan_t *pspan)
 {
-    int			count, spancount;
-    byte		*pbase, *pdest;
-    fixed16_t	s, t, snext, tnext, sstep, tstep;
-    float		sdivz, tdivz, zi, z, du, dv, spancountminus1; // zi = z interpolation?; du = decimal u; dv = decimal v
-    float		sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
-    int			izi, izistep; // mankrip
-    short		*pz; // mankrip
+    static int			count, spancount;
+    static byte		    *pbase, *pdest;
+    static fixed16_t	s, t, snext, tnext, sstep, tstep;
+    static float		sdivz, tdivz, zi, z, du, dv, spancountminus1; // zi = z interpolation?; du = decimal u; dv = decimal v
+    static float		sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
+    static int			izi, izistep; // mankrip
+    static short		*pz; // mankrip
 
     sstep = 0;	// keep compiler happy
     tstep = 0;	// ditto
@@ -1723,12 +1717,12 @@ D_DrawZSpans
 
 void D_DrawZSpans (espan_t *pspan)
 {
-    int				count, doublecount, izistep;
-    int				izi;
-    short			*pdest;
-    unsigned		ltemp;
-    double			zi;
-    float			du, dv;
+    static int				count, doublecount, izistep;
+    static int				izi;
+    static short			*pdest;
+    static unsigned		ltemp;
+    static double			zi;
+    static float			du, dv;
 
 // FIXME: check for clamping/range problems
 // we count on FP exceptions being turned off to avoid range problems

@@ -29,8 +29,6 @@ extern short		*d_pzbuffer;
 extern unsigned int	d_zwidth;
 extern int			d_scantable[MAXHEIGHT];
 
-pthread_t thread[NUMTHREADS]; //qb:  use as required
-
 void		*colormap;
 //vec3_t		viewlightvec; // Manoel Kasimier - changed alias models lighting - removed
 //alight_t	r_viewlighting = {128, 192, viewlightvec}; // Manoel Kasimier - changed alias models lighting - removed
@@ -98,7 +96,7 @@ float	xOrigin, yOrigin;
 
 mplane_t	screenedge[4];
 
-//qb: move to d_scam.c byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
+//qb: move to d_scan.c byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
 int    foglevel[256]; //qb
 int    fognoise[256]; //qb: pseudonoise table
 //
@@ -157,7 +155,8 @@ cvar_t	r_drawflat = {"r_drawflat", "0", "r_drawflat[0/1] Toggles the drawing of 
 cvar_t	r_ambient = {"r_ambient", "15", "r_ambient[value] Set minimum value for map lighting."}; //qb: avoid total black
 //qb: nolerp list from FQ
 cvar_t	r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs/braztall.mdl,progs/brazshrt.mdl,progs/longtrch.mdl,progs/flame_pyre.mdl,progs/v_saw.mdl,progs/v_xfist.mdl,progs/h2stuff/newfire.mdl",
-"r_nolerp_list[models] Do not smooth animation for these models."};
+                         "r_nolerp_list[models] Do not smooth animation for these models."
+                       };
 
 
 cvar_t	r_coloredlights = {"r_coloredlights", "1", "r_coloredlights[0/1] Toggle use of colored lighting.", true}; //qb:
@@ -200,6 +199,17 @@ cvar_t  r_part_sticky_time = {"r_part_sticky_time", "24", "r_part_sticky_time[va
 
 //void CreatePassages (void); // Manoel Kasimier - removed
 //void SetVisibilityByPassages (void); // Manoel Kasimier - removed
+
+int      sintable[SIN_BUFFER_SIZE];
+
+void R_InitSin (void)
+{
+    int    x;
+    // run this only once, at engine startup
+    for (x = 0 ; x < SIN_BUFFER_SIZE ; x++)
+        sintable[x] = (int) (AMP + sin ( (double)x * 3.14159 * 2.0 / CYCLE) * AMP);
+}
+
 
 /*
 ==================
@@ -997,9 +1007,9 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj)
                       (min_vid_width * 152.0)) *
                 (2.0 / r_refdef.horizontalFieldOfView);
 
- //qb- not used   if (scr_fov.value <= 90.0)
- //       r_fov_greater_than_90 = false;
- //   else
+//qb- not used   if (scr_fov.value <= 90.0)
+//       r_fov_greater_than_90 = false;
+//   else
 //        r_fov_greater_than_90 = true;
     D_ViewChanged ();
 }
@@ -1478,9 +1488,9 @@ R_EdgeDrawing
 ================
 */
 static edge_t	ledges[NUMSTACKEDGES +
-                   ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
+                       ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
 static surf_t	lsurfs[NUMSTACKSURFACES +
-                   ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
+                       ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
 void R_EdgeDrawing (void)
 {
 
@@ -1535,6 +1545,39 @@ void R_EdgeDrawing (void)
     R_ScanEdges ();
 }
 
+typedef struct fogslice_s //qb: for multithreading
+{
+    int rowstart, rowend;
+    byte	*vidfog;
+} fogslice_t;
+
+
+void* FogLoop (fogslice_t* fs)
+{
+    byte	*pbuf;
+    byte noise;
+    unsigned short	*pz;
+    int level;
+    {
+        int xref, yref;
+        for (yref=fs->rowstart ; yref<fs->rowend; yref++)
+        {
+            pbuf = vid.buffer + d_scantable[yref];
+            pz = d_pzbuffer + (d_zwidth * yref);
+            for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
+            {
+                level = *(pz++);
+                if (level && level<248)
+                    *pbuf = fogmap[*pbuf + fs->vidfog[foglevel[level + fognoise[noise++]]]*256];
+                pbuf++;
+            }
+            noise += 13;
+        }
+    }
+}
+
+
+
 /*
 ================
 R_RenderView
@@ -1542,6 +1585,10 @@ R_RenderView
 r_refdef must be set before the first call
 ================
 */
+    #define NUMFOGTHREADS          4  //qb: for multithreaded functions
+
+    #define FOGTHREADED
+
 void R_RenderView (void) //qb: so can only setup frame once, for fisheye and stereo.
 {
     int		dummy;
@@ -1650,12 +1697,34 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     static unsigned short		*pz;
     static int          level;
     static float previous_fog_density;
+    static pthread_t fogthread[NUMFOGTHREADS];
 
-    if (fog_density && r_fog.value )  //qb: fog
+    static fogslice_t fogs[NUMFOGTHREADS]; //qb: threads
+    static int i;
+
+    if (fog_density && r_fog.value) //qb: fog
     {
         if(previous_fog_density != fog_density)
             FogLevelInit(); //dither includes density factor, so regenerate when it changes
         previous_fog_density = fog_density;
+        fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
+ #ifdef FOGTHREADED
+        for (i=0; i<NUMFOGTHREADS; i++)
+        {
+            fogs[i].vidfog = vid.colormap+fogindex;
+            fogs[i].rowstart= r_refdef.vrect.y + i*(r_refdef.vrect.height/NUMFOGTHREADS);
+            if (i+1 == NUMFOGTHREADS)
+                fogs[i].rowend = r_refdef.vrect.height;
+            else
+                fogs[i].rowend = fogs[i].rowstart + r_refdef.vrect.height/NUMFOGTHREADS;
+            pthread_create(&fogthread[i], NULL, FogLoop, &fogs[i]);
+        }
+        /* Wait for Threads to Finish */
+        for (i=0; i<NUMFOGTHREADS; i++)
+        {
+            pthread_join(fogthread[i], NULL);
+        }
+#else
         fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
         vidfog = vid.colormap+fogindex;
 
@@ -1672,6 +1741,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
             }
             noise += 13;
         }
+#endif
     }
 
     if (r_dowarp)
@@ -1698,21 +1768,6 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
         Con_Printf ("Short roughly %d edges\n", r_outofedges * 2 / 3);
 
 }
-
-// mankrip - collecting all the turbulence code in one place only...
-
-int      sintable[SIN_BUFFER_SIZE];
-
-void R_InitSin (void)
-{
-    int
-    x
-    ;
-    // run this only once, at engine startup
-    for (x = 0 ; x < SIN_BUFFER_SIZE ; x++)
-        sintable[x] = (int) (AMP + sin ( (double)x * 3.14159 * 2.0 / CYCLE) * AMP);
-}
-
 
 
 /*
