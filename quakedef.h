@@ -35,9 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	WINQUAKE_VERSION	7
 #define	LINUX_VERSION		0
 
-#define NUMTHREADS          8   //qb: for multithreaded functions
-extern pthread_t thread[NUMTHREADS];
-
 //define	PARANOID			// speed sapping error checking
 #define	GAMENAME	"id1"
 

@@ -224,11 +224,17 @@ void VID_CreateGDIDriver (int width, int height, unsigned char *palette)
 
     // set video buffers
     if (pbmiDIB->bmiHeader.biHeight > 0)
-        vid.bottomup = true;
-
-    // top down
-    vid.buffer = pDIBBase;
-    vid.rowbytes = width;
+    {
+        // bottom up
+        vid.buffer = pDIBBase + (height - 1) * width;
+        vid.rowbytes = -width;
+    }
+    else
+    {
+        // top down
+        vid.buffer = pDIBBase;
+        vid.rowbytes = width;
+    }
 
     // clear the buffer
     memset (pDIBBase, 0xff, width * height);
@@ -248,43 +254,43 @@ void VID_CreateGDIDriver (int width, int height, unsigned char *palette)
 void VID_UnloadAllDrivers (void)
 {
     // shut down ddraw
-       if (vidbuf)
-       {
-           free (vidbuf);
-           vidbuf = NULL;
-       }
+    if (vidbuf)
+    {
+        free (vidbuf);
+        vidbuf = NULL;
+    }
 
-       if (dd_Clipper)
-       {
-           IDirectDrawClipper_Release (dd_Clipper);
-           dd_Clipper = NULL;
-       }
+    if (dd_Clipper)
+    {
+        IDirectDrawClipper_Release (dd_Clipper);
+        dd_Clipper = NULL;
+    }
 
-       if (dd_FrontBuffer)
-       {
-           IDirectDrawSurface_Release (dd_FrontBuffer);
-           dd_FrontBuffer = NULL;
-       }
+    if (dd_FrontBuffer)
+    {
+        IDirectDrawSurface_Release (dd_FrontBuffer);
+        dd_FrontBuffer = NULL;
+    }
 
-       if (dd_BackBuffer)
-       {
-           IDirectDrawSurface_Release (dd_BackBuffer);
-           dd_BackBuffer = NULL;
-       }
+    if (dd_BackBuffer)
+    {
+        IDirectDrawSurface_Release (dd_BackBuffer);
+        dd_BackBuffer = NULL;
+    }
 
-       if (dd_Object)
-       {
-           IDirectDraw_Release (dd_Object);
-           dd_Object = NULL;
-       }
+    if (dd_Object)
+    {
+        IDirectDraw_Release (dd_Object);
+        dd_Object = NULL;
+    }
 
-       if (hInstDDraw)
-       {
-           FreeLibrary (hInstDDraw);
-           hInstDDraw = NULL;
-       }
+    if (hInstDDraw)
+    {
+        FreeLibrary (hInstDDraw);
+        hInstDDraw = NULL;
+    }
 
-       QDirectDrawCreate = NULL;
+    QDirectDrawCreate = NULL;
 
 
     // shut down gdi
@@ -310,7 +316,7 @@ void VID_UnloadAllDrivers (void)
     }
 
     // not using ddraw now
-   vid_usingddraw = false;
+    vid_usingddraw = false;
 }
 
 
@@ -795,7 +801,7 @@ qboolean VID_SetWindowedMode (int modenum)
     WindowRect.top = WindowRect.left = 0;
     WindowRect.right = modelist[modenum].width;
     WindowRect.bottom = modelist[modenum].height;
-    DIBWidth = modelist[modenum].width;
+    DIBWidth = (modelist[modenum].width>>2)<<2; //qb: power of two
     DIBHeight = modelist[modenum].height;
     WindowStyle = WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_SYSMENU |
                   WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CLIPSIBLINGS |
@@ -1060,24 +1066,24 @@ int VID_SetMode (int modenum, unsigned char *palette)
     ReleaseDC (hWndWinQuake, hdc);
 
     // create the new driver
-   vid_usingddraw = false;
+    vid_usingddraw = false;
 
     // attempt to create a direct draw driver
-   if (vid_ddraw.value)
+    if (vid_ddraw.value)
         VID_CreateDDrawDriver (DIBWidth, DIBHeight, palette, &vid.buffer, &vid.rowbytes);
 
     // create a gdi driver if directdraw failed or if we preferred not to use it
-   if (!vid_usingddraw)
-   {
-    // because directdraw may have been partially created we must shut it down again first
-    VID_UnloadAllDrivers ();
+    if (!vid_usingddraw)
+    {
+        // because directdraw may have been partially created we must shut it down again first
+        VID_UnloadAllDrivers ();
 
-    // now create the gdi driver
-    VID_CreateGDIDriver (DIBWidth, DIBHeight, palette);
+        // now create the gdi driver
+        VID_CreateGDIDriver (DIBWidth, DIBHeight, palette);
     }
 
     // if ddraw failed to come up we disable the cvar too
-   if (vid_ddraw.value && !vid_usingddraw) Cvar_Set ("vid_ddraw", "0");
+    if (vid_ddraw.value && !vid_usingddraw) Cvar_Set ("vid_ddraw", "0");
 
     // set the rest of the buffers we need (why not just use one single buffer instead of all this crap? oh well, it's Quake...)
     vid.direct = (unsigned char *) vid.buffer;
@@ -1167,7 +1173,7 @@ int VID_SetMode (int modenum, unsigned char *palette)
     if (r_warpbuffer) //qb: only do this once, whenever vid mode changes.
         Q_free(r_warpbuffer);
     //qb: debug   Sys_Error("vid.rowbytes %i vid.height %i", vid.rowbytes, vid.height);
-    r_warpbuffer = Q_malloc(vid.rowbytes*vid.height, "r_warpbuffer");
+    r_warpbuffer = Q_malloc(vid.width*vid.height, "r_warpbuffer");
 
     return true;
 }
@@ -1180,20 +1186,20 @@ void VID_SetPalette (unsigned char *palette)
 
     if (!Minimized)
     {
-         if (vid_usingddraw)
-         {
-             // incoming palette is 3 component
-             for (i = 0; i < 256; i++, pal += 3)
-             {
-                 PALETTEENTRY *p = (PALETTEENTRY *) &ddpal[i];
+        if (vid_usingddraw)
+        {
+            // incoming palette is 3 component
+            for (i = 0; i < 256; i++, pal += 3)
+            {
+                PALETTEENTRY *p = (PALETTEENTRY *) &ddpal[i];
 
-                 p->peRed = gammatable[pal[2]];
-                 p->peGreen = gammatable[pal[1]];
-                 p->peBlue = gammatable[pal[0]];
-                 p->peFlags = 255;
-             }
-         }
-         else
+                p->peRed = gammatable[pal[2]];
+                p->peGreen = gammatable[pal[1]];
+                p->peBlue = gammatable[pal[0]];
+                p->peFlags = 255;
+            }
+        }
+        else
         {
             HDC			hdc;
 
@@ -1356,7 +1362,7 @@ typedef struct flipslice_s  //qb: for multithreading
 void* FlipLoop (flipslice_t* fs)
 {
     byte *psrc, *src;
-    unsigned int *pdst, *dst;
+    unsigned *pdst, *dst;
     int spancount, rollcount, y;
 
     dst = fs->dst;
@@ -1414,23 +1420,23 @@ void* FlipLoop (flipslice_t* fs)
             case 0:
                 pdst[0] = ddpal[psrc[0]];
             case 1:
-                pdst[0] = ddpal[psrc[1]];
+                pdst[1] = ddpal[psrc[1]];
             case 2:
-                pdst[0] = ddpal[psrc[2]];
+                pdst[2] = ddpal[psrc[2]];
             case 3:
-                pdst[0] = ddpal[psrc[3]];
+                pdst[3] = ddpal[psrc[3]];
             case 4:
-                pdst[0] = ddpal[psrc[4]];
+                pdst[4] = ddpal[psrc[4]];
             case 5:
-                pdst[0] = ddpal[psrc[5]];
+                pdst[5] = ddpal[psrc[5]];
             case 6:
-                pdst[0] = ddpal[psrc[6]];
+                pdst[6] = ddpal[psrc[6]];
             case 7:
-                pdst[0] = ddpal[psrc[7]];
+                pdst[7] = ddpal[psrc[7]];
             case 8:
-                pdst[0] = ddpal[psrc[8]];
+                pdst[8] = ddpal[psrc[8]];
             case 9:
-                pdst[0] = ddpal[psrc[9]];
+                pdst[9] = ddpal[psrc[9]];
             case 10:
                 pdst[10] = ddpal[psrc[10]];
             case 11:
@@ -1480,115 +1486,236 @@ void* FlipLoop (flipslice_t* fs)
     }
 }
 
+#define NUMFLIPTHREADS          2  //qb: for multithreaded functions
+
+  #define FLIPTHREADED
 
 void FlipScreen (vrect_t *rects)
 {
-    int i, numrects = 0;
+    static int i, numrects;
+    int spancount, rollcount, y;
+    byte *psrc, *src;
+    unsigned int *pdst, *dst;
+    numrects = 0;
+    RECT TheRect;
+    RECT sRect, dRect;
+    DDSURFACEDESC ddsd;
+    HRESULT hr = S_OK;
 
-    //qb:  threads
-   flipslice_t fs[NUMTHREADS];
+    static pthread_t flipthread[NUMFLIPTHREADS];
+    static flipslice_t fs[NUMFLIPTHREADS]; //qb:  threads
 
     while (rects)
     {
-          if (vid_usingddraw)
-          {
-              int x, y;
-              HRESULT hr = S_OK;
-              byte *src = NULL;
-              unsigned int *dst = NULL;
-
-              if (dd_BackBuffer)
-              {
-                  RECT TheRect;
-                  RECT sRect, dRect;
-                  DDSURFACEDESC ddsd;
-
-                  memset (&ddsd, 0, sizeof (ddsd));
-                  ddsd.dwSize = sizeof (DDSURFACEDESC);
-
-                  // lock the correct subrect
-                  TheRect.left = rects->x;
-                  TheRect.right = rects->x + rects->width;
-                  TheRect.top = rects->y;
-                  TheRect.bottom = rects->y + rects->height;
-
-                  if ((hr = IDirectDrawSurface_Lock (dd_BackBuffer, &TheRect, &ddsd, DDLOCK_WRITEONLY | DDLOCK_SURFACEMEMORYPTR, NULL)) == DDERR_WASSTILLDRAWING) return;
-
-                  src = (unsigned char *) vidbuf + rects->y * vid.rowbytes + rects->x;
-                  dst = (unsigned int *) ddsd.lpSurface;
-
-                  // convert pitch to unsigned int addressable
-                  ddsd.lPitch >>= 2;
-
-                  for (i=0; i<NUMTHREADS; i++)
-                  {
-                      fs[i].src = src + vid.rowbytes * i * (rects->height/NUMTHREADS);
-                      fs[i].dst = dst + ddsd.lPitch * i * (rects->height/NUMTHREADS);
-                      fs[i].lpitch = ddsd.lPitch;
-                      fs[i].rects = rects;
-                      fs[i].rowstart= i*(rects->height/NUMTHREADS);
-                      if (i+1 == NUMTHREADS)
-                          fs[i].rowend = rects->height;
-                      else
-                          fs[i].rowend = (i+1)*(rects->height/NUMTHREADS);
-                      pthread_create(&thread[i], NULL, FlipLoop, &fs[i]);
-                  }
-
-                  //wait for threads to finish
-                  for (i=0; i<NUMTHREADS; i++)
-                  {
-                      pthread_join(thread[i], NULL);
-                  }
-
-
-                  IDirectDrawSurface_Unlock (dd_BackBuffer, NULL);
-
-                  // correctly offset source
-                  sRect.left = SrcRect.left + rects->x;
-                  sRect.right = SrcRect.left + rects->x + rects->width;
-                  sRect.top = SrcRect.top + rects->y;
-                  sRect.bottom = SrcRect.top + rects->y + rects->height;
-
-                  // correctly offset dest
-                  dRect.left = DstRect.left + rects->x;
-                  dRect.right = DstRect.left + rects->x + rects->width;
-                  dRect.top = DstRect.top + rects->y;
-                  dRect.bottom = DstRect.top + rects->y + rects->height;
-
-                  // copy to front buffer
-                  IDirectDrawSurface_Blt (dd_FrontBuffer, &dRect, dd_BackBuffer, &sRect, 0, NULL);
-              }
-          }
-          else if (hdcDIBSection)
+        if (vid_usingddraw)
         {
-            if (vid.bottomup)
+            if (dd_BackBuffer)
+            {
+                memset (&ddsd, 0, sizeof (ddsd));
+                ddsd.dwSize = sizeof (DDSURFACEDESC);
 
-                StretchBlt
-                (
-                    hdcGDI,
-                    rects->x, rects->y,
-                    rects->x + rects->width,
-                    rects->y + rects->height,
-                    hdcDIBSection,
-                    rects->x,
-                    rects->y + rects->height,
-                    rects->width,
-                    0 - rects->height,
-                    SRCCOPY
-                );
-            else
-                BitBlt
-                (
-                    hdcGDI,
-                    rects->x,
-                    rects->y,
-                    rects->x + rects->width,
-                    rects->y + rects->height,
-                    hdcDIBSection,
-                    rects->x,
-                    rects->y,
-                    SRCCOPY
-                );
+                // lock the correct subrect
+                TheRect.left = rects->x;
+                TheRect.right = rects->x + rects->width;
+                TheRect.top = rects->y;
+                TheRect.bottom = rects->y + rects->height;
+
+                if ((hr = IDirectDrawSurface_Lock (dd_BackBuffer, &TheRect, &ddsd, DDLOCK_WRITEONLY | DDLOCK_SURFACEMEMORYPTR, NULL)) == DDERR_WASSTILLDRAWING) return;
+
+                src = (byte *) vidbuf + rects->y * vid.rowbytes + rects->x;
+                dst = (unsigned int *) ddsd.lpSurface;
+
+                // convert pitch to unsigned int addressable
+                ddsd.lPitch >>= 2;
+#ifdef FLIPTHREADED
+                for (i=0; i<NUMFLIPTHREADS; i++)
+                {
+                    fs[i].src = src + vid.rowbytes * i * (rects->height/NUMFLIPTHREADS);
+                    fs[i].dst = dst + ddsd.lPitch * i * (rects->height/NUMFLIPTHREADS);
+                    fs[i].lpitch = ddsd.lPitch;
+                    fs[i].rects = rects;
+                    fs[i].rowstart= i*(rects->height/NUMFLIPTHREADS);
+                    if (i+1 == NUMFLIPTHREADS)
+                        fs[i].rowend = rects->height;
+                    else
+                        fs[i].rowend = (i+1)*(rects->height/NUMFLIPTHREADS);
+                    pthread_create(&flipthread[i], NULL, FlipLoop, &fs[i]);
+                }
+
+                //wait for threads to finish
+                for (i=0; i<NUMFLIPTHREADS; i++)
+                {
+                    pthread_join(flipthread[i], NULL);
+                }
+#else
+                for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
+                {
+                    psrc = src;
+                    pdst = dst;
+
+                    rollcount = rects->width >> UNROLL_SPAN_SHIFT; // divided by 32
+                    spancount = rects->width %  UNROLL_SPAN_MAX; // remainder of the above division (min zero, max 32)
+                    while (rollcount--)
+                    {
+                        pdst[0] = ddpal[psrc[0]];
+                        pdst[1] = ddpal[psrc[1]];
+                        pdst[2] = ddpal[psrc[2]];
+                        pdst[3] = ddpal[psrc[3]];
+                        pdst[4] = ddpal[psrc[4]];
+                        pdst[5] = ddpal[psrc[5]];
+                        pdst[6] = ddpal[psrc[6]];
+                        pdst[7] = ddpal[psrc[7]];
+                        pdst[8] = ddpal[psrc[8]];
+                        pdst[9] = ddpal[psrc[9]];
+                        pdst[10] = ddpal[psrc[10]];
+                        pdst[11] = ddpal[psrc[11]];
+                        pdst[12] = ddpal[psrc[12]];
+                        pdst[13] = ddpal[psrc[13]];
+                        pdst[14] = ddpal[psrc[14]];
+                        pdst[15] = ddpal[psrc[15]];
+                        pdst[16] = ddpal[psrc[16]];
+                        pdst[17] = ddpal[psrc[17]];
+                        pdst[18] = ddpal[psrc[18]];
+                        pdst[19] = ddpal[psrc[19]];
+                        pdst[20] = ddpal[psrc[20]];
+                        pdst[21] = ddpal[psrc[21]];
+                        pdst[22] = ddpal[psrc[22]];
+                        pdst[23] = ddpal[psrc[23]];
+                        pdst[24] = ddpal[psrc[24]];
+                        pdst[25] = ddpal[psrc[25]];
+                        pdst[26] = ddpal[psrc[26]];
+                        pdst[27] = ddpal[psrc[27]];
+                        pdst[28] = ddpal[psrc[28]];
+                        pdst[29] = ddpal[psrc[29]];
+                        pdst[30] = ddpal[psrc[30]];
+                        pdst[31] = ddpal[psrc[31]];
+                        psrc+= UNROLL_SPAN_MAX;
+                        pdst+= UNROLL_SPAN_MAX;
+                    }
+
+                    if (spancount)
+                    {
+                        switch (spancount)
+                        {
+                        case 0:
+                            pdst[0] = ddpal[psrc[0]];
+                        case 1:
+                            pdst[1] = ddpal[psrc[1]];
+                        case 2:
+                            pdst[2] = ddpal[psrc[2]];
+                        case 3:
+                            pdst[3] = ddpal[psrc[3]];
+                        case 4:
+                            pdst[4] = ddpal[psrc[4]];
+                        case 5:
+                            pdst[5] = ddpal[psrc[5]];
+                        case 6:
+                            pdst[6] = ddpal[psrc[6]];
+                        case 7:
+                            pdst[7] = ddpal[psrc[7]];
+                        case 8:
+                            pdst[8] = ddpal[psrc[8]];
+                        case 9:
+                            pdst[9] = ddpal[psrc[9]];
+                        case 10:
+                            pdst[10] = ddpal[psrc[10]];
+                        case 11:
+                            pdst[11] = ddpal[psrc[11]];
+                        case 12:
+                            pdst[12] = ddpal[psrc[12]];
+                        case 13:
+                            pdst[13] = ddpal[psrc[13]];
+                        case 14:
+                            pdst[14] = ddpal[psrc[14]];
+                        case 15:
+                            pdst[15] = ddpal[psrc[15]];
+                        case 16:
+                            pdst[16] = ddpal[psrc[16]];
+                        case 17:
+                            pdst[17] = ddpal[psrc[17]];
+                        case 18:
+                            pdst[18] = ddpal[psrc[18]];
+                        case 19:
+                            pdst[19] = ddpal[psrc[19]];
+                        case 20:
+                            pdst[20] = ddpal[psrc[20]];
+                        case 21:
+                            pdst[21] = ddpal[psrc[21]];
+                        case 22:
+                            pdst[22] = ddpal[psrc[22]];
+                        case 23:
+                            pdst[23] = ddpal[psrc[23]];
+                        case 24:
+                            pdst[24] = ddpal[psrc[24]];
+                        case 25:
+                            pdst[25] = ddpal[psrc[25]];
+                        case 26:
+                            pdst[26] = ddpal[psrc[26]];
+                        case 27:
+                            pdst[27] = ddpal[psrc[27]];
+                        case 28:
+                            pdst[28] = ddpal[psrc[28]];
+                        case 29:
+                            pdst[29] = ddpal[psrc[29]];
+                        case 30:
+                            pdst[30] = ddpal[psrc[30]];
+                        case 31:
+                            pdst[31] = ddpal[psrc[31]];
+                        }
+                    }
+                }
+
+#endif
+
+                IDirectDrawSurface_Unlock (dd_BackBuffer, NULL);
+
+                // correctly offset source
+                sRect.left = SrcRect.left + rects->x;
+                sRect.right = SrcRect.left + rects->x + rects->width;
+                sRect.top = SrcRect.top + rects->y;
+                sRect.bottom = SrcRect.top + rects->y + rects->height;
+
+                // correctly offset dest
+                dRect.left = DstRect.left + rects->x;
+                dRect.right = DstRect.left + rects->x + rects->width;
+                dRect.top = DstRect.top + rects->y;
+                dRect.bottom = DstRect.top + rects->y + rects->height;
+
+                // copy to front buffer
+                IDirectDrawSurface_Blt (dd_FrontBuffer, &dRect, dd_BackBuffer, &sRect, 0, NULL);
+            }
+        }
+        else if (hdcDIBSection)
+        {
+            /*   if (vid.bottomup)
+
+                   StretchBlt
+                   (
+                       hdcGDI,
+                       rects->x+ (rects->width %4) >>1,
+                       rects->y,
+                       rects->x + (rects->width >>2)<<2,
+                       rects->y + rects->height,
+                       hdcDIBSection,
+                       rects->x + (rects->width %4) >>1,
+                       rects->y + rects->height,
+                       (rects->width >>2)<<2,
+                       0 - rects->height,
+                       SRCCOPY
+                   );
+               else */
+            BitBlt
+            (
+                hdcGDI,
+                rects->x,
+                rects->y,
+                rects->x + rects->width,
+                rects->y + rects->height,
+                hdcDIBSection,
+                rects->x,
+                rects->y,
+                SRCCOPY
+            );
         }
 
         numrects++;
