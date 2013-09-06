@@ -1359,11 +1359,11 @@ typedef struct flipslice_s  //qb: for multithreading
 } flipslice_t;
 
 
-void* FlipLoop (flipslice_t* fs)
+void FlipLoop (flipslice_t* fs)
 {
-    byte *psrc, *src;
-    unsigned *pdst, *dst;
-    int spancount, rollcount, y;
+    static byte *psrc, *src;
+    static unsigned *pdst, *dst;
+    static int spancount, rollcount, y;
 
     dst = fs->dst;
     src = fs->src;
@@ -1484,23 +1484,24 @@ void* FlipLoop (flipslice_t* fs)
             }
         }
     }
+    pthread_exit(0);
 }
 
 #define NUMFLIPTHREADS          2  //qb: for multithreaded functions
 
-  #define FLIPTHREADED
+#define FLIPTHREADED
 
 void FlipScreen (vrect_t *rects)
 {
     static int i, numrects;
-    int spancount, rollcount, y;
-    byte *psrc, *src;
-    unsigned int *pdst, *dst;
+    static int spancount, rollcount, y;
+    static byte *psrc, *src;
+    static unsigned *pdst, *dst;
+    static RECT TheRect;
+    static RECT sRect, dRect;
+    static DDSURFACEDESC ddsd;
+    static HRESULT hr = S_OK;
     numrects = 0;
-    RECT TheRect;
-    RECT sRect, dRect;
-    DDSURFACEDESC ddsd;
-    HRESULT hr = S_OK;
 
     static pthread_t flipthread[NUMFLIPTHREADS];
     static flipslice_t fs[NUMFLIPTHREADS]; //qb:  threads
@@ -1541,129 +1542,128 @@ void FlipScreen (vrect_t *rects)
                         fs[i].rowend = (i+1)*(rects->height/NUMFLIPTHREADS);
                     pthread_create(&flipthread[i], NULL, FlipLoop, &fs[i]);
                 }
-
-                //wait for threads to finish
+//wait for threads to finish
                 for (i=0; i<NUMFLIPTHREADS; i++)
                 {
                     pthread_join(flipthread[i], NULL);
                 }
 #else
-                for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
-                {
-                    psrc = src;
-                    pdst = dst;
-
-                    rollcount = rects->width >> UNROLL_SPAN_SHIFT; // divided by 32
-                    spancount = rects->width %  UNROLL_SPAN_MAX; // remainder of the above division (min zero, max 32)
-                    while (rollcount--)
+                    for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
                     {
-                        pdst[0] = ddpal[psrc[0]];
-                        pdst[1] = ddpal[psrc[1]];
-                        pdst[2] = ddpal[psrc[2]];
-                        pdst[3] = ddpal[psrc[3]];
-                        pdst[4] = ddpal[psrc[4]];
-                        pdst[5] = ddpal[psrc[5]];
-                        pdst[6] = ddpal[psrc[6]];
-                        pdst[7] = ddpal[psrc[7]];
-                        pdst[8] = ddpal[psrc[8]];
-                        pdst[9] = ddpal[psrc[9]];
-                        pdst[10] = ddpal[psrc[10]];
-                        pdst[11] = ddpal[psrc[11]];
-                        pdst[12] = ddpal[psrc[12]];
-                        pdst[13] = ddpal[psrc[13]];
-                        pdst[14] = ddpal[psrc[14]];
-                        pdst[15] = ddpal[psrc[15]];
-                        pdst[16] = ddpal[psrc[16]];
-                        pdst[17] = ddpal[psrc[17]];
-                        pdst[18] = ddpal[psrc[18]];
-                        pdst[19] = ddpal[psrc[19]];
-                        pdst[20] = ddpal[psrc[20]];
-                        pdst[21] = ddpal[psrc[21]];
-                        pdst[22] = ddpal[psrc[22]];
-                        pdst[23] = ddpal[psrc[23]];
-                        pdst[24] = ddpal[psrc[24]];
-                        pdst[25] = ddpal[psrc[25]];
-                        pdst[26] = ddpal[psrc[26]];
-                        pdst[27] = ddpal[psrc[27]];
-                        pdst[28] = ddpal[psrc[28]];
-                        pdst[29] = ddpal[psrc[29]];
-                        pdst[30] = ddpal[psrc[30]];
-                        pdst[31] = ddpal[psrc[31]];
-                        psrc+= UNROLL_SPAN_MAX;
-                        pdst+= UNROLL_SPAN_MAX;
-                    }
+                        psrc = src;
+                        pdst = dst;
 
-                    if (spancount)
-                    {
-                        switch (spancount)
+                        rollcount = rects->width >> UNROLL_SPAN_SHIFT; // divided by 32
+                        spancount = rects->width %  UNROLL_SPAN_MAX; // remainder of the above division (min zero, max 32)
+                        while (rollcount--)
                         {
-                        case 0:
                             pdst[0] = ddpal[psrc[0]];
-                        case 1:
                             pdst[1] = ddpal[psrc[1]];
-                        case 2:
                             pdst[2] = ddpal[psrc[2]];
-                        case 3:
                             pdst[3] = ddpal[psrc[3]];
-                        case 4:
                             pdst[4] = ddpal[psrc[4]];
-                        case 5:
                             pdst[5] = ddpal[psrc[5]];
-                        case 6:
                             pdst[6] = ddpal[psrc[6]];
-                        case 7:
                             pdst[7] = ddpal[psrc[7]];
-                        case 8:
                             pdst[8] = ddpal[psrc[8]];
-                        case 9:
                             pdst[9] = ddpal[psrc[9]];
-                        case 10:
                             pdst[10] = ddpal[psrc[10]];
-                        case 11:
                             pdst[11] = ddpal[psrc[11]];
-                        case 12:
                             pdst[12] = ddpal[psrc[12]];
-                        case 13:
                             pdst[13] = ddpal[psrc[13]];
-                        case 14:
                             pdst[14] = ddpal[psrc[14]];
-                        case 15:
                             pdst[15] = ddpal[psrc[15]];
-                        case 16:
                             pdst[16] = ddpal[psrc[16]];
-                        case 17:
                             pdst[17] = ddpal[psrc[17]];
-                        case 18:
                             pdst[18] = ddpal[psrc[18]];
-                        case 19:
                             pdst[19] = ddpal[psrc[19]];
-                        case 20:
                             pdst[20] = ddpal[psrc[20]];
-                        case 21:
                             pdst[21] = ddpal[psrc[21]];
-                        case 22:
                             pdst[22] = ddpal[psrc[22]];
-                        case 23:
                             pdst[23] = ddpal[psrc[23]];
-                        case 24:
                             pdst[24] = ddpal[psrc[24]];
-                        case 25:
                             pdst[25] = ddpal[psrc[25]];
-                        case 26:
                             pdst[26] = ddpal[psrc[26]];
-                        case 27:
                             pdst[27] = ddpal[psrc[27]];
-                        case 28:
                             pdst[28] = ddpal[psrc[28]];
-                        case 29:
                             pdst[29] = ddpal[psrc[29]];
-                        case 30:
                             pdst[30] = ddpal[psrc[30]];
-                        case 31:
                             pdst[31] = ddpal[psrc[31]];
+                            psrc+= UNROLL_SPAN_MAX;
+                            pdst+= UNROLL_SPAN_MAX;
+                        }
+
+                        if (spancount)
+                        {
+                            switch (spancount)
+                            {
+                            case 0:
+                                pdst[0] = ddpal[psrc[0]];
+                            case 1:
+                                pdst[1] = ddpal[psrc[1]];
+                            case 2:
+                                pdst[2] = ddpal[psrc[2]];
+                            case 3:
+                                pdst[3] = ddpal[psrc[3]];
+                            case 4:
+                                pdst[4] = ddpal[psrc[4]];
+                            case 5:
+                                pdst[5] = ddpal[psrc[5]];
+                            case 6:
+                                pdst[6] = ddpal[psrc[6]];
+                            case 7:
+                                pdst[7] = ddpal[psrc[7]];
+                            case 8:
+                                pdst[8] = ddpal[psrc[8]];
+                            case 9:
+                                pdst[9] = ddpal[psrc[9]];
+                            case 10:
+                                pdst[10] = ddpal[psrc[10]];
+                            case 11:
+                                pdst[11] = ddpal[psrc[11]];
+                            case 12:
+                                pdst[12] = ddpal[psrc[12]];
+                            case 13:
+                                pdst[13] = ddpal[psrc[13]];
+                            case 14:
+                                pdst[14] = ddpal[psrc[14]];
+                            case 15:
+                                pdst[15] = ddpal[psrc[15]];
+                            case 16:
+                                pdst[16] = ddpal[psrc[16]];
+                            case 17:
+                                pdst[17] = ddpal[psrc[17]];
+                            case 18:
+                                pdst[18] = ddpal[psrc[18]];
+                            case 19:
+                                pdst[19] = ddpal[psrc[19]];
+                            case 20:
+                                pdst[20] = ddpal[psrc[20]];
+                            case 21:
+                                pdst[21] = ddpal[psrc[21]];
+                            case 22:
+                                pdst[22] = ddpal[psrc[22]];
+                            case 23:
+                                pdst[23] = ddpal[psrc[23]];
+                            case 24:
+                                pdst[24] = ddpal[psrc[24]];
+                            case 25:
+                                pdst[25] = ddpal[psrc[25]];
+                            case 26:
+                                pdst[26] = ddpal[psrc[26]];
+                            case 27:
+                                pdst[27] = ddpal[psrc[27]];
+                            case 28:
+                                pdst[28] = ddpal[psrc[28]];
+                            case 29:
+                                pdst[29] = ddpal[psrc[29]];
+                            case 30:
+                                pdst[30] = ddpal[psrc[30]];
+                            case 31:
+                                pdst[31] = ddpal[psrc[31]];
+                            }
                         }
                     }
-                }
 
 #endif
 

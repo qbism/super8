@@ -1552,12 +1552,12 @@ typedef struct fogslice_s //qb: for multithreading
 } fogslice_t;
 
 
-void* FogLoop (fogslice_t* fs)
+void FogLoop (fogslice_t* fs)
 {
-    byte	*pbuf;
-    byte noise;
-    unsigned short	*pz;
-    int level;
+    static byte	*pbuf;
+    static byte noise;
+    static unsigned short	*pz;
+    static int level;
     {
         int xref, yref;
         for (yref=fs->rowstart ; yref<fs->rowend; yref++)
@@ -1574,6 +1574,7 @@ void* FogLoop (fogslice_t* fs)
             noise += 13;
         }
     }
+    pthread_exit(0);
 }
 
 
@@ -1585,9 +1586,9 @@ R_RenderView
 r_refdef must be set before the first call
 ================
 */
-    #define NUMFOGTHREADS          4  //qb: for multithreaded functions
+#define NUMFOGTHREADS          4  //qb: for multithreaded functions
 
-    #define FOGTHREADED
+#define FOGTHREADED
 
 void R_RenderView (void) //qb: so can only setup frame once, for fisheye and stereo.
 {
@@ -1697,10 +1698,10 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     static unsigned short		*pz;
     static int          level;
     static float previous_fog_density;
-    static pthread_t fogthread[NUMFOGTHREADS];
-
-    static fogslice_t fogs[NUMFOGTHREADS]; //qb: threads
     static int i;
+    static pthread_t fogthread[NUMFOGTHREADS];
+    static fogslice_t fogs[NUMFOGTHREADS]; //qb: threads
+
 
     if (fog_density && r_fog.value) //qb: fog
     {
@@ -1708,7 +1709,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
             FogLevelInit(); //dither includes density factor, so regenerate when it changes
         previous_fog_density = fog_density;
         fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
- #ifdef FOGTHREADED
+#ifdef FOGTHREADED
         for (i=0; i<NUMFOGTHREADS; i++)
         {
             fogs[i].vidfog = vid.colormap+fogindex;
