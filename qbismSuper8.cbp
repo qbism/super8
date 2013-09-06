@@ -105,9 +105,11 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-pthread" />
 			<Add directory="s_win32/codecs/include" />
 		</Compiler>
 		<Linker>
+			<Add option="-pthread" />
 			<Add library="vorbisfile" />
 			<Add library="vorbis" />
 			<Add library="ogg" />
@@ -116,7 +118,6 @@
 			<Add library="wsock32" />
 			<Add library="dinput" />
 			<Add library="dxguid" />
-			<Add library="pthread" />
 			<Add directory="s_win32/codecs/x86" />
 		</Linker>
 		<ExtraCommands>

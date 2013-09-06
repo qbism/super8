@@ -139,11 +139,11 @@ typedef struct warpslice_s  //qb: for multithreading
 } warpslice_t;
 
 
-void* WarpLoop (warpslice_t* ws)
+void WarpLoop (warpslice_t* ws)
 {
-    byte *src, *dest, *tempdest;
-    int  *row, *col, *turb_x, *turb_x_temp, *turb_y;
-    int rollcount, spancount, y;
+    static byte *src, *dest, *tempdest;
+    static int  *row, *col, *turb_x, *turb_x_temp, *turb_y;
+    static int rollcount, spancount, y;
 
     src = ws->src;
     dest = ws->dest;
@@ -271,9 +271,11 @@ void* WarpLoop (warpslice_t* ws)
             }
         }
     }
+    pthread_exit(0);
 }
 
 #define NUMWARPTHREADS          4   //qb: for multithreaded functions
+
 
 void D_WarpScreen (void)
 {
