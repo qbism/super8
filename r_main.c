@@ -197,6 +197,11 @@ cvar_t  r_part_explo2_time = {"r_part_explo2_time", "0.3", "r_part_explo2_time[v
 cvar_t  r_part_explo2_vel = {"r_part_explo2_vel", "300", "r_part_explo2_vel[value] Particle velocity for explo2 effect.", true};
 cvar_t  r_part_sticky_time = {"r_part_sticky_time", "24", "r_part_sticky_time[value] Lifespan for sticky particles.", true};
 
+cvar_t	thread_warp = {"thread_warp","4", "thread_warp[value] Number of threads to use for waterwarp, up to 16.  Values less than 2 are unthreaded", true}; // Manoel Kasimier - saved in the config file - edited
+cvar_t	thread_flip = {"thread_flip","2", "thread_flip[value] Number of threads to use for flipping graphics to video, up to 16.  Values less than 2 are unthreaded", true}; // Manoel Kasimier - saved in the config file - edited
+cvar_t	thread_fog = {"thread_fog","4", "thread_fog[value] Number of threads to use for fog effect, up to 16.  Values less than 2 are unthreaded", true}; // Manoel Kasimier - saved in the config file - edited
+
+
 //void CreatePassages (void); // Manoel Kasimier - removed
 //void SetVisibilityByPassages (void); // Manoel Kasimier - removed
 
@@ -363,6 +368,11 @@ void R_Init (void)
     Cvar_RegisterVariable(&r_part_explo2_time);
     Cvar_RegisterVariable(&r_part_explo2_vel);
     Cvar_RegisterVariable(&r_part_sticky_time);
+
+    //qb: threads
+    Cvar_RegisterVariable(&thread_warp);
+    Cvar_RegisterVariable(&thread_flip);
+    Cvar_RegisterVariable(&thread_fog);
 
     Cvar_SetValue ("r_maxedges", (float) 100000); //NUMSTACKEDGES //qb: was 60000
     Cvar_SetValue ("r_maxsurfs", (float) 100000); //NUMSTACKSURFACES //qb: was 60000
@@ -1555,7 +1565,7 @@ typedef struct fogslice_s //qb: for multithreading
 void FogLoop (fogslice_t* fs)
 {
     static byte	*pbuf;
-    static byte noise;
+    byte noise;
     static unsigned short	*pz;
     static int level;
     {
@@ -1585,9 +1595,7 @@ R_RenderView
 r_refdef must be set before the first call
 ================
 */
-#define NUMFOGTHREADS          4  //qb: for multithreaded functions
-
-#define FOGTHREADED
+#define MAXFOGTHREADS          16   //qb: for multithreading
 
 void R_RenderView (void) //qb: so can only setup frame once, for fisheye and stereo.
 {
@@ -1695,11 +1703,10 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     static byte		*pbuf, *vidfog;
     static byte        noise;
     static unsigned short		*pz;
-    static int          level;
+    static int          i, level, numthreads;
     static float previous_fog_density;
-    static int i;
-    static pthread_t fogthread[NUMFOGTHREADS];
-    static fogslice_t fogs[NUMFOGTHREADS]; //qb: threads
+    static pthread_t fogthread[MAXFOGTHREADS];
+    static fogslice_t fogs[MAXFOGTHREADS]; //qb: threads
 
 
     if (fog_density && r_fog.value) //qb: fog
@@ -1708,40 +1715,44 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
             FogLevelInit(); //dither includes density factor, so regenerate when it changes
         previous_fog_density = fog_density;
         fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
-#ifdef FOGTHREADED
-        for (i=0; i<NUMFOGTHREADS; i++)
+        numthreads = min(thread_fog.value,MAXFOGTHREADS);
+        if(numthreads >2)
         {
-            fogs[i].vidfog = vid.colormap+fogindex;
-            fogs[i].rowstart= r_refdef.vrect.y + i*(r_refdef.vrect.height/NUMFOGTHREADS);
-            if (i+1 == NUMFOGTHREADS)
-                fogs[i].rowend = r_refdef.vrect.height;
-            else
-                fogs[i].rowend = fogs[i].rowstart + r_refdef.vrect.height/NUMFOGTHREADS;
-            pthread_create(&fogthread[i], NULL, FogLoop, &fogs[i]);
-        }
-        /* Wait for Threads to Finish */
-        for (i=0; i<NUMFOGTHREADS; i++)
-        {
-            pthread_join(fogthread[i], NULL);
-        }
-#else
-        fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
-        vidfog = vid.colormap+fogindex;
-
-        for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
-        {
-            pbuf = vid.buffer + d_scantable[yref];
-            pz = d_pzbuffer + (d_zwidth * yref);
-            for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
+            for (i=0; i<numthreads; i++)
             {
-                level = *(pz++);
-                if (level && level<248)
-                    *pbuf = fogmap[*pbuf + vidfog[foglevel[level + fognoise[noise++]]]*256];
-                pbuf++;
+                fogs[i].vidfog = vid.colormap+fogindex;
+                fogs[i].rowstart= r_refdef.vrect.y + i*(r_refdef.vrect.height/numthreads);
+                if (i+1 == numthreads)
+                    fogs[i].rowend = r_refdef.vrect.height;
+                else
+                    fogs[i].rowend = fogs[i].rowstart + r_refdef.vrect.height/numthreads;
+                pthread_create(&fogthread[i], NULL, FogLoop, &fogs[i]);
             }
-            noise += 13;
+            /* Wait for Threads to Finish */
+            for (i=0; i<numthreads; i++)
+            {
+                pthread_join(fogthread[i], NULL);
+            }
         }
-#endif
+        else
+        {
+            fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
+            vidfog = vid.colormap+fogindex;
+
+            for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
+            {
+                pbuf = vid.buffer + d_scantable[yref];
+                pz = d_pzbuffer + (d_zwidth * yref);
+                for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
+                {
+                    level = *(pz++);
+                    if (level && level<248)
+                        *pbuf = fogmap[*pbuf + vidfog[foglevel[level + fognoise[noise++]]]*256];
+                    pbuf++;
+                }
+                noise += 13;
+            }
+        }
     }
 
     if (r_dowarp)

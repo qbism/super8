@@ -439,14 +439,14 @@ void SCR_DrawFPS (void)
     static float fps = 0; //qb: let's see higher precision, better for tweaking
     char st[10];
 
-    if (realtime - last_realtime > 2.0) //qb: was 1, for better averaging
+    if (realtime - last_realtime > 1.0)
     {
         fps = (host_framecount - last_framecount) / (realtime - last_realtime) + 1.0;
         last_framecount = host_framecount;
         last_realtime = realtime;
     }
 
-    sprintf(st, "%f FPS", fps);
+    sprintf(st, "%6.2f FPS", fps);
 
     x = 300; //qb
     if (scr_vrect.y > 0)
@@ -1142,6 +1142,7 @@ void SCR_UpdateScreen (void)
 
     if (vid.recalc_refdef)
     {
+        R_InitTurb (); //qb: try it here
         // something changed, so reorder the screen
         SCR_CalcRefdef ();
     }
