@@ -36,12 +36,11 @@ void D_DrawParticle_33_C (particle_t *pparticle) // Manoel Kasimier
 // transform point
     VectorSubtract (pparticle->org, r_origin, local);
 
-    transformed[0] = DotProduct(local, r_pright);
-    transformed[1] = DotProduct(local, r_pup);
     transformed[2] = DotProduct(local, r_ppn);
-
     if (transformed[2] < PARTICLE_Z_CLIP)
         return;
+    transformed[0] = DotProduct(local, r_pright);
+    transformed[1] = DotProduct(local, r_pup);
 
 // project the point
 // FIXME: preadjust xcenter and ycenter
@@ -52,37 +51,38 @@ void D_DrawParticle_33_C (particle_t *pparticle) // Manoel Kasimier
     izi = (int)(zi * 0x8000);
 
     //qb:  better pix calc from MK 1.4.  Code stripped down for square pixels and no aspect adjust.
-    d_pix_shift = 8 - (int) ( ( (float) r_refdef.vrect.width) / ( (1.0f / 320.0f) * (float) vid.rowbytes));
-    pix = (double) ( (int) ( (float) izi * fovscale * r_part_scale.value * ( (float) vid.rowbytes / 50.0)) >> d_pix_shift);
+    d_pix_shift = 8 - (int) ( ( (float) r_refdef.vrect.width) / ( (1.0f / 320.0f) * (float) vid.width));
+    pix = (double) ( (int) ( (float) izi * fovscale * r_part_scale.value * ( (float) vid.width / 50.0 )) >> d_pix_shift);
 
-                     if (pix < d_pix_min)
-                     pix = d_pix_min;
-                     else if (pix > (d_pix_max))
-                         pix = (int)(d_pix_max);
+    if (pix < d_pix_min)
+        pix = d_pix_min;
+    else if (pix > (d_pix_max))
+        pix = (int)(d_pix_max);
 
-                         if ((v > (d_vrectbottom_particle - (pix << d_y_aspect_shift))) ||  // Manoel Kasimier - FOV-based scaling - fixed
-                                 (u > (d_vrectright_particle - pix)) || // Manoel Kasimier - FOV-based scaling - fixed
-                                 (v < d_vrecty) ||
-                                 (u < d_vrectx))
-        {
-            return;
-        }
+    if ((v > (d_vrectbottom_particle - (pix << d_y_aspect_shift))) ||  // Manoel Kasimier - FOV-based scaling - fixed
+            (u > (d_vrectright_particle - pix)) || // Manoel Kasimier - FOV-based scaling - fixed
+            (v < d_vrecty) ||
+            (u < d_vrectx))
+    {
+        return;
+    }
 
-pz = d_pzbuffer + (d_zwidth * v) + u;
-pdest = d_viewbuffer + d_scantable[v] + u;
+    pz = d_pzbuffer + (d_zwidth * v) + u;
+    pdest = d_viewbuffer + d_scantable[v] + u;
+
 
 // Manoel Kasimier - begin
-if (pix == 1)
-{
-    if (pz[0] <= izi)
+    if (pix == 1)
+    {
+        if (pz[0] <= izi)
         {
             pz[0] = izi;
             pdest[0] = alphamap[(int)(pparticle->color*256 + pdest[0])];
         }
     }
     else if (pix == 2)
-{
-    if (pz[0] <= izi)
+    {
+        if (pz[0] <= izi)
         {
             pz[0] = izi;
             pdest[0] = alphamap[(int)(pparticle->color*256 + pdest[0])];
@@ -124,12 +124,11 @@ void D_DrawParticle_50_C (particle_t *pparticle) //qb
 // transform point
     VectorSubtract (pparticle->org, r_origin, local);
 
-    transformed[0] = DotProduct(local, r_pright);
-    transformed[1] = DotProduct(local, r_pup);
     transformed[2] = DotProduct(local, r_ppn);
-
     if (transformed[2] < PARTICLE_Z_CLIP)
         return;
+    transformed[0] = DotProduct(local, r_pright);
+    transformed[1] = DotProduct(local, r_pup);
 
 // project the point
 // FIXME: preadjust xcenter and ycenter
@@ -138,37 +137,37 @@ void D_DrawParticle_50_C (particle_t *pparticle) //qb
     v = (int)(ycenter - zi * transformed[1] + 0.5);
 
     izi = (int)(zi * 0x8000);
-    d_pix_shift = 8 - (int) ( ( (float) r_refdef.vrect.width) / ( (1.0f / 320.0f) * (float) vid.rowbytes));
-    pix = (double) ( (int) ( (float) izi * fovscale * r_part_scale.value * ( (float) vid.rowbytes / 50.0 )) >> d_pix_shift);
+    d_pix_shift = 8 - (int) ( ( (float) r_refdef.vrect.width) / ( (1.0f / 320.0f) * (float) vid.width));
+    pix = (double) ( (int) ( (float) izi * fovscale * r_part_scale.value * ( (float) vid.width / 50.0 )) >> d_pix_shift);
 
-                     if (pix < d_pix_min)
-                     pix = d_pix_min;
-                     else if (pix > (d_pix_max))
-                         pix = (int)(d_pix_max);
+    if (pix < d_pix_min)
+        pix = d_pix_min;
+    else if (pix > (d_pix_max))
+        pix = (int)(d_pix_max);
 
-                         if ((v > (d_vrectbottom_particle - (pix << d_y_aspect_shift))) ||  // Manoel Kasimier - FOV-based scaling - fixed
-                                 (u > (d_vrectright_particle - pix)) || // Manoel Kasimier - FOV-based scaling - fixed
-                                 (v < d_vrecty) ||
-                                 (u < d_vrectx))
-        {
-            return;
-        }
+    if ((v > (d_vrectbottom_particle - (pix << d_y_aspect_shift))) ||  // Manoel Kasimier - FOV-based scaling - fixed
+            (u > (d_vrectright_particle - pix)) || // Manoel Kasimier - FOV-based scaling - fixed
+            (v < d_vrecty) ||
+            (u < d_vrectx))
+    {
+        return;
+    }
 
-pz = d_pzbuffer + (d_zwidth * v) + u;
-pdest = d_viewbuffer + d_scantable[v] + u;
+    pz = d_pzbuffer + (d_zwidth * v) + u;
+    pdest = d_viewbuffer + d_scantable[v] + u;
 
 // Manoel Kasimier - begin
-if (pix == 1)
-{
-    if (pz[0] <= izi)
+    if (pix == 1)
+    {
+        if (pz[0] <= izi)
         {
             pz[0] = izi;
             pdest[0] = alpha50map[(int)(pparticle->color + pdest[0]*256)];
         }
     }
     else if (pix == 2)
-{
-    if (pz[0] <= izi)
+    {
+        if (pz[0] <= izi)
         {
             pz[0] = izi;
             pdest[0] = alpha50map[(int)(pparticle->color + pdest[0]*256)];
@@ -212,12 +211,11 @@ void D_DrawParticle_66_C (particle_t *pparticle) // Manoel Kasimier
 // transform point
     VectorSubtract (pparticle->org, r_origin, local);
 
-    transformed[0] = DotProduct(local, r_pright);
-    transformed[1] = DotProduct(local, r_pup);
     transformed[2] = DotProduct(local, r_ppn);
-
     if (transformed[2] < PARTICLE_Z_CLIP)
         return;
+    transformed[0] = DotProduct(local, r_pright);
+    transformed[1] = DotProduct(local, r_pup);
 
 // project the point
 // FIXME: preadjust xcenter and ycenter
@@ -226,37 +224,37 @@ void D_DrawParticle_66_C (particle_t *pparticle) // Manoel Kasimier
     v = (int)(ycenter - zi * transformed[1] + 0.5);
 
     izi = (int)(zi * 0x8000);
-    d_pix_shift = 8 - (int) ( ( (float) r_refdef.vrect.width) / ( (1.0f / 320.0f) * (float) vid.rowbytes));
-    pix = (double) ( (int) ( (float) izi * fovscale * r_part_scale.value * ( (float) vid.rowbytes / 50.0 )) >> d_pix_shift);
+    d_pix_shift = 8 - (int) ( ( (float) r_refdef.vrect.width) / ( (1.0f / 320.0f) * (float) vid.width));
+    pix = (double) ( (int) ( (float) izi * fovscale * r_part_scale.value * ( (float) vid.width / 50.0 )) >> d_pix_shift);
 
-                     if (pix < d_pix_min)
-                     pix = d_pix_min;
-                     else if (pix > (d_pix_max))
-                         pix = (int)(d_pix_max);
+    if (pix < d_pix_min)
+        pix = d_pix_min;
+    else if (pix > (d_pix_max))
+        pix = (int)(d_pix_max);
 
-                         if ((v > (d_vrectbottom_particle - (pix << d_y_aspect_shift))) ||  // Manoel Kasimier - FOV-based scaling - fixed
-                                 (u > (d_vrectright_particle - pix)) || // Manoel Kasimier - FOV-based scaling - fixed
-                                 (v < d_vrecty) ||
-                                 (u < d_vrectx))
-        {
-            return;
-        }
+    if ((v > (d_vrectbottom_particle - (pix << d_y_aspect_shift))) ||  // Manoel Kasimier - FOV-based scaling - fixed
+            (u > (d_vrectright_particle - pix)) || // Manoel Kasimier - FOV-based scaling - fixed
+            (v < d_vrecty) ||
+            (u < d_vrectx))
+    {
+        return;
+    }
 
-pz = d_pzbuffer + (d_zwidth * v) + u;
-pdest = d_viewbuffer + d_scantable[v] + u;
+    pz = d_pzbuffer + (d_zwidth * v) + u;
+    pdest = d_viewbuffer + d_scantable[v] + u;
 
 // Manoel Kasimier - begin
-if (pix == 1)
-{
-    if (pz[0] <= izi)
+    if (pix == 1)
+    {
+        if (pz[0] <= izi)
         {
             pz[0] = izi;
             pdest[0] = alphamap[(int)(pparticle->color + pdest[0]*256)];
         }
     }
     else if (pix == 2)
-{
-    if (pz[0] <= izi)
+    {
+        if (pz[0] <= izi)
         {
             pz[0] = izi;
             pdest[0] = alphamap[(int)(pparticle->color + pdest[0]*256)];
@@ -299,12 +297,11 @@ void D_DrawParticle_C (particle_t *pparticle) // Manoel Kasimier
 // transform point
     VectorSubtract (pparticle->org, r_origin, local);
 
-    transformed[0] = DotProduct(local, r_pright);
-    transformed[1] = DotProduct(local, r_pup);
     transformed[2] = DotProduct(local, r_ppn);
-
     if (transformed[2] < PARTICLE_Z_CLIP)
         return;
+    transformed[0] = DotProduct(local, r_pright);
+    transformed[1] = DotProduct(local, r_pup);
 
 // project the point
 // FIXME: preadjust xcenter and ycenter
@@ -313,37 +310,37 @@ void D_DrawParticle_C (particle_t *pparticle) // Manoel Kasimier
     v = (int)(ycenter - zi * transformed[1] + 0.5);
 
     izi = (int)(zi * 0x8000);
-    d_pix_shift = 8 - (int) ( ( (float) r_refdef.vrect.width) / ( (1.0f / 320.0f) * (float) vid.rowbytes)); //qb:was vid.width
-    pix = (double) ( (int) ( (float) izi * fovscale * r_part_scale.value * ( (float) vid.rowbytes / 50.0 )) >> d_pix_shift); //qb:was vid.width
+    d_pix_shift = 8 - (int) ( ( (float) r_refdef.vrect.width) / ( (1.0f / 320.0f) * (float) vid.width));
+    pix = (double) ( (int) ( (float) izi * fovscale * r_part_scale.value * ( (float) vid.width / 50.0 )) >> d_pix_shift);
 
-                     if (pix < d_pix_min)
-                     pix = d_pix_min;
-                     else if (pix > (d_pix_max))
-                         pix = (int)(d_pix_max);
+    if (pix < d_pix_min)
+        pix = d_pix_min;
+    else if (pix > (d_pix_max))
+        pix = (int)(d_pix_max);
 
-                         if ((v > (d_vrectbottom_particle - (pix << d_y_aspect_shift))) ||  // Manoel Kasimier - FOV-based scaling - fixed
-                                 (u > (d_vrectright_particle - pix)) || // Manoel Kasimier - FOV-based scaling - fixed
-                                 (v < d_vrecty) ||
-                                 (u < d_vrectx))
-        {
-            return;
-        }
+    if ((v > (d_vrectbottom_particle - (pix << d_y_aspect_shift))) ||  // Manoel Kasimier - FOV-based scaling - fixed
+            (u > (d_vrectright_particle - pix)) || // Manoel Kasimier - FOV-based scaling - fixed
+            (v < d_vrecty) ||
+            (u < d_vrectx))
+    {
+        return;
+    }
 
-pz = d_pzbuffer + (d_zwidth * v) + u;
-pdest = d_viewbuffer + d_scantable[v] + u;
+    pz = d_pzbuffer + (d_zwidth * v) + u;
+    pdest = d_viewbuffer + d_scantable[v] + u;
 
 // Manoel Kasimier - begin
-if (pix == 1)
-{
-    if (pz[0] <= izi)
+    if (pix == 1)
+    {
+        if (pz[0] <= izi)
         {
             pz[0] = izi;
             pdest[0] = pparticle->color;
         }
     }
     else if (pix == 2)
-{
-    if (pz[0] <= izi)
+    {
+        if (pz[0] <= izi)
         {
             pz[0] = izi;
             pdest[0] = pparticle->color;

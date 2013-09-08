@@ -38,13 +38,13 @@ void D_ViewChanged (void)
 
     // Manoel Kasimier - buffered video (bloody hack) - begin
 #ifdef _WIN32
-    rowbytes = vid.width;
+    rowbytes = vid.rowbytes; //qb: was vid.width
 #else
     // Manoel Kasimier - buffered video (bloody hack) - end
     if (r_dowarp)
-        rowbytes = vid.width;//WARP_WIDTH; // Manoel Kasimier - hi-res waterwarp & buffered video - edited
+        rowbytes = vid.rowbytes; //qb: was vid.width//WARP_WIDTH; // Manoel Kasimier - hi-res waterwarp & buffered video - edited
     else
-        rowbytes = vid.rowbytes;
+        rowbytes = vid.rowbytes; //qb: was vid.width
 #endif // Manoel Kasimier - buffered video (bloody hack)
 
     scale_for_mip = xscale;
@@ -75,8 +75,7 @@ void D_ViewChanged (void)
 			r_refdef.vrectbottom;// - (d_pix_max << d_y_aspect_shift); // Manoel Kasimier - FOV-based scaling - fixed
 
     {
-		//Dan: changed to unsigned to shut compiler up
-		unsigned int		i;
+        int		i;
 
         for (i=0 ; i<vid.height; i++)
         {
