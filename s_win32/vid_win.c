@@ -801,7 +801,10 @@ qboolean VID_SetWindowedMode (int modenum)
     WindowRect.top = WindowRect.left = 0;
     WindowRect.right = modelist[modenum].width;
     WindowRect.bottom = modelist[modenum].height;
-    DIBWidth = (modelist[modenum].width>>2)<<2; //qb: power of two
+    if (vid_usingddraw)
+        DIBWidth = modelist[modenum].width;
+    else
+        DIBWidth = (modelist[modenum].width>>2)<<2; //qb: power of two
     DIBHeight = modelist[modenum].height;
     WindowStyle = WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_SYSMENU |
                   WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CLIPSIBLINGS |
@@ -1417,77 +1420,74 @@ void FlipLoop (flipslice_t* fs)
         {
             switch (spancount)
             {
-            case 0:
-                pdst[0] = ddpal[psrc[0]];
             case 1:
-                pdst[1] = ddpal[psrc[1]];
+                pdst[0] = ddpal[psrc[0]];
             case 2:
-                pdst[2] = ddpal[psrc[2]];
+                pdst[1] = ddpal[psrc[1]];
             case 3:
-                pdst[3] = ddpal[psrc[3]];
+                pdst[2] = ddpal[psrc[2]];
             case 4:
-                pdst[4] = ddpal[psrc[4]];
+                pdst[3] = ddpal[psrc[3]];
             case 5:
-                pdst[5] = ddpal[psrc[5]];
+                pdst[4] = ddpal[psrc[4]];
             case 6:
-                pdst[6] = ddpal[psrc[6]];
+                pdst[5] = ddpal[psrc[5]];
             case 7:
-                pdst[7] = ddpal[psrc[7]];
+                pdst[6] = ddpal[psrc[6]];
             case 8:
-                pdst[8] = ddpal[psrc[8]];
+                pdst[7] = ddpal[psrc[7]];
             case 9:
-                pdst[9] = ddpal[psrc[9]];
+                pdst[8] = ddpal[psrc[8]];
             case 10:
-                pdst[10] = ddpal[psrc[10]];
+                pdst[9] = ddpal[psrc[9]];
             case 11:
-                pdst[11] = ddpal[psrc[11]];
+                pdst[10] = ddpal[psrc[10]];
             case 12:
-                pdst[12] = ddpal[psrc[12]];
+                pdst[11] = ddpal[psrc[11]];
             case 13:
-                pdst[13] = ddpal[psrc[13]];
+                pdst[12] = ddpal[psrc[12]];
             case 14:
-                pdst[14] = ddpal[psrc[14]];
+                pdst[13] = ddpal[psrc[13]];
             case 15:
-                pdst[15] = ddpal[psrc[15]];
+                pdst[14] = ddpal[psrc[14]];
             case 16:
-                pdst[16] = ddpal[psrc[16]];
+                pdst[15] = ddpal[psrc[15]];
             case 17:
-                pdst[17] = ddpal[psrc[17]];
+                pdst[16] = ddpal[psrc[16]];
             case 18:
-                pdst[18] = ddpal[psrc[18]];
+                pdst[17] = ddpal[psrc[17]];
             case 19:
-                pdst[19] = ddpal[psrc[19]];
+                pdst[18] = ddpal[psrc[18]];
             case 20:
-                pdst[20] = ddpal[psrc[20]];
+                pdst[19] = ddpal[psrc[19]];
             case 21:
-                pdst[21] = ddpal[psrc[21]];
+                pdst[20] = ddpal[psrc[20]];
             case 22:
-                pdst[22] = ddpal[psrc[22]];
+                pdst[21] = ddpal[psrc[21]];
             case 23:
-                pdst[23] = ddpal[psrc[23]];
+                pdst[22] = ddpal[psrc[22]];
             case 24:
-                pdst[24] = ddpal[psrc[24]];
+                pdst[23] = ddpal[psrc[23]];
             case 25:
-                pdst[25] = ddpal[psrc[25]];
+                pdst[24] = ddpal[psrc[24]];
             case 26:
-                pdst[26] = ddpal[psrc[26]];
+                pdst[25] = ddpal[psrc[25]];
             case 27:
-                pdst[27] = ddpal[psrc[27]];
+                pdst[26] = ddpal[psrc[26]];
             case 28:
-                pdst[28] = ddpal[psrc[28]];
+                pdst[27] = ddpal[psrc[27]];
             case 29:
-                pdst[29] = ddpal[psrc[29]];
+                pdst[28] = ddpal[psrc[28]];
             case 30:
-                pdst[30] = ddpal[psrc[30]];
+                pdst[29] = ddpal[psrc[29]];
             case 31:
-                pdst[31] = ddpal[psrc[31]];
+                pdst[30] = ddpal[psrc[30]];
             }
         }
     }
-    pthread_exit(0);
 }
 
-#define NUMFLIPTHREADS          2  //qb: for multithreaded functions
+#define NUMFLIPTHREADS          4  //qb: for multithreaded functions
 
 #define FLIPTHREADED
 
@@ -1707,12 +1707,12 @@ void FlipScreen (vrect_t *rects)
             BitBlt
             (
                 hdcGDI,
-                rects->x,
+                rects->x+ (rects->width %4) >>1,
                 rects->y,
-                rects->x + rects->width,
+                rects->x + (rects->width >>2)<<2,
                 rects->y + rects->height,
                 hdcDIBSection,
-                rects->x,
+                rects->x + (rects->width %4) >>1,
                 rects->y,
                 SRCCOPY
             );

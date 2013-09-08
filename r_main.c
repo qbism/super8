@@ -1574,7 +1574,6 @@ void FogLoop (fogslice_t* fs)
             noise += 13;
         }
     }
-    pthread_exit(0);
 }
 
 

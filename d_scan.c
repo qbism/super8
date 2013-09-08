@@ -41,8 +41,7 @@ void R_InitTurb (void)
     // mankrip - hi-res waterwarp - begin
     extern cvar_t vid_mode;
     float
-    ideal_width
-    ,   ideal_height
+    ideal_width, ideal_height
     ,   ustep
     ,   uoffset // horizontal offset for the phase
     ,   uamp // horizontal warping amplitude
@@ -150,7 +149,7 @@ void WarpLoop (warpslice_t* ws)
     turb_x = ws->turb_x;
     turb_y = ws->turb_y;
 
-    for (y = ws->rowstart ; y < ws->rowend ; y++, dest += vid.rowbytes)
+    for (y = ws->rowstart ; y < ws->rowend ; y++, dest += vid.width)
     {
         tempdest = dest;
         row = warprow + y;
@@ -271,11 +270,11 @@ void WarpLoop (warpslice_t* ws)
             }
         }
     }
-    pthread_exit(0);
 }
 
 #define NUMWARPTHREADS          4   //qb: for multithreaded functions
 
+#define WARPTHREADED
 
 void D_WarpScreen (void)
 {
@@ -287,6 +286,10 @@ void D_WarpScreen (void)
     static warpslice_t ws[NUMWARPTHREADS];  //qb:  threads
     static pthread_t warpthread[NUMWARPTHREADS];
 
+    static byte  *tempdest;
+    static int  *row, *col, *turb_x_temp;
+    static int count, spancount, y;
+
     R_InitTurb (); // calling this here because vid.recalc_refdef doesn't seem to always be set properly
 
     turb_x = intsintable_x + (int) (timeoffset * uwarpscale);
@@ -294,11 +297,11 @@ void D_WarpScreen (void)
 
     src = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
     dest= r_warpbuffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
-
+#ifdef WARPTHREADED
     for (i=0; i<NUMWARPTHREADS; i++)
     {
         ws[i].src = src;
-        ws[i].dest = dest + vid.rowbytes * i * (r_refdef.vrect.height/NUMWARPTHREADS);
+        ws[i].dest = dest + vid.width * i * (r_refdef.vrect.height/NUMWARPTHREADS);
         ws[i].turb_x = turb_x;
         ws[i].turb_y = turb_y;
         ws[i].rowstart= i*(r_refdef.vrect.height/NUMWARPTHREADS);
@@ -315,6 +318,130 @@ void D_WarpScreen (void)
         pthread_join(warpthread[i], NULL);
     }
     // mankrip - hi-res waterwarp - end
+#else
+
+    for (y = 0 ; y < r_refdef.vrect.height ; y++, dest += vid.rowbytes)
+    {
+        tempdest = dest;
+        row = warprow + y;
+        col = warpcolumn + turb_y[y];
+        turb_x_temp = turb_x;
+        count     = r_refdef.vrect.width >> UNROLL_SPAN_SHIFT; // divided by 32
+        spancount = r_refdef.vrect.width %  UNROLL_SPAN_MAX; // remainder of the above division (min zero, max 32)
+
+        while (count--)
+        {
+            tempdest[31] = src[row[turb_x_temp[31]] + col[31]];
+            tempdest[30] = src[row[turb_x_temp[30]] + col[30]];
+            tempdest[29] = src[row[turb_x_temp[29]] + col[29]];
+            tempdest[28] = src[row[turb_x_temp[28]] + col[28]];
+            tempdest[27] = src[row[turb_x_temp[27]] + col[27]];
+            tempdest[26] = src[row[turb_x_temp[26]] + col[26]];
+            tempdest[25] = src[row[turb_x_temp[25]] + col[25]];
+            tempdest[24] = src[row[turb_x_temp[24]] + col[24]];
+            tempdest[23] = src[row[turb_x_temp[23]] + col[23]];
+            tempdest[22] = src[row[turb_x_temp[22]] + col[22]];
+            tempdest[21] = src[row[turb_x_temp[21]] + col[21]];
+            tempdest[20] = src[row[turb_x_temp[20]] + col[20]];
+            tempdest[19] = src[row[turb_x_temp[19]] + col[19]];
+            tempdest[18] = src[row[turb_x_temp[18]] + col[18]];
+            tempdest[17] = src[row[turb_x_temp[17]] + col[17]];
+            tempdest[16] = src[row[turb_x_temp[16]] + col[16]];
+            tempdest[15] = src[row[turb_x_temp[15]] + col[15]];
+            tempdest[14] = src[row[turb_x_temp[14]] + col[14]];
+            tempdest[13] = src[row[turb_x_temp[13]] + col[13]];
+            tempdest[12] = src[row[turb_x_temp[12]] + col[12]];
+            tempdest[11] = src[row[turb_x_temp[11]] + col[11]];
+            tempdest[10] = src[row[turb_x_temp[10]] + col[10]];
+            tempdest[ 9] = src[row[turb_x_temp[ 9]] + col[ 9]];
+            tempdest[ 8] = src[row[turb_x_temp[ 8]] + col[ 8]];
+            tempdest[ 7] = src[row[turb_x_temp[ 7]] + col[ 7]];
+            tempdest[ 6] = src[row[turb_x_temp[ 6]] + col[ 6]];
+            tempdest[ 5] = src[row[turb_x_temp[ 5]] + col[ 5]];
+            tempdest[ 4] = src[row[turb_x_temp[ 4]] + col[ 4]];
+            tempdest[ 3] = src[row[turb_x_temp[ 3]] + col[ 3]];
+            tempdest[ 2] = src[row[turb_x_temp[ 2]] + col[ 2]];
+            tempdest[ 1] = src[row[turb_x_temp[ 1]] + col[ 1]];
+            tempdest[ 0] = src[row[turb_x_temp[ 0]] + col[ 0]];
+
+            tempdest += UNROLL_SPAN_MAX;
+            turb_x_temp += UNROLL_SPAN_MAX;
+            col += UNROLL_SPAN_MAX;
+        }
+        if (spancount)
+        {
+            switch (spancount)
+            {
+                // from UNROLL_SPAN_MAX to 1
+            case 32:
+                tempdest[31] = src[row[turb_x_temp[31]] + col[31]];
+            case 31:
+                tempdest[30] = src[row[turb_x_temp[30]] + col[30]];
+            case 30:
+                tempdest[29] = src[row[turb_x_temp[29]] + col[29]];
+            case 29:
+                tempdest[28] = src[row[turb_x_temp[28]] + col[28]];
+            case 28:
+                tempdest[27] = src[row[turb_x_temp[27]] + col[27]];
+            case 27:
+                tempdest[26] = src[row[turb_x_temp[26]] + col[26]];
+            case 26:
+                tempdest[25] = src[row[turb_x_temp[25]] + col[25]];
+            case 25:
+                tempdest[24] = src[row[turb_x_temp[24]] + col[24]];
+            case 24:
+                tempdest[23] = src[row[turb_x_temp[23]] + col[23]];
+            case 23:
+                tempdest[22] = src[row[turb_x_temp[22]] + col[22]];
+            case 22:
+                tempdest[21] = src[row[turb_x_temp[21]] + col[21]];
+            case 21:
+                tempdest[20] = src[row[turb_x_temp[20]] + col[20]];
+            case 20:
+                tempdest[19] = src[row[turb_x_temp[19]] + col[19]];
+            case 19:
+                tempdest[18] = src[row[turb_x_temp[18]] + col[18]];
+            case 18:
+                tempdest[17] = src[row[turb_x_temp[17]] + col[17]];
+            case 17:
+                tempdest[16] = src[row[turb_x_temp[16]] + col[16]];
+            case 16:
+                tempdest[15] = src[row[turb_x_temp[15]] + col[15]];
+            case 15:
+                tempdest[14] = src[row[turb_x_temp[14]] + col[14]];
+            case 14:
+                tempdest[13] = src[row[turb_x_temp[13]] + col[13]];
+            case 13:
+                tempdest[12] = src[row[turb_x_temp[12]] + col[12]];
+            case 12:
+                tempdest[11] = src[row[turb_x_temp[11]] + col[11]];
+            case 11:
+                tempdest[10] = src[row[turb_x_temp[10]] + col[10]];
+            case 10:
+                tempdest[ 9] = src[row[turb_x_temp[ 9]] + col[ 9]];
+            case  9:
+                tempdest[ 8] = src[row[turb_x_temp[ 8]] + col[ 8]];
+            case  8:
+                tempdest[ 7] = src[row[turb_x_temp[ 7]] + col[ 7]];
+            case  7:
+                tempdest[ 6] = src[row[turb_x_temp[ 6]] + col[ 6]];
+            case  6:
+                tempdest[ 5] = src[row[turb_x_temp[ 5]] + col[ 5]];
+            case  5:
+                tempdest[ 4] = src[row[turb_x_temp[ 4]] + col[ 4]];
+            case  4:
+                tempdest[ 3] = src[row[turb_x_temp[ 3]] + col[ 3]];
+            case  3:
+                tempdest[ 2] = src[row[turb_x_temp[ 2]] + col[ 2]];
+            case  2:
+                tempdest[ 1] = src[row[turb_x_temp[ 1]] + col[ 1]];
+            case  1:
+                tempdest[ 0] = src[row[turb_x_temp[ 0]] + col[ 0]];
+                break;
+            }
+        }
+   }
+#endif
 
     //qb: copy buffer to video
     src = r_warpbuffer + scr_vrect.y * vid.width + scr_vrect.x;
