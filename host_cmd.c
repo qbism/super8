@@ -28,6 +28,7 @@ cvar_t sv_cheats = {"sv_cheats", "0", "sv_cheats[0/1] Toggles allow server cheat
 qboolean allowcheats = false; //qb: sv_cheat similar to DP
 
 void Mod_Print (void);
+void Host_WriteHelp (void); //qb: write out the help strings
 
 /*
 ==================
@@ -2160,5 +2161,7 @@ void Host_InitCommands (void)
 
     Cmd_AddCommand ("mcache", Mod_Print);
     Cmd_AddCommand ("qcexec", Host_QC_Exec); // FrikaC - qcexec function
+
+    Cmd_AddCommand ("writehelp", Host_WriteHelp);
 
 }

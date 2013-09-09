@@ -76,6 +76,14 @@ typedef enum
 
 extern	cmd_source_t	cmd_source;
 
+//qb: moved here for writehelp
+typedef struct cmd_function_s
+{
+    struct cmd_function_s	*next;
+    char					*name;
+    xcommand_t				function;
+} cmd_function_t;
+
 //qb: qrack begin
 typedef struct direntry_s
 {

@@ -433,14 +433,6 @@ COMMAND EXECUTION
 =============================================================================
 */
 
-typedef struct cmd_function_s
-{
-    struct cmd_function_s	*next;
-    char					*name;
-    xcommand_t				function;
-} cmd_function_t;
-
-
 #define	MAX_ARGS		80
 
 static	int			cmd_argc;
@@ -451,7 +443,7 @@ static	char		*cmd_args = NULL;
 cmd_source_t	cmd_source;
 
 
-static	cmd_function_t	*cmd_functions;		// possible commands to execute
+cmd_function_t	*cmd_functions;		// possible commands to execute
 
 
 /*
