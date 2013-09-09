@@ -22,9 +22,11 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "s_win32/movie_avi.h"
 #endif
 
+extern cmd_function_t	*cmd_functions;
+
 /*
 
-A server can allways be started, even if the system started out as a client
+A server can always be started, even if the system started out as a client
 to a remote system.
 
 A client can NOT be started if the system started as a dedicated server.
@@ -304,6 +306,66 @@ void Host_WriteConfiguration (void)
         fclose (f);
     }
 }
+
+void WriteHelp(FILE *f)
+{
+    cvar_t	*var;
+    cmd_function_t	*cmd;
+
+    fprintf (f, ">>>>>>>>>>> ALL SUPER8 CVARS <<<<<<<<<<<<\n\n");
+    for (var = cvar_vars ; var ; var = var->next)
+    {
+        Cmd_TokenizeString(var->string);
+        fprintf (f, "%s\n", var->helpstring);
+        fprintf (f, "Value: %s   Default: %s   ", var->string, var->defaultstring);
+        if (var->archive)
+            fprintf (f, "Saved in super8.cfg: yes\n\n");
+        else
+            fprintf (f, "Saved in super8.cfg: no\n\n");
+
+    }
+
+    fprintf (f, "\n\n>>>>>>>>>>> ALL SUPER8 COMMANDS <<<<<<<<<<<<\n\n");
+    for (cmd = cmd_functions ; cmd ; cmd = cmd->next)
+    {
+        fprintf (f, "%-24s ", cmd->name);
+        if(cmd->next == NULL)
+            break;
+        cmd = cmd->next;
+        fprintf (f, "%-24s ", cmd->name);
+        if(cmd->next == NULL)
+            break;
+        cmd = cmd->next;
+        fprintf (f, "%-24s\n", cmd->name);
+    }
+
+}
+
+
+void Host_WriteHelp (void)
+{
+    FILE	*f;
+
+    // dedicated servers initialize the host but don't parse and set the
+    // config.cfg cvars
+    if (host_initialized && !isDedicated) // fixed
+    {
+#ifdef FLASH
+        f = as3OpenWriteFile(va("%s/cvarhelp.txt",com_gamedir));
+#else
+        f = fopen (va("%s/cvarhelp.txt",com_gamedir), "wb"); // Manoel Kasimier - config.cfg replacement - edited
+#endif
+
+        if (!f)
+        {
+            Con_Printf ("Couldn't write cvarhelp.txt.\n"); // Manoel Kasimier - config.cfg replacement - edited
+            return;
+        }
+        WriteHelp (f);
+        fclose (f);
+    }
+}
+
 
 
 /*
@@ -936,6 +998,7 @@ void Host_Shutdown(void)
     // keep Con_Printf from trying to update the screen
     scr_disabled_for_loading = true;
     Host_WriteConfiguration ();
+    Host_WriteHelp (); //qb: write cvar helpsrings
     if (con_initialized) History_Shutdown (); //qb: Baker/ezQuake- command history
     BGM_Shutdown(); //qb: QS
     CDAudio_Shutdown ();

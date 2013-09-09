@@ -41,9 +41,9 @@ ddef_t *ED_FieldAtOfs (int ofs);
 qboolean	ED_ParseEpair (void *base, ddef_t *key, char *s);
 
 // 2001-09-14 Enhanced BuiltIn Function System (EBFS) by Maddes  start
-cvar_t	pr_builtin_remap = {"pr_builtin_remap", "0", "pr_builtin_remap[0/1] enable the Enhanced BuiltIn Function System.", false, false};
+cvar_t	pr_builtin_remap = {"pr_builtin_remap", "1", "pr_builtin_remap[0/1] Enable the Enhanced BuiltIn Function System.", false, false};
 // 2001-09-14 Enhanced BuiltIn Function System (EBFS) by Maddes  end
-cvar_t	pr_checkextension = {"pr_checkextension", "0", "pr_checkextension[0/1] Enables qc to check for extensions.", false, false};	// 2001-10-20 Extension System by LordHavoc (DP compatibility)
+cvar_t	pr_checkextension = {"pr_checkextension", "0", "pr_checkextension[0/1] Warning- set internally by the engine. Enable qc check for extensions.", false, false};	// 2001-10-20 Extension System by LordHavoc (DP compatibility)
 cvar_t	nomonsters = {"nomonsters", "0", "nomonsters[0/1] Play without monsters."};
 cvar_t	gamecfg = {"gamecfg", "0", "Used by progs.dat."};
 cvar_t	scratch1 = {"scratch1", "0", "Used by progs.dat."};
