@@ -177,7 +177,7 @@ extern cvar_t	scr_fov; //qb:
 
 void Crosshair_Start (int x, int y);
 void Host_WriteConfiguration (void);
-void Host_WriteHelp (void);
+void Host_WriteDiagnostics (char *status);
 // Manoel Kasimier - end
 
 void (*vid_menudrawfn)(void);
@@ -2235,7 +2235,7 @@ void M_Options_Key (int k)
         case 7+QUICKHACK:
             m_entersound = true;
             Host_WriteConfiguration ();
-            Host_WriteHelp ();
+            Host_WriteDiagnostics ("Report generated during runtime.");
             break;
         case 8+QUICKHACK:
             M_PopUp_f("Do you wish to load the\nsaved settings?", "exec config.cfg\n"); // Manoel Kasimier

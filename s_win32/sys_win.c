@@ -287,13 +287,14 @@ void Sys_Init (void)
 	if ((vinfo.dwMajorVersion < 4) ||
 		(vinfo.dwPlatformId == VER_PLATFORM_WIN32s))
 	{
-		Sys_Error ("WinQuake requires at least Win95 or NT 4.0");
+		Sys_Error ("Super8 requires at least Win95 or NT 4.0");
 	}
 
 	if (vinfo.dwPlatformId == VER_PLATFORM_WIN32_NT)
 		WinNT = true;
 	else
 		WinNT = false;
+		Host_WriteDiagnostics ("Hard crash or abnormal program termination.");
 }
 
 
@@ -315,6 +316,7 @@ void Sys_Error (char *error, ...)
 	{
 		in_sys_error3 = 1;
 	}
+	Host_WriteDiagnostics (error); //qb; write info
 
 	va_start (argptr, error);
 	vsprintf (text, error, argptr);
@@ -363,7 +365,7 @@ void Sys_Error (char *error, ...)
 	if (!in_sys_error1)
 	{
 		in_sys_error1 = 1;
-		Host_Shutdown ();
+		Host_Shutdown (error);
 	}
 
 // shut down QHOST hooks if necessary
@@ -395,7 +397,7 @@ void Sys_Printf (char *fmt, ...)
 
 void Sys_Quit (void)
 {
-	Host_Shutdown();
+	Host_Shutdown("Normal exit.");
 
 	if (tevent)
 		CloseHandle (tevent);
