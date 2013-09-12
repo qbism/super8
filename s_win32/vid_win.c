@@ -323,7 +323,7 @@ void VID_UnloadAllDrivers (void)
 
 
 // prefer to startup with directdraw
-cvar_t vid_ddraw = {"vid_ddraw", "1", "vid_ddraw[0/1] Toggle use direct draw.", true};
+cvar_t vid_ddraw = {"vid_ddraw", "0", "vid_ddraw[0/1] Toggle use direct draw.", true};
 
 // compatibility
 qboolean		DDActive;

@@ -20,6 +20,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "r_local.h"
 #ifdef _WIN32 //qb: jqavi
 #include "s_win32/movie_avi.h"
+#include "version.h"
+#include <windows.h>
 #endif
 
 extern cmd_function_t	*cmd_functions;
@@ -311,20 +313,112 @@ void WriteHelp(FILE *f)
 {
     cvar_t	*var;
     cmd_function_t	*cmd;
+#ifdef WIN32
+    SYSTEM_INFO siSysInfo;
+    OSVERSIONINFO osvi;
+    BOOL bIsWindowsXPorLater;
+    char os_name[100];
 
-    fprintf (f, ">>>>>>>>>>> ALL SUPER8 CVARS <<<<<<<<<<<<\n\n");
+    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+
+    GetVersionEx(&osvi);
+
+    fprintf (f, ">>>>> hardware information: \n");
+
+    // Copy the hardware information to the SYSTEM_INFO structure.
+    GetSystemInfo(&siSysInfo);
+
+    switch (osvi.dwMajorVersion)
+    {
+    case 1:
+    case 2:
+    case 3:
+        strcpy(os_name, "Windows 3.x, NT 3.x, or earlier. (really???)");
+        break;
+
+    case 4:
+        strcpy(os_name, "Windows 95, 98, NT 4, or ME");
+        break;
+    case 5:
+        switch(osvi.dwMinorVersion)
+        {
+        case 0:
+            strcpy(os_name, "Windows 2000");
+            break;
+        case 1:
+            strcpy(os_name, "Windows XP");
+            break;
+        case 2:
+            strcpy(os_name, "Windows XP 64-bit");
+            break;
+        default:
+            strcpy(os_name, "unknown Windows version");
+        }
+        break;
+    case 6:
+        switch(osvi.dwMinorVersion)
+        {
+        case 0:
+            strcpy(os_name, "Windows Vista");
+            break;
+        case 1:
+            strcpy(os_name, "Windows 7");
+            break;
+        case 2:
+            strcpy(os_name, "Windows 8");
+            break;
+        default:
+            strcpy(os_name, "unknown Windows version");
+        }
+        break;
+    default:
+        strcpy(os_name, "unknown Windows version");
+    }
+
+    fprintf(f, "  Operating system: %s. Version number %i.%i\n", os_name, osvi.dwMajorVersion, osvi.dwMinorVersion);
+
+    fprintf(f, "  Processor architecture: ");
+    switch(siSysInfo.wProcessorArchitecture)
+    {
+    case 0:
+        fprintf(f, "Intel x86\n");
+        break;
+    case 6:
+        fprintf(f, "Itanium\n");
+        break;
+    case 9:
+        fprintf(f, "AMD x64\n");
+        break;
+    default:
+       fprintf(f, "unknown\n");
+    }
+     fprintf(f, "  Processor revision: %u\n",
+            siSysInfo.wProcessorRevision);
+     fprintf(f, "  Number of processors: %u\n",
+            siSysInfo.dwNumberOfProcessors);
+    fprintf(f, "  Page size: %u\n", siSysInfo.dwPageSize);
+    fprintf(f, "  Processor type: %u\n\n", siSysInfo.dwProcessorType);
+#endif
+    fprintf (f, ">>>>> graphics information: \n");
+    fprintf (f, "  video mode: %s\n", vid_mode.string);
+    fprintf (f, "  resolution: %i x %i \n", vid.width, vid.height);
+
+    fprintf (f, ">>>>> cvars that have been changed from super8 defaults: \n\n");
     for (var = cvar_vars ; var ; var = var->next)
     {
         Cmd_TokenizeString(var->string);
-        fprintf (f, "%s\n", var->helpstring);
-        fprintf (f, "Value: %s   Default: %s   ", var->string, var->defaultstring);
-        if (var->archive)
-            fprintf (f, "Saved in super8.cfg: yes\n\n");
-        else
-            fprintf (f, "Saved in super8.cfg: no\n\n");
-
+        if(strcmpi(var->string,var->defaultstring))
+        {
+            fprintf (f, "%s\n", var->helpstring);
+            fprintf (f, "Value: %s   Default: %s   ", var->string, var->defaultstring);
+            if (var->archive)
+                fprintf (f, "Saved in super8.cfg: yes\n\n");
+            else
+                fprintf (f, "Saved in super8.cfg: no\n\n");
+        }
     }
-
+/*
     fprintf (f, "\n\n>>>>>>>>>>> ALL SUPER8 COMMANDS <<<<<<<<<<<<\n\n");
     for (cmd = cmd_functions ; cmd ; cmd = cmd->next)
     {
@@ -338,11 +432,11 @@ void WriteHelp(FILE *f)
         cmd = cmd->next;
         fprintf (f, "%-24s\n", cmd->name);
     }
-
+*/
 }
 
 
-void Host_WriteHelp (void)
+void Host_WriteDiagnostics (char *status)
 {
     FILE	*f;
 
@@ -353,14 +447,17 @@ void Host_WriteHelp (void)
 #ifdef FLASH
         f = as3OpenWriteFile(va("%s/cvarhelp.txt",com_gamedir));
 #else
-        f = fopen (va("%s/cvarhelp.txt",com_gamedir), "wb"); // Manoel Kasimier - config.cfg replacement - edited
+        f = fopen (va("%s/S8report.txt",com_gamedir), "wb"); // Manoel Kasimier - config.cfg replacement - edited
 #endif
 
         if (!f)
         {
-            Con_Printf ("Couldn't write cvarhelp.txt.\n"); // Manoel Kasimier - config.cfg replacement - edited
+            Con_Printf ("Couldn't write S8report.txt.\n"); // Manoel Kasimier - config.cfg replacement - edited
             return;
         }
+        fprintf (f, ">>>>>>>>>>> SUPER8 BUILD %s DIAGNOSTICS REPORT <<<<<<<<<<<<\n", BUILDVERSION);
+        fprintf (f, "Time: "__TIME__" "__DATE__"\n\n");
+       fprintf (f, "Status: %s\n\n", status);
         WriteHelp (f);
         fclose (f);
     }
@@ -984,7 +1081,7 @@ FIXME: this is a callback from Sys_Quit and Sys_Error.  It would be better
 to run quit through here before the final handoff to the sys code.
 ===============
 */
-void Host_Shutdown(void)
+void Host_Shutdown(char *status) //qb: pass status to diagnostic
 {
     static qboolean isdown = false;
 
@@ -998,8 +1095,7 @@ void Host_Shutdown(void)
     // keep Con_Printf from trying to update the screen
     scr_disabled_for_loading = true;
     Host_WriteConfiguration ();
-    Host_WriteHelp (); //qb: write cvar helpsrings
-    if (con_initialized) History_Shutdown (); //qb: Baker/ezQuake- command history
+        if (con_initialized) History_Shutdown (); //qb: Baker/ezQuake- command history
     BGM_Shutdown(); //qb: QS
     CDAudio_Shutdown ();
     NET_Shutdown ();
@@ -1010,5 +1106,6 @@ void Host_Shutdown(void)
     {
         VID_Shutdown();
     }
+    Host_WriteDiagnostics (status); //qb: write info for status/ debugging
 }
 

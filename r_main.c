@@ -321,6 +321,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_clcolorweight); //qb:
 //qb:    Cvar_RegisterVariable (&r_colmaprange); //qb:
     Cvar_RegisterVariable (&r_fog); //qb:
+
     Cvar_RegisterVariable (&r_clearcolor);
     Cvar_RegisterVariable (&r_waterwarp);
     Cvar_RegisterVariable (&r_fullbright);
@@ -582,9 +583,9 @@ void GrabFogmap (void) //qb: yet another lookup
     {
         for (c=0 ; c<256 ; c++)
         {
-            r = (host_basepal[c*3]*.95 + host_basepal[l*3]*0.65);
-            g = (host_basepal[c*3+1]*0.95 + host_basepal[l*3+1]*0.65);
-            b = (host_basepal[c*3+2]*0.95 + host_basepal[l*3+2]*0.65);
+            r = host_basepal[c*3]*(1.05+c/700.0) + host_basepal[l*3]*(0.70+l/400.0);
+            g = host_basepal[c*3+1]*(1.05+c/700.0) + host_basepal[l*3+1]*(0.55+l/500.0); //qb: color balance green
+            b = host_basepal[c*3+2]*(1.05+c/700.0) + host_basepal[l*3+2]*(0.70+l/400.0);
             *colmap++ = BestColor(r,g,b, 0, 254);
         }
     }
@@ -1577,8 +1578,8 @@ void FogLoop (fogslice_t* fs)
             for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
             {
                 level = *(pz++);
-                if (level && level<248)
-                    *pbuf = fogmap[*pbuf + fs->vidfog[foglevel[level + fognoise[noise++]]]*256];
+                if (level>0 && level<248)
+                *pbuf = fogmap[*pbuf + fs->vidfog[foglevel[level + fognoise[noise++]]]*256];
                 pbuf++;
             }
             noise += 13;
@@ -1714,13 +1715,15 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
         if(previous_fog_density != fog_density)
             FogLevelInit(); //dither includes density factor, so regenerate when it changes
         previous_fog_density = fog_density;
-        fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
+        //qb:  fogindex calc includes some color correction- brightness, and heavy on green
+        fogindex = 32*256+palmapnofb[(int)(fog_red*32)][(int)(fog_green*32)][(int)(fog_blue*32)];
+        vidfog = vid.colormap+fogindex;
         numthreads = min(thread_fog.value,MAXFOGTHREADS);
         if(numthreads >2)
         {
             for (i=0; i<numthreads; i++)
             {
-                fogs[i].vidfog = vid.colormap+fogindex;
+                fogs[i].vidfog = vidfog;
                 fogs[i].rowstart= r_refdef.vrect.y + i*(r_refdef.vrect.height/numthreads);
                 if (i+1 == numthreads)
                     fogs[i].rowend = r_refdef.vrect.height;
@@ -1736,9 +1739,6 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
         }
         else
         {
-            fogindex = 32*256 + palmapnofb[(int)(fog_red*164)>>3][(int)(fog_green*164) >>3][(int)(fog_blue*164)>>3];
-            vidfog = vid.colormap+fogindex;
-
             for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
             {
                 pbuf = vid.buffer + d_scantable[yref];
@@ -1746,8 +1746,8 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
                 for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
                 {
                     level = *(pz++);
-                    if (level && level<248)
-                        *pbuf = fogmap[*pbuf + vidfog[foglevel[level + fognoise[noise++]]]*256];
+                    if (level>0 && level<248)
+                        *pbuf = fogmap[*pbuf * level + fognoise[noise++]*256];
                     pbuf++;
                 }
                 noise += 13;

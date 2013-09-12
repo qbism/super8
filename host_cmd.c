@@ -28,7 +28,7 @@ cvar_t sv_cheats = {"sv_cheats", "0", "sv_cheats[0/1] Toggles allow server cheat
 qboolean allowcheats = false; //qb: sv_cheat similar to DP
 
 void Mod_Print (void);
-void Host_WriteHelp (void); //qb: write out the help strings
+void Host_WriteDiagnostics (void); //qb: write out the help strings
 
 /*
 ==================
@@ -1068,9 +1068,9 @@ void Host_Version_f (void)
 {
     Con_Printf ("\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n"
                 "\n   \01\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\03"
-               "\02\n   QBISM SERVER BUILD %s"
+               "\02\n   SUPER8 SERVER BUILD %s"
                                   "\n   \07\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\11"
-                                  "\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n", BUILDVERSION);  //qb: changed to integer to match build #
+                                  "\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n", BUILDVERSION);
     Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
 }
 
@@ -2162,6 +2162,6 @@ void Host_InitCommands (void)
     Cmd_AddCommand ("mcache", Mod_Print);
     Cmd_AddCommand ("qcexec", Host_QC_Exec); // FrikaC - qcexec function
 
-    Cmd_AddCommand ("writehelp", Host_WriteHelp);
+    Cmd_AddCommand ("writehelp", Host_WriteDiagnostics);
 
 }
