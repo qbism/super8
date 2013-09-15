@@ -737,7 +737,7 @@ static int d_zistepu_fxp, d_zistepv_fxp, d_ziorigin_fxp;
 static int zistepu_fix;
 
 //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
-void D_DrawSpans16_C (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll = big speed gain!
+void D_DrawSpans16 (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll = big speed gain!
 {
     static int         count, spancount;
     static byte      *pbase, *pdest;
