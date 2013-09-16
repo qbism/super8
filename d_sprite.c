@@ -40,6 +40,10 @@ static short		*pz;
 D_SpriteDrawSpans
 =====================
 */
+//qb: 'generic' version of subdiv16 sprites with code from mh and mankrip leilei post http://forums.inside3d.com/viewtopic.php?t=5268
+
+#define PARALLELCHECK(i) { btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth); if (btemp != 255 && (pz[i] <= IZI))  { pz[i] = IZI; pdest[i] = btemp;} s+=sstep; t+=tstep;}
+#define ORIENTEDCHECK(i) { btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth); if (btemp != 255 && pz[i] <= (izi >> 16)){ pz[i] = izi >> 16; pdest[i] = btemp;} s+=sstep; t+=tstep; izi+=izistep;}
 
 void D_SpriteDrawSpans (sspan_t *pspan)
 {
@@ -51,6 +55,7 @@ void D_SpriteDrawSpans (sspan_t *pspan)
     float		sdivzstepu, tdivzstepu, zistepu;
     byte		btemp;
     short		*pz;
+    msprite_t		*psprite;
 
 
     sstep = 0;	// keep compiler happy
@@ -65,526 +70,306 @@ void D_SpriteDrawSpans (sspan_t *pspan)
 // we count on FP exceptions being turned off to avoid range problems
     izistep = (int)(d_zistepu * 0x8000 * 0x10000);
 
-    do
+    psprite = currententity->model->cache.data;
+    if (psprite->type == SPR_VP_PARALLEL || psprite->type == SPR_VP_PARALLEL_ORIENTED)
     {
-        pdest = (byte *)d_viewbuffer + (screenwidth * pspan->v) + pspan->u;
-        pz = d_pzbuffer + (d_zwidth * pspan->v) + pspan->u;
-
-        // Manoel Kasimier - begin
-        count = pspan->count >> 4;
-        spancount = pspan->count % 16;
-        // Manoel Kasimier - end
-
-        // calculate the initial s/z, t/z, 1/z, s, and t and clamp
-        du = (float)pspan->u;
-        dv = (float)pspan->v;
-
-        sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
-        tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
-        zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-        z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
-        // we count on FP exceptions being turned off to avoid range problems
-        izi = (int)(zi * 0x8000 * 0x10000);
-
-        s = (int)(sdivz * z) + sadjust;
-        if (s > bbextents)
-            s = bbextents;
-        else if (s < 0)
-            s = 0;
-
-        t = (int)(tdivz * z) + tadjust;
-        if (t > bbextentt)
-            t = bbextentt;
-        else if (t < 0)
-            t = 0;
-
-        while (count-- > 0) // Manoel Kasimier
+        do
         {
-            // calculate s/z, t/z, zi->fixed s and t at far end of span,
-            // calculate s and t steps across span by shifting
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-            sdivz += sdivzstepu;
-            tdivz += tdivzstepu;
-            zi += zistepu;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-            z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
+            pdest = (byte *)d_viewbuffer + (screenwidth * pspan->v) + pspan->u;
+            pz = d_pzbuffer + (d_zwidth * pspan->v) + pspan->u;
 
-            snext = (int) (sdivz * z) + sadjust;
-            if (snext > bbextents)
-                snext = bbextents;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-            else if (snext <= 16)
-                snext = 16;   // prevent round-off error on <0 steps causing overstepping & running off the edge of the texture
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+            count = pspan->count >> 4;
+            spancount = pspan->count % 16;
 
-            tnext = (int) (tdivz * z) + tadjust;
-            if (tnext > bbextentt)
-                tnext = bbextentt;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-            else if (tnext < 16)
-                tnext = 16;   // guard against round-off error on <0 steps
+            // calculate the initial s/z, t/z, 1/z, s, and t and clamp
+            du = (float)pspan->u;
+            dv = (float)pspan->v;
 
-            sstep = (snext - s) >> 4;
-            tstep = (tnext - t) >> 4;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+            sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
+            tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
+            zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
+            z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+            // we count on FP exceptions being turned off to avoid range problems
+            izi = (int) (zi * 0x8000 * 0x10000) >> 16;
+#undef IZI
+#define IZI izi
+
+            s = (int)(sdivz * z) + sadjust;
+            if (s > bbextents)
+                s = bbextents;
+            else if (s < 0)
+                s = 0;
+
+            t = (int)(tdivz * z) + tadjust;
+            if (t > bbextentt)
+                t = bbextentt;
+            else if (t < 0)
+                t = 0;
+
+            while (count-- > 0) // Manoel Kasimier
+            {
+
+                sdivz += sdivzstepu;
+                tdivz += tdivzstepu;
+                zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
+                z = (float)0x10000 / zi;
+
+                snext = (int) (sdivz * z) + sadjust;
+                if (snext > bbextents)
+                    snext = bbextents;
+                else if (snext <= 16)
+                    snext = 16;
+
+                tnext = (int) (tdivz * z) + tadjust;
+                if (tnext > bbextentt)
+                    tnext = bbextentt;
+                else if (tnext < 16)
+                    tnext = 16;   // guard against round-off error on <0 steps
+
+                sstep = (snext - s) >> 4;
+                tstep = (tnext - t) >> 4;
+
+                pdest += 16;
+                pz += 16;
+
+                PARALLELCHECK(-16);
+                PARALLELCHECK(-15);
+                PARALLELCHECK(-14);
+                PARALLELCHECK(-13);
+                PARALLELCHECK(-12);
+                PARALLELCHECK(-11);
+                PARALLELCHECK(-10);
+                PARALLELCHECK(-9);
+                PARALLELCHECK(-8);
+                PARALLELCHECK(-7);
+                PARALLELCHECK(-6);
+                PARALLELCHECK(-5);
+                PARALLELCHECK(-4);
+                PARALLELCHECK(-3);
+                PARALLELCHECK(-2);
+                PARALLELCHECK(-1);
+            }
+            if (spancount > 0)
+            {
+                spancountminus1 = (float)(spancount - 1);
+                z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+
+                sdivz += d_sdivzstepu * spancountminus1;
+                tdivz += d_tdivzstepu * spancountminus1;
+                snext = (int)(sdivz * z) + sadjust;
+                if (snext > bbextents)
+                    snext = bbextents;
+                else if (snext < 16)
+                    snext = 16;
+
+                tnext = (int)(tdivz * z) + tadjust;
+                if (tnext > bbextentt)
+                    tnext = bbextentt;
+                else if (tnext < 16)
+                    tnext = 16;
+
+                if (spancount > 1)
+                {
+                    sstep = (snext - s) / (spancount - 1);
+                    tstep = (tnext - t) / (spancount - 1);
+                }
+
+                pdest += spancount;
+                pz += spancount;
+                switch (spancount)
+                {
+                case 16:
+                    PARALLELCHECK(-16);
+                case 15:
+                    PARALLELCHECK(-15);
+                case 14:
+                    PARALLELCHECK(-14);
+                case 13:
+                    PARALLELCHECK(-13);
+                case 12:
+                    PARALLELCHECK(-12);
+                case 11:
+                    PARALLELCHECK(-11);
+                case 10:
+                    PARALLELCHECK(-10);
+                case 9:
+                    PARALLELCHECK(-9);
+                case 8:
+                    PARALLELCHECK(-8);
+                case 7:
+                    PARALLELCHECK(-7);
+                case 6:
+                    PARALLELCHECK(-6);
+                case 5:
+                    PARALLELCHECK(-5);
+                case 4:
+                    PARALLELCHECK(-4);
+                case 3:
+                    PARALLELCHECK(-3);
+                case 2:
+                    PARALLELCHECK(-2);
+                case 1:
+                    PARALLELCHECK(-1);
+                    break;
+                }
+            }
+            pspan++;
+        }
+        while (pspan->count != DS_SPAN_LIST_END);
+    }
+    else
+    {
+        do
+        {
+            pdest = (byte *)d_viewbuffer + (screenwidth * pspan->v) + pspan->u;
+            pz = d_pzbuffer + (d_zwidth * pspan->v) + pspan->u;
 
             // Manoel Kasimier - begin
+            count = pspan->count >> 4;
+            spancount = pspan->count % 16;
+            // Manoel Kasimier - end
 
-            pdest += 16;
-            pz += 16;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-16] <= (izi >> 16))
-                {
-                    pz[-16] = izi >> 16;
-                    pdest[-16] = btemp;
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            }
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-15] <= (izi >> 16))
-                {
-                    pz[-15] = izi >> 16;
-                    pdest[-15] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-14] <= (izi >> 16))
-                {
-                    pz[-14] = izi >> 16;
-                    pdest[-14] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-13] <= (izi >> 16))
-                {
-                    pz[-13] = izi >> 16;
-                    pdest[-13] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-12] <= (izi >> 16))
-                {
-                    pz[-12] = izi >> 16;
-                    pdest[-12] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-11] <= (izi >> 16))
-                {
-                    pz[-11] = izi >> 16;
-                    pdest[-11] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-10] <= (izi >> 16))
-                {
-                    pz[-10] = izi >> 16;
-                    pdest[-10] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-9] <= (izi >> 16))
-                {
-                    pz[-9] = izi >> 16;
-                    pdest[-9] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-8] <= (izi >> 16))
-                {
-                    pz[-8] = izi >> 16;
-                    pdest[-8] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-7] <= (izi >> 16))
-                {
-                    pz[-7] = izi >> 16;
-                    pdest[-7] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-6] <= (izi >> 16))
-                {
-                    pz[-6] = izi >> 16;
-                    pdest[-6] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-5] <= (izi >> 16))
-                {
-                    pz[-5] = izi >> 16;
-                    pdest[-5] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-4] <= (izi >> 16))
-                {
-                    pz[-4] = izi >> 16;
-                    pdest[-4] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-3] <= (izi >> 16))
-                {
-                    pz[-3] = izi >> 16;
-                    pdest[-3] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-2] <= (izi >> 16))
-                {
-                    pz[-2] = izi >> 16;
-                    pdest[-2] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
-            btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-            if (btemp != 255)
-            {
-                if (pz[-1] <= (izi >> 16))
-                {
-                    pz[-1] = izi >> 16;
-                    pdest[-1] = btemp;
-                }
-            }
-            s += sstep;
-            t += tstep;
-            izi += izistep;
+            // calculate the initial s/z, t/z, 1/z, s, and t and clamp
+            du = (float)pspan->u;
+            dv = (float)pspan->v;
 
+            sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
+            tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
+            zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
+            z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+            // we count on FP exceptions being turned off to avoid range problems
+            izi = (int)(zi * 0x8000 * 0x10000);
+
+            s = (int)(sdivz * z) + sadjust;
+            if (s > bbextents)
+                s = bbextents;
+            else if (s < 0)
+                s = 0;
+
+            t = (int)(tdivz * z) + tadjust;
+            if (t > bbextentt)
+                t = bbextentt;
+            else if (t < 0)
+                t = 0;
+
+            while (count-- > 0) // Manoel Kasimier
+            {
+                // calculate s/z, t/z, zi->fixed s and t at far end of span,
+                // calculate s and t steps across span by shifting
+                //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
+                sdivz += sdivzstepu;
+                tdivz += tdivzstepu;
+                zi += zistepu;
+                //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+                z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
+
+                snext = (int) (sdivz * z) + sadjust;
+                if (snext > bbextents)
+                    snext = bbextents;
+                else if (snext <= 16)
+                    snext = 16;   // prevent round-off error on <0 steps causing overstepping & running off the edge of the texture
+
+                tnext = (int) (tdivz * z) + tadjust;
+                if (tnext > bbextentt)
+                    tnext = bbextentt;
+                else if (tnext < 16)
+                    tnext = 16;   // guard against round-off error on <0 steps
+
+                sstep = (snext - s) >> 4;
+                tstep = (tnext - t) >> 4;
+
+                pdest += 16;
+                pz += 16;
+
+                ORIENTEDCHECK(-16);
+                ORIENTEDCHECK(-15);
+                ORIENTEDCHECK(-14);
+                ORIENTEDCHECK(-13);
+                ORIENTEDCHECK(-12);
+                ORIENTEDCHECK(-11);
+                ORIENTEDCHECK(-10);
+                ORIENTEDCHECK(-9);
+                ORIENTEDCHECK(-8);
+                ORIENTEDCHECK(-7);
+                ORIENTEDCHECK(-6);
+                ORIENTEDCHECK(-5);
+                ORIENTEDCHECK(-4);
+                ORIENTEDCHECK(-3);
+                ORIENTEDCHECK(-2);
+                ORIENTEDCHECK(-1);
+            }
+            if (spancount > 0)
+            {
+                // calculate s/z, t/z, zi->fixed s and t at last pixel in span (so can't step off polygon),
+                // clamp, calculate s and t steps across span by division, biasing steps low so we don't run off the texture
+                spancountminus1 = (float)(spancount - 1);
+                sdivz += d_sdivzstepu * spancountminus1;
+                tdivz += d_tdivzstepu * spancountminus1;
+                zi += d_zistepu * spancountminus1;
+                z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
+                snext = (int)(sdivz * z) + sadjust;
+                if (snext > bbextents)
+                    snext = bbextents;
+                else if (snext < 16)
+                    snext = 16;   // prevent round-off error on <0 steps from causing overstepping & running off the edge of the texture
+
+                tnext = (int)(tdivz * z) + tadjust;
+                if (tnext > bbextentt)
+                    tnext = bbextentt;
+                else if (tnext < 16)
+                    tnext = 16;   // guard against round-off error on <0 steps
+
+                if (spancount > 1)
+                {
+                    sstep = (snext - s) / (spancount - 1);
+                    tstep = (tnext - t) / (spancount - 1);
+                }
+
+                pdest += spancount;
+                pz += spancount;
+                switch (spancount)
+                {
+                case 16:
+                    ORIENTEDCHECK(-16);
+                case 15:
+                    ORIENTEDCHECK(-15);
+                case 14:
+                    ORIENTEDCHECK(-14);
+                case 13:
+                    ORIENTEDCHECK(-13);
+                case 12:
+                    ORIENTEDCHECK(-12);
+                case 11:
+                    ORIENTEDCHECK(-11);
+                case 10:
+                    ORIENTEDCHECK(-10);
+                case 9:
+                    ORIENTEDCHECK(-9);
+                case 8:
+                    ORIENTEDCHECK(-8);
+                case 7:
+                    ORIENTEDCHECK(-7);
+                case 6:
+                    ORIENTEDCHECK(-6);
+                case 5:
+                    ORIENTEDCHECK(-5);
+                case 4:
+                    ORIENTEDCHECK(-4);
+                case 3:
+                    ORIENTEDCHECK(-3);
+                case 2:
+                    ORIENTEDCHECK(-2);
+                case 1:
+                    ORIENTEDCHECK(-1);
+                    break;
+                }
+            }
+            pspan++;
         }
-        if (spancount > 0)
-        {
+        while (pspan->count != DS_SPAN_LIST_END);
 
-
-            // calculate s/z, t/z, zi->fixed s and t at last pixel in span (so can't step off polygon),
-            // clamp, calculate s and t steps across span by division, biasing steps low so we don't run off the texture
-            spancountminus1 = (float)(spancount - 1);
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-            sdivz += d_sdivzstepu * spancountminus1;
-            tdivz += d_tdivzstepu * spancountminus1;
-            zi += d_zistepu * spancountminus1;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-            z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
-            snext = (int)(sdivz * z) + sadjust;
-            if (snext > bbextents)
-                snext = bbextents;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-            else if (snext < 16)
-                snext = 16;   // prevent round-off error on <0 steps from causing overstepping & running off the edge of the texture
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-
-            tnext = (int)(tdivz * z) + tadjust;
-            if (tnext > bbextentt)
-                tnext = bbextentt;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-            else if (tnext < 16)
-                tnext = 16;   // guard against round-off error on <0 steps
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-
-            if (spancount > 1)
-            {
-                sstep = (snext - s) / (spancount - 1);
-                tstep = (tnext - t) / (spancount - 1);
-            }
-
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-            //qb: Duff's Device loop unroll per mh.
-            pdest += spancount;
-            switch (spancount)
-            {
-            case 16:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-16] <= (izi >> 16))
-                    {
-                        pz[-16] = izi >> 16;
-                        pdest[-16] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 15:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-15] <= (izi >> 16))
-                    {
-                        pz[-15] = izi >> 16;
-                        pdest[-15] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-
-            case 14:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-14] <= (izi >> 16))
-                    {
-                        pz[-14] = izi >> 16;
-                        pdest[-14] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 13:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-13] <= (izi >> 16))
-                    {
-                        pz[-13] = izi >> 16;
-                        pdest[-13] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 12:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-12] <= (izi >> 16))
-                    {
-                        pz[-12] = izi >> 16;
-                        pdest[-12] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 11:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-11] <= (izi >> 16))
-                    {
-                        pz[-11] = izi >> 16;
-                        pdest[-11] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 10:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-10] <= (izi >> 16))
-                    {
-                        pz[-10] = izi >> 16;
-                        pdest[-10] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 9:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-9] <= (izi >> 16))
-                    {
-                        pz[-9] = izi >> 16;
-                        pdest[-9] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 8:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-8] <= (izi >> 16))
-                    {
-                        pz[-8] = izi >> 16;
-                        pdest[-8] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 7:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-7] <= (izi >> 16))
-                    {
-                        pz[-7] = izi >> 16;
-                        pdest[-7] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 6:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-6] <= (izi >> 16))
-                    {
-                        pz[-6] = izi >> 16;
-                        pdest[-6] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 5:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-5] <= (izi >> 16))
-                    {
-                        pz[-5] = izi >> 16;
-                        pdest[-5] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 4:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-4] <= (izi >> 16))
-                    {
-                        pz[-4] = izi >> 16;
-                        pdest[-4] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 3:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-3] <= (izi >> 16))
-                    {
-                        pz[-3] = izi >> 16;
-                        pdest[-3] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 2:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-2] <= (izi >> 16))
-                    {
-                        pz[-2] = izi >> 16;
-                        pdest[-2] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-            case 1:
-                btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth);
-                if (btemp != 255)
-                {
-                    if (pz[-1] <= (izi >> 16))
-                    {
-                        pz[-1] = izi >> 16;
-                        pdest[-1] = btemp;
-                    }
-                }
-                s += sstep;
-                t += tstep;
-                izi += izistep;
-
-                break;
-            }
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-        }
-        pspan++;
     }
-    while (pspan->count != DS_SPAN_LIST_END);
 }
-
 
 void D_SpriteDrawSpans_66 (sspan_t *pspan) // Manoel Kasimier - transparencies
 {
