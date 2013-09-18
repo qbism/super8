@@ -1,4 +1,4 @@
-c:/CodeBlocks/Bin/svnversion > version.txt
+svnversion > version.txt
 set /p version= < version.txt
 echo #define BUILDVERSION "%version%" > version.h
 

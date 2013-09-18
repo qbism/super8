@@ -24,16 +24,22 @@ static int		sprite_height;
 static int		minindex, maxindex;
 static sspan_t	*sprite_spans;
 
-
-
 static int			count, spancount, izistep;
-static int			izi;
-static byte		*pbase, *pdest;
+static int			izi, u, v;
+static byte		    *pbase, *pdest;
 static fixed16_t	s, t, snext, tnext, sstep, tstep;
 static float		sdivz, tdivz, zi, z, du, dv, spancountminus1;
-static float		sdivz8stepu, tdivz8stepu, zi8stepu;
-static byte		btemp;
+static float		sdivzstepu, tdivzstepu, zistepu;
+static byte		    btemp;
 static short		*pz;
+static msprite_t	*psprite;
+/*
+=====================
+D_SpriteDrawSpans
+=====================
+*/
+//qb: 'generic' version of subdiv16 sprites with code from mh and mankrip leilei post http://forums.inside3d.com/viewtopic.php?t=5268
+
 
 /*
 =====================
@@ -47,19 +53,9 @@ D_SpriteDrawSpans
 
 void D_SpriteDrawSpans (sspan_t *pspan)
 {
-    int			count, spancount, izistep;
-    int			izi;
-    byte		*pbase, *pdest;
-    fixed16_t	s, t, snext, tnext, sstep, tstep;
-    float		sdivz, tdivz, zi, z, du, dv, spancountminus1;
-    float		sdivzstepu, tdivzstepu, zistepu;
-    byte		btemp;
-    short		*pz;
-    msprite_t		*psprite;
 
-
-    sstep = 0;	// keep compiler happy
-    tstep = 0;	// ditto
+    sstep = 0;   // keep compiler happy
+    tstep = 0;   // ditto
 
     pbase = cacheblock;
 
@@ -67,7 +63,7 @@ void D_SpriteDrawSpans (sspan_t *pspan)
     tdivzstepu = d_tdivzstepu * 16;
     zistepu = d_zistepu * 16;
 
-// we count on FP exceptions being turned off to avoid range problems
+    // we count on FP exceptions being turned off to avoid range problems
     izistep = (int)(d_zistepu * 0x8000 * 0x10000);
 
     psprite = currententity->model->cache.data;
@@ -88,7 +84,7 @@ void D_SpriteDrawSpans (sspan_t *pspan)
             sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
             tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
             zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-            z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+            z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
             // we count on FP exceptions being turned off to avoid range problems
             izi = (int) (zi * 0x8000 * 0x10000) >> 16;
 #undef IZI
@@ -152,7 +148,7 @@ void D_SpriteDrawSpans (sspan_t *pspan)
             if (spancount > 0)
             {
                 spancountminus1 = (float)(spancount - 1);
-                z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+                z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
 
                 sdivz += d_sdivzstepu * spancountminus1;
                 tdivz += d_tdivzstepu * spancountminus1;
@@ -236,7 +232,7 @@ void D_SpriteDrawSpans (sspan_t *pspan)
             sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
             tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
             zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-            z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+            z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
             // we count on FP exceptions being turned off to avoid range problems
             izi = (int)(zi * 0x8000 * 0x10000);
 
@@ -367,30 +363,19 @@ void D_SpriteDrawSpans (sspan_t *pspan)
             pspan++;
         }
         while (pspan->count != DS_SPAN_LIST_END);
-
     }
 }
 
 void D_SpriteDrawSpans_66 (sspan_t *pspan) // Manoel Kasimier - transparencies
 {
-    int			count, spancount, izistep;
-    int			izi;
-    byte		*pbase, *pdest;
-    fixed16_t	s, t, snext, tnext, sstep, tstep;
-    float		sdivz, tdivz, zi, z, du, dv, spancountminus1;
-    float		sdivz8stepu, tdivz8stepu, zi8stepu;
-    byte		btemp;
-    short		*pz;
-
-
     sstep = 0;	// keep compiler happy
     tstep = 0;	// ditto
 
     pbase = cacheblock;
 
-    sdivz8stepu = d_sdivzstepu * 8;
-    tdivz8stepu = d_tdivzstepu * 8;
-    zi8stepu = d_zistepu * 8;
+    sdivzstepu = d_sdivzstepu * 8;
+    tdivzstepu = d_tdivzstepu * 8;
+    zistepu = d_zistepu * 8;
 
 // we count on FP exceptions being turned off to avoid range problems
     izistep = (int)(d_zistepu * 0x8000 * 0x10000);
@@ -442,9 +427,9 @@ void D_SpriteDrawSpans_66 (sspan_t *pspan) // Manoel Kasimier - transparencies
             {
                 // calculate s/z, t/z, zi->fixed s and t at far end of span,
                 // calculate s and t steps across span by shifting
-                sdivz += sdivz8stepu;
-                tdivz += tdivz8stepu;
-                zi += zi8stepu;
+                sdivz += sdivzstepu;
+                tdivz += tdivzstepu;
+                zi += zistepu;
                 z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
 
                 snext = (int)(sdivz * z) + sadjust;
@@ -526,24 +511,15 @@ NextSpan:
 
 void D_SpriteDrawSpans_33 (sspan_t *pspan) // Manoel Kasimier - transparencies
 {
-    int			count, spancount, izistep;
-    int			izi;
-    byte		*pbase, *pdest;
-    fixed16_t	s, t, snext, tnext, sstep, tstep;
-    float		sdivz, tdivz, zi, z, du, dv, spancountminus1;
-    float		sdivz8stepu, tdivz8stepu, zi8stepu;
-    byte		btemp;
-    short		*pz;
-
 
     sstep = 0;	// keep compiler happy
     tstep = 0;	// ditto
 
     pbase = cacheblock;
 
-    sdivz8stepu = d_sdivzstepu * 8;
-    tdivz8stepu = d_tdivzstepu * 8;
-    zi8stepu = d_zistepu * 8;
+    sdivzstepu = d_sdivzstepu * 8;
+    tdivzstepu = d_tdivzstepu * 8;
+    zistepu = d_zistepu * 8;
 
 // we count on FP exceptions being turned off to avoid range problems
     izistep = (int)(d_zistepu * 0x8000 * 0x10000);
@@ -595,9 +571,9 @@ void D_SpriteDrawSpans_33 (sspan_t *pspan) // Manoel Kasimier - transparencies
             {
                 // calculate s/z, t/z, zi->fixed s and t at far end of span,
                 // calculate s and t steps across span by shifting
-                sdivz += sdivz8stepu;
-                tdivz += tdivz8stepu;
-                zi += zi8stepu;
+                sdivz += sdivzstepu;
+                tdivz += tdivzstepu;
+                zi += zistepu;
                 z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
 
                 snext = (int)(sdivz * z) + sadjust;

@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "quakedef.h"
 #include "r_local.h"
 
-//#define DITH_RANDS 3947 //qb: number of random floats for fog dithering
+#define DITHER_NUMRANDS 3947 //qb: number of random floats for fog dithering
 
 void MakeMy15to8();
 void ParseWorldspawn (void);
@@ -97,8 +97,9 @@ float	xOrigin, yOrigin;
 mplane_t	screenedge[4];
 
 //qb: move to d_scan.c byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
-int    foglevel[256]; //qb
-int    fognoise[256]; //qb: pseudonoise table
+
+float ditherfog[DITHER_NUMRANDS]; //qb: pseudorandom dither
+
 //
 // refresh flags
 //
@@ -255,26 +256,13 @@ R_Init
 ===============
 */
 
-void FogLevelInit(void)
+void FogDitherInit(void)
 {
-    int i, j;
-    for (i=0; i<32; i++)
-    {
-        j = (int)(i * (1.01-fog_density)*2.5);
-        foglevel[i*8 + 0] = bound(0, j-1 , 31) * 256;
-        foglevel[i*8 + 1] = bound(0, j-2 , 31) * 256;
-        foglevel[i*8 + 2] = bound(0, j-1 , 31) * 256;
-        foglevel[i*8 + 3] = bound(0, j , 31) * 256;
-        foglevel[i*8 + 4] = bound(0, j+1 , 31) * 256;
-        foglevel[i*8 + 5] = bound(0, j+2 , 31) * 256;
-        foglevel[i*8 + 6] = bound(0, j+1 , 31) * 256;
-        foglevel[i*8 + 7] = bound(0, j , 31) * 256;
-    }
-    for (i=0; i<256; i++)
-    {
-        j+=7;
-        fognoise[i]=((i*6+j)%9);
-    }
+    int i;
+    float dfactor;
+    dfactor = max(1.0-fog_density,0.01)* 0.33; //qb: would rather hand-tune this multiplier than make cvar.
+    for (i=0; i<DITHER_NUMRANDS; i++)
+        ditherfog[i] = dfactor + (float)(rand()%10000)/100000.0;
 }
 
 int R_LoadPalette (char *name); //qb: load an alternate palette
@@ -309,7 +297,7 @@ void R_Init (void)
     fog_green = 0.17;
     fog_blue = 0.17;
     srand(8);  //leave nothing to chance.
-    FogLevelInit();
+    FogDitherInit();
     Cvar_RegisterVariable (&r_draworder);
     Cvar_RegisterVariable (&r_speeds);
     Cvar_RegisterVariable (&r_timegraph);
@@ -572,25 +560,22 @@ void GrabAlpha50map (void) //qb: 50% / 50% alpha
     }
 }
 
-
 void GrabFogmap (void) //qb: yet another lookup
 {
     int c,l, r,g,b;
     byte *colmap;
-
     colmap = fogmap;
     for (l=0; l<256; l++)
     {
         for (c=0 ; c<256 ; c++)
         {
-            r = host_basepal[c*3]*(1.05+c/700.0) + host_basepal[l*3]*(0.70+l/400.0);
-            g = host_basepal[c*3+1]*(1.05+c/700.0) + host_basepal[l*3+1]*(0.55+l/500.0); //qb: color balance green
-            b = host_basepal[c*3+2]*(1.05+c/700.0) + host_basepal[l*3+2]*(0.70+l/400.0);
-            *colmap++ = BestColor(r,g,b, 0, 254);
+            r = (host_basepal[c*3] + host_basepal[l*3] + (c/32.0));
+            g = (host_basepal[c*3+1] + host_basepal[l*3+1] + (c/32.0));
+            b = (host_basepal[c*3+2] + host_basepal[l*3+2] + (c/32.0));
+            *colmap++ = BestColor(r,g,b, 0, 254); // High quality color tables get best color
         }
     }
 }
-
 
 void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show through
 {
@@ -1556,34 +1541,35 @@ void R_EdgeDrawing (void)
     R_ScanEdges ();
 }
 
+static int			fogindex;  //qb: fog
+
 typedef struct fogslice_s //qb: for multithreading
 {
     int rowstart, rowend;
-    byte	*vidfog;
 } fogslice_t;
 
 
 void FogLoop (fogslice_t* fs)
 {
     static byte	*pbuf;
-    byte noise;
+    static dither;
     static unsigned short	*pz;
     static int level;
+    static int xref, yref;
+
+    dither = 0;
+    for (yref=fs->rowstart ; yref<fs->rowend; yref++)
     {
-        int xref, yref;
-        for (yref=fs->rowstart ; yref<fs->rowend; yref++)
+        pbuf = vid.buffer + d_scantable[yref];
+        pz = d_pzbuffer + (d_zwidth * yref);
+        for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
         {
-            pbuf = vid.buffer + d_scantable[yref];
-            pz = d_pzbuffer + (d_zwidth * yref);
-            for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
-            {
-                level = *(pz++);
-                if (level>0 && level<248)
-                *pbuf = fogmap[*pbuf + fs->vidfog[foglevel[level + fognoise[noise++]]]*256];
-                pbuf++;
-            }
-            noise += 13;
+            level = (int)(*(pz++) * ditherfog[dither++ % DITHER_NUMRANDS]);
+            if (level > 0 && level < 31)
+                *pbuf = fogmap[*pbuf + (int)vid.colormap[fogindex + level*256]*256];
+            pbuf++;
         }
+
     }
 }
 
@@ -1700,7 +1686,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     R_DrawViewModel (false); // Manoel Kasimier
 
     //qb: originally based on Makaqu fog.  added global fog, dithering, optimizing
-    static int			fogindex, xref, yref;
+    static int			xref, yref;
     static byte		*pbuf, *vidfog;
     static byte        noise;
     static unsigned short		*pz;
@@ -1713,17 +1699,16 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     if (fog_density && r_fog.value) //qb: fog
     {
         if(previous_fog_density != fog_density)
-            FogLevelInit(); //dither includes density factor, so regenerate when it changes
+            FogDitherInit(); //dither includes density factor, so regenerate when it changes
         previous_fog_density = fog_density;
         //qb:  fogindex calc includes some color correction- brightness, and heavy on green
-        fogindex = 32*256+palmapnofb[(int)(fog_red*32)][(int)(fog_green*32)][(int)(fog_blue*32)];
-        vidfog = vid.colormap+fogindex;
+        fogindex = 32*256 + palmapnofb[(int)(fog_red*192)>>3][(int)(fog_green*192) >>3][(int)(fog_blue*192)>>3]; //qb:fractional value, bright fog is harsh
+
         numthreads = min(thread_fog.value,MAXFOGTHREADS);
         if(numthreads >2)
         {
             for (i=0; i<numthreads; i++)
             {
-                fogs[i].vidfog = vidfog;
                 fogs[i].rowstart= r_refdef.vrect.y + i*(r_refdef.vrect.height/numthreads);
                 if (i+1 == numthreads)
                     fogs[i].rowend = r_refdef.vrect.height;
@@ -1747,7 +1732,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
                 {
                     level = *(pz++);
                     if (level>0 && level<248)
-                        *pbuf = fogmap[*pbuf * level + fognoise[noise++]*256];
+                        *pbuf = fogmap[*pbuf + (int)vid.colormap[fogindex + level*256]*256];
                     pbuf++;
                 }
                 noise += 13;
