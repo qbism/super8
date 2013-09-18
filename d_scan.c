@@ -724,48 +724,37 @@ D_DrawSpans
 */
 
 /*==============================================
-// Fixed-point D_DrawSpans
-//PocketQuake- Dan East
-//fixed-point conversion- Jacco Biker
 //unrolled- mh, MK, qbism
 //============================================*/
 
 
-static int sdivzorig, sdivzstepv, sdivzstepu, sdivzstepu_fix;
-static int tdivzorig, tdivzstepv, tdivzstepu, tdivzstepu_fix;
-static int d_zistepu_fxp, d_zistepv_fxp, d_ziorigin_fxp;
-static int zistepu_fix;
+static int          count, spancount;
+static byte         *pbase, *pdest;
+static fixed16_t    s, t, snext, tnext, sstep, tstep;
+static float        sdivz, tdivz, zi, z, du, dv, spancountminus1;
+static float        sdivzstepu, tdivzstepu, zistepu;
+static int		    izi, izistep; // mankrip
+static short		*pz; // mankrip
 
-//qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
+//qbism: pointer to pbase and macroize idea from mankrip
+#define WRITEPDEST(i) { pdest[i] = *(pbase + (s >> 16) + (t >> 16) * cachewidth); s+=sstep; t+=tstep;}
+
 void D_DrawSpans16 (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll = big speed gain!
 {
-    static int         count, spancount;
-    static byte      *pbase, *pdest;
-    static fixed16_t   s, t, snext, tnext, sstep, tstep;
-    static float      sdivz, tdivz, zi, z, du, dv, spancountminus1;
-    static float      sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
-
     sstep = 0;   // keep compiler happy
     tstep = 0;   // ditto
 
     pbase = (byte *)cacheblock;
-
-    //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
     sdivzstepu = d_sdivzstepu * 16;
     tdivzstepu = d_tdivzstepu * 16;
     zistepu = d_zistepu * 16;
-    //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
     do
     {
         pdest = (byte *)((byte *)d_viewbuffer + (screenwidth * pspan->v) + pspan->u);
-
-        // Manoel Kasimier - begin
         count = pspan->count >> 4;
         spancount = pspan->count % 16;
-        // Manoel Kasimier - end
 
-        // calculate the initial s/z, t/z, 1/z, s, and t and clamp
         du = (float)pspan->u;
         dv = (float)pspan->v;
 
@@ -774,132 +763,53 @@ void D_DrawSpans16 (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll = b
         zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
         z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
 
-        s = (int) (sdivz * z) + sadjust;
-        if (s > bbextents)
-            s = bbextents;
-        else if (s < 0)
-            s = 0;
-
-        t = (int) (tdivz * z) + tadjust;
-        if (t > bbextentt)
-            t = bbextentt;
-        else if (t < 0)
-            t = 0;
+        s = bound( 0, (int) (sdivz * z) + sadjust, bbextents);
+        t = bound( 0, (int) (tdivz * z) + tadjust, bbextentt);
 
         while (count-- > 0) // Manoel Kasimier
         {
-            // calculate s/z, t/z, zi->fixed s and t at far end of span,
-            // calculate s and t steps across span by shifting
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             sdivz += sdivzstepu;
             tdivz += tdivzstepu;
             zi += zistepu;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
             z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
 
-            snext = (int) (sdivz * z) + sadjust;
-            if (snext > bbextents)
-                snext = bbextents;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-            else if (snext <= 16)
-                snext = 16;   // prevent round-off error on <0 steps causing overstepping & running off the edge of the texture
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-
-            tnext = (int) (tdivz * z) + tadjust;
-            if (tnext > bbextentt)
-                tnext = bbextentt;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-            else if (tnext < 16)
-                tnext = 16;   // guard against round-off error on <0 steps
+            snext = bound (16, (int) (sdivz * z) + sadjust, bbextents);
+            tnext = bound (16, (int) (tdivz * z) + tadjust, bbextentt);
 
             sstep = (snext - s) >> 4;
             tstep = (tnext - t) >> 4;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-
-            // Manoel Kasimier - begin
             pdest += 16;
-            pdest[-16] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[-15] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[-14] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[-13] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[-12] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[-11] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[-10] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[ -9] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[ -8] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[ -7] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[ -6] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[ -5] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[ -4] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[ -3] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[ -2] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            pdest[ -1] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-            s += sstep;
-            t += tstep;
-            // Manoel Kasimier - end
+
+            WRITEPDEST(-16);
+            WRITEPDEST(-15);
+            WRITEPDEST(-14);
+            WRITEPDEST(-13);
+            WRITEPDEST(-12);
+            WRITEPDEST(-11);
+            WRITEPDEST(-10);
+            WRITEPDEST(-9);
+            WRITEPDEST(-8);
+            WRITEPDEST(-7);
+            WRITEPDEST(-6);
+            WRITEPDEST(-5);
+            WRITEPDEST(-4);
+            WRITEPDEST(-3);
+            WRITEPDEST(-2);
+            WRITEPDEST(-1);
 
             s = snext;
             t = tnext;
-            // Manoel Kasimier - begin
         }
         if (spancount > 0)
         {
-            // Manoel Kasimier - end
-
-            // calculate s/z, t/z, zi->fixed s and t at last pixel in span (so can't step off polygon),
-            // clamp, calculate s and t steps across span by division, biasing steps low so we don't run off the texture
             spancountminus1 = (float)(spancount - 1);
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             sdivz += d_sdivzstepu * spancountminus1;
             tdivz += d_tdivzstepu * spancountminus1;
             zi += d_zistepu * spancountminus1;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
             z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
-            snext = (int)(sdivz * z) + sadjust;
-            if (snext > bbextents)
-                snext = bbextents;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-            else if (snext < 16)
-                snext = 16;   // prevent round-off error on <0 steps from causing overstepping & running off the edge of the texture
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
-            tnext = (int)(tdivz * z) + tadjust;
-            if (tnext > bbextentt)
-                tnext = bbextentt;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-            else if (tnext < 16)
-                tnext = 16;   // guard against round-off error on <0 steps
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+            snext = bound(16, (int)(sdivz * z) + sadjust, bbextents);
+            tnext = bound(16, (int)(tdivz * z) + tadjust, bbextentt);
 
             if (spancount > 1)
             {
@@ -907,80 +817,44 @@ void D_DrawSpans16 (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll = b
                 tstep = (tnext - t) / (spancount - 1);
             }
 
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
-            //qb: Duff's Device loop unroll per mh.
             pdest += spancount;
             switch (spancount)
             {
             case 16:
-                pdest[-16] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-16);
             case 15:
-                pdest[-15] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-15);
             case 14:
-                pdest[-14] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-14);
             case 13:
-                pdest[-13] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-13);
             case 12:
-                pdest[-12] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-12);
             case 11:
-                pdest[-11] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-11);
             case 10:
-                pdest[-10] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-10);
             case  9:
-                pdest[ -9] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-9);
             case  8:
-                pdest[ -8] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-8);
             case  7:
-                pdest[ -7] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-7);
             case  6:
-                pdest[ -6] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-6);
             case  5:
-                pdest[ -5] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-5);
             case  4:
-                pdest[ -4] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-4);
             case  3:
-                pdest[ -3] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-3);
             case  2:
-                pdest[ -2] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-2);
             case  1:
-                pdest[ -1] = pbase[(s >> 16) + (t >> 16) * cachewidth];
-                s += sstep;
-                t += tstep;
+                WRITEPDEST(-1);
                 break;
             }
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
         }
-
     }
     while ( (pspan = pspan->pnext) != NULL);
 }
@@ -990,13 +864,6 @@ void D_DrawSpans16 (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll = b
 
 void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
 {
-    static int			count, spancount;
-    static byte		    *pbase, *pdest;
-    static fixed16_t	s, t, snext, tnext, sstep, tstep;
-    static float		sdivz, tdivz, zi, z, du, dv, spancountminus1; // zi = z interpolation?; du = decimal u; dv = decimal v
-    static float		sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
-    static int			izi, izistep; // mankrip
-    static short		*pz; // mankrip
 
     sstep = 0;	// keep compiler happy
     tstep = 0;	// ditto
@@ -1272,16 +1139,9 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
     while ((pspan = pspan->pnext) != NULL);
 }
 
+
 void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
 {
-    static int			count, spancount;
-    static byte		    *pbase, *pdest;
-    static fixed16_t	s, t, snext, tnext, sstep, tstep;
-    static float		sdivz, tdivz, zi, z, du, dv, spancountminus1; // zi = z interpolation?; du = decimal u; dv = decimal v
-    static float		sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
-    static int			izi, izistep; // mankrip
-    static short		*pz; // mankrip
-
     sstep = 0;	// keep compiler happy
     tstep = 0;	// ditto
 
@@ -1557,17 +1417,8 @@ void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
 }
 
 
-
 void D_DrawSpans16_BlendBackwards (espan_t *pspan)
 {
-    static int			count, spancount;
-    static byte		    *pbase, *pdest;
-    static fixed16_t	s, t, snext, tnext, sstep, tstep;
-    static float		sdivz, tdivz, zi, z, du, dv, spancountminus1; // zi = z interpolation?; du = decimal u; dv = decimal v
-    static float		sdivzstepu, tdivzstepu, zistepu; //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 )
-    static int			izi, izistep; // mankrip
-    static short		*pz; // mankrip
-
     sstep = 0;	// keep compiler happy
     tstep = 0;	// ditto
 
@@ -1841,7 +1692,6 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
     }
     while ((pspan = pspan->pnext) != NULL);
 }
-
 
 
 
