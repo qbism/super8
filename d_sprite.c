@@ -48,7 +48,7 @@ D_SpriteDrawSpans
 */
 //qb: 'generic' version of subdiv16 sprites with code from mh and mankrip leilei post http://forums.inside3d.com/viewtopic.php?t=5268
 
-#define PARALLELCHECK(i) { btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth); if (btemp != 255 && (pz[i] <= IZI))  { pz[i] = IZI; pdest[i] = btemp;} s+=sstep; t+=tstep;}
+#define PARALLELCHECK(i) { btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth); if (btemp != 255 && (pz[i] <= izi))  { pz[i] = izi; pdest[i] = btemp;} s+=sstep; t+=tstep;}
 #define ORIENTEDCHECK(i) { btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth); if (btemp != 255 && pz[i] <= (izi >> 16)){ pz[i] = izi >> 16; pdest[i] = btemp;} s+=sstep; t+=tstep; izi+=izistep;}
 
 void D_SpriteDrawSpans (sspan_t *pspan)
@@ -69,6 +69,11 @@ void D_SpriteDrawSpans (sspan_t *pspan)
     psprite = currententity->model->cache.data;
     if (psprite->type == SPR_VP_PARALLEL || psprite->type == SPR_VP_PARALLEL_ORIENTED)
     {
+        zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
+        z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
+        // we count on FP exceptions being turned off to avoid range problems
+        izi = (int) (zi * 0x8000 * 0x10000) >> 16;
+
         do
         {
             pdest = (byte *)d_viewbuffer + (screenwidth * pspan->v) + pspan->u;
@@ -83,12 +88,6 @@ void D_SpriteDrawSpans (sspan_t *pspan)
 
             sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
             tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
-            zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-            z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
-            // we count on FP exceptions being turned off to avoid range problems
-            izi = (int) (zi * 0x8000 * 0x10000) >> 16;
-#undef IZI
-#define IZI izi
 
             s = (int)(sdivz * z) + sadjust;
             if (s > bbextents)
@@ -107,8 +106,6 @@ void D_SpriteDrawSpans (sspan_t *pspan)
 
                 sdivz += sdivzstepu;
                 tdivz += tdivzstepu;
-                zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-                z = (float)0x10000 / zi;
 
                 snext = (int) (sdivz * z) + sadjust;
                 if (snext > bbextents)
@@ -148,10 +145,9 @@ void D_SpriteDrawSpans (sspan_t *pspan)
             if (spancount > 0)
             {
                 spancountminus1 = (float)(spancount - 1);
-                z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
-
                 sdivz += d_sdivzstepu * spancountminus1;
                 tdivz += d_tdivzstepu * spancountminus1;
+
                 snext = (int)(sdivz * z) + sadjust;
                 if (snext > bbextents)
                     snext = bbextents;
