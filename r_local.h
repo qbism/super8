@@ -252,7 +252,7 @@ void R_PushDlights (struct mnode_s *headnode); //qb: moved from render.h
 
 extern int		r_amodels_drawn;
 extern edge_t	*auxedges;
-extern int		r_numallocatededges;
+extern unsigned int		r_numallocatededges;
 extern edge_t	*r_edges, *edge_p, *edge_max;
 
 extern	edge_t	*newedges[MAXHEIGHT];
@@ -282,7 +282,7 @@ extern float	r_time1;
 extern float	dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
 extern float	se_time1, se_time2, de_time1, de_time2, dv_time1, dv_time2;
 extern int		r_frustum_indexes[4*6];
-extern int		r_maxsurfsseen, r_maxedgesseen, r_cnumsurfs;
+extern unsigned int		r_maxsurfsseen, r_maxedgesseen, r_cnumsurfs;
 extern qboolean	r_surfsonstack;
 extern cshift_t	cshift_water;
 extern qboolean	r_dowarpold, r_viewchanged;

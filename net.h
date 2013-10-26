@@ -29,7 +29,7 @@ struct qsockaddr
 
 #define	NET_NAMELEN			64
 
-#define NET_MAXMESSAGE		32767 //qb: 65535 per qsb, was 8192
+#define NET_MAXMESSAGE		65535 //qb: 65535 per qsb, was 8192
 #define NET_HEADERSIZE		(2 * sizeof(unsigned int))
 #define NET_DATAGRAMSIZE	(MAX_DATAGRAM + NET_HEADERSIZE)
 
@@ -136,7 +136,7 @@ typedef struct qsocket_s
 	unsigned int	ackSequence;
 	unsigned int	sendSequence;
 	unsigned int	unreliableSendSequence;
-	int				sendMessageLength;
+	unsigned int				sendMessageLength;
 	byte			sendMessage [NET_MAXMESSAGE];
 
 	unsigned int	receiveSequence;

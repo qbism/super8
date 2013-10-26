@@ -328,7 +328,7 @@ cvar_t vid_ddraw = {"vid_ddraw", "0", "vid_ddraw[0/1] Toggle use direct draw.", 
 // compatibility
 qboolean		DDActive;
 
-#define MAX_MODE_LIST	18 //qb: this many will fit on menu, I think
+#define MAX_MODE_LIST	24 //qb: this many will fit on menu, I think
 #define VID_ROW_SIZE	3
 #define VID_WINDOWED_MODES 3 //qb
 
@@ -718,8 +718,8 @@ void VID_GetDisplayModes (void)
 
         if ((devmode.dmPelsWidth <= MAXWIDTH) &&
                 (devmode.dmPelsHeight <= MAXHEIGHT) &&
-                (devmode.dmPelsWidth >= 640) && //qb: was 640
-                (devmode.dmPelsHeight >= 360) && //qb: was 480
+                (devmode.dmPelsWidth >= min_vid_width) && //qb: was 640
+                (devmode.dmPelsHeight >= min_vid_height) && //qb: was 480
                 (nummodes < MAX_MODE_LIST))
         {
             devmode.dmFields = DM_BITSPERPEL |
@@ -757,7 +757,7 @@ void VID_GetDisplayModes (void)
                     if (modelist[nummodes].width > highestres)
                     {
                         highestres = modelist[nummodes].width;
-                        vid_nativeaspect = modelist[nummodes].width/modelist[nummodes].height;
+                        vid_nativeaspect = ((float) modelist[nummodes].width)/ (float)modelist[nummodes].height;
                     }
                     nummodes++;
                 }
@@ -806,7 +806,7 @@ qboolean VID_SetWindowedMode (int modenum)
     if (vid_usingddraw)
         DIBWidth = modelist[modenum].width;
     else
-        DIBWidth = (modelist[modenum].width>>2)<<2; //qb: power of two
+        DIBWidth = ((int)modelist[modenum].width/4)* 4; //qb: dib only handles multiples of 4. Otherwise, pad it.  1366 res for example.
     DIBHeight = modelist[modenum].height;
     WindowStyle = WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_SYSMENU |
                   WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_CLIPSIBLINGS |
@@ -913,7 +913,7 @@ qboolean VID_SetFullDIBMode (int modenum)
     WindowRect.right = modelist[modenum].width;
     WindowRect.bottom = modelist[modenum].height;
 
-    DIBWidth = modelist[modenum].width;
+    DIBWidth = ((int)modelist[modenum].width /4) *4; //qb: multiple of 4
     DIBHeight = modelist[modenum].height;
 
     WindowStyle = WS_POPUP | WS_SYSMENU | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
@@ -1710,12 +1710,12 @@ void FlipScreen (vrect_t *rects)
             BitBlt
             (
                 hdcGDI,
-                rects->x+ (rects->width %4) >>1,
+                rects->x+(rects->width %4) /2,
                 rects->y,
-                rects->x + (rects->width >>2)<<2,
+                rects->x + (rects->width /4)*4,
                 rects->y + rects->height,
                 hdcDIBSection,
-                rects->x + (rects->width %4) >>1,
+                rects->x+(rects->width %4) /2,
                 rects->y,
                 SRCCOPY
             );
@@ -2230,7 +2230,7 @@ typedef struct
     int		width;
 } modedesc_t;
 
-#define MAX_COLUMN_SIZE		5
+#define MAX_COLUMN_SIZE		7  //qb: was 5
 #define MODE_AREA_HEIGHT	(MAX_COLUMN_SIZE + 6)
 #define MAX_MODEDESCS		(MAX_COLUMN_SIZE*3)
 
@@ -2331,7 +2331,7 @@ void VID_MenuDraw (void)
 
     M_Print (7 * 8, 36, "Windowed Modes       custom:");
     column = 16;
-    row = 36 + 2 * 8;
+    row = 36 + 1 * 8;  //qb: save a row, was 1 * 8
 
     for (i = 0; i < 3; i++)
     {
@@ -2345,9 +2345,9 @@ void VID_MenuDraw (void)
 
     if (vid_wmodes > 3)
     {
-        M_Print (12 * 8, 36 + 4 * 8, "Fullscreen Modes");
+        M_Print (12 * 8, 36 + 3 * 8, "Fullscreen Modes");
         column = 16;
-        row = 36 + 6 * 8;
+        row = 36 + 4 * 8;  //qb: was 6 * 8, save a couple rows for more modes.
 
         for (i = 3; i < vid_wmodes; i++)
         {
@@ -2379,14 +2379,14 @@ void VID_MenuDraw (void)
     {
         M_Print (9 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8,
                  "Press Enter to set mode");
-        M_Print (6 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 3,
+        M_Print (6 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 2,
                  "T to test mode for 5 seconds");
         ptr = VID_GetModeDescription2 (vid_modenum);
 
         if (ptr)
         {
             sprintf (temp, "D to set default: %s", ptr);
-            M_Print (2 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 5, temp);
+            M_Print (2 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 4, temp);
         }
 
         ptr = VID_GetModeDescription2 ((int) vid_default_mode_win.value);
@@ -2394,16 +2394,16 @@ void VID_MenuDraw (void)
         if (ptr)
         {
             sprintf (temp, "Current default: %s", ptr);
-            M_Print (3 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 6, temp);
+            M_Print (3 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 5, temp);
         }
 
-        M_Print (15 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 8,
+        M_Print (15 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 7,
                  "Esc to exit");
-        row = 36 + 2 * 8 + (vid_line / VID_ROW_SIZE) * 8;
+        row = 36 + 1 * 8 + (vid_line / VID_ROW_SIZE) * 8; //qb: was 36 + 2 * 8, more rows.
         column = 8 + (vid_line % VID_ROW_SIZE) * 13 * 8;
 
         if (vid_line >= 3)
-            row += 3 * 8;
+            row += 2 * 8;  //qb: was 3 * 8; more rows
 
         M_DrawCharacter (column, row, 12 + ((int) (realtime * 4) & 1), false);
     }

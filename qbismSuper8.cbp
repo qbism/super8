@@ -17,7 +17,6 @@
 				<Option compiler="mingw32" />
 				<Option parameters=" -heapsize 64000 -map start" />
 				<Compiler>
-					<Add option="-pg" />
 					<Add option="-g" />
 					<Add option="-DWIN32" />
 					<Add option="-D_WINDOWS" />
@@ -30,9 +29,6 @@
 				<ResourceCompiler>
 					<Add directory="./dxsdk/sdk/inc" />
 				</ResourceCompiler>
-				<Linker>
-					<Add option="-pg -lgmon" />
-				</Linker>
 			</Target>
 			<Target title="Release Win32">
 				<Option output="../../quake/qbismS8" prefix_auto="1" extension_auto="1" />
