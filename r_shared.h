@@ -70,7 +70,7 @@ extern	entity_t		*currententity;
 #define	MINEDGES			NUMSTACKEDGES
 #define NUMSTACKSURFACES	8192  //qb: 8192 per qsb - was 800
 #define MINSURFACES			NUMSTACKSURFACES
-#define	MAXSPANS			8000 //qb: was 3000.
+#define	MAXSPANS			8192 //qb: was 3000.
 
 typedef struct espan_s
 {

@@ -33,7 +33,7 @@ void		*colormap;
 //vec3_t		viewlightvec; // Manoel Kasimier - changed alias models lighting - removed
 //alight_t	r_viewlighting = {128, 192, viewlightvec}; // Manoel Kasimier - changed alias models lighting - removed
 float		r_time1;
-int			r_numallocatededges;
+unsigned int			r_numallocatededges;
 //qb: remove     qboolean	r_drawpolys;
 //qb: remove     qboolean	r_drawculledpolys;
 //qb: remove     qboolean	r_worldpolysbacktofront;
@@ -50,7 +50,7 @@ btofpoly_t	*pbtofpolys;
 mvertex_t	*r_pcurrentvertbase;
 
 int			c_surf;
-int			r_maxsurfsseen, r_maxedgesseen, r_cnumsurfs;
+unsigned int	r_maxsurfsseen, r_maxedgesseen, r_cnumsurfs;
 qboolean	r_surfsonstack;
 int			r_clipflags;
 
@@ -167,10 +167,10 @@ cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", "r_clcolorweight[0.0 - 1.0] I
 cvar_t r_fog = {"r_fog", "1", "r_fog[0/1] Toggle rendering of fog.", true}; //qb:  draw fog?
 
 cvar_t	r_reportsurfout = {"r_reportsurfout", "0", "r_reportsurfout[0/1] Toggle report of surfaces dropped because > r_maxsurfs."};
-cvar_t	r_maxsurfs = {"r_maxsurfs", "0", "r_maxsurfs[value] Sets the maximum number of surfaces. Setting take effect on map restart."};
+cvar_t	r_maxsurfs = {"r_maxsurfs", "63000", "r_maxsurfs[value] Sets the maximum number of surfaces. Setting take effect on map restart."};
 cvar_t	r_numsurfs = {"r_numsurfs", "0", "r_numsurfs[0/1] Toggles display of number of surfaces in current view."};
 cvar_t	r_reportedgeout = {"r_reportedgeout", "0", "r_reportedgeout[0/1] Toggle report of edges dropped because > r_maxedges."};
-cvar_t	r_maxedges = {"r_maxedges", "0", "r_maxedges[value] Sets the maximum number of edges. Setting take effect on map restart."};
+cvar_t	r_maxedges = {"r_maxedges", "63000", "r_maxedges[value] Sets the maximum number of edges. Setting take effect on map restart."};
 cvar_t	r_numedges = {"r_numedges", "0", "r_numedges[0/1] Toggles display of number of surfaces in current view."};
 
 //cvar_t	r_letterbox = {"r_letterbox","0"}; // Manoel Kasimier - r_letterbox
@@ -362,9 +362,6 @@ void R_Init (void)
     Cvar_RegisterVariable(&thread_warp);
     Cvar_RegisterVariable(&thread_flip);
     Cvar_RegisterVariable(&thread_fog);
-
-    Cvar_SetValue ("r_maxedges", (float) 100000); //NUMSTACKEDGES //qb: was 60000
-    Cvar_SetValue ("r_maxsurfs", (float) 100000); //NUMSTACKSURFACES //qb: was 60000
 
     view_clipplanes[0].leftedge = true;
     view_clipplanes[1].rightedge = true;
@@ -931,14 +928,15 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj)
     if(r_fisheye.value)
     {
         pixelAspect = (float)r_refdef.vrect.height/(float)r_refdef.vrect.width;
-        screenAspect = r_refdef.vrect.width*pixelAspect /r_refdef.vrect.height;
+        screenAspect = (float)(r_refdef.vrect.width*pixelAspect) /(float)r_refdef.vrect.height;
     }
     else
     {
-        pixelAspect = 1/vid_nativeaspect; //qb Lavent correction
+        pixelAspect = vid_nativeaspect/((float)(r_refdef.vrect.width) /(float)(r_refdef.vrect.height)); //qb Lavent correction
         if(vid_windowed_mode.value)
             screenAspect = 1;
-        else screenAspect = r_refdef.vrect.width*pixelAspect /r_refdef.vrect.height;
+        else
+            screenAspect = ((float)r_refdef.vrect.width)*pixelAspect /(float)r_refdef.vrect.height;
     }
     xOrigin = r_refdef.xOrigin;
     yOrigin = r_refdef.yOrigin;

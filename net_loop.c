@@ -151,7 +151,7 @@ int Loop_GetMessage (qsocket_t *sock)
 int Loop_SendMessage (qsocket_t *sock, sizebuf_t *data)
 {
     byte *buffer;
-    int  *bufferLength;
+    unsigned int  *bufferLength;
 
     if (!sock->driverdata)
         return -1;

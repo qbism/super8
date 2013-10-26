@@ -324,7 +324,7 @@ void WriteHelp(FILE *f)
 
     GetVersionEx(&osvi);
 
-    fprintf (f, ">>>>> hardware information: \n");
+    fprintf (f, ">>>>> system information: \n");
 
     // Copy the hardware information to the SYSTEM_INFO structure.
     GetSystemInfo(&siSysInfo);
@@ -334,7 +334,7 @@ void WriteHelp(FILE *f)
     case 1:
     case 2:
     case 3:
-        strcpy(os_name, "Windows 3.x, NT 3.x, or earlier. (really???)");
+        strcpy(os_name, "Windows 3.x, NT 3.x, or earlier. (really?)");
         break;
 
     case 4:
@@ -400,11 +400,11 @@ void WriteHelp(FILE *f)
     fprintf(f, "  Page size: %u\n", siSysInfo.dwPageSize);
     fprintf(f, "  Processor type: %u\n\n", siSysInfo.dwProcessorType);
 #endif
-    fprintf (f, ">>>>> graphics information: \n");
+    fprintf (f, ">>>>> graphics: \n");
     fprintf (f, "  video mode: %s\n", vid_mode.string);
-    fprintf (f, "  resolution: %i x %i \n", vid.width, vid.height);
+    fprintf (f, "  resolution: %i x %i \n\n", vid.width, vid.height);
 
-    fprintf (f, ">>>>> cvars that have been changed from super8 defaults: \n\n");
+    fprintf (f, ">>>>> cvars that are different from super8 defaults: \n");
     for (var = cvar_vars ; var ; var = var->next)
     {
         Cmd_TokenizeString(var->string);
