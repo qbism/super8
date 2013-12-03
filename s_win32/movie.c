@@ -105,8 +105,11 @@ void Movie_Start_f (void)
             return;
         }
     }
-
     movie_is_capturing = Capture_Open (path);
+    if (movie_is_capturing)
+        Con_Printf("Capturing video %s\n", path);
+    else
+        Con_Printf("Movie_Start_f: Movie capture open failed.\n");
  }
 
 void Movie_Stop (void)
@@ -154,14 +157,19 @@ void Movie_CaptureDemo_f (void)  //qb: with additional enhancement from FQ Mark 
 
     CL_PlayDemo_f ();
     if (!cls.demoplayback)
+    {
+        Con_Printf("Movie_CaptureDemo_f: demoplayback = false.\n");
         return;
-
+    }
     Movie_Start_f ();
     cls.capturedemo = true;
 
     if (!movie_is_capturing)
+    {
         Movie_StopPlayback ();
-    Host_Stopdemo_f ();
+        Con_Printf("Movie_CaptureDemo_f: movie_is_capturing = false.\n");
+     }
+  //qb: why is this here? Host_Stopdemo_f ();
 }
 
 void Movie_Init (void)
@@ -190,8 +198,7 @@ void Movie_Init (void)
 }
 
 void Movie_StopPlayback (void)
-{
-    if (!cls.capturedemo)
+{    if (!cls.capturedemo)
         return;
 
     cls.capturedemo = false;
