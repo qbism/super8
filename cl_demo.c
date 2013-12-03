@@ -302,7 +302,7 @@ int CL_GetMessage (void)
             {
                 ch = demo_head[0] + demo_head_size[0];
                 *ch++ = svc_print;
-                ch += 1 + sprintf(ch, "\02\n   demo recorded with QBISM BUILD %s", BUILDVERSION);
+                ch += 1 + sprintf(ch, "\02\n   demo recorded with SUPER8 BUILD %s\n", BUILDVERSION);
                 demo_head_size[0] = ch - (char *) demo_head[0];
             }
         }
