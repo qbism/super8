@@ -485,7 +485,7 @@ void SCR_DrawLoading (void)
         return;
 
     pic = Draw_CachePic ("gfx/loading.lmp");
-    M_DrawTransPic ( (min_vid_width - pic->width) / 2, (min_vid_height - pic->height - (float)sb_lines / scr_2d_scale_v) / 2, pic, false);
+    M_DrawTransPic ( (MIN_VID_WIDTH - pic->width) / 2, (MIN_VID_HEIGHT - pic->height - (float)sb_lines / scr_2d_scale_v) / 2, pic, false);
 }
 
 

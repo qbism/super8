@@ -794,6 +794,8 @@ void V_CalcRefdef (void)
     vec3_t		angles;
     float		bob;
     static float oldz = 0;
+    vec3_t kickangle; //qb- v_gunkick from directq
+
 
     V_DriftPitch ();
 
@@ -891,7 +893,6 @@ void V_CalcRefdef (void)
     view->colormap = vid.colormap;
 
     // set up the refresh position
-    vec3_t kickangle; //qb- v_gunkick from directq
     VectorScale (cl.punchangle, v_gunkick.value, kickangle);
     if (v_gunkick.value) VectorAdd (r_refdef.viewangles, kickangle, r_refdef.viewangles);
 

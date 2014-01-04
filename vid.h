@@ -19,8 +19,10 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define VID_CBITS	6
 #define VID_GRADES	(1 << VID_CBITS)
 
-// a pixel can be one, two, or four bytes
-typedef byte pixel_t;
+#define MIN_VID_WIDTH 360 //qb: change to define
+#define MIN_VID_HEIGHT 200
+
+//qb: replace all with byte.  typedef byte pixel_t;
 
 typedef struct vrect_s
 {
@@ -28,11 +30,11 @@ typedef struct vrect_s
 	struct vrect_s	*pnext;
 } vrect_t;
 
-extern	pixel_t colormap_cel[256*COLORLEVELS]; // Manoel Kasimier - EF_CELSHADING
+extern	byte colormap_cel[256*COLORLEVELS]; // Manoel Kasimier - EF_CELSHADING
 typedef struct
 {
-	pixel_t			*buffer;		// invisible buffer
-	pixel_t			*colormap;		// 256 * VID_GRADES size
+	byte			*buffer;		// invisible buffer
+	byte			*colormap;		// 256 * VID_GRADES size
 	unsigned short	*colormap16;	// 256 * VID_GRADES size
 	int				fullbright;		// index of first fullbright color
 	int     		rowbytes;	// may be > width if displayed in a window //qb: signed per szo
@@ -41,13 +43,13 @@ typedef struct
 	//qb: replace with cvar.    float aspect;		// width / height -- < 1 is taller than wide
 	int				numpages;
 	int				recalc_refdef;	// if true, recalc vid-based stuff
-	pixel_t			*conbuffer;
+	byte			*conbuffer;
 	int				conrowbytes;
 	unsigned		conwidth;
 	unsigned		conheight;
 	int				maxwarpwidth;
 	int				maxwarpheight;
-	pixel_t			*direct;		// direct drawing to framebuffer, if not NULL
+	byte			*direct;		// direct drawing to framebuffer, if not NULL
 	//qboolean    bottomup; //qb: debugging
 } viddef_t;
 

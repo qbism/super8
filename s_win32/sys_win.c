@@ -20,7 +20,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "winquake.h"
 #include "errno.h"
 #include "resource.h"
-#include "../conproc.h"
+#include "conproc.h"
 
 #define MINIMUM_WIN_MEMORY		0x0880000
 #define MAXIMUM_WIN_MEMORY		0x4000000  // qb: was 0x1000000 (16MB)

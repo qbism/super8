@@ -15,24 +15,28 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
 #include "quakedef.h"
+#ifdef _OPENWATCOM_
+#include<direct.h>
+#else
 #include<dirent.h>
+#endif
 #include<stdlib.h>
 #include<sys/types.h>
 
 
 #ifdef _WIN32
-#define	NET_MENUS 1
+#define NET_MENUS 1
 #else
-#define	NET_MENUS 0
+#define NET_MENUS 0
 #endif
 
 extern byte identityTable[256]; //qb: MQ 1.6 hudscale
 extern byte translationTable[256];
 
-float scr_2d_scale_h = 1.0,	scr_2d_scale_v = 1.0;
+float scr_2d_scale_h = 1.0,     scr_2d_scale_v = 1.0;
 int scr_2d_offset_x, scr_2d_offset_y;
 
-cvar_t	savename = {"savename","QBS8____", "savename[name] Save game name prefix."}; // 8 uppercase characters
+cvar_t  savename = {"savename","QBS8____", "savename[name] Save game name prefix."}; // 8 uppercase characters
 
 //qb: needed for Rikku2000 maplist, but not included w/ mingw
 #ifndef FLASH
@@ -66,7 +70,7 @@ int scandir(const char *dir, struct dirent ***namelist,
     if (closedir(d)) return(-1);
     if (i == 0) return(-1);
     if (compar != NULL)
-        qsort((void *)(*namelist), (size_t)i, sizeof(struct dirent *), compar);
+        qsort((void *)(*namelist), (size_t)i, sizeof(struct dirent *), (void *)compar);
 
     return(i);
 }
@@ -82,8 +86,8 @@ void SetSavename ()
 {
     // savename must always be 8 uppercase alphanumeric characters
     // non-alphanumeric characters (for example, spaces) must be converted to underscores
-    int		i;
-    char	*s;
+    int         i;
+    char        *s;
     // backup old string
     s = Q_calloc (Q_strlen(savename.string)+1);
     Q_strcpy (s, savename.string);
@@ -108,72 +112,72 @@ void SetSavename ()
     savename.value = 0;
     free(s);
 }
-cvar_t	help_pages = {"help_pages","6", "help_pages[value] Number of pages in help."};
+cvar_t  help_pages = {"help_pages","6", "help_pages[value] Number of pages in help."};
 
-extern	cvar_t	samelevel;
+extern  cvar_t  samelevel;
 
-extern	cvar_t	sv_aim_h;
-extern	cvar_t	sv_aim;
-extern	cvar_t	scr_ofsy;
-extern	cvar_t	crosshair;
-extern	cvar_t	crosshair_color;
-extern	cvar_t	r_drawviewmodel;
-extern	cvar_t	cl_nobob;
-extern	cvar_t	sv_idealpitchscale;
-extern	cvar_t	sv_enable_use_button;
-extern	cvar_t	chase_active;
-extern	cvar_t	chase_back;
-extern	cvar_t	chase_up;
+extern  cvar_t  sv_aim_h;
+extern  cvar_t  sv_aim;
+extern  cvar_t  scr_ofsy;
+extern  cvar_t  crosshair;
+extern  cvar_t  crosshair_color;
+extern  cvar_t  r_drawviewmodel;
+extern  cvar_t  cl_nobob;
+extern  cvar_t  sv_idealpitchscale;
+extern  cvar_t  sv_enable_use_button;
+extern  cvar_t  chase_active;
+extern  cvar_t  chase_back;
+extern  cvar_t  chase_up;
 
-extern	cvar_t	r_drawentities;
-extern	cvar_t	r_fullbright;
-extern	cvar_t	r_waterwarp;
-extern	cvar_t	d_mipscale;
-extern	cvar_t	r_polyblend;
-extern	cvar_t	sw_stipplealpha;
-//extern	cvar_t	r_sprite_addblend;
-extern	cvar_t	scr_fadecolor; //qb:TODO- put this on menu
+extern  cvar_t  r_drawentities;
+extern  cvar_t  r_fullbright;
+extern  cvar_t  r_waterwarp;
+extern  cvar_t  d_mipscale;
+extern  cvar_t  r_polyblend;
+extern  cvar_t  sw_stipplealpha;
+//extern        cvar_t  r_sprite_addblend;
+extern  cvar_t  scr_fadecolor; //qb:TODO- put this on menu
 
 
 
 /* // Manoel Kasimier - removed - begin
-cvar_t	axis_x_function;
-cvar_t	axis_y_function;
-cvar_t	axis_l_function;
-cvar_t	axis_r_function;
+cvar_t  axis_x_function;
+cvar_t  axis_y_function;
+cvar_t  axis_l_function;
+cvar_t  axis_r_function;
 */ // Manoel Kasimier - removed - end
-cvar_t	axis_x_scale;
-cvar_t	axis_y_scale;
-cvar_t	axis_l_scale;
-cvar_t	axis_r_scale;
-cvar_t	axis_x_threshold;
-cvar_t	axis_y_threshold;
-cvar_t	axis_l_threshold;
-cvar_t	axis_r_threshold;
+cvar_t  axis_x_scale;
+cvar_t  axis_y_scale;
+cvar_t  axis_l_scale;
+cvar_t  axis_r_scale;
+cvar_t  axis_x_threshold;
+cvar_t  axis_y_threshold;
+cvar_t  axis_l_threshold;
+cvar_t  axis_r_threshold;
 /*/// Manoel Kasimier
-extern	cvar_t	axis_pitch_dz;
-extern	cvar_t	axis_yaw_dz;
-extern	cvar_t	axis_walk_dz;
-extern	cvar_t	axis_strafe_dz;
+extern  cvar_t  axis_pitch_dz;
+extern  cvar_t  axis_yaw_dz;
+extern  cvar_t  axis_walk_dz;
+extern  cvar_t  axis_strafe_dz;
 /*/// Manoel Kasimier
 
-extern	cvar_t	snd_stereo;
-extern	cvar_t	snd_swapstereo;
+extern  cvar_t  snd_stereo;
+extern  cvar_t  snd_swapstereo;
 
-extern	cvar_t	sbar_scale; //qb: added
-extern	cvar_t	sbar_show_scores;
-extern	cvar_t	sbar_show_ammolist;
-extern	cvar_t	sbar_show_weaponlist;
-extern	cvar_t	sbar_show_keys;
-extern	cvar_t	sbar_show_runes;
-extern	cvar_t	sbar_show_powerups;
-extern	cvar_t	sbar_show_armor;
-extern	cvar_t	sbar_show_health;
-extern	cvar_t	sbar_show_ammo;
-extern	cvar_t	sbar_show_bg;
-extern	cvar_t	sbar;
+extern  cvar_t  sbar_scale; //qb: added
+extern  cvar_t  sbar_show_scores;
+extern  cvar_t  sbar_show_ammolist;
+extern  cvar_t  sbar_show_weaponlist;
+extern  cvar_t  sbar_show_keys;
+extern  cvar_t  sbar_show_runes;
+extern  cvar_t  sbar_show_powerups;
+extern  cvar_t  sbar_show_armor;
+extern  cvar_t  sbar_show_health;
+extern  cvar_t  sbar_show_ammo;
+extern  cvar_t  sbar_show_bg;
+extern  cvar_t  sbar;
 
-extern cvar_t	scr_fov; //qb:
+extern cvar_t   scr_fov; //qb:
 
 void Crosshair_Start (int x, int y);
 void Host_WriteConfiguration (void);
@@ -287,7 +291,7 @@ void M_ServerList_Key (int key);
 #endif
 
 // Manoel Kasimier - begin
-byte	m_inp_up, m_inp_down, m_inp_left, m_inp_right,
+byte    m_inp_up, m_inp_down, m_inp_left, m_inp_right,
         m_inp_ok, m_inp_cancel, m_inp_no, m_inp_yes,
         m_inp_off, m_inp_backspace
         ;
@@ -340,7 +344,7 @@ void M_CheckInput (int key)
         m_inp_backspace = true;
 
 #if 0
-    case K_DEL:				// delete multiple bindings
+    case K_DEL:                         // delete multiple bindings
     case K_SPACE:
 
     case K_MOUSE3:
@@ -351,21 +355,21 @@ void M_CheckInput (int key)
 };
 // Manoel Kasimier - end
 
-qboolean	m_entersound;		// play after drawing a frame, so caching
+qboolean        m_entersound;           // play after drawing a frame, so caching
 // won't disrupt the sound
-qboolean	m_recursiveDraw;
+qboolean        m_recursiveDraw;
 
-int			m_save_demonum;
+int                     m_save_demonum;
 
-int			m_return_state;
-qboolean	m_return_onerror;
-char		m_return_reason [32];
+int                     m_return_state;
+qboolean        m_return_onerror;
+char            m_return_reason [32];
 
 #if NET_MENUS // Manoel Kasimier - removed multiplayer menus
-#define StartingGame	(m_multiplayer_cursor == 1)
-#define JoiningGame		(m_multiplayer_cursor == 0)
-#define	IPXConfig		(m_net_cursor == 0)
-#define	TCPIPConfig		(m_net_cursor == 1)
+#define StartingGame    (m_multiplayer_cursor == 1)
+#define JoiningGame             (m_multiplayer_cursor == 0)
+#define IPXConfig               (m_net_cursor == 0)
+#define TCPIPConfig             (m_net_cursor == 1)
 
 void M_ConfigureNetSubsystem(void);
 #endif
@@ -396,7 +400,7 @@ void M_Precache (void)
     Draw_CachePic ("gfx/mainmenu.lmp");
 // single player
     Draw_CachePic ("gfx/ttl_sgl.lmp");
-//	Draw_CachePic ("gfx/sp_menu.lmp");
+//      Draw_CachePic ("gfx/sp_menu.lmp");
 // load/save
     Draw_CachePic ("gfx/p_load.lmp");
     Draw_CachePic ("gfx/p_save.lmp");
@@ -404,11 +408,11 @@ void M_Precache (void)
     Draw_CachePic ("gfx/p_option.lmp");
     Draw_CachePic ("gfx/bigbox.lmp");
     Draw_CachePic ("gfx/menuplyr.lmp");
-//	Draw_CachePic ("gfx/ttl_cstm.lmp");
-//	Draw_CachePic ("gfx/vidmodes.lmp");
+//      Draw_CachePic ("gfx/ttl_cstm.lmp");
+//      Draw_CachePic ("gfx/vidmodes.lmp");
 // help
-//	for (i=0; i<6; i++)
-//		Draw_CachePic(va("gfx/help%i.lmp", i));
+//      for (i=0; i<6; i++)
+//              Draw_CachePic(va("gfx/help%i.lmp", i));
 // Multiplayer
     Draw_CachePic ("gfx/p_multi.lmp");
     Draw_CachePic ("gfx/mp_menu.lmp");
@@ -474,11 +478,11 @@ void M_PrintWhite (int cx, int cy, char *str)
 
 void M_DrawTextBox (int x, int y, int width, int lines)
 {
-    qpic_t	*p;
-    int		cx, cy;
-    int		n;
-    int		w = -width & 7; // Manoel Kasimier
-    int		h = -lines & 7; // Manoel Kasimier
+    qpic_t      *p;
+    int         cx, cy;
+    int         n;
+    int         w = -width & 7; // Manoel Kasimier
+    int         h = -lines & 7; // Manoel Kasimier
 
     // draw left side
     cx = x;
@@ -529,10 +533,10 @@ void M_DrawTextBox (int x, int y, int width, int lines)
     M_DrawTransPic (cx - w, cy+8 - h, p, false); // Manoel Kasimier - crosshair - edited
 }
 
-#define	SLIDER_RANGE	10
+#define SLIDER_RANGE    10
 void M_DrawSlider (int x, int y, float range)
 {
-    int	i;
+    int i;
 
     if (range < 0)
         range = 0;
@@ -565,11 +569,11 @@ void M_DrawCheckbox (int x, int y, int on)
 char *timetos (int mytime)
 {
     int
-    hours		= mytime/3600,
-         min_tens	= ((mytime%3600)/60)/10,
-            min_units	= ((mytime%3600)/60)%10,
-              tens		= (mytime%60)/10,
-                    units		= (mytime%60)%10;
+    hours               = mytime/3600,
+         min_tens       = ((mytime%3600)/60)/10,
+            min_units   = ((mytime%3600)/60)%10,
+              tens              = (mytime%60)/10,
+                    units               = (mytime%60)%10;
     return va("%i:%i%i:%i%i", hours, min_tens, min_units, tens, units);
 }
 char *skilltos(int i)
@@ -582,11 +586,11 @@ char *skilltos(int i)
 }
 void M_DrawPlaque (char *c, qboolean b)
 {
-	qpic_t	*p;
-	if (b)
-		M_DrawTransPic (16, 0, Draw_CachePic ("gfx/qplaque.lmp") , false);
-	p = Draw_CachePic (c);
-	M_DrawTransPic ( (360-p->width)/2, 0, p, false);
+    qpic_t      *p;
+    if (b)
+        M_DrawTransPic (16, 0, Draw_CachePic ("gfx/qplaque.lmp") , false);
+    p = Draw_CachePic (c);
+    M_DrawTransPic ( (MIN_VID_WIDTH-p->width)/2, 0, p, false);
 }
 void M_DrawCursor (int x, int y, int itemindex)
 {
@@ -607,10 +611,10 @@ void M_DrawCursor (int x, int y, int itemindex)
 
 void M_PrintText (char *s, int x, int y, int w, int h, int alignment)
 {
-    int		l;
-    int		line_w[64];
-    int		xpos = x;
-    char	*s_count = s;
+    int         l;
+    int         line_w[64];
+    int         xpos = x;
+    char        *s_count = s;
 
     for (l=0; l<64; l++)
         line_w[l] = 0;
@@ -646,8 +650,8 @@ void M_PrintText (char *s, int x, int y, int w, int h, int alignment)
 }
 void ChangeCVar (char *cvar_s, float current, float interval, float min, float max, qboolean slider)
 {
-//	if (self.impulse == 21)
-//		interval = interval * -1;
+//      if (self.impulse == 21)
+//              interval = interval * -1;
     current += interval;
     if (/*interval < 0 &&*/ current < min)
     {
@@ -669,22 +673,22 @@ void ChangeCVar (char *cvar_s, float current, float interval, float min, float m
 /* ON-SCREEN KEYBOARD */
 
 // button definitions for on-screen keyboard
-#define K_OSK_UP		K_AUX16
-#define K_OSK_DOWN		K_AUX14
-#define K_OSK_LEFT		K_AUX13
-#define K_OSK_RIGHT		K_AUX15
-#define K_OSK_BACKSPACE	K_AUX5
-#define K_OSK_SPACE		K_AUX6
-#define K_OSK_TAB		K_JOY3
-#define K_OSK_ENTER		K_JOY4
-#define K_OSK_INPUT		K_JOY1
-#define K_OSK_QUIT		K_JOY2
-#define	NUM_KEYCODES	52
-int		keyboard_active;
-int		keyboard_cursor;
-int		keyboard_shift;
+#define K_OSK_UP                K_AUX16
+#define K_OSK_DOWN              K_AUX14
+#define K_OSK_LEFT              K_AUX13
+#define K_OSK_RIGHT             K_AUX15
+#define K_OSK_BACKSPACE K_AUX5
+#define K_OSK_SPACE             K_AUX6
+#define K_OSK_TAB               K_JOY3
+#define K_OSK_ENTER             K_JOY4
+#define K_OSK_INPUT             K_JOY1
+#define K_OSK_QUIT              K_JOY2
+#define NUM_KEYCODES    52
+int             keyboard_active;
+int             keyboard_cursor;
+int             keyboard_shift;
 
-int	keycodes[] =
+int     keycodes[] =
 {
     '0','1','2','3','4','5','6','7','8','9','-','+','/','|', 92,'_',
     'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p',
@@ -713,10 +717,10 @@ void M_OnScreenKeyboard_Draw (int y)
     for (i=0; i<47; i++)
         M_PrintWhite (36 + i*16 - (256*(i/16)), y+12+(8*(i/16)), Key_KeynumToString (keycodes[i+keyboard_shift]));
     i=96;
-    M_Print (36			, y+36, Key_KeynumToString (keycodes[i++]));
-    M_Print (36+11*8	, y+36, Key_KeynumToString (keycodes[i++]));
-    M_Print (36+18*8	, y+36, Key_KeynumToString (keycodes[i++]));
-    M_Print (36+23*8	, y+36, Key_KeynumToString (keycodes[i++]));
+    M_Print (36                 , y+36, Key_KeynumToString (keycodes[i++]));
+    M_Print (36+11*8    , y+36, Key_KeynumToString (keycodes[i++]));
+    M_Print (36+18*8    , y+36, Key_KeynumToString (keycodes[i++]));
+    M_Print (36+23*8    , y+36, Key_KeynumToString (keycodes[i++]));
 
     if (keyboard_cursor < 48)
     {
@@ -724,13 +728,13 @@ void M_OnScreenKeyboard_Draw (int y)
         M_DrawCharacter (44+ keyboard_cursor*16 - (256*(keyboard_cursor/16)), y+12+(8*(keyboard_cursor/16)), 17, false);
     }
     else if (keyboard_cursor == 48)
-        M_DrawCharacter (28			, y+36, 12+((int)(realtime*4)&1), false);
+        M_DrawCharacter (28                     , y+36, 12+((int)(realtime*4)&1), false);
     else if (keyboard_cursor == 49)
-        M_DrawCharacter (28+11*8	, y+36, 12+((int)(realtime*4)&1), false);
+        M_DrawCharacter (28+11*8        , y+36, 12+((int)(realtime*4)&1), false);
     else if (keyboard_cursor == 50)
-        M_DrawCharacter (28+18*8	, y+36, 12+((int)(realtime*4)&1), false);
+        M_DrawCharacter (28+18*8        , y+36, 12+((int)(realtime*4)&1), false);
     else if (keyboard_cursor == 51)
-        M_DrawCharacter (28+23*8	, y+36, 12+((int)(realtime*4)&1), false);
+        M_DrawCharacter (28+23*8        , y+36, 12+((int)(realtime*4)&1), false);
 }
 
 int M_OnScreenKeyboard_Key (int key)
@@ -740,7 +744,7 @@ int M_OnScreenKeyboard_Key (int key)
         if (key == K_OSK_INPUT)
         {
             M_OnScreenKeyboard_Reset();
-            keyboard_active	= 1;
+            keyboard_active     = 1;
         }
         else
             return key;
@@ -802,10 +806,10 @@ int M_OnScreenKeyboard_Key (int key)
 
 //=============================================================================
 /* POP-UP MENU */
-int			m_prevstate;
-qboolean	wasInMenus;
-char		*popup_message;
-char		*popup_command;
+int                     m_prevstate;
+qboolean        wasInMenus;
+char            *popup_message;
+char            *popup_command;
 
 void M_PopUp_f (char *s, char *cmd)
 {
@@ -829,7 +833,7 @@ void M_PopUp_f (char *s, char *cmd)
 
 void M_PopUp_Draw (void)
 {
-    int y = (min_vid_height/*vid.height*/ - 48) / 2 + 24 + 16;
+    int y = (MIN_VID_HEIGHT/*vid.height*/ - 48) / 2 + 24 + 16;
 
     if (wasInMenus)
     {
@@ -838,8 +842,8 @@ void M_PopUp_Draw (void)
         M_Draw ();
         m_state = m_popup;
     }
-    M_DrawTextBox (48, (min_vid_height/*vid.height*/ - 110) / 2, 25*8, 12*8);
-    M_PrintText (popup_message, 64, (min_vid_height/*vid.height*/ - 32) / 2, 24, 4, ALIGN_CENTER);
+    M_DrawTextBox (48, (MIN_VID_HEIGHT/*vid.height*/ - 110) / 2, 25*8, 12*8);
+    M_PrintText (popup_message, 64, (MIN_VID_HEIGHT/*vid.height*/ - 32) / 2, 24, 4, ALIGN_CENTER);
 }
 
 void M_PopUp_Key (int key)
@@ -910,7 +914,7 @@ void M_ToggleMenu_f (void)
 //=============================================================================
 /* MAIN MENU */
 
-#define	MAIN_ITEMS	5
+#define MAIN_ITEMS      5
 
 
 void M_Main_f (void)
@@ -997,10 +1001,10 @@ void M_Main_Key (int key)
 //=============================================================================
 /* SINGLE PLAYER MENU */  //qb: switched back to original menu
 
-#define	SINGLEPLAYER_ITEMS	3
+#define SINGLEPLAYER_ITEMS      3
 
-int		m_singleplayer_cursor;
-qboolean	m_singleplayer_confirm;
+int             m_singleplayer_cursor;
+qboolean        m_singleplayer_confirm;
 
 void M_SinglePlayer_f (void)
 {
@@ -1012,8 +1016,8 @@ void M_SinglePlayer_f (void)
 
 void M_SinglePlayer_Draw (void)
 {
-    int	f;
-    qpic_t	*p;
+    int f;
+    qpic_t      *p;
 
     if (m_singleplayer_confirm)
     {
@@ -1138,23 +1142,23 @@ static int DCM_ScanInt(FILE *file)
 //  BlackAura (08-12-2002) - Replacing fscanf (end)
 // -------------------------------------------------
 
-int		liststart[4]; // Manoel Kasimier [m_state - m_load]
-int		load_cursormax; // Manoel Kasimier
-#define	MAX_SAVEGAMES		40 //qb
-char	m_filenames[MAX_SAVEGAMES][SAVEGAME_COMMENT_LENGTH+1];
-char	*m_fileinfo[MAX_SAVEGAMES]; // Manoel Kasimier
-int		loadable[MAX_SAVEGAMES];
+int             liststart[4]; // Manoel Kasimier [m_state - m_load]
+int             load_cursormax; // Manoel Kasimier
+#define MAX_SAVEGAMES           40 //qb
+char    m_filenames[MAX_SAVEGAMES][SAVEGAME_COMMENT_LENGTH+1];
+char    *m_fileinfo[MAX_SAVEGAMES]; // Manoel Kasimier
+int             loadable[MAX_SAVEGAMES];
 
 void M_ScanSaves (qboolean smallsave) // Manoel Kasimier - edited
 {
-    int		i, j;
-    char	name[MAX_OSPATH];
-    FILE	*f;
-    int		version;
+    int         i, j;
+    char        name[MAX_OSPATH];
+    FILE        *f;
+    int         version;
     // Manoel Kasimier - begin
-    int		i1, i2;
-    char	*s;
-    char	t_enemies[16], k_enemies[16], t_secrets[16], f_secrets[16], str[64], fileinfo[64];
+    int         i1, i2;
+    char        *s;
+    char        t_enemies[16], k_enemies[16], t_secrets[16], f_secrets[16], str[64], fileinfo[64];
     // Manoel Kasimier - end
 
     for (i=0 ; i<MAX_SAVEGAMES ; i++)
@@ -1279,7 +1283,7 @@ void M_DrawFileInfo (int i, int y)
 
 void M_Save_Common_f (int menustate)
 {
-    int		i, i2;
+    int         i, i2;
     qboolean saving = (menustate == m_save || menustate == m_savesmall);
 
     if (key_dest == key_menu && m_state == menustate)
@@ -1335,13 +1339,13 @@ void M_LoadSmall_f (void)
 
 void M_Save_Draw (void)
 {
-    int		i, i2, numsaves;
+    int         i, i2, numsaves;
     qboolean saving = (m_state == m_save || m_state == m_savesmall);
     qboolean smallsave = (m_state == m_loadsmall || m_state == m_savesmall);
 
     M_DrawPlaque (saving ? "gfx/p_save.lmp" : "gfx/p_load.lmp", true);
 
-    numsaves = (int)((min_vid_height - 28 - 8*7) / 8);
+    numsaves = (int)((MIN_VID_HEIGHT - 28 - 8*7) / 8);
     if (smallsave)
         numsaves += 3;
 
@@ -1352,7 +1356,7 @@ void M_Save_Draw (void)
             {
                 M_Print (56 + (8*(i < 10)), 28 + 8*(i2 - liststart[m_state - m_load]), va("%i", i));
                 if (loadable[i] == true)
-                    M_Print		 (96, 28 + 8*(i2 - liststart[m_state - m_load]), m_filenames[i]);
+                    M_Print              (96, 28 + 8*(i2 - liststart[m_state - m_load]), m_filenames[i]);
                 else
                     M_PrintWhite (96, 28 + 8*(i2 - liststart[m_state - m_load]), m_filenames[i]);
             }
@@ -1383,8 +1387,8 @@ void M_Save_Key (int k)
 {
     // Manoel Kasimier - begin
     qboolean saving = (m_state == m_save || m_state == m_savesmall);
-    int		i, i2, numsaves;
-    numsaves = (int)((min_vid_height - (28) - 8*7) / 8) - 1;
+    int         i, i2, numsaves;
+    numsaves = (int)((MIN_VID_HEIGHT - (28) - 8*7) / 8) - 1;
     if (m_state == m_savesmall || m_state == m_loadsmall)
         numsaves += 3;
     // Manoel Kasimier - end
@@ -1461,22 +1465,22 @@ void M_Save_Key (int k)
 
 typedef struct
 {
-    char	*description;
-    int		firstLevel;
-    int		levels;
+    char        *description;
+    int         firstLevel;
+    int         levels;
 } episode_t;
 
 typedef struct
 {
-    char	*name;
-    char	*description;
+    char        *name;
+    char        *description;
 } level_t;
 
-level_t		id1levels[] = // Manoel Kasimier - renamed
+level_t         id1levels[] = // Manoel Kasimier - renamed
 {
-    {"start", "Entrance"},				// 0
+    {"start", "Entrance"},                              // 0
 
-    {"e1m1", "Slipgate Complex"},		// 1
+    {"e1m1", "Slipgate Complex"},               // 1
     {"e1m2", "Castle of the Damned"},
     {"e1m3", "The Necropolis"},
     {"e1m4", "The Grisly Grotto"},
@@ -1485,7 +1489,7 @@ level_t		id1levels[] = // Manoel Kasimier - renamed
     {"e1m7", "The House of Chthon"},
     {"e1m8", "Ziggurat Vertigo"},
 
-    {"e2m1", "The Installation"},		// 9
+    {"e2m1", "The Installation"},               // 9
     {"e2m2", "Ogre Citadel"},
     {"e2m3", "Crypt of Decay"},
     {"e2m4", "The Ebon Fortress"},
@@ -1493,7 +1497,7 @@ level_t		id1levels[] = // Manoel Kasimier - renamed
     {"e2m6", "The Dismal Oubliette"},
     {"e2m7", "Underearth"},
 
-    {"e3m1", "Termination Central"},	// 16
+    {"e3m1", "Termination Central"},    // 16
     {"e3m2", "The Vaults of Zin"},
     {"e3m3", "The Tomb of Terror"},
     {"e3m4", "Satan's Dark Delight"},
@@ -1501,7 +1505,7 @@ level_t		id1levels[] = // Manoel Kasimier - renamed
     {"e3m6", "Chambers of Torment"},
     {"e3m7", "The Haunted Halls"},
 
-    {"e4m1", "The Sewage System"},		// 23
+    {"e4m1", "The Sewage System"},              // 23
     {"e4m2", "The Tower of Despair"},
     {"e4m3", "The Elder God Shrine"},
     {"e4m4", "The Palace of Hate"},
@@ -1510,9 +1514,9 @@ level_t		id1levels[] = // Manoel Kasimier - renamed
     {"e4m7", "Azure Agony"},
     {"e4m8", "The Nameless City"},
 
-    {"end", "Shub-Niggurath's Pit"},	// 31
+    {"end", "Shub-Niggurath's Pit"},    // 31
 
-    {"dm1", "Place of Two Deaths"},		// 32
+    {"dm1", "Place of Two Deaths"},             // 32
     {"dm2", "Claustrophobopolis"},
     {"dm3", "The Abandoned Base"},
     {"dm4", "The Bad Place"},
@@ -1523,55 +1527,55 @@ level_t		id1levels[] = // Manoel Kasimier - renamed
 //MED 01/06/97 added hipnotic levels
 level_t     hipnoticlevels[] =
 {
-    {"start", "Command HQ"},				// 0
+    {"start", "Command HQ"},                            // 0
 
-    {"hip1m1", "The Pumping Station"},	// 1
+    {"hip1m1", "The Pumping Station"},  // 1
     {"hip1m2", "Storage Facility"},
     {"hip1m3", "The Lost Mine"},
     {"hip1m4", "Research Facility"},
     {"hip1m5", "Military Complex"},
 
-    {"hip2m1", "Ancient Realms"},		// 6
+    {"hip2m1", "Ancient Realms"},               // 6
     {"hip2m2", "The Black Cathedral"},
     {"hip2m3", "The Catacombs"},
     {"hip2m4", "The Crypt"},
     {"hip2m5", "Mortum's Keep"},
     {"hip2m6", "The Gremlin's Domain"},
 
-    {"hip3m1", "Tur Torment"},			// 12
+    {"hip3m1", "Tur Torment"},                  // 12
     {"hip3m2", "Pandemonium"},
     {"hip3m3", "Limbo"},
     {"hip3m4", "The Gauntlet"},
 
-    {"hipend", "Armagon's Lair"},		// 16
+    {"hipend", "Armagon's Lair"},               // 16
 
-    {"hipdm1", "The Edge of Oblivion"}	// 17
+    {"hipdm1", "The Edge of Oblivion"}  // 17
 };
 
 //PGM 01/07/97 added rogue levels
 //PGM 03/02/97 added dmatch level
-level_t		roguelevels[] =
+level_t         roguelevels[] =
 {
-    {"start",	"Split Decision"},
-    {"r1m1",	"Deviant's Domain"},
-    {"r1m2",	"Dread Portal"},
-    {"r1m3",	"Judgement Call"},
-    {"r1m4",	"Cave of Death"},
-    {"r1m5",	"Towers of Wrath"},
-    {"r1m6",	"Temple of Pain"},
-    {"r1m7",	"Tomb of the Overlord"},
-    {"r2m1",	"Tempus Fugit"},
-    {"r2m2",	"Elemental Fury I"},
-    {"r2m3",	"Elemental Fury II"},
-    {"r2m4",	"Curse of Osiris"},
-    {"r2m5",	"Wizard's Keep"},
-    {"r2m6",	"Blood Sacrifice"},
-    {"r2m7",	"Last Bastion"},
-    {"r2m8",	"Source of Evil"},
+    {"start",   "Split Decision"},
+    {"r1m1",    "Deviant's Domain"},
+    {"r1m2",    "Dread Portal"},
+    {"r1m3",    "Judgement Call"},
+    {"r1m4",    "Cave of Death"},
+    {"r1m5",    "Towers of Wrath"},
+    {"r1m6",    "Temple of Pain"},
+    {"r1m7",    "Tomb of the Overlord"},
+    {"r2m1",    "Tempus Fugit"},
+    {"r2m2",    "Elemental Fury I"},
+    {"r2m3",    "Elemental Fury II"},
+    {"r2m4",    "Curse of Osiris"},
+    {"r2m5",    "Wizard's Keep"},
+    {"r2m6",    "Blood Sacrifice"},
+    {"r2m7",    "Last Bastion"},
+    {"r2m8",    "Source of Evil"},
     {"ctf1",    "Division of Change"}
 };
 
-episode_t	id1episodes[] = // Manoel Kasimier - renamed
+episode_t       id1episodes[] = // Manoel Kasimier - renamed
 {
     {"Welcome to Quake", 0, 1},
     {"Doomed Dimension", 1, 8},
@@ -1595,7 +1599,7 @@ episode_t   hipnoticepisodes[] =
 
 //PGM 01/07/97 added rogue episodes
 //PGM 03/02/97 added dmatch episode
-episode_t	rogueepisodes[] =
+episode_t       rogueepisodes[] =
 {
     {"Introduction", 0, 1},
     {"Hell's Fortress", 1, 7},
@@ -1604,11 +1608,11 @@ episode_t	rogueepisodes[] =
 };
 
 // Manoel Kasimier - begin
-level_t		levels[1024];
-int			nummaps;
+level_t         levels[1024];
+int                     nummaps;
 
-episode_t	episodes[16];
-int			numepisodes = -1;
+episode_t       episodes[16];
+int                     numepisodes = -1;
 
 void M_Maps_Clear (void)
 {
@@ -1654,7 +1658,7 @@ void M_AddEpisode (void)
 
 void M_AddMap (void)
 {
-    char	*s;
+    char        *s;
 
     if (Cmd_Argc() != 3)
     {
@@ -1695,10 +1699,10 @@ void M_SetDefaultEpisodes (episode_t *myepisodes, int epcount, level_t *mylevels
     }
     for (i=0; i<=nummaps; i++)
     {
-        levels[i].name			= Q_calloc (strlen(mylevels[i].name)+1);
-        strcpy (levels[i].name			, mylevels[i].name);
-        levels[i].description	= Q_calloc (strlen(mylevels[i].description)+1);
-        strcpy (levels[i].description	, mylevels[i].description);
+        levels[i].name                  = Q_calloc (strlen(mylevels[i].name)+1);
+        strcpy (levels[i].name                  , mylevels[i].name);
+        levels[i].description   = Q_calloc (strlen(mylevels[i].description)+1);
+        strcpy (levels[i].description   , mylevels[i].description);
     }
 }
 
@@ -1710,8 +1714,8 @@ int o_timelimit;
 int o_samelevel;
 // Manoel Kasimier - end
 
-int	startepisode;
-int	startlevel;
+int     startepisode;
+int     startlevel;
 int maxplayers;
 qboolean m_serverInfoMessage = false;
 double m_serverInfoMessageTime;
@@ -1756,7 +1760,7 @@ void M_GameOptions_f (void)
     // Manoel Kasimier - end
 }
 
-#define	NUM_GAMEOPTIONS	10 // Manoel Kasimier - edited
+#define NUM_GAMEOPTIONS 10 // Manoel Kasimier - edited
 
 void M_GameOptions_Draw (void)
 {
@@ -1831,8 +1835,8 @@ void M_GameOptions_Draw (void)
     // Manoel Kasimier - edited - end
 
     // Manoel Kasimier - begin
-    M_DrawTextBox (56, min_vid_height - 32, 24*8, 2*8);
-    M_PrintText ("Changes take effect\nwhen starting a new game", 64, min_vid_height - 24, 24, 2, ALIGN_CENTER);
+    M_DrawTextBox (56, MIN_VID_HEIGHT - 32, 24*8, 2*8);
+    M_PrintText ("Changes take effect\nwhen starting a new game", 64, MIN_VID_HEIGHT - 24, 24, 2, ALIGN_CENTER);
 
     M_DrawCursor (144, 28, m_cursor[m_state]);
     // Manoel Kasimier - end
@@ -2018,6 +2022,8 @@ int isFile(const struct dirent *nombre)
 
 void M_Menu_MapList_f (void)
 {
+    int x;
+    int i;
     key_dest = key_menu;
     m_state = m_maplist;
     m_entersound = true;
@@ -2032,12 +2038,10 @@ void M_Menu_MapList_f (void)
             numFileList = numFiles;
         }
         else
+
             numFileList = MAX_FILE_LIST;
 
         DeleteArray(listaFiles, numFileList);
-
-        int x = 0;
-        int i;
 
         for (i = minFile; i < maxFile; i++)
         {
@@ -2056,7 +2060,7 @@ void M_MapList_Draw (void)
 
     M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"), false );
     p = Draw_CachePic ("gfx/p_multi.lmp");
-    M_DrawTransPic ( (min_vid_width-p->width)/2, 4, p, false);
+    M_DrawTransPic ( (MIN_VID_WIDTH-p->width)/2, 4, p, false);
 
     M_DrawTextBox (56, 27, 23, 15);
     FileNames(listaFiles, numFileList);
@@ -2066,6 +2070,7 @@ void M_MapList_Draw (void)
 
 void M_MapList_Key (int key)
 {
+    int i, x;
     switch (key)
     {
     case K_ESCAPE:
@@ -2085,10 +2090,6 @@ void M_MapList_Key (int key)
                 maxFile--;
 
                 DeleteArray(listaFiles, numFileList);
-
-                int x = 0;
-                int i;
-
                 for (i = minFile; i < maxFile; i++)
                 {
                     strcpy(listaFiles[x], nombres[i]->d_name);
@@ -2115,9 +2116,6 @@ void M_MapList_Key (int key)
 
                 DeleteArray(listaFiles, numFileList);
 
-                int x = 0;
-                int i;
-
                 for (i = minFile; i < maxFile; i++)
                 {
                     strcpy(listaFiles[x], nombres[i]->d_name);
@@ -2142,8 +2140,8 @@ void M_MapList_Key (int key)
 //=============================================================================
 /* OPTIONS MENU */
 
-#define	OPTIONS_ITEMS	10
-#define QUICKHACK	0
+#define OPTIONS_ITEMS   10
+#define QUICKHACK       0
 
 void M_Options_f (void)
 {
@@ -2257,26 +2255,26 @@ void M_Options_Key (int k)
 /* SETUP MENU */
 
 #if NET_MENUS // Manoel Kasimier - removed multiplayer menus
-int		setup_cursor_table[] = {8, 24, 48, 72, 104, 112}; // Manoel Kasimier - edited
+int             setup_cursor_table[] = {8, 24, 48, 72, 104, 112}; // Manoel Kasimier - edited
 #else
-int		setup_cursor_table[] = {8, 32, 56, 88, 96}; // Manoel Kasimier - edited
+int             setup_cursor_table[] = {8, 32, 56, 88, 96}; // Manoel Kasimier - edited
 #endif
 
 #if NET_MENUS // Manoel Kasimier - removed multiplayer menus
-char	setup_hostname[16]; // Commented out by Manoel Kasimier
+char    setup_hostname[16]; // Commented out by Manoel Kasimier
 #endif
-char	setup_myname[16];
-int		setup_oldtop;
-int		setup_oldbottom;
-int		setup_top;
-int		setup_bottom;
-int		setup_crosshair; // Manoel Kasimier
-int		setup_crosshair_color; // Manoel Kasimier
+char    setup_myname[16];
+int             setup_oldtop;
+int             setup_oldbottom;
+int             setup_top;
+int             setup_bottom;
+int             setup_crosshair; // Manoel Kasimier
+int             setup_crosshair_color; // Manoel Kasimier
 
 #if NET_MENUS // Manoel Kasimier - removed multiplayer menus
-#define	NUM_SETUP_CMDS	6
+#define NUM_SETUP_CMDS  6
 #else
-#define	NUM_SETUP_CMDS	5
+#define NUM_SETUP_CMDS  5
 #endif
 
 void M_Setup_f (void)
@@ -2323,13 +2321,13 @@ void M_Setup_Draw (void)
     // Manoel Kasimier - crosshair - begin
     M_Print (64, y + setup_cursor_table[i++]/*88*/, "Crosshair");
     M_Print (64, y + setup_cursor_table[i]/*96*/, "Color");
-	M_DrawTextBox (160, y + setup_cursor_table[i]-16/*80*/, 2*12, 2*16);
+    M_DrawTextBox (160, y + setup_cursor_table[i]-16/*80*/, 2*12, 2*16);
     i1 = crosshair.value;
     i2 = crosshair_color.value;
     crosshair.value = setup_crosshair;
     crosshair_color.value = setup_crosshair_color;
-     Crosshair_Start((184 + (360-320)/2- (360.0 - 360.0/sbar_scale.value)/2) * scr_2d_scale_h - 6*(vid.width/min_vid_width),
-                      (144 + (100.0/sbar_scale.value)-100) * scr_2d_scale_v - 6*(vid.width/min_vid_width));
+    Crosshair_Start((184 + (360-320)/2- (360.0 - 360.0/sbar_scale.value)/2) * scr_2d_scale_h - 6*(vid.width/MIN_VID_WIDTH),
+                    (144 + (100.0/sbar_scale.value)-100) * scr_2d_scale_v - 6*(vid.width/MIN_VID_WIDTH));
     crosshair.value = i1;
     crosshair_color.value = i2;
     // Manoel Kasimier - crosshair - end
@@ -2352,7 +2350,7 @@ void M_Setup_Draw (void)
 
 void M_Setup_Key (int k)
 {
-    int			l;
+    int                 l;
 
     if (m_cursor[m_state] == 0) // Manoel Kasimier
         k = M_OnScreenKeyboard_Key (k); // Manoel Kasimier
@@ -2378,7 +2376,7 @@ void M_Setup_Key (int k)
         else
             M_Options_f ();
         // Manoel Kasimier - update player setup on exit - end
-//		M_MultiPlayer_f (); // Commented out by Manoel Kasimier
+//              M_MultiPlayer_f (); // Commented out by Manoel Kasimier
     }
     else if (m_inp_up)
     {
@@ -2511,20 +2509,20 @@ forward:
 /* KEYS MENU */
 
 // Manoel Kasimier - begin
-#define	MAXKEYS 16
+#define MAXKEYS 16
 #define MAXCMDS 256
 
 qboolean dont_bind[256];
-char	*bindnames[256][2];
-int		numcommands;
-int		m_keys_pages;
-//int		m_keys_page_start[16]; // first command on the page
-int		cmd_position[256];//[NUMCOMMANDS];
-int		cmd_for_position[256];
-int		keys_for_cmd[MAXCMDS];
-int		keyliststart;
+char    *bindnames[256][2];
+int             numcommands;
+int             m_keys_pages;
+//int           m_keys_page_start[16]; // first command on the page
+int             cmd_position[256];//[NUMCOMMANDS];
+int             cmd_for_position[256];
+int             keys_for_cmd[MAXCMDS];
+int             keyliststart;
 // Manoel Kasimier - end
-int		bind_grab;
+int             bind_grab;
 
 // Manoel Kasimier - begin
 void M_Keys_Bindable (void)
@@ -2541,9 +2539,9 @@ void M_Keys_Bindable (void)
 void M_UnbindCommand (char *command)
 {
     // unbinds all keys bound to the specified command
-    int		j;
-    int		l;
-    char	*b;
+    int         j;
+    int         l;
+    char        *b;
 
     l = strlen(command);
 
@@ -2567,10 +2565,10 @@ void M_UnbindCommand (char *command)
 void M_FindKeysForCommand (char *command, int *keys) // Manoel Kasimier - edited
 {
     // Finds how many keys are bound to the specified command
-    int		count;
-    int		j;
-    int		l;
-    char	*b;
+    int         count;
+    int         j;
+    int         l;
+    char        *b;
 
     // Manoel Kasimier - begin
     for (count=0 ; count<MAXKEYS ; count++)
@@ -2588,7 +2586,7 @@ void M_FindKeysForCommand (char *command, int *keys) // Manoel Kasimier - edited
             {
                 keys[count] = j; // puts the number of the key into the slot of the array
                 // Manoel Kasimier - edited - end
-                count++;		 // select the next slot in the array
+                count++;                 // select the next slot in the array
                 if (count == MAXKEYS) // Manoel Kasimier - edited
                     break;
             }
@@ -2608,8 +2606,8 @@ void M_FindKeysForCommand (char *command, int *keys) // Manoel Kasimier - edited
 // Manoel Kasimier - begin
 void M_FillKeyList (void)
 {
-    int		i, i2, position;
-    int		keys[MAXKEYS];
+    int         i, i2, position;
+    int         keys[MAXKEYS];
     position = 0;
 
     // finds how many keys are set for each command
@@ -2651,7 +2649,7 @@ void M_Keys_Clear (void)
 
 void M_Keys_AddCmd (void)
 {
-    char	*s;
+    char        *s;
 
     if (Cmd_Argc() != 3)
     {
@@ -2676,40 +2674,40 @@ void M_Keys_AddCmd (void)
 // Manoel Kasimier - reordered the default commands
 char *defaultbindnames[][2] = // Manoel Kasimier - renamed
 {
-    {"+shift",			"function shift"}, // Manoel Kasimier
-    {"+use",			"use"}, // Manoel Kasimier
-    {"+attack", 		"attack"},
-    {"impulse 10", 		"next weapon"},
-    {"impulse 12",		"previous weapon"}, // BlackAura (11-12-2002) - Next/prev weapons
+    {"+shift",                  "function shift"}, // Manoel Kasimier
+    {"+use",                    "use"}, // Manoel Kasimier
+    {"+attack",                 "attack"},
+    {"impulse 10",              "next weapon"},
+    {"impulse 12",              "previous weapon"}, // BlackAura (11-12-2002) - Next/prev weapons
 
 // Manoel Kasimier - begin
-    {"impulse 1",		"Axe"},
-    {"impulse 2",		"Shotgun"},
-    {"impulse 3",		"Super shotgun"},
-    {"impulse 4",		"Nailgun"},
-    {"impulse 5",		"Super nailgun"},
-    {"impulse 6",		"Grenade launcher"},
-    {"impulse 7",		"Rocket launcher"},
-    {"impulse 8",		"Thunderbolt"},
+    {"impulse 1",               "Axe"},
+    {"impulse 2",               "Shotgun"},
+    {"impulse 3",               "Super shotgun"},
+    {"impulse 4",               "Nailgun"},
+    {"impulse 5",               "Super nailgun"},
+    {"impulse 6",               "Grenade launcher"},
+    {"impulse 7",               "Rocket launcher"},
+    {"impulse 8",               "Thunderbolt"},
 // Manoel Kasimier - end
-    {"+jump", 			"jump / swim up"},
-    {"+moveup",			"swim up"},
-    {"+movedown",		"swim down"},
-    {"+lookup", 		"look up"},
-    {"+lookdown", 		"look down"},
-    {"+left", 			"turn left"},
-    {"+right", 			"turn right"},
-    {"+forward", 		"walk forward"},
-    {"+back", 			"backpedal"},
-    {"+moveleft", 		"step left"},
-    {"+moveright", 		"step right"},
-    {"+strafe", 		"sidestep"},
-    {"+speed", 			"run"},
-    {"+klook", 			"keyboard look"},
-    {"centerview", 		"center view"},
-    {"+showscores",		"show scores"} // Manoel Kasimier
+    {"+jump",                   "jump / swim up"},
+    {"+moveup",                 "swim up"},
+    {"+movedown",               "swim down"},
+    {"+lookup",                 "look up"},
+    {"+lookdown",               "look down"},
+    {"+left",                   "turn left"},
+    {"+right",                  "turn right"},
+    {"+forward",                "walk forward"},
+    {"+back",                   "backpedal"},
+    {"+moveleft",               "step left"},
+    {"+moveright",              "step right"},
+    {"+strafe",                 "sidestep"},
+    {"+speed",                  "run"},
+    {"+klook",                  "keyboard look"},
+    {"centerview",              "center view"},
+    {"+showscores",             "show scores"} // Manoel Kasimier
 };
-#define	NUMCOMMANDS (sizeof(defaultbindnames)/sizeof(defaultbindnames[0]))
+#define NUMCOMMANDS (sizeof(defaultbindnames)/sizeof(defaultbindnames[0]))
 
 // Manoel Kasimier - begin
 void M_Keys_SetDefaultCmds (void)
@@ -2751,19 +2749,19 @@ void M_Keys_f (void)
 void M_Keys_Draw (void)
 {
     // Manoel Kasimier - begin
-    int		i, i2;
-    int		keys[MAXKEYS];
-    int	/*	x,*/ y;
-    int		top, bottom;
+    int         i, i2;
+    int         keys[MAXKEYS];
+    int /*      x,*/ y;
+    int         top, bottom;
 
     M_DrawPlaque ("gfx/p_option.lmp", true); // ttl_cstm Manoel Kasimier
 
-//	m_keys_pages = 1; // for testing purposes
+//      m_keys_pages = 1; // for testing purposes
 
     if (m_keys_pages > 0)
         M_Print (128, 28, "Page 1/1");
     top = 28 + (m_keys_pages > 0)*16;
-    bottom = min_vid_height - 48; // textbox height
+    bottom = MIN_VID_HEIGHT - 48; // textbox height
 
     M_DrawTextBox (0, bottom + 8, 37*8, 3*8);
     if (bind_grab)
@@ -2819,9 +2817,9 @@ void M_Keys_Draw (void)
 
 void M_Keys_Key (int k)
 {
-    char	cmd[80];
-    int		keys[MAXKEYS]; // Manoel Kasimier
-    int		menulines = (min_vid_height - 28 - (m_keys_pages>0)*16 - 48) / 8; // Manoel Kasimier
+    char        cmd[80];
+    int         keys[MAXKEYS]; // Manoel Kasimier
+    int         menulines = (MIN_VID_HEIGHT - 28 - (m_keys_pages>0)*16 - 48) / 8; // Manoel Kasimier
 
     M_FillKeyList(); // Manoel Kasimier
 
@@ -2917,7 +2915,7 @@ void M_Keys_Key (int k)
 // Manoel Kasimier - begin
 //=============================================================================
 /* CONTROLLER OPTIONS MENU */
-#define	CONTROLLER_ITEMS	8
+#define CONTROLLER_ITEMS        8
 
 void M_Controller_f (void)
 {
@@ -2991,7 +2989,7 @@ void M_Controller_Key (int k)
 }
 //=============================================================================
 /* MOUSE CONFIG MENU */
-#define	MOUSE_ITEMS	5
+#define MOUSE_ITEMS     5
 
 void M_Mouse_f (void)
 {
@@ -3054,7 +3052,7 @@ void M_Mouse_Key (int k)
 }
 //=============================================================================
 /* GAMEPLAY OPTIONS MENU */
-#define	GAMEPLAY_ITEMS	12
+#define GAMEPLAY_ITEMS  12
 
 void M_Gameplay_f (void)
 {
@@ -3114,7 +3112,7 @@ void M_Gameplay_Change (int dir)
 
     if (c == i++)
     {
-//		(sv_aim.value < 1) ? Cvar_SetValue ("sv_aim", 1) : Cvar_SetValue ("sv_aim", 0.93);
+//              (sv_aim.value < 1) ? Cvar_SetValue ("sv_aim", 1) : Cvar_SetValue ("sv_aim", 0.93);
         if (dir == 1)
         {
             if (sv_aim_h.value < 1) // on
@@ -3188,7 +3186,7 @@ void M_Gameplay_Key (int k)
 //=============================================================================
 /* AUDIO OPTIONS MENU */
 
-#define	AUDIO_ITEMS	12
+#define AUDIO_ITEMS     12
 
 byte cd_cursor;
 
@@ -3300,7 +3298,7 @@ void M_Audio_Key (int k)
 //=============================================================================
 /* VIDEO MENU */
 
-#define	VIDEO_ITEMS	18 //qb:
+#define VIDEO_ITEMS     18 //qb:
 
 void M_Video_f (void)
 {
@@ -3391,7 +3389,7 @@ void M_Video_Change (int dir)
 // Manoel Kasimier - end
 void M_Video_Key (int k) // int key Edited by Manoel Kasimier
 {
-//	(*vid_menukeyfn) (key);
+//      (*vid_menukeyfn) (key);
     // Manoel Kasimier - begin
     if (m_inp_cancel)
         M_Options_f ();
@@ -3410,7 +3408,7 @@ void M_Video_Key (int k) // int key Edited by Manoel Kasimier
     else if (m_cursor[m_state] == 0 && m_inp_ok)
 
         M_VideoModes_f ();
-//qb:	else if (m_cursor[m_state] == 1 && m_inp_ok)
+//qb:   else if (m_cursor[m_state] == 1 && m_inp_ok)
     else if (m_inp_left)
         M_Video_Change (-1);
     else if (m_inp_right || m_inp_ok)
@@ -3433,7 +3431,7 @@ void M_VideoModes_f (void)
 //=============================================================================
 /* DEVELOPER MENU */
 
-#define	DEVELOPER_ITEMS	16
+#define DEVELOPER_ITEMS 16
 
 void M_Developer_f (void)
 {
@@ -3584,80 +3582,80 @@ void M_Help_f (void)
 
 void M_Help_Draw (void)
 {
-	// mankrip - begin
-	qpic_t	*p;
-	int y = 0;
+    // mankrip - begin
+    qpic_t      *p;
+    int y = 0;
 
-	if (m_state == m_credits)
-	{
-		if ((int)(realtime-m_credits_starttime) > 9)
-			M_Credits_Key(0);
-		if (m_cursor[m_state] == 1)
-			goto credits1;
-		else if (m_cursor[m_state] == 2)
-			goto credits2;
-		return;
-	}
+    if (m_state == m_credits)
+    {
+        if ((int)(realtime-m_credits_starttime) > 9)
+            M_Credits_Key(0);
+        if (m_cursor[m_state] == 1)
+            goto credits1;
+        else if (m_cursor[m_state] == 2)
+            goto credits2;
+        return;
+    }
 
-	if (m_cursor[m_state] < help_pages.value)
-	{
-		p = Draw_CachePic ( va("gfx/help%i.lmp", m_cursor[m_state]));
-		M_DrawTransPic (0, 0, p, false);
-	}
-	else
-	{
-		if (m_cursor[m_state] == help_pages.value)
-		{
+    if (m_cursor[m_state] < help_pages.value)
+    {
+        p = Draw_CachePic ( va("gfx/help%i.lmp", m_cursor[m_state]));
+        M_DrawTransPic (0, 0, p, false);
+    }
+    else
+    {
+        if (m_cursor[m_state] == help_pages.value)
+        {
 credits1:
             M_DrawTextBox (0, y, 38*8, 23*8);
-            M_Print		(22,	y+=24,	"      qbism Super 8 engine  ");
-            M_Print		(22,	y+=8,	"        super8.qbism.com  ");
-            M_PrintWhite(22,	y+=12,	"       forked from Makaqu     ");
-            M_PrintWhite(22,	y+=8,	"Programmed by Manoel Kasimier");
-            M_PrintWhite(22,	y+=12,	"ToChriS Quake by Victor Luchitz");
-            M_PrintWhite(22,	y+=8,	"FlashQuake port by Michael Rennie");
-            M_PrintWhite(22,	y+=8,	"FlashProQuake port by Baker");
-            M_PrintWhite(22,	y+=8,	"joequake engine by Jozsef Szalontai");
-            M_PrintWhite(22,	y+=8,	"qrack engine coded by R00k");
-            M_PrintWhite(22,	y+=8,	"fteqw engine by Spike and FTE Team");
-            M_PrintWhite(22,	y+=8,	"FitzQuake coded by John Fitz");
-            M_PrintWhite(22,	y+=8,	"DarkPlaces engine by Lord Havoc");
-            M_PrintWhite(22,	y+=8,	"engoo engine by Leilei");
-            M_PrintWhite(22,	y+=8,	"GoldQuake engine by Sajt");
-            M_PrintWhite(22,	y+=8,	"enhanced WinQuake by Bengt Jardrup ");
-            M_PrintWhite(22,	y+=8,	"Tutorials- JTR, Fett, Baker and MH");
-            M_PrintWhite(22,	y+=16,	"Thanks to any other GPL coders!");
+            M_Print             (22,    y+=24,  "      qbism Super 8 engine  ");
+            M_Print             (22,    y+=8,   "        super8.qbism.com  ");
+            M_PrintWhite(22,    y+=12,  "       forked from Makaqu     ");
+            M_PrintWhite(22,    y+=8,   "Programmed by Manoel Kasimier");
+            M_PrintWhite(22,    y+=12,  "ToChriS Quake by Victor Luchitz");
+            M_PrintWhite(22,    y+=8,   "FlashQuake port by Michael Rennie");
+            M_PrintWhite(22,    y+=8,   "FlashProQuake port by Baker");
+            M_PrintWhite(22,    y+=8,   "joequake engine by Jozsef Szalontai");
+            M_PrintWhite(22,    y+=8,   "qrack engine coded by R00k");
+            M_PrintWhite(22,    y+=8,   "fteqw engine by Spike and FTE Team");
+            M_PrintWhite(22,    y+=8,   "FitzQuake coded by John Fitz");
+            M_PrintWhite(22,    y+=8,   "DarkPlaces engine by Lord Havoc");
+            M_PrintWhite(22,    y+=8,   "engoo engine by Leilei");
+            M_PrintWhite(22,    y+=8,   "GoldQuake engine by Sajt");
+            M_PrintWhite(22,    y+=8,   "enhanced WinQuake by Bengt Jardrup ");
+            M_PrintWhite(22,    y+=8,   "Tutorials- JTR, Fett, Baker and MH");
+            M_PrintWhite(22,    y+=16,  "Thanks to any other GPL coders!");
         }
         else
         {
 credits2:
-		//	if (m_state != m_credits)
-				M_DrawTextBox (0, y, 38*8, 23*8);
-			M_PrintWhite(16+4,	y+=12, "     Quake engine version 1.09     ");
+            //  if (m_state != m_credits)
+            M_DrawTextBox (0, y, 38*8, 23*8);
+            M_PrintWhite(16+4,  y+=12, "     Quake engine version 1.09     ");
 
-			M_PrintWhite(16,	y+=16, "Programming");
-			M_Print		(16,	 y+=8, " John Carmack");
-			M_Print		(16,	 y+=8, " Michael Abrash");
-			M_Print		(16,	 y+=8, " John Cash");
-			M_Print		(16,	 y+=8, " Dave 'Zoid' Kirsch");
+            M_PrintWhite(16,    y+=16, "Programming");
+            M_Print             (16,     y+=8, " John Carmack");
+            M_Print             (16,     y+=8, " Michael Abrash");
+            M_Print             (16,     y+=8, " John Cash");
+            M_Print             (16,     y+=8, " Dave 'Zoid' Kirsch");
 
-			M_PrintWhite(16,	y+=16, "Quake is a trademark of Id Software,");
-			M_PrintWhite(16,	 y+=8, "inc., (c)1996-1997 Id Software, inc.");
-			M_PrintWhite(16,	 y+=8, "All rights reserved.");
+            M_PrintWhite(16,    y+=16, "Quake is a trademark of Id Software,");
+            M_PrintWhite(16,     y+=8, "inc., (c)1996-1997 Id Software, inc.");
+            M_PrintWhite(16,     y+=8, "All rights reserved.");
 
-			M_PrintWhite(16,	y+=16, "This engine is distributed in the");
-			M_PrintWhite(16,	 y+=8, "hope that it will be useful, but");
-			M_PrintWhite(16,	 y+=8, "WITHOUT ANY WARRANTY.");
-			M_PrintWhite(16,	 y+=8, "Its code is licensed under the terms");
-			M_PrintWhite(16,	 y+=8, "of the GNU General Public License.");
-			M_PrintWhite(16,	 y+=8, "If you distribute modified binary");
-			M_PrintWhite(16,	 y+=8, "versions of this engine, you must");
-			M_PrintWhite(16,	 y+=8, "also make its source code available.");
-			M_PrintWhite(16,	 y+=8, "See the GNU General Public License");
-			M_PrintWhite(16,	 y+=8, "for more details.");
-		}
-	}
-	// mankrip - end
+            M_PrintWhite(16,    y+=16, "This engine is distributed in the");
+            M_PrintWhite(16,     y+=8, "hope that it will be useful, but");
+            M_PrintWhite(16,     y+=8, "WITHOUT ANY WARRANTY.");
+            M_PrintWhite(16,     y+=8, "Its code is licensed under the terms");
+            M_PrintWhite(16,     y+=8, "of the GNU General Public License.");
+            M_PrintWhite(16,     y+=8, "If you distribute modified binary");
+            M_PrintWhite(16,     y+=8, "versions of this engine, you must");
+            M_PrintWhite(16,     y+=8, "also make its source code available.");
+            M_PrintWhite(16,     y+=8, "See the GNU General Public License");
+            M_PrintWhite(16,     y+=8, "for more details.");
+        }
+    }
+    // mankrip - end
 }
 
 void M_Help_Key (int key)
@@ -3708,7 +3706,7 @@ void M_Quit_f (void)
 //=============================================================================
 /* MULTIPLAYER MENU */
 
-#define	MULTIPLAYER_ITEMS	3
+#define MULTIPLAYER_ITEMS       3
 int m_multiplayer_cursor;
 
 void M_MultiPlayer_f (void)
@@ -3728,7 +3726,7 @@ void M_MultiPlayer_Draw (void)
 
     if (ipxAvailable || tcpipAvailable)
         return;
-    M_PrintWhite ((min_vid_width/2) - ((27*8)/2), 148, "No Communications Available");
+    M_PrintWhite ((MIN_VID_WIDTH/2) - ((27*8)/2), 148, "No Communications Available");
 }
 
 void M_MultiPlayer_Key (int key)
@@ -3772,7 +3770,7 @@ void M_MultiPlayer_Key (int key)
 //=============================================================================
 /* NET MENU */
 
-int	m_net_cursor;
+int     m_net_cursor;
 int m_net_items;
 int m_net_saveHeight;
 
@@ -3822,8 +3820,8 @@ void M_Net_f (void)
 
 void M_Net_Draw (void)
 {
-    int		f;
-    qpic_t	*p;
+    int         f;
+    qpic_t      *p;
 
     M_DrawPlaque ("gfx/p_multi.lmp", true); // Manoel Kasimier
 
@@ -3864,7 +3862,7 @@ void M_Net_Draw (void)
         p = Draw_CachePic ("gfx/dim_tcp.lmp");
     M_DrawTransPic (72, f, p, false);
 
-    if (m_net_items == 5)	// JDC, could just be removed
+    if (m_net_items == 5)       // JDC, could just be removed
     {
         f += 19;
         p = Draw_CachePic ("gfx/netmen5.lmp");
@@ -3926,14 +3924,14 @@ again:
 //=============================================================================
 /* LAN CONFIG MENU */
 
-int		lanConfig_cursor = -1;
-//int		lanConfig_cursor_table [] = {72, 92, 124};
-int		lanConfig_cursor_table [] = {40, 60, 92};
-#define NUM_LANCONFIG_CMDS	3
+int             lanConfig_cursor = -1;
+//int           lanConfig_cursor_table [] = {72, 92, 124};
+int             lanConfig_cursor_table [] = {40, 60, 92};
+#define NUM_LANCONFIG_CMDS      3
 
-int 	lanConfig_port;
-char	lanConfig_portname[6];
-char	lanConfig_joinname[22];
+int     lanConfig_port;
+char    lanConfig_portname[6];
+char    lanConfig_joinname[22];
 
 void M_LanConfig_f (void)
 {
@@ -3959,18 +3957,18 @@ void M_LanConfig_f (void)
 
 void M_LanConfig_Draw (void)
 {
-    qpic_t	*p;
-    int		basex;
-    char	*startJoin;
-    char	*protocol;
+    qpic_t      *p;
+    int         basex;
+    char        *startJoin;
+    char        *protocol;
 
-    int		f = 28; // Manoel Kasimier
+    int         f = 28; // Manoel Kasimier
     M_DrawPlaque ("gfx/p_multi.lmp", true); // Manoel Kasimier
 
-//	M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
+//      M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp") );
     p = Draw_CachePic ("gfx/p_multi.lmp");
-    basex = (min_vid_width-p->width)/2;
-//	M_DrawTransPic (basex, 4, p);
+    basex = (MIN_VID_WIDTH-p->width)/2;
+//      M_DrawTransPic (basex, 4, p);
 
     if (StartingGame)
         startJoin = "New Game";
@@ -4021,7 +4019,7 @@ void M_LanConfig_Draw (void)
 
 void M_LanConfig_Key (int key)
 {
-    int		l;
+    int         l;
 
     // Manoel Kasimier - begin
     if (m_inp_cancel)
@@ -4139,8 +4137,8 @@ void M_LanConfig_Key (int key)
 //=============================================================================
 /* SEARCH MENU */
 
-qboolean	searchComplete = false;
-double		searchCompleteTime;
+qboolean        searchComplete = false;
+double          searchCompleteTime;
 
 void M_Search_f (void)
 {
@@ -4161,7 +4159,7 @@ void M_Search_Draw (void)
 
     M_DrawPlaque ("gfx/p_multi.lmp", false); // Manoel Kasimier
 
-    x = (min_vid_width/2) - ((12*8)/2) + 4;
+    x = (MIN_VID_WIDTH/2) - ((12*8)/2) + 4;
     M_DrawTextBox (x-8, 32, 12*8, 1*8);
     M_Print (x, 40, "Searching...");
 
@@ -4183,7 +4181,7 @@ void M_Search_Draw (void)
         return;
     }
 
-    M_PrintWhite ((min_vid_width/2) - ((22*8)/2), 64, "No Quake servers found");
+    M_PrintWhite ((MIN_VID_WIDTH/2) - ((22*8)/2), 64, "No Quake servers found");
     if ((realtime - searchCompleteTime) < 3.0)
         return;
 
@@ -4198,7 +4196,7 @@ void M_Search_Key (int key)
 //=============================================================================
 /* SLIST MENU */
 
-int		slist_cursor;
+int             slist_cursor;
 qboolean slist_sorted;
 
 void M_ServerList_f (void)
@@ -4215,8 +4213,8 @@ void M_ServerList_f (void)
 
 void M_ServerList_Draw (void)
 {
-    int		n;
-    char	string [64];
+    int         n;
+    char        string [64];
 
     M_DrawPlaque ("gfx/p_multi.lmp", false); // Manoel Kasimier
 
@@ -4224,7 +4222,7 @@ void M_ServerList_Draw (void)
     {
         if (hostCacheCount > 1)
         {
-            int	i,j;
+            int i,j;
             hostcache_t temp;
             for (i = 0; i < hostCacheCount; i++)
                 for (j = i+1; j < hostCacheCount; j++)
@@ -4335,8 +4333,8 @@ void M_Draw (void)
         if(fade_level > 0)
         {
             scr_copyeverything = 1;
-            //	fade_level -= 1; // Manoel Kasimier - edited
-            //	if(fade_level < 0)
+            //  fade_level -= 1; // Manoel Kasimier - edited
+            //  if(fade_level < 0)
             fade_level = 0;
             scr_fullupdate = 1;
             Draw_FadeScreen ();

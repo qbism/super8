@@ -797,7 +797,7 @@ void Sbar_DrawFrags (void)
     if (cl.gametype == GAME_DEATHMATCH)
         xofs = 0;
     else
-        xofs = (vid.width - min_vid_width)>>1;
+        xofs = (vid.width - MIN_VID_WIDTH)>>1;
     y = vid.height - SBAR_HEIGHT - 23;
 
     for (i=0 ; i<l ; i++)
@@ -914,7 +914,7 @@ void Sbar_DrawFace (int x, int y) // default 112, 0
         if (cl.gametype == GAME_DEATHMATCH)
             xofs = x + 2; // 113 Manoel Kasimier - edited
         else
-            xofs = ((vid.width - min_vid_width)>>1) + x + 2; // 113 Manoel Kasimier - edited
+            xofs = ((vid.width - MIN_VID_WIDTH)>>1) + x + 2; // 113 Manoel Kasimier - edited
 
         Sbar_DrawTransPic (x, 0, rsb_teambord); // 112 Manoel Kasimier - edited
         Draw_Fill (xofs, vid.height-SBAR_HEIGHT+3, 20, 9, top); // Manoel Kasimier - edited
@@ -1150,7 +1150,7 @@ void Crosshair_Draw (int x, int y, int color)
 {
     int		pixel_value, pixel_color,
             countx, county, xdest, ydest,
-            xmult=vid.width/min_vid_width,
+            xmult=vid.width/MIN_VID_WIDTH,
             ymult=xmult; //qb;
     byte	*pdest, num=crosshair.value-1;
     pdest = vid.buffer + y*vid.rowbytes + x;
@@ -1215,8 +1215,8 @@ void Sbar_Draw (void)
     {
         if (crosshair.value < 0 || crosshair.value > 5)
             crosshair.value = 0;
-        Crosshair_Start(cl_crossx.value + scr_vrect.x + scr_vrect.width/2 - 6*(vid.width/min_vid_width),
-                         cl_crossy.value + scr_vrect.y + scr_vrect.height/2 - 6*(vid.width/min_vid_width)); // Manoel Kasimier - crosshair
+        Crosshair_Start(cl_crossx.value + scr_vrect.x + scr_vrect.width/2 - 6*(vid.width/MIN_VID_WIDTH),
+                         cl_crossy.value + scr_vrect.y + scr_vrect.height/2 - 6*(vid.width/MIN_VID_WIDTH)); // Manoel Kasimier - crosshair
     }
     // Manoel Kasimier - crosshair - end
 
@@ -1382,7 +1382,7 @@ void Sbar_DeathmatchOverlay (void)
 // draw the text
     l = scoreboardlines;
 
-    x = 80 + ((vid.width - min_vid_width)>>1);
+    x = 80 + ((vid.width - MIN_VID_WIDTH)>>1);
     y = 36; // Manoel Kasimier - edited
     for (i=0 ; i<l ; i++)
     {

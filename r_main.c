@@ -65,7 +65,7 @@ byte	palmapnofb[32][32][32];		// No fullbrights
 byte		*r_stack_start;
 #endif
 
-byte		*r_warpbuffer;
+//qb: remove in this file.  byte		*r_warpbuffer;
 
 //qboolean	r_fov_greater_than_90;
 
@@ -998,7 +998,7 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj)
         VectorNormalize (screenedge[i].normal);
 
     res_scale = sqrt ((double)(r_refdef.vrect.width * r_refdef.vrect.height) /
-                      (min_vid_width * 152.0)) *
+                      (MIN_VID_WIDTH * 152.0)) *
                 (2.0 / r_refdef.horizontalFieldOfView);
 
 //qb- not used   if (scr_fov.value <= 90.0)
@@ -1587,6 +1587,15 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     int		dummy;
     int		delta;
 
+    //qb: originally based on Makaqu fog.  added global fog, dithering, optimizing
+    static int			xref, yref;
+    static byte		*pbuf, *vidfog;
+    static byte        noise;
+    static unsigned short		*pz;
+    static int          i, level, numthreads;
+    static float previous_fog_density;
+    static dither;
+
     //This causes problems for Flash when not using -O3
 #if !defined(FLASH)
     delta = (byte *)&dummy - r_stack_start;
@@ -1600,8 +1609,8 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     if ( (long)(&dummy) & 3 )
         Sys_Error ("Stack is missaligned");
 
-    if ( (long)(&r_warpbuffer) & 3 )
-        Sys_Error ("Globals are missaligned");
+    //qb: remove.  if ( (long)(&r_warpbuffer) & 3 )
+        //Sys_Error ("Globals are missaligned");
 
     //byte	warpbuffer[WARP_WIDTH * WARP_HEIGHT]; // Manoel Kasimier - hi-res waterwarp & buffered video - removed
     // Manoel Kasimier - hi-res waterwarp & buffered video - begin
@@ -1683,16 +1692,10 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     R_DrawViewModel (true); //qb: draw after particles.  it's worth the overdraw.
     R_DrawViewModel (false); // Manoel Kasimier
 
-    //qb: originally based on Makaqu fog.  added global fog, dithering, optimizing
-    static int			xref, yref;
-    static byte		*pbuf, *vidfog;
-    static byte        noise;
-    static unsigned short		*pz;
-    static int          i, level, numthreads;
-    static float previous_fog_density;
+#ifdef R_THREADED
     static pthread_t fogthread[MAXFOGTHREADS];
     static fogslice_t fogs[MAXFOGTHREADS]; //qb: threads
-
+#endif
 
     if (fog_density && r_fog.value) //qb: fog
     {
@@ -1702,8 +1705,9 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
         //qb:  fogindex calc includes some color correction- brightness, and heavy on green
         fogindex = 32*256 + palmapnofb[(int)(fog_red*192)>>3][(int)(fog_green*192) >>3][(int)(fog_blue*192)>>3]; //qb:fractional value, bright fog is harsh
 
+#ifdef R_THREADED
         numthreads = min(thread_fog.value,MAXFOGTHREADS);
-        if(numthreads >2)
+        if(numthreads >1)
         {
             for (i=0; i<numthreads; i++)
             {
@@ -1721,15 +1725,17 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
             }
         }
         else
+#endif
         {
+            dither = 0;
             for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
             {
                 pbuf = vid.buffer + d_scantable[yref];
                 pz = d_pzbuffer + (d_zwidth * yref);
                 for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
                 {
-                    level = *(pz++);
-                    if (level>0 && level<248)
+                    level = (int)(*(pz++) * ditherfog[dither++ % DITHER_NUMRANDS]);
+                    if (level > 0 && level < 31)
                         *pbuf = fogmap[*pbuf + (int)vid.colormap[fogindex + level*256]*256];
                     pbuf++;
                 }

@@ -18,6 +18,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 #include "r_local.h"
+#include "bgmusic.h"
 #ifdef _WIN32 //qb: jqavi
 #include "s_win32/movie_avi.h"
 #include "version.h"
@@ -985,7 +986,7 @@ void Palette_Init (void) //qb: idea from Engoo
 Host_Init
 ====================
 */
-pixel_t colormap_cel[256*COLORLEVELS]; // Manoel Kasimier - EF_CELSHADING
+byte colormap_cel[256*COLORLEVELS]; // Manoel Kasimier - EF_CELSHADING
 void M_Credits_f (void); // Manoel Kasimier
 void SCR_Adjust (void); // Manoel Kasimier - screen positioning
 void Host_Init (quakeparms_t *parms)

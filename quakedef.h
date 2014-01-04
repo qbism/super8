@@ -26,8 +26,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <setjmp.h>
 
+#ifdef R_THREADED
 #ifdef WIN32
 #include "C:\CodeBlocks\MinGW\include\pthread.h"  //qb: multithreaded functions
+#endif
 #endif
 
 //#define	GLTEST			// experimental stuff
@@ -306,8 +308,6 @@ extern	double		realtime;			// not bounded in any way, changed at
 
 extern double	newtime;
 
-extern int min_vid_width; //qb: Dan East
-
 //qb: qrack complete command begin
 extern	char	key_lines[CMDLINES][MAXCMDLINE];
 extern	int	edit_line;
@@ -366,7 +366,6 @@ extern int	coloredlights; //qb: colored lights on, set at map load.
 extern qboolean		isDedicated;
 extern	int			sb_lines;			// scan lines to draw
 extern	float		scr_2d_scale_h, scr_2d_scale_v;
-extern int min_vid_width, min_vid_height;  //qb: Dan East
 
 extern int		minimum_memory;
 extern byte     palmapnofb[32][32][32];
