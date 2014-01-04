@@ -310,7 +310,8 @@ extern float fade_done; //time when fade will be done
 void GrabFogmap (void);
 
 void R_BuildLightmaps(void); //qb: ftestain
-void GrabAlphamap (void); //qb:
+void GrabAlphamap (void); //qb: color lookup tables
+void GrabAlpha50map (void);  //qb:
 void GrabAdditivemap (void); //qb:
 void GrabColormap (void); //qb:
 void V_BonusFlash_f (void);  //qb: add prototype to appease Cygwin (swc compiling)

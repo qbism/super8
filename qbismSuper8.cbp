@@ -18,6 +18,8 @@
 				<Option parameters=" -heapsize 64000 -map start" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-D_REENTRANT" />
+					<Add option="-DR_THREADED" />
 					<Add option="-DWIN32" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_WIN32" />
@@ -29,6 +31,13 @@
 				<ResourceCompiler>
 					<Add directory="./dxsdk/sdk/inc" />
 				</ResourceCompiler>
+				<Linker>
+					<Add library="vorbisfile" />
+					<Add library="vorbis" />
+					<Add library="ogg" />
+					<Add library="mad" />
+					<Add library="..\..\CodeBlocks\MinGW\lib\libpthreadGC2.dll.a" />
+				</Linker>
 			</Target>
 			<Target title="Release Win32">
 				<Option output="../../quake/qbismS8" prefix_auto="1" extension_auto="1" />
@@ -37,10 +46,13 @@
 				<Option type="0" />
 				<Option compiler="mingw32" />
 				<Compiler>
+					<Add option="-march=i486" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
-					<Add option="-O2" />
+					<Add option="-w" />
+					<Add option="-D_REENTRANT" />
+					<Add option="-DR_THREADED" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
@@ -50,6 +62,14 @@
 					<Add option="-DUSE_CODEC_VORBIS" />
 					<Add option="-DUSE_CODEC_WAVE" />
 				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="vorbisfile" />
+					<Add library="vorbis" />
+					<Add library="ogg" />
+					<Add library="mad" />
+					<Add library="..\..\CodeBlocks\MinGW\lib\libpthreadGC2.dll.a" />
+				</Linker>
 			</Target>
 			<Target title="Release Win32 no music">
 				<Option output="../../quake/qbismS8_nomusic" prefix_auto="1" extension_auto="1" />
@@ -63,6 +83,8 @@
 					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-w" />
+					<Add option="-D_REENTRANT" />
+					<Add option="-DR_THREADED" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
@@ -72,20 +94,22 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="..\..\CodeBlocks\MinGW\lib\libpthreadGC2.dll.a" />
 				</Linker>
 			</Target>
 			<Target title="icore Win32">
 				<Option output="../../quake/qbismS8_icore" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="../../quake" />
-				<Option object_output="s_win32/Release" />
+				<Option object_output="s_win32/Release_icore" />
 				<Option type="0" />
 				<Option compiler="mingw32" />
 				<Compiler>
 					<Add option="-march=corei7" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-fexpensive-optimizations" />
-					<Add option="-O2" />
+					<Add option="-O3" />
 					<Add option="-w" />
+					<Add option="-DR_THREADED" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
@@ -98,23 +122,42 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add library="vorbisfile" />
+					<Add library="vorbis" />
+					<Add library="ogg" />
+					<Add library="mad" />
+					<Add library="..\..\CodeBlocks\MinGW\lib\libpthreadGC2.dll.a" />
+				</Linker>
+			</Target>
+			<Target title="Release Win32 unthreaded">
+				<Option output="../../quake/qbismS8_unthreaded" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../quake" />
+				<Option object_output="s_win32/Release_unthreaded" />
+				<Option type="0" />
+				<Option compiler="mingw32" />
+				<Compiler>
+					<Add option="-march=i486" />
+					<Add option="-O2" />
+					<Add option="-w" />
+					<Add option="-DWIN32" />
+					<Add option="-DNDEBUG" />
+					<Add option="-D_WINDOWS" />
+					<Add option="-D_WIN32" />
+					<Add directory="." />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-D_REENTRANT" />
 			<Add directory="s_win32/codecs/include" />
 		</Compiler>
 		<Linker>
-			<Add library="vorbisfile" />
-			<Add library="vorbis" />
-			<Add library="ogg" />
-			<Add library="mad" />
 			<Add library="winmm" />
 			<Add library="wsock32" />
 			<Add library="dinput" />
 			<Add library="dxguid" />
-			<Add library="..\..\CodeBlocks\MinGW\lib\libpthreadGC2.dll.a" />
 			<Add directory="s_win32/codecs/x86" />
 		</Linker>
 		<ExtraCommands>

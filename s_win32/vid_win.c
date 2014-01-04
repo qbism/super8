@@ -26,9 +26,6 @@ extern cvar_t thread_flip;  //qb: threading
 // true if the ddraw driver started up OK
 qboolean    vid_usingddraw = false;
 
-int min_vid_width=360; //qb: Dan East - pocketquake (could be less for very low-res display)
-int min_vid_height=200;
-
 // main application window
 HWND hWndWinQuake = NULL;
 
@@ -626,11 +623,12 @@ void VID_InitModes (HINSTANCE hInstance)
     hdc = GetDC (NULL);
 
 
-    for (i = VID_WINDOWED_MODES; i<nummodes; i++) //qb: FIXME - this gets stomped on.
+    for (i = VID_WINDOWED_MODES; i<nummodes; i++)
     {
-        if ((modelist[i].width == GetDeviceCaps (hdc, HORZRES)) && (modelist[i].height == GetDeviceCaps (hdc, VERTRES)))  //qb: do fullscreen as default.
+        if ((modelist[i].width == GetDeviceCaps (hdc, HORZRES)) && (modelist[i].height == GetDeviceCaps (hdc, VERTRES))
+             && (modelist[i].width <= 1024) && (modelist[i].height <= 768)) //qb: do fullscreen as default.
         {
-            vid_default = i;//qb:  set default to highest detected res
+            vid_default = i;//qb:  set default to highest detected res but no bigger than 1024x768 (possible start-up failure with dual-screens)
             //qb:  continue;
         }
     }
@@ -718,8 +716,8 @@ void VID_GetDisplayModes (void)
 
         if ((devmode.dmPelsWidth <= MAXWIDTH) &&
                 (devmode.dmPelsHeight <= MAXHEIGHT) &&
-                (devmode.dmPelsWidth >= min_vid_width) && //qb: was 640
-                (devmode.dmPelsHeight >= min_vid_height) && //qb: was 480
+                (devmode.dmPelsWidth >= MIN_VID_WIDTH) && //qb: was 640
+                (devmode.dmPelsHeight >= MIN_VID_HEIGHT) && //qb: was 480
                 (nummodes < MAX_MODE_LIST))
         {
             devmode.dmFields = DM_BITSPERPEL |
@@ -1091,7 +1089,7 @@ int VID_SetMode (int modenum, unsigned char *palette)
     if (vid_ddraw.value && !vid_usingddraw) Cvar_Set ("vid_ddraw", "0");
 
     // set the rest of the buffers we need (why not just use one single buffer instead of all this crap? oh well, it's Quake...)
-    vid.direct = (unsigned char *) vid.buffer;
+    vid.direct = vid.buffer;
     vid.conbuffer = vid.buffer;
 
     // more crap for the console
@@ -1138,8 +1136,8 @@ int VID_SetMode (int modenum, unsigned char *palette)
     Cvar_SetValue ("vid_mode", (float) vid_modenum);
     CheckSbarScale();
 
-    //  if (vid.width<320) min_vid_width=vid.width; //qb: Dan East
-    //  else min_vid_width=320;
+    //  if (vid.width<320) MIN_VID_WIDTH=vid.width; //qb: Dan East
+    //  else MIN_VID_WIDTH=320;
 
     if (!VID_AllocBuffers (vid.width, vid.height))
     {
@@ -1504,9 +1502,10 @@ void FlipScreen (vrect_t *rects)
     static HRESULT hr = S_OK;
     numrects = 0;
 
+#ifdef R_THREADED
     static pthread_t flipthread[MAXFLIPTHREADS];
     static flipslice_t fs[MAXFLIPTHREADS]; //qb:  threads
-
+#endif
     while (rects)
     {
         if (vid_usingddraw)
@@ -1529,6 +1528,8 @@ void FlipScreen (vrect_t *rects)
 
                 // convert pitch to unsigned int addressable
                 ddsd.lPitch >>= 2;
+
+#ifdef R_THREADED
                 numthreads = min(thread_flip.value,MAXFLIPTHREADS);
                 if (numthreads > 1)
                 {
@@ -1552,6 +1553,7 @@ void FlipScreen (vrect_t *rects)
                     }
                 }
                 else
+#endif
                 {
                     for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
                     {
@@ -2250,7 +2252,7 @@ void VID_MenuDraw (void)
     vmode_t		*pv;
     modedesc_t	tmodedesc;
     p = Draw_CachePic ("gfx/vidmodes.lmp");
-    M_DrawTransPic ( ( min_vid_width-p->width)/2, 4, p, false); //qb: from Manoel Kasimier + Dan East
+    M_DrawTransPic ( ( MIN_VID_WIDTH-p->width)/2, 4, p, false); //qb: from Manoel Kasimier + Dan East
 
     for (i = 0; i < 3; i++)
     {
@@ -2272,7 +2274,7 @@ void VID_MenuDraw (void)
         ptr = VID_GetModeDescriptionMemCheck (i);
         pv = VID_GetModePtr (i);
 
-        if (ptr && pv->width >= min_vid_width) //qb: res cut-off
+        if (ptr && pv->width >= MIN_VID_WIDTH) //qb: res cut-off
         {
             dup = 0;
 

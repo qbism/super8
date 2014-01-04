@@ -26,7 +26,7 @@ unsigned char	*r_turb_pbase, *r_turb_pdest;
 static fixed16_t		r_turb_s, r_turb_t, r_turb_sstep, r_turb_tstep;
 int				*r_turb_turb;
 int				r_turb_spancount;
-byte	*r_warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
+byte	*r_warpbuffer; // Manoel Kasimier - hi-res waterwarp & buffered video
 
 extern cvar_t thread_warp;
 
@@ -65,8 +65,8 @@ void R_InitTurb (void)
     ideal_height = (float)r_refdef.vrect.height;
     ideal_width = (float)r_refdef.vrect.width;
 
-    uwarpscale = 2.0; //qb: needs to be integer for fisheye views to line-up.  // ideal_width  / min_vid_width;
-    vwarpscale = 1.0; //qb: needs to be integer for fisheye views to line-up.  // //ideal_height / min_vid_height;
+    uwarpscale = 2.0; //qb: needs to be integer for fisheye views to line-up.  // ideal_width  / MIN_VID_WIDTH;
+    vwarpscale = 1.0; //qb: needs to be integer for fisheye views to line-up.  // //ideal_height / MIN_VID_HEIGHT;
     ustep = 1.0f / uwarpscale;
     vstep = 1.0f / vwarpscale;
     uoffset = (0.5f * ( (float)r_refdef.vrect.width  - ideal_width )) / uwarpscale;
@@ -283,8 +283,11 @@ void D_WarpScreen (void)
     static int   *turb_x, *turb_y;
     static int i;
     const float    timeoffset = (float) ( (int) (cl.time * SPEED) & (CYCLE - 1)); // turbulence phase offset
+
+#ifdef R_THREADED
     static warpslice_t ws[MAXWARPTHREADS];  //qb:  threads
     static pthread_t warpthread[MAXWARPTHREADS];
+#endif
 
     static byte  *tempdest;
     static int  *row, *col, *turb_x_temp;
@@ -297,6 +300,8 @@ void D_WarpScreen (void)
 
     src = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
     dest= r_warpbuffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
+
+#ifdef R_THREADED
     numthreads = min(thread_warp.value,MAXWARPTHREADS);
     if(numthreads > 1)
     {
@@ -321,11 +326,11 @@ void D_WarpScreen (void)
         }
         // mankrip - hi-res waterwarp - end
     }
-
     else
-    {
+#endif
 
-        for (y = 0 ; y < r_refdef.vrect.height ; y++, dest += vid.rowbytes)
+    {
+        for (y = 0 ; y < r_refdef.vrect.height ; y++, dest += vid.width)
         {
             tempdest = dest;
             row = warprow + y;
@@ -447,14 +452,23 @@ void D_WarpScreen (void)
             }
         }
     }
+//qb: swap buffer with video
+    src = vid.buffer;
+    vid.buffer = r_warpbuffer;
+    vid.direct = vid.buffer;
+    vid.conbuffer = vid.buffer;
+    r_warpbuffer = src;
 
-    //qb: copy buffer to video
-    src = r_warpbuffer + scr_vrect.y * vid.width + scr_vrect.x;
-    dest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
-    for (i=0;
-            i<scr_vrect.height;
-            i++, src += vid.width, dest += vid.rowbytes)
-        memcpy(dest, src, scr_vrect.width);
+    /*
+        //qb: copy buffer to video
+        src = r_warpbuffer + scr_vrect.y * vid.width + scr_vrect.x;
+        dest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
+        for (i=0;
+                i<scr_vrect.height;
+                i++, src += vid.width, dest += vid.rowbytes)
+            memcpy(dest, src, scr_vrect.width);
+    */
+
 }
 
 /*

@@ -263,7 +263,7 @@ surfcache_t *D_CacheSurface (msurface_t *surface, int miplevel)
 	else
 		cache->dlight = 0;
 
-	r_drawsurf.surfdat = (pixel_t *)cache->data;
+	r_drawsurf.surfdat = cache->data;
 
 	cache->texture = r_drawsurf.texture;
 	cache->lightadj[0] = r_drawsurf.lightadj[0];

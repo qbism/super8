@@ -36,7 +36,7 @@ viddef_t	vid;				// global video state
 
 #define	BASEWIDTH	640
 #define	BASEHEIGHT	360
-int min_vid_width = BASEWIDTH; //qb:
+
 byte	vid_buffer[BASEWIDTH*BASEHEIGHT];
 short	zbuffer[BASEWIDTH*BASEHEIGHT];
 byte	surfcache[SURFCACHE_SIZE_AT_640X360];
