@@ -29,6 +29,7 @@ int				r_turb_spancount;
 
 extern cvar_t thread_warp;
 extern byte *warpbuf;
+extern cvar_t vid_ddraw;
 
 void D_DrawTurbulent8Span (void);
 
@@ -447,20 +448,25 @@ void D_WarpScreen (void)
         }
     }
 
-    //qb: swap buffer with video
-    src = vid.buffer;
-    vid.buffer = warpbuf;
-    warpbuf = src;
-
+    //qb: swap buffer if ddraw (gdi driver can't handle it at this point)
+#ifdef WIN32
+    if (vid_ddraw.value)
+    {
+        src = vid.buffer;
+        vid.buffer = warpbuf;
+        warpbuf = src;
+    }
+    else
+#endif
+    {
         //qb: copy buffer to video
-/*
         src = warpbuf + scr_vrect.y * vid.width + scr_vrect.x;
         dest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
         for (i=0;
                 i<scr_vrect.height;
                 i++, src += vid.width, dest += vid.rowbytes)
             memcpy(dest, src, scr_vrect.width);
-*/
+    }
 }
 
 /*
@@ -520,7 +526,7 @@ void Turbulent8 (espan_t *pspan)
     do
     {
         r_turb_pdest = (byte *)((byte *)d_viewbuffer +
-                                         (screenwidth * pspan->v) + pspan->u);
+                                (screenwidth * pspan->v) + pspan->u);
         pz = d_pzbuffer + (d_zwidth * pspan->v) + pspan->u; // Manoel Kasimier - translucent water
 
         count = pspan->count;
