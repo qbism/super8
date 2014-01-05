@@ -155,8 +155,8 @@ cvar_t	r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs
 
 
 cvar_t	r_coloredlights = {"r_coloredlights", "1", "r_coloredlights[0/1] Toggle use of colored lighting.", true}; //qb:
-cvar_t	r_clbaseweight = {"r_clbaseweight", "0.2", "r_clbaseweight[0.0 - 1.0] Importance of texture color in colored lighting precalculation.", true}; //qb: base pixel weight for color map blending
-cvar_t	r_clcolorweight= {"r_clcolorweight", "0.7", "r_clcolorweight[0.0 - 1.0] Importance of lighting color in colored lighting precalculation.", true}; //qb: color weight for color map blending
+cvar_t	r_clbaseweight = {"r_clbaseweight", "0.9", "r_clbaseweight[0.0 - 1.0] Importance of texture color in colored lighting precalculation.", true}; //qb: base pixel weight for color map blending
+cvar_t	r_clcolorweight= {"r_clcolorweight", "0.65", "r_clcolorweight[0.0 - 1.0] Importance of lighting color in colored lighting precalculation.", true}; //qb: color weight for color map blending
 
 cvar_t r_fog = {"r_fog", "1", "r_fog[0/1] Toggle rendering of fog.", true}; //qb:  draw fog?
 
@@ -485,7 +485,8 @@ int BestColor (int r, int g, int b, int start, int stop)
 //
 // let any color go to 0 as a last resort
 //
-    bestdistortion = ( (int)r + (int)g + (int)b )*2; //qb:  ( (int)r*r + (int)g*g + (int)b*b )*2;
+
+    bestdistortion =  ( (int)r*r + (int)g*g + (int)b*b )*2; //qb: option- ( (int)r + (int)g + (int)b )*2;
     bestcolor = 0;
 
     pal = host_basepal + start*3;
@@ -495,7 +496,7 @@ int BestColor (int r, int g, int b, int start, int stop)
         dg = abs(g - (int)pal[1]);
         db = abs(b - (int)pal[2]);
         pal += 3;
-        distortion = dr + dg + db; //qb: more weight on value.  dr*dr + dg*dg + db*db;
+        distortion = dr*dr + dg*dg + db*db; //qb: option, more weight on value- dr + dg + db;
         if (distortion < bestdistortion)
         {
             if (!distortion)
@@ -560,9 +561,9 @@ void GrabFogmap (void) //qb: yet another lookup
     {
         for (c=0 ; c<256 ; c++)
         {
-            r = (host_basepal[c*3] + host_basepal[l*3] + (c/32.0));
-            g = (host_basepal[c*3+1] + host_basepal[l*3+1] + (c/32.0));
-            b = (host_basepal[c*3+2] + host_basepal[l*3+2] + (c/32.0));
+            r = host_basepal[c*3] + host_basepal[l*3];
+            g = host_basepal[c*3+1] + host_basepal[l*3+1];
+            b = host_basepal[c*3+2] + host_basepal[l*3+2];
             *colmap++ = BestColor(r,g,b, 0, 254); // High quality color tables get best color
         }
     }
@@ -1683,8 +1684,10 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
         if(previous_fog_density != fog_density)
             FogDitherInit(); //dither includes density factor, so regenerate when it changes
         previous_fog_density = fog_density;
-        //qb:  fogindex calc includes some color correction- brightness, and heavy on green
-        fogindex = 32*256 + palmapnofb[(int)(fog_red*192)>>3][(int)(fog_green*192) >>3][(int)(fog_blue*192)>>3]; //qb:fractional value, bright fog is harsh
+        //qb:  fogindex calc includes some color correction- brightness, saturation
+        float normalize;
+        normalize = 240.0/(0.05+fog_red+fog_green+fog_blue);
+        fogindex = 32*256 + palmapnofb[(int)(min(fog_red*normalize, 255))>>3][(int)(min(fog_green*normalize,255))>>3][(int)(min(fog_blue*normalize,255))>>3];
 
 #ifdef R_THREADED
         numthreads = min(thread_fog.value,MAXFOGTHREADS);

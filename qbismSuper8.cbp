@@ -17,6 +17,7 @@
 				<Option compiler="mingw32" />
 				<Option parameters=" -heapsize 64000 -map start" />
 				<Compiler>
+					<Add option="-march=pentium-mmx" />
 					<Add option="-g" />
 					<Add option="-D_REENTRANT" />
 					<Add option="-DR_THREADED" />
@@ -46,9 +47,8 @@
 				<Option type="0" />
 				<Option compiler="mingw32" />
 				<Compiler>
-					<Add option="-march=i486" />
+					<Add option="-march=pentium-mmx" />
 					<Add option="-fomit-frame-pointer" />
-					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-w" />
 					<Add option="-D_REENTRANT" />
@@ -78,9 +78,8 @@
 				<Option type="0" />
 				<Option compiler="mingw32" />
 				<Compiler>
-					<Add option="-march=i486" />
+					<Add option="-march=pentium-mmx" />
 					<Add option="-fomit-frame-pointer" />
-					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-w" />
 					<Add option="-D_REENTRANT" />
@@ -106,7 +105,6 @@
 				<Compiler>
 					<Add option="-march=corei7" />
 					<Add option="-fomit-frame-pointer" />
-					<Add option="-fexpensive-optimizations" />
 					<Add option="-O3" />
 					<Add option="-w" />
 					<Add option="-DR_THREADED" />
@@ -130,7 +128,7 @@
 				</Linker>
 			</Target>
 			<Target title="Release Win32 unthreaded">
-				<Option output="../../quake/qbismS8_unthreaded" prefix_auto="1" extension_auto="1" />
+				<Option output="../../quake/qbismS8_xp" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="../../quake" />
 				<Option object_output="s_win32/Release_unthreaded" />
 				<Option type="0" />
@@ -145,9 +143,6 @@
 					<Add option="-D_WIN32" />
 					<Add directory="." />
 				</Compiler>
-				<Linker>
-					<Add option="-s" />
-				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
