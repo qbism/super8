@@ -155,8 +155,8 @@ cvar_t	r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs
 
 
 cvar_t	r_coloredlights = {"r_coloredlights", "1", "r_coloredlights[0/1] Toggle use of colored lighting.", true}; //qb:
-cvar_t	r_clbaseweight = {"r_clbaseweight", "0.8", "r_clbaseweight[0.0 - 1.0] Importance of texture color in colored lighting precalculation.", true}; //qb: base pixel weight for color map blending
-cvar_t	r_clcolorweight= {"r_clcolorweight", "0.5", "r_clcolorweight[0.0 - 1.0] Importance of lighting color in colored lighting precalculation.", true}; //qb: color weight for color map blending
+cvar_t	r_clbaseweight = {"r_clbaseweight", "0.2", "r_clbaseweight[0.0 - 1.0] Importance of texture color in colored lighting precalculation.", true}; //qb: base pixel weight for color map blending
+cvar_t	r_clcolorweight= {"r_clcolorweight", "0.7", "r_clcolorweight[0.0 - 1.0] Importance of lighting color in colored lighting precalculation.", true}; //qb: color weight for color map blending
 
 cvar_t r_fog = {"r_fog", "1", "r_fog[0/1] Toggle rendering of fog.", true}; //qb:  draw fog?
 

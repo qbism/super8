@@ -82,7 +82,6 @@ unsigned int ddpal[256];
 
 byte *vidbuf = NULL, *warpbuf = NULL;
 
-
 int dd_window_width = 640;
 int dd_window_height = 480;
 RECT SrcRect;
@@ -257,6 +256,12 @@ void VID_UnloadAllDrivers (void)
     {
         free (vidbuf);
         vidbuf = NULL;
+    }
+
+     if (warpbuf)
+    {
+        free (warpbuf);
+        warpbuf = NULL;
     }
 
     if (dd_Clipper)
@@ -1000,7 +1005,7 @@ int VID_SetMode (int modenum, byte *palette)
 
     if(r_dowarp)
     {
-        Con_Printf("Unable to change video mode while you're in liquid... please jump out first!");  //qb: fixme
+        Con_Printf("Unable to change video mode while in liquid... please jump out first!");  //qb: fixme
         return;
     }
 
@@ -1100,7 +1105,7 @@ int VID_SetMode (int modenum, byte *palette)
     if (warpbuf) //qb: only do this once, whenever vid mode changes.
         Q_free(warpbuf);
     //qb: debug   Sys_Error("vid.rowbytes %i vid.height %i", vid.rowbytes, vid.height);
-    warpbuf = Q_malloc(DIBWidth*DIBHeight, "warpbuf");
+    warpbuf = (byte *)Q_malloc(DIBWidth*DIBHeight, "warpbuf");
 
     // more crap for the console
     vid.conrowbytes = vid.rowbytes;
