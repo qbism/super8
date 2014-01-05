@@ -43,13 +43,13 @@ typedef struct
 	//qb: replace with cvar.    float aspect;		// width / height -- < 1 is taller than wide
 	int				numpages;
 	int				recalc_refdef;	// if true, recalc vid-based stuff
-	byte			*conbuffer;
+	//qb: clean up junk.  byte			*conbuffer;
 	int				conrowbytes;
 	unsigned		conwidth;
 	unsigned		conheight;
 	int				maxwarpwidth;
 	int				maxwarpheight;
-	byte			*direct;		// direct drawing to framebuffer, if not NULL
+	//qb: clean up junk.  byte			*direct;		// direct drawing to framebuffer, if not NULL
 	//qboolean    bottomup; //qb: debugging
 } viddef_t;
 
@@ -59,13 +59,13 @@ extern	unsigned	d_8to24table[256];
 extern void (*vid_menudrawfn)(void);
 extern void (*vid_menukeyfn)(int key);
 
-void	VID_SetPalette (unsigned char *palette);
+void	VID_SetPalette (byte *palette);
 // called at startup and after any gamma correction
 
-void	VID_ShiftPalette (unsigned char *palette);
+void	VID_ShiftPalette (byte *palette);
 // called for bonus and pain flashes, and for underwater color changes
 
-void	VID_Init (unsigned char *palette);
+void	VID_Init (byte *palette);
 // Called at startup to set up translation tables, takes 256 8 bit RGB values
 // the palette data will go away after the call, so it must be copied off if
 // the video driver will need it again
@@ -76,7 +76,7 @@ void	VID_Shutdown (void);
 void	VID_Update (vrect_t *rects);
 // flushes the given rectangles from the view buffer to the screen
 
-int VID_SetMode (int modenum, unsigned char *palette);
+int VID_SetMode (int modenum, byte *palette);
 // sets the mode; only used by the Quake engine for resetting to mode 0 (the
 // base mode) on memory allocation failures
 

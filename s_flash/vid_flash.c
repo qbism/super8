@@ -46,7 +46,7 @@ unsigned _vidBuffer4b[BASEWIDTH*BASEHEIGHT];//This is created from the palette e
 unsigned short	d_8to16table[256];
 unsigned	d_8to24table[256];
 
-void	VID_SetPalette (unsigned char *pal)
+void	VID_SetPalette (byte *pal)
 {
 	int i;
 	unsigned r,g,b;
@@ -72,12 +72,12 @@ void	VID_SetPalette (unsigned char *pal)
 	d_8to24table[255] &= 0xffffff;	// 255 is transparent
 }
 
-void	VID_ShiftPalette (unsigned char *palette)
+void	VID_ShiftPalette (byte *palette)
 {
 	VID_SetPalette(palette);
 }
 
-void	VID_Init (unsigned char *palette)
+void	VID_Init (byte *palette)
 {
 	vid.width = vid.conwidth = BASEWIDTH;
 	vid.height = vid.conheight = BASEHEIGHT;
@@ -86,7 +86,6 @@ void	VID_Init (unsigned char *palette)
 	vid.numpages = 1;
 	vid.colormap = host_colormap;
 	vid.fullbright = 256 - LittleLong (*((int *)vid.colormap + 2048));
-	vid.buffer = vid.conbuffer = vid_buffer;
 	vid.rowbytes = vid.conrowbytes = BASEWIDTH;
 
 	d_pzbuffer = zbuffer;

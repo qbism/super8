@@ -232,8 +232,8 @@ typedef struct
     vec3_t	angles;
     unsigned short 	modelindex; //qb: johnfitz -- was int
     unsigned short 	frame; //johnfitz -- was int
-    unsigned char 	colormap; //johnfitz -- was int
-    unsigned char 	skin; //johnfitz -- was int
+    byte 	colormap; //johnfitz -- was int
+    byte 	skin; //johnfitz -- was int
     int		effects;
     byte   alpha; //qb:
     unsigned short nodrawtoclient; //qb: Team Xlink DP_SV_NODRAWTOCLIENT

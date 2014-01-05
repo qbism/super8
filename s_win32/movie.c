@@ -250,9 +250,6 @@ void Movie_UpdateScreen (void)  //qb: add stretch and gamma to capture
         rowp = i * vid.rowbytes;
         for (j = 0 ; j < vid.width ; j++)
         {
-//            r = gammatable[host_basepal[vid.buffer[rowp]*3+2]];  //qb: gamma lookup
-//            g = gammatable[host_basepal[vid.buffer[rowp]*3+1]];
-//            b = gammatable[host_basepal[vid.buffer[rowp]*3+0]];
             r = hwpal[vid.buffer[rowp]*4+0];  //qb: *4 because ddpal is 32bit (alpha)
             g = hwpal[vid.buffer[rowp]*4+1];
             b = hwpal[vid.buffer[rowp]*4+2];

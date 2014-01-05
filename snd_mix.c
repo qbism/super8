@@ -220,7 +220,7 @@ void S_TransferPaintBuffer(int endtime)
     }
     else if (shm->samplebits == 8)
     {
-        unsigned char *out = (unsigned char *) pbuf;
+        byte *out = (byte *) pbuf;
         while (count--)
         {
             val = (*p * snd_vol) >> 8;
@@ -405,7 +405,7 @@ void SND_PaintChannelFrom8 (channel_t *ch, sfxcache_t *sc, int count)
 {
     int 	data;
     int		*lscale, *rscale;
-    unsigned char *sfx;
+    byte *sfx;
     int		i;
 
     if (ch->leftvol > 255)

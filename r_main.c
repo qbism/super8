@@ -65,10 +65,6 @@ byte	palmapnofb[32][32][32];		// No fullbrights
 byte		*r_stack_start;
 #endif
 
-//qb: remove in this file.  byte		*r_warpbuffer;
-
-//qboolean	r_fov_greater_than_90;
-
 //
 // view origin
 //
@@ -95,8 +91,6 @@ float	verticalFieldOfView;
 float	xOrigin, yOrigin;
 
 mplane_t	screenedge[4];
-
-//qb: move to d_scan.c byte	*warpbuffer = NULL; // Manoel Kasimier - hi-res waterwarp & buffered video
 
 float ditherfog[DITHER_NUMRANDS]; //qb: pseudorandom dither
 
@@ -1608,19 +1602,6 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 
     if ( (long)(&dummy) & 3 )
         Sys_Error ("Stack is missaligned");
-
-    //qb: remove.  if ( (long)(&r_warpbuffer) & 3 )
-        //Sys_Error ("Globals are missaligned");
-
-    //byte	warpbuffer[WARP_WIDTH * WARP_HEIGHT]; // Manoel Kasimier - hi-res waterwarp & buffered video - removed
-    // Manoel Kasimier - hi-res waterwarp & buffered video - begin
-
-//qb: move to D_WarpScreen   if (warpbuffer)
-//       Q_free(warpbuffer);
-//   warpbuffer = Q_malloc(vid.rowbytes*vid.height);
-    // Manoel Kasimier - hi-res waterwarp & buffered video - end
-
-//    r_warpbuffer = vid.buffer; //qb: warpbuffer;
 
     if (r_timegraph.value || r_speeds.value || r_dspeeds.value)
         r_time1 = Sys_DoubleTime ();
