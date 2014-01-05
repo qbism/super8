@@ -1005,7 +1005,7 @@ int VID_SetMode (int modenum, byte *palette)
 
     if(r_dowarp)
     {
-        Con_Printf("Unable to change video mode while in liquid... please jump out first!");  //qb: fixme
+        Con_Printf("Unable to change video mode while in liquid...\nplease jump out first!\n");  //qb: fixme
         return;
     }
 
