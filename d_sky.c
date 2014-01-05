@@ -53,16 +53,16 @@ void D_Sky_uv_To_st (int u, int v, fixed16_t *s, fixed16_t *t
 }
 
 // Manoel Kasimier - smooth sky - begin
-unsigned char D_DrawSkyPixel33 (unsigned char pixel1, unsigned char pixel2)
+byte D_DrawSkyPixel33 (byte pixel1, byte pixel2)
 {return pixel2 ? alphamap[pixel2 + pixel1*256] : pixel1;}
 
-unsigned char D_DrawSkyPixel66 (unsigned char pixel1, unsigned char pixel2)
+byte D_DrawSkyPixel66 (byte pixel1, byte pixel2)
 {return pixel2 ? alphamap[pixel1 + pixel2*256] : pixel1;}
 
-unsigned char D_DrawSkyPixelOpaque (unsigned char pixel1, unsigned char pixel2)
+byte D_DrawSkyPixelOpaque (byte pixel1, byte pixel2)
 {return pixel2 ? pixel2 : pixel1;}
 
-unsigned char D_DrawSkyPixelTransparent (unsigned char pixel1, unsigned char pixel2)
+byte D_DrawSkyPixelTransparent (byte pixel1, byte pixel2)
 {return pixel1;}
 // Manoel Kasimier - smooth sky - end
 
@@ -74,12 +74,12 @@ D_DrawSkyScans8
 void D_DrawSkyScans8 (espan_t *pspan)
 {
 	int				count, spancount, u, v;
-	unsigned char	*pdest;
+	byte	*pdest;
 	fixed16_t		s, t, snext, tnext, sstep, tstep;
 	fixed16_t		s2, t2, snext2, tnext2, sstep2, tstep2; // Manoel Kasimier - smooth sky
 	int				spancountminus1;
 	// Manoel Kasimier - smooth sky - begin
-	unsigned char	(*D_DrawSkyPixel)(unsigned char pixel1, unsigned char pixel2);
+	byte	(*D_DrawSkyPixel)(byte pixel1, byte pixel2);
 
 	if (r_skyalpha.value > 0)
 	{
@@ -103,7 +103,7 @@ void D_DrawSkyScans8 (espan_t *pspan)
 
 	do
 	{
-		pdest = (unsigned char *)((byte *)d_viewbuffer +
+		pdest = (byte *)((byte *)d_viewbuffer +
 				(screenwidth * pspan->v) + pspan->u);
 
 		count = pspan->count;

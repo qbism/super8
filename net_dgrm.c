@@ -33,7 +33,7 @@ struct in_addr
     {
         struct
         {
-            unsigned char s_b1,s_b2,s_b3,s_b4;
+            byte s_b1,s_b2,s_b3,s_b4;
         } S_un_b;
         struct
         {

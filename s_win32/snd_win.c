@@ -403,7 +403,7 @@ int SNDDMA_InitDirect (void)  //qb: was sndinitstat
 	shm->samples = gSndBufSize/(shm->samplebits/8);
 	shm->samplepos = 0;
 	shm->submission_chunk = 1;
-	shm->buffer = (unsigned char *) lpData;
+	shm->buffer = (byte *) lpData;
 	sample16 = (shm->samplebits/8) - 1;
 
 	dsound_init = true;
@@ -537,7 +537,7 @@ qboolean SNDDMA_InitWav (void)
 	shm->samples = gSndBufSize/(shm->samplebits/8);
 	shm->samplepos = 0;
 	shm->submission_chunk = 1;
-	shm->buffer = (unsigned char *) lpData;
+	shm->buffer = (byte *) lpData;
 	sample16 = (shm->samplebits/8) - 1;
 
 	wav_init = true;

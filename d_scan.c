@@ -22,13 +22,13 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "r_local.h"
 #include "d_local.h"
 
-unsigned char	*r_turb_pbase, *r_turb_pdest;
+byte	*r_turb_pbase, *r_turb_pdest;
 static fixed16_t		r_turb_s, r_turb_t, r_turb_sstep, r_turb_tstep;
 int				*r_turb_turb;
 int				r_turb_spancount;
-byte	*r_warpbuffer; // Manoel Kasimier - hi-res waterwarp & buffered video
 
 extern cvar_t thread_warp;
+extern byte *warpbuf;
 
 void D_DrawTurbulent8Span (void);
 
@@ -115,10 +115,6 @@ void R_InitTurb (void)
         intsintable_x[x] = vamp + sin ( (u - uoffset) * 3.14159 * 2.0 / CYCLE) * vamp;
         //   warprow[y]    = (int) ( (float)y * vstretch) * screenwidth;
     }
-
-//qb:  turbsrc = d_viewbuffer + r_refdef.vrect.y * screenwidth + r_refdef.vrect.x;
-//qb:  turbdest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
-    // mankrip - hi-res waterwarp - end
 }
 #define UNROLL_SPAN_SHIFT   5
 #define UNROLL_SPAN_MAX   (1 << UNROLL_SPAN_SHIFT) // 32
@@ -293,13 +289,11 @@ void D_WarpScreen (void)
     static int  *row, *col, *turb_x_temp;
     static int count, spancount, y, numthreads;
 
-    //R_InitTurb (); //qb: fixme? calling this here because vid.recalc_refdef doesn't seem to always be set properly
-
     turb_x = intsintable_x + (int) (timeoffset * uwarpscale);
     turb_y = intsintable_y + (int) (timeoffset * vwarpscale);
 
     src = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
-    dest= r_warpbuffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
+    dest= warpbuf  + scr_vrect.y * vid.rowbytes + scr_vrect.x;
 
 #ifdef R_THREADED
     numthreads = min(thread_warp.value,MAXWARPTHREADS);
@@ -452,23 +446,21 @@ void D_WarpScreen (void)
             }
         }
     }
-//qb: swap buffer with video
-    src = vid.buffer;
-    vid.buffer = r_warpbuffer;
-    vid.direct = vid.buffer;
-    vid.conbuffer = vid.buffer;
-    r_warpbuffer = src;
 
-    /*
+    //qb: swap buffer with video
+    src = vid.buffer;
+    vid.buffer = warpbuf;
+    warpbuf = src;
+
         //qb: copy buffer to video
-        src = r_warpbuffer + scr_vrect.y * vid.width + scr_vrect.x;
+/*
+        src = warpbuf + scr_vrect.y * vid.width + scr_vrect.x;
         dest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
         for (i=0;
                 i<scr_vrect.height;
                 i++, src += vid.width, dest += vid.rowbytes)
             memcpy(dest, src, scr_vrect.width);
-    */
-
+*/
 }
 
 /*
@@ -513,7 +505,7 @@ void Turbulent8 (espan_t *pspan)
     r_turb_sstep = 0;	// keep compiler happy
     r_turb_tstep = 0;	// ditto
 
-    r_turb_pbase = (unsigned char *)cacheblock;
+    r_turb_pbase = (byte *)cacheblock;
 
     sdivz16stepu = d_sdivzstepu * 16;
     tdivz16stepu = d_tdivzstepu * 16;
@@ -527,7 +519,7 @@ void Turbulent8 (espan_t *pspan)
 
     do
     {
-        r_turb_pdest = (unsigned char *)((byte *)d_viewbuffer +
+        r_turb_pdest = (byte *)((byte *)d_viewbuffer +
                                          (screenwidth * pspan->v) + pspan->u);
         pz = d_pzbuffer + (d_zwidth * pspan->v) + pspan->u; // Manoel Kasimier - translucent water
 

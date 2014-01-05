@@ -686,7 +686,7 @@ int MSG_ReadByte (void)
         return -1;
     }
 
-    c = (unsigned char)net_message.data[msg_readcount];
+    c = (byte)net_message.data[msg_readcount];
     msg_readcount++;
 
     return c;

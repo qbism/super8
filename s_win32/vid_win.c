@@ -2,7 +2,7 @@
     Copyright (C) 1999-2012 other authors as noted in code comments
 
 This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
+the terms of the GNU General Public License as published by the Free Software+
 Foundation; either version 3 of the License, or (at your option) any later version.
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
@@ -80,7 +80,7 @@ DIRECTDRAWCREATEPROC QDirectDrawCreate = NULL;
 
 unsigned int ddpal[256];
 
-unsigned char *vidbuf = NULL;
+byte *vidbuf = NULL, *warpbuf = NULL;
 
 
 int dd_window_width = 640;
@@ -103,7 +103,7 @@ void DD_UpdateRects (int width, int height)
 }
 
 
-void VID_CreateDDrawDriver (int width, int height, unsigned char *palette, unsigned char **buffer, int *rowbytes)
+void VID_CreateDDrawDriver (int width, int height, byte *palette, byte **buffer, int *rowbytes)
 {
     HRESULT hr;
     DDSURFACEDESC ddsd;
@@ -112,7 +112,7 @@ void VID_CreateDDrawDriver (int width, int height, unsigned char *palette, unsig
     dd_window_width = width;
     dd_window_height = height;
 
-    vidbuf = (unsigned char *) Q_malloc (width * height, "vidbuf"); //qb: was malloc
+    vidbuf = (byte *) Q_malloc (width * height, "vidbuf"); //qb: was malloc
     buffer[0] = vidbuf;
     rowbytes[0] = width;
 
@@ -177,12 +177,12 @@ typedef struct dibinfo
 
 static HGDIOBJ previously_selected_GDI_obj = NULL;
 HBITMAP hDIBSection;
-unsigned char *pDIBBase = NULL;
+byte *pDIBBase = NULL;
 HDC hdcDIBSection = NULL;
 HDC hdcGDI = NULL;
 
 
-void VID_CreateGDIDriver (int width, int height, unsigned char *palette)
+void VID_CreateGDIDriver (int width, int height, byte *palette)
 {
     dibinfo_t   dibheader;
     BITMAPINFO *pbmiDIB = (BITMAPINFO *) &dibheader;
@@ -379,7 +379,7 @@ modestate_t	modestate = MS_UNINIT;
 static byte		*vid_surfcache;
 static int		vid_surfcachesize;
 
-unsigned char	vid_curpal[256*3];
+byte	vid_curpal[256*3];
 
 unsigned short	d_8to16table[256];
 unsigned	d_8to24table[256];
@@ -989,12 +989,21 @@ void VID_SetDefaultMode (void)
 }
 
 
-int VID_SetMode (int modenum, unsigned char *palette)
+int VID_SetMode (int modenum, byte *palette)
 {
     int				original_mode, temp, dummy;
     qboolean		stat;
     MSG				msg;
     HDC				hdc;
+    byte    *src;
+
+
+    if(r_dowarp)
+    {
+        Con_Printf("Unable to change video mode while you're in liquid... please jump out first!");  //qb: fixme
+        return;
+    }
+
 
     while ((modenum >= nummodes) || (modenum < 0))
     {
@@ -1088,9 +1097,10 @@ int VID_SetMode (int modenum, unsigned char *palette)
     // if ddraw failed to come up we disable the cvar too
     if (vid_ddraw.value && !vid_usingddraw) Cvar_Set ("vid_ddraw", "0");
 
-    // set the rest of the buffers we need (why not just use one single buffer instead of all this crap? oh well, it's Quake...)
-    vid.direct = vid.buffer;
-    vid.conbuffer = vid.buffer;
+    if (warpbuf) //qb: only do this once, whenever vid mode changes.
+        Q_free(warpbuf);
+    //qb: debug   Sys_Error("vid.rowbytes %i vid.height %i", vid.rowbytes, vid.height);
+    warpbuf = Q_malloc(DIBWidth*DIBHeight, "warpbuf");
 
     // more crap for the console
     vid.conrowbytes = vid.rowbytes;
@@ -1173,19 +1183,14 @@ int VID_SetMode (int modenum, unsigned char *palette)
     in_mode_set = false;
     vid.recalc_refdef = 1;
 
-    if (r_warpbuffer) //qb: only do this once, whenever vid mode changes.
-        Q_free(r_warpbuffer);
-    //qb: debug   Sys_Error("vid.rowbytes %i vid.height %i", vid.rowbytes, vid.height);
-    r_warpbuffer = Q_malloc(vid.width*vid.height, "r_warpbuffer");
-
     return true;
 }
 
 
-void VID_SetPalette (unsigned char *palette)
+void VID_SetPalette (byte *palette)
 {
     int i;
-    unsigned char *pal = palette;
+    byte *pal = palette;
 
     if (!Minimized)
     {
@@ -1236,13 +1241,13 @@ void VID_SetPalette (unsigned char *palette)
 }
 
 
-void VID_ShiftPalette (unsigned char *palette)
+void VID_ShiftPalette (byte *palette)
 {
     VID_SetPalette (palette);
 }
 
 
-void VID_Init (unsigned char *palette)
+void VID_Init (byte *palette)
 {
     int		i, bestmatch, bestmatchmetric, t, dr, dg, db;
     int		basenummodes;
@@ -1523,7 +1528,7 @@ void FlipScreen (vrect_t *rects)
 
                 if ((hr = IDirectDrawSurface_Lock (dd_BackBuffer, &TheRect, &ddsd, DDLOCK_WRITEONLY | DDLOCK_SURFACEMEMORYPTR, NULL)) == DDERR_WASSTILLDRAWING) return;
 
-                src = (byte *) vidbuf + rects->y * vid.rowbytes + rects->x;
+                src = (byte *) vid.buffer + rects->y * vid.rowbytes + rects->x;
                 dst = (unsigned int *) ddsd.lpSurface;
 
                 // convert pitch to unsigned int addressable

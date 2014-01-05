@@ -23,7 +23,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 struct qsockaddr
 {
 	short sa_family;
-	unsigned char sa_data[14];
+	byte sa_data[14];
 };
 
 

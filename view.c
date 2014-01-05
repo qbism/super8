@@ -1017,7 +1017,7 @@ void V_Init (void)
 }
 
 //qb fisheye from Aardappel begin
-typedef unsigned char B;
+typedef byte B;
 
 #define BOX_FRONT  0
 #define BOX_BEHIND 2

@@ -599,7 +599,7 @@ typedef struct
     byte	bits_per_pixel;
     unsigned short	xmin,ymin,xmax,ymax;
     unsigned short	hres,vres;
-    unsigned char	palette[48];
+    byte	palette[48];
     byte	reserved;
     byte	color_planes;
     unsigned short	bytes_per_line;

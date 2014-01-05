@@ -64,30 +64,30 @@ extern short	ShortSwap (short l);
 extern byte		BestColor (int r, int g, int b, int start, int stop);
 qpic_t	*Draw_DecodePic (qpic_t *pic)
 {
-	satpic_t *p = (satpic_t *) pic;
-	if (LongSwap (p->width) == 320 && LongSwap (p->height) == 200) //qb was 240
-	{
-		int i, r, g, b;
-		byte c[256], *source;
-		source = p->data;
-		p->width	= LongSwap (p->width);
-		p->height	= LongSwap (p->height);
+    satpic_t *p = (satpic_t *) pic;
+    if (LongSwap (p->width) == 320 && LongSwap (p->height) == 200) //qb was 240
+    {
+        int i, r, g, b;
+        byte c[256], *source;
+        source = p->data;
+        p->width	= LongSwap (p->width);
+        p->height	= LongSwap (p->height);
 
-		for (i=0 ; i<256 ; i++)
-		{
-			p->palette[i] = ShortSwap (p->palette[i]);
-			r = ( ( (int) (p->palette[i]>>0) & 31) + 1) * 8 - 1;
-			g = ( ( (int) (p->palette[i]>>5) & 31) + 1) * 8 - 1;
-		//	g = ( ( (int) (p->palette[i]>>5) & 63) + 1) * 4 - 1;
-			b = ( ( (int) (p->palette[i]>>10) & 31) + 1) * 8 - 1;
-			c[i] = BestColor (r, g, b, 0, 255);
-		}
-		for (i=0 ; i < p->width * p->height ; i++)
-			source[i] = c[source[i]];
-	}
-	if (p->width == 320 && p->height == 200) //qb was 240
-		return (qpic_t *) ( (byte *) p + 512);
-	return pic;
+        for (i=0 ; i<256 ; i++)
+        {
+            p->palette[i] = ShortSwap (p->palette[i]);
+            r = ( ( (int) (p->palette[i]>>0) & 31) + 1) * 8 - 1;
+            g = ( ( (int) (p->palette[i]>>5) & 31) + 1) * 8 - 1;
+            //	g = ( ( (int) (p->palette[i]>>5) & 63) + 1) * 4 - 1;
+            b = ( ( (int) (p->palette[i]>>10) & 31) + 1) * 8 - 1;
+            c[i] = BestColor (r, g, b, 0, 255);
+        }
+        for (i=0 ; i < p->width * p->height ; i++)
+            source[i] = c[source[i]];
+    }
+    if (p->width == 320 && p->height == 200) //qb was 240
+        return (qpic_t *) ( (byte *) p + 512);
+    return pic;
 }
 // mankrip - end
 /*
@@ -126,9 +126,9 @@ qpic_t	*Draw_CachePic (char *path)
     dat = (qpic_t *)pic->cache.data;
     if (!dat)
     {
-	//	Sys_Error ("Draw_CachePic: failed to load %s", path);
-		Con_Printf ("Draw_CachePic: failed to load %s", path);
-		return NULL;
+        //	Sys_Error ("Draw_CachePic: failed to load %s", path);
+        Con_Printf ("Draw_CachePic: failed to load %s", path);
+        return NULL;
     }
 
     SwapPic (dat);
@@ -148,7 +148,7 @@ byte menumap[256][16];	//qb: from Engoo- Used for menu backgrounds and simple co
 
 void Draw_Init (void)
 {
-	int		i, j, r;
+    int		i, j, r;
 
     for (i = 0 ; i < 256 ; i++)
         identityTable[i] = (byte) i; //qb: MQ 1.6 hudscale
@@ -163,19 +163,19 @@ void Draw_Init (void)
     r_rectdesc.rowbytes = draw_backtile->width;
 
     // qb: from Engoo- Make the menu background table
-	// This has been extended to allow 16 others via r_menucolors
-	for (i=0 ; i<256 ; i++)
-	{
-		r = (host_basepal[i*3] + host_basepal[i*3+1] + host_basepal[i*3+2])/(16*3);
-		for (j=0; j<9; j++)
-		menumap[i][j] = (j * 16) + r;
-		for (j=14; j>7; j--)
-		menumap[i][j] = (j * 16) + 15 - r;
-		menumap[i][14] = 14*16 + r; // forward hack for the muzzleflash fire colors
+    // This has been extended to allow 16 others via r_menucolors
+    for (i=0 ; i<256 ; i++)
+    {
+        r = (host_basepal[i*3] + host_basepal[i*3+1] + host_basepal[i*3+2])/(16*3);
+        for (j=0; j<9; j++)
+            menumap[i][j] = (j * 16) + r;
+        for (j=14; j>7; j--)
+            menumap[i][j] = (j * 16) + 15 - r;
+        menumap[i][14] = 14*16 + r; // forward hack for the muzzleflash fire colors
 
-		// and yes, color ramp #15 is left all black. any further is possibly reserved for slow
-		// hexen 2 style menus which use a translucency table
-	}
+        // and yes, color ramp #15 is left all black. any further is possibly reserved for slow
+        // hexen 2 style menus which use a translucency table
+    }
 }
 
 /*
@@ -189,140 +189,141 @@ smoothly scrolled off.
 */
 void Draw_Character (int x, int y, int num)
 {
-	byte			*dest;
-	byte			*source;
-	unsigned short	*pusdest;
-	int				drawline;
-	int				drawcol, draw_col; // mankrip
-	int				row, col;
+    byte			*dest;
+    byte			*source;
+    unsigned short	*pusdest;
+    int				drawline;
+    int				drawcol, draw_col; // mankrip
+    int				row, col;
 
-	num &= 255;
+    num &= 255;
 
-	if (y <= -8)
-		return;			// totally off screen
-	// mankrip - begin
-	// if the character is totally off of the screen, don't print it
-	else if (y >= (int)vid.height)
-		return;
-	if (x <= -8)
-		return;
-	else if (x >= (int)vid.width)
-		return;
-	// mankrip - end
+    if (y <= -8)
+        return;			// totally off screen
+    // mankrip - begin
+    // if the character is totally off of the screen, don't print it
+    else if (y >= (int)vid.height)
+        return;
+    if (x <= -8)
+        return;
+    else if (x >= (int)vid.width)
+        return;
+    // mankrip - end
 
-	row = num>>4;
-	col = num&15;
-	source = draw_chars + (row<<10) + (col<<3);
+    row = num>>4;
+    col = num&15;
+    source = draw_chars + (row<<10) + (col<<3);
 
-	if (y < 0)
-	{	// clipped
-		drawline = 8 + y;
-		source -= 128*y;
-		y = 0;
-	}
-	else if (y+8 >= vid.height)			// mankrip
-		drawline = (int)vid.height - y;	// mankrip
-	else
-		drawline = 8;
+    if (y < 0)
+    {
+        // clipped
+        drawline = 8 + y;
+        source -= 128*y;
+        y = 0;
+    }
+    else if (y+8 >= vid.height)			// mankrip
+        drawline = (int)vid.height - y;	// mankrip
+    else
+        drawline = 8;
 
-	// mankrip - begin
-	if (x < 0)
-	{
-		draw_col = drawcol = 8 + x;
-		source -= x;
-		x = 0;
-	}
-	else if (x+8 >= vid.width)
-		draw_col = drawcol = (int)vid.width - x;
-	else
-		draw_col = drawcol = 8;
-	// mankrip - end
+    // mankrip - begin
+    if (x < 0)
+    {
+        draw_col = drawcol = 8 + x;
+        source -= x;
+        x = 0;
+    }
+    else if (x+8 >= vid.width)
+        draw_col = drawcol = (int)vid.width - x;
+    else
+        draw_col = drawcol = 8;
+    // mankrip - end
 
 
-	if (r_pixbytes == 1)
-	{
-		dest = vid.conbuffer + y*vid.conrowbytes + x;
+    if (r_pixbytes == 1)
+    {
+        dest = vid.buffer + y*vid.conrowbytes + x;
 
-		if (drawcol == 8) // mankrip
-			while (drawline--)
-			{
-				if (source[0])
-					dest[0] = source[0];
-				if (source[1])
-					dest[1] = source[1];
-				if (source[2])
-					dest[2] = source[2];
-				if (source[3])
-					dest[3] = source[3];
-				if (source[4])
-					dest[4] = source[4];
-				if (source[5])
-					dest[5] = source[5];
-				if (source[6])
-					dest[6] = source[6];
-				if (source[7])
-					dest[7] = source[7];
-				source += 128;
-				dest += vid.conrowbytes;
-			}
-		// mankrip - begin
-		else
-			while (drawline--)
-			{
-				while (drawcol--)
-				{
-					if (source[drawcol])
-						dest[drawcol] = source[drawcol];
-				}
-				drawcol = draw_col;
-				source += 128;
-				dest += vid.conrowbytes;
-			}
-		// mankrip - end
-	}
-	else
-	{
-		// FIXME: pre-expand to native format?
-		pusdest = (unsigned short *)((byte *)vid.conbuffer + y*vid.conrowbytes + (x<<1));
+        if (drawcol == 8) // mankrip
+            while (drawline--)
+            {
+                if (source[0])
+                    dest[0] = source[0];
+                if (source[1])
+                    dest[1] = source[1];
+                if (source[2])
+                    dest[2] = source[2];
+                if (source[3])
+                    dest[3] = source[3];
+                if (source[4])
+                    dest[4] = source[4];
+                if (source[5])
+                    dest[5] = source[5];
+                if (source[6])
+                    dest[6] = source[6];
+                if (source[7])
+                    dest[7] = source[7];
+                source += 128;
+                dest += vid.conrowbytes;
+            }
+        // mankrip - begin
+        else
+            while (drawline--)
+            {
+                while (drawcol--)
+                {
+                    if (source[drawcol])
+                        dest[drawcol] = source[drawcol];
+                }
+                drawcol = draw_col;
+                source += 128;
+                dest += vid.conrowbytes;
+            }
+        // mankrip - end
+    }
+    else
+    {
+        // FIXME: pre-expand to native format?
+        pusdest = (unsigned short *)((byte *)vid.buffer + y*vid.conrowbytes + (x<<1));
 
-		if (drawcol == 8) // mankrip
-			while (drawline--)
-			{
-				if (source[0])
-					pusdest[0] = d_8to16table[source[0]];
-				if (source[1])
-					pusdest[1] = d_8to16table[source[1]];
-				if (source[2])
-					pusdest[2] = d_8to16table[source[2]];
-				if (source[3])
-					pusdest[3] = d_8to16table[source[3]];
-				if (source[4])
-					pusdest[4] = d_8to16table[source[4]];
-				if (source[5])
-					pusdest[5] = d_8to16table[source[5]];
-				if (source[6])
-					pusdest[6] = d_8to16table[source[6]];
-				if (source[7])
-					pusdest[7] = d_8to16table[source[7]];
+        if (drawcol == 8) // mankrip
+            while (drawline--)
+            {
+                if (source[0])
+                    pusdest[0] = d_8to16table[source[0]];
+                if (source[1])
+                    pusdest[1] = d_8to16table[source[1]];
+                if (source[2])
+                    pusdest[2] = d_8to16table[source[2]];
+                if (source[3])
+                    pusdest[3] = d_8to16table[source[3]];
+                if (source[4])
+                    pusdest[4] = d_8to16table[source[4]];
+                if (source[5])
+                    pusdest[5] = d_8to16table[source[5]];
+                if (source[6])
+                    pusdest[6] = d_8to16table[source[6]];
+                if (source[7])
+                    pusdest[7] = d_8to16table[source[7]];
 
-				source += 128;
-				pusdest += (vid.conrowbytes >> 1);
-			}
-		// mankrip - begin
-		else
-			while (drawline--)
-			{
-				while (drawcol--)
-				{
-					if (source[drawcol])
-						pusdest[drawcol] = d_8to16table[source[drawcol]];
-				}
-				drawcol = draw_col;
-				source += 128;
-				pusdest += (vid.conrowbytes >> 1);
-			}
-		// mankrip - end
-	}
+                source += 128;
+                pusdest += (vid.conrowbytes >> 1);
+            }
+        // mankrip - begin
+        else
+            while (drawline--)
+            {
+                while (drawcol--)
+                {
+                    if (source[drawcol])
+                        pusdest[drawcol] = d_8to16table[source[drawcol]];
+                }
+                drawcol = draw_col;
+                source += 128;
+                pusdest += (vid.conrowbytes >> 1);
+            }
+        // mankrip - end
+    }
 }
 
 
@@ -404,7 +405,7 @@ void Draw2Dimage_ScaledMappedTranslatedTransparent (int x, int y, byte *source, 
 
     x += (MIN_VID_WIDTH-320)/2- (MIN_VID_WIDTH - MIN_VID_WIDTH/sbar_scale.value)/2; //qb: square aspect is 320x180 or 360x202.5  ...sigh...
     y += (sscale ?(200.0/sbar_scale.value) - 200.0 : (100.0/sbar_scale.value)-100);
-     if (xpadding < 0)
+    if (xpadding < 0)
         Sys_Error ("Draw2Dimage_ScaledMappedTranslatedTransparent: xpadding < 0");
     if (ypadding < 0)
         Sys_Error ("Draw2Dimage_ScaledMappedTranslatedTransparent: ypadding < 0");
@@ -514,7 +515,7 @@ void Draw2Dimage_ScaledMappedTranslatedTransparent (int x, int y, byte *source, 
 
 void M_DrawCharacter (int x, int y, int num, qboolean sscale)
 {
-	Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, draw_chars + ( (num & 240) << 6) + ( (num & 15) << 3), 128, 128, 0, 0, 8, 8, sscale, false, identityTable, NULL, false,0);
+    Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, draw_chars + ( (num & 240) << 6) + ( (num & 15) << 3), 128, 128, 0, 0, 8, 8, sscale, false, identityTable, NULL, false,0);
 }
 
 /*
@@ -524,25 +525,25 @@ Draw_TransPic
 */
 void M_DrawTransPic (int x, int y, qpic_t *pic, qboolean sscale)
 {
-	if (pic)
-		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, sscale, false, identityTable, NULL, false, TRANSPARENT_COLOR);
+    if (pic)
+        Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, sscale, false, identityTable, NULL, false, TRANSPARENT_COLOR);
 }
 void M_DrawTransPicMirror (int x, int y, qpic_t *pic, qboolean sscale)
 {
-	if (pic)
-		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, sscale, true , identityTable, NULL, false, TRANSPARENT_COLOR);
+    if (pic)
+        Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, sscale, true , identityTable, NULL, false, TRANSPARENT_COLOR);
 }
 
 
 void M_DrawTransPicTranslate (int x, int y, qpic_t *pic, qboolean sscale)
 {
-	if (pic)
-		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, sscale, false, translationTable, NULL, false, TRANSPARENT_COLOR);
+    if (pic)
+        Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, sscale, false, translationTable, NULL, false, TRANSPARENT_COLOR);
 }
 void M_DrawTransPicTranslateMirror (int x, int y, qpic_t *pic, qboolean sscale)
 {
-	if (pic)
-		Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, sscale, true , translationTable, NULL, false, TRANSPARENT_COLOR);
+    if (pic)
+        Draw2Dimage_ScaledMappedTranslatedTransparent (x, y, pic->data, pic->width, pic->height, 0, 0, pic->width, pic->height, sscale, true , translationTable, NULL, false, TRANSPARENT_COLOR);
 }
 
 
@@ -592,7 +593,7 @@ void Draw_ConsoleBackground (int lines)
     fstep = conback->width*0x10000/vid.conwidth; // mankrip - hi-res console background - edited
     if (r_pixbytes == 1)
     {
-        dest = vid.conbuffer;
+        dest = vid.buffer;
 
         // mankrip - transparent console - begin
         if (con_alpha.value < 0.5 && !con_forcedup)
@@ -608,18 +609,6 @@ void Draw_ConsoleBackground (int lines)
                     dest[x] = alphamap[src[f>>16] + dest[x]*256];
                     f += fstep;
                 }
-                /*qb: get rid of x4
-                				for (x=0 ; x<vid.conwidth ; x+=4)
-                				{
-                					dest[x] = alphamap[src[f>>16] + dest[x]*256];
-                					f += fstep;
-                					dest[x+1] = alphamap[src[f>>16] + dest[x+1]*256];
-                					f += fstep;
-                					dest[x+2] = alphamap[src[f>>16] + dest[x+2]*256];
-                					f += fstep;
-                					dest[x+3] = alphamap[src[f>>16] + dest[x+3]*256];
-                					f += fstep;
-                				} */
             }
         else if (con_alpha.value < 1 && !con_forcedup)
             for (y=0 ; y<lines ; y++, dest += vid.conrowbytes)
@@ -658,7 +647,7 @@ void Draw_ConsoleBackground (int lines)
     }
     else
     {
-        pusdest = (unsigned short *)vid.conbuffer;
+        pusdest = (unsigned short *)vid.buffer;
 
         for (y=0 ; y<lines ; y++, pusdest += (vid.conrowbytes >> 1))
         {
@@ -905,34 +894,35 @@ Draw_FadeScreen
 */
 void Draw_FadeScreen (void)  //qb: from engoo
 {
-	int			x,y;
-	byte		*pbuf;
-	int		mycol;
+    int			x,y;
+    byte		*pbuf;
+    int		mycol;
 
-	mycol = (int)scr_fadecolor.value;
-	S_ExtraUpdate ();
+    mycol = (int)scr_fadecolor.value;
+    S_ExtraUpdate ();
 
-	for (y=0 ; y<vid.height ; y++)
-	{
-		int	t;
+    for (y=0 ; y<vid.height ; y++)
+    {
+        int	t;
 
-		pbuf = (byte *)(vid.buffer + vid.rowbytes*y);
-		t = (y & 1) << 1;
+        pbuf = (byte *)(vid.buffer + vid.rowbytes*y);
+        t = (y & 1) << 1;
 
-		for (x=0 ; x<vid.width ; x++)
-		{
-			// Classic 0.8-1.06 look
-			if (mycol < 15){
-				pbuf[x] = menumap[pbuf[x]][mycol];	// new menu tint
-			}
-			else
-			{
-			// stupid v1.08 look:
-			if ((x & 3) != t)
-				pbuf[x] = 0;
-			}
-		}
-	}
+        for (x=0 ; x<vid.width ; x++)
+        {
+            // Classic 0.8-1.06 look
+            if (mycol < 15)
+            {
+                pbuf[x] = menumap[pbuf[x]][mycol];	// new menu tint
+            }
+            else
+            {
+                // stupid v1.08 look:
+                if ((x & 3) != t)
+                    pbuf[x] = 0;
+            }
+        }
+    }
 
-	S_ExtraUpdate ();
+    S_ExtraUpdate ();
 }

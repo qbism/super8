@@ -55,7 +55,7 @@ static mad_timer_t const mad_timer_zero_stub = {0, 0};
 /* Private data */
 typedef struct _mp3_priv_t
 {
-	unsigned char mp3_buffer[MP3_BUFFER_SIZE];
+	byte mp3_buffer[MP3_BUFFER_SIZE];
 	struct mad_stream	Stream;
 	struct mad_frame	Frame;
 	struct mad_synth	Synth;
@@ -67,7 +67,7 @@ typedef struct _mp3_priv_t
 /* This function merges the functions tagtype() and id3_tag_query()
  * from MAD's libid3tag, so we don't have to link to it
  * Returns 0 if the frame is not an ID3 tag, tag length if it is */
-static qboolean tag_is_id3v1(const unsigned char *data, size_t length)
+static qboolean tag_is_id3v1(const byte *data, size_t length)
 {
 	if (length >= 3 &&
 	     data[0] == 'T' && data[1] == 'A' && data[2] == 'G')
@@ -77,7 +77,7 @@ static qboolean tag_is_id3v1(const unsigned char *data, size_t length)
 	return false;
 }
 
-static qboolean tag_is_id3v2(const unsigned char *data, size_t length)
+static qboolean tag_is_id3v2(const byte *data, size_t length)
 {
 	if (length >= 10 &&
 	    (data[0] == 'I' && data[1] == 'D' && data[2] == '3') &&
@@ -89,14 +89,14 @@ static qboolean tag_is_id3v2(const unsigned char *data, size_t length)
 	return false;
 }
 
-static int mp3_tagsize(const unsigned char *data, size_t length)
+static int mp3_tagsize(const byte *data, size_t length)
 {
 	if (tag_is_id3v1(data, length))
 		return 128;
 
 	if (tag_is_id3v2(data, length))
 	{
-		unsigned char flags;
+		byte flags;
 		unsigned int size;
 		flags = data[5];
 		size = 10 + (data[6]<<21) + (data[7]<<14) + (data[8]<<7) + data[9];
