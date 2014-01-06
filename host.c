@@ -291,11 +291,7 @@ void Host_WriteConfiguration (void)
     // config.cfg cvars
     if (host_initialized && !isDedicated) // fixed
     {
-#ifdef FLASH
-        f = as3OpenWriteFile(va("%s/super8.cfg",com_gamedir));
-#else
         f = fopen (va("%s/super8.cfg",com_gamedir), "wb"); // Manoel Kasimier - config.cfg replacement - edited
-#endif
 
         if (!f)
         {
@@ -445,12 +441,7 @@ void Host_WriteDiagnostics (char *status)
     // config.cfg cvars
     if (host_initialized && !isDedicated) // fixed
     {
-#ifdef FLASH
-        f = as3OpenWriteFile(va("%s/cvarhelp.txt",com_gamedir));
-#else
         f = fopen (va("%s/S8report.txt",com_gamedir), "wb"); // Manoel Kasimier - config.cfg replacement - edited
-#endif
-
         if (!f)
         {
             Con_Printf ("Couldn't write S8report.txt.\n"); // Manoel Kasimier - config.cfg replacement - edited

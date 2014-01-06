@@ -566,11 +566,8 @@ void PF_vectoyaw (void)
         yaw = 0;
     else
     {
-#if !defined(FLASH)
         yaw = (atan2(value1[1], value1[0]) * 180 / M_PI);
-#else
-        yaw = (myAtan2(value1[1], value1[0]) * 180 / M_PI);
-#endif
+
         //yaw = /*(int)*/ (atan2(value1[1], value1[0]) * 180 / M_PI); // Manoel Kasimier - 16-bit angles - edited
         if (yaw < 0)
             yaw += 360;
@@ -605,21 +602,16 @@ void PF_vectoangles (void)
     }
     else
     {
-#if !defined(FLASH)
         yaw = (atan2(value1[1], value1[0]) * 180 / M_PI);
-#else
-        yaw = (myAtan2(value1[1], value1[0]) * 180 / M_PI);
-#endif
+
         //yaw = /*(int)*/ (atan2(value1[1], value1[0]) * 180 / M_PI); // Manoel Kasimier - 16-bit angles - edited
         if (yaw < 0)
             yaw += 360;
 
         forward = sqrt (value1[0]*value1[0] + value1[1]*value1[1]);
-#if !defined(FLASH)
+
         pitch = (atan2(value1[2], forward) * 180 / M_PI);
-#else
-        pitch = (myAtan2(value1[2], forward) * 180 / M_PI); //qb: added
-#endif
+
         if (pitch < 0)
             pitch += 360;
     }

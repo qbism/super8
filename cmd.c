@@ -20,10 +20,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "quakedef.h"
 #include "stdio.h"
 
-#ifdef FLASH
-#undef _WIN32 //qb: FIXME - how to not def _win32 in CodeBlocks
-#endif
-
 #ifdef _WIN32
 #include "s_win32/winquake.h"
 #endif
@@ -270,9 +266,6 @@ void Cmd_Exec_f (void)
     }
 
     mark = Hunk_LowMark ();
-#ifdef FLASH
-    as3ReadFileSharedObject(va("%s/%s", com_gamedir, Cmd_Argv(1)));//config.cfg is stored in the flash shared objects
-#endif
     // Manoel Kasimier - config.cfg replacement - begin
     if (!Q_strcmp(Cmd_Argv(1), "config.cfg"))
     {

@@ -176,9 +176,7 @@ void S_Init (void)
 	if (COM_CheckParm("-nosound"))
 		return;
 
-#ifndef FLASH	//Always faked dma on Flash
 	if (COM_CheckParm("-simsound"))
-#endif
 		fakedma = true;
 
 	Cmd_AddCommand("play", S_Play);
@@ -217,11 +215,7 @@ void S_Init (void)
 		shm = (void *) Hunk_AllocName(sizeof(*shm), "shm");
 		shm->splitbuffer = 0;
 		shm->samplebits = 16;
-		//#ifdef FLASH
 		shm->speed = 44100; //Flash sampling rate is 44.1KHz
-		//#else
-		//		shm->speed = 22050; //qb: let all be 44100
-		//#endif
 		shm->channels = 2;
 		shm->samples = 32768;
 		shm->samplepos = 0;
@@ -913,15 +907,12 @@ void S_Update(vec3_t origin, vec3_t forward, vec3_t right, vec3_t up)
 			Con_Printf ("----(%i)----\n", total);
 	}
 
-#ifndef FLASH	//For Flash we do the actual painting of the sound to the channels whenever we receive a SampleDataEvent, so dont do it here.
 	// mix some sound
 	S_Update_();
-#endif
 }
 
 void GetSoundtime(void)
 {
-#ifndef FLASH	//For Flash, the SampleDataEvent tells how much to add onto the soundtime value, so dont do anything here.
 	int		samplepos;
 	static	int		buffers;
 	static	int		oldsamplepos;
@@ -953,7 +944,6 @@ void GetSoundtime(void)
 	oldsamplepos = samplepos;
 
 	soundtime = buffers*fullsamples + samplepos/shm->channels;
-#endif //ifndef FLASH
 }
 
 void S_ExtraUpdate (void)
@@ -966,9 +956,6 @@ void S_ExtraUpdate (void)
 
 	if (snd_noextraupdate.value)
 		return;		// don't pollute timings
-#ifndef FLASH
-	S_Update_();
-#endif
 }
 
 void S_Update_(void)
@@ -992,9 +979,6 @@ void S_Update_(void)
 
 	// mix ahead of current position
 	endtime = soundtime + _snd_mixahead.value
-#ifdef FLASH
-		/ 2.0f //For Flash we need to halve the mixahead amount, probably because we doubled the sampling rate.
-#endif
 		* shm->speed;
 	samps = shm->samples >> (shm->channels-1);
 	if (endtime - soundtime > samps)
@@ -1020,10 +1004,6 @@ void S_Update_(void)
 #endif
 
 	S_PaintChannels (endtime);
-
-#ifndef FLASH
-	SNDDMA_Submit ();
-#endif
 }
 
 /*

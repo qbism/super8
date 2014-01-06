@@ -16,10 +16,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
 // net.h -- quake's interface to the networking layer
 
-#ifdef FLASH
-#undef _WIN32  //qb: FIXME- possible to NOT def _WIN32 in CodeBlocks?
-#endif
-
 struct qsockaddr
 {
 	short sa_family;
