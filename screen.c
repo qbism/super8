@@ -926,7 +926,6 @@ SCR_ScreenShot_f
 */
 void SCR_ScreenShot_f (void)
 {
-#ifndef FLASH //qb:
     int i;
     char	pcxname[80];
     char	checkname[MAX_OSPATH];
@@ -955,7 +954,6 @@ void SCR_ScreenShot_f (void)
     WritePCXfile (pcxname, vid.buffer, vid.width, vid.height, vid.rowbytes,
                   host_basepal);
     Con_Printf ("Wrote %s\n", pcxname);
-#endif // FLASH
 }
 
 
@@ -1054,11 +1052,6 @@ keypress.
 */
 int SCR_ModalMessage (char *text)
 {
-#ifdef FLASH
-    return true;	//For Flash we receive key messages via the Main.as file, between calls to the Alchemy C source.
-    //We therefore cant check what the user response was, so we just assume that it was 'yes'.
-#endif
-
     if (cls.state == ca_dedicated)
         return true;
 

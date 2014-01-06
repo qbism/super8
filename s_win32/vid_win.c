@@ -258,7 +258,7 @@ void VID_UnloadAllDrivers (void)
         vidbuf = NULL;
     }
 
-     if (warpbuf)
+    if (warpbuf)
     {
         free (warpbuf);
         warpbuf = NULL;
@@ -371,12 +371,12 @@ cvar_t		vid_fullscreen_mode = {"vid_fullscreen_mode", "3", "vid_fullscreen_mode[
 cvar_t		vid_windowed_mode = {"vid_windowed_mode", "0", "vid_windowed_mode[value]  Initial windowed mode.", true};
 cvar_t		vid_window_x = {"vid_window_x", "0", "vid_window_x[value] Window placement on screen.", false}; //qb: was true
 cvar_t		vid_window_y = {"vid_window_y", "0", "vid_window_y[value] Window placement on screen.", false};
+cvar_t		vid_nativeaspect = {"vid_nativeaspect", "1.0", "vid_nativeaspect[value] Autodected unless set in cfg file.", false};
 
 int			vid_modenum = NO_MODE;
 int			vid_testingmode, vid_realmode;
 double		vid_testendtime;
 int			vid_default = MODE_FULLSCREEN_DEFAULT; //qb
-float         vid_nativeaspect = 1; //qb
 static int	windowed_default;
 
 modestate_t	modestate = MS_UNINIT;
@@ -627,17 +627,6 @@ void VID_InitModes (HINSTANCE hInstance)
 
     hdc = GetDC (NULL);
 
-
-    for (i = VID_WINDOWED_MODES; i<nummodes; i++)
-    {
-        if ((modelist[i].width == GetDeviceCaps (hdc, HORZRES)) && (modelist[i].height == GetDeviceCaps (hdc, VERTRES))
-             && (modelist[i].width <= 1024) && (modelist[i].height <= 768)) //qb: do fullscreen as default.
-        {
-            vid_default = i;//qb:  set default to highest detected res but no bigger than 1024x768 (possible start-up failure with dual-screens)
-            //qb:  continue;
-        }
-    }
-
     if ((GetDeviceCaps (hdc, HORZRES) > modelist[MODE_WINDOWED + 2].width) && !COM_CheckParm ("-noautostretch"))  //qb: was 800
     {
         windowed_default = MODE_WINDOWED + 2;
@@ -751,7 +740,6 @@ void VID_GetDisplayModes (void)
                         break;
                     }
                 }
-
                 // if it's not add it to the list
                 if (!existingmode)
                 {
@@ -760,7 +748,11 @@ void VID_GetDisplayModes (void)
                     if (modelist[nummodes].width > highestres)
                     {
                         highestres = modelist[nummodes].width;
-                        vid_nativeaspect = ((float) modelist[nummodes].width)/ (float)modelist[nummodes].height;
+                        Cvar_SetValue ("vid_nativeaspect", ((float) modelist[nummodes].width)/ (float)modelist[nummodes].height);
+                        if ((modelist[nummodes].width <= 1024) && (modelist[nummodes].height <= 768))
+                            vid_default = nummodes;
+                        Con_Printf("mode %i   ", nummodes);
+                        Cvar_SetValue("vid_fullscreen_mode", vid_default); //qb
                     }
                     nummodes++;
                 }
@@ -1014,15 +1006,7 @@ int VID_SetMode (int modenum, byte *palette)
     {
         if (vid_modenum == NO_MODE)
         {
-            if (modenum == vid_default)
-            {
-                modenum = windowed_default;
-            }
-            else
-            {
-                modenum = vid_default;
-            }
-
+            modenum = vid_default;
             Cvar_SetValue ("vid_mode", (float) modenum);
         }
         else
@@ -1274,6 +1258,7 @@ void VID_Init (byte *palette)
         Cvar_RegisterVariable (&vid_windowed_mode);
         Cvar_RegisterVariable (&vid_window_x);
         Cvar_RegisterVariable (&vid_window_y);
+        Cvar_RegisterVariable (&vid_nativeaspect);
 
         Cmd_AddCommand ("vid_testmode", VID_TestMode_f);
         Cmd_AddCommand ("vid_nummodes", VID_NumModes_f);

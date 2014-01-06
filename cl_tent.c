@@ -384,21 +384,12 @@ void CL_UpdateTEnts (void)
 		else
 		{
 			//yaw = /*(int)*/ (atan2(dist[1], dist[0]) * 180 / M_PI); // Manoel Kasimier - edited
-		#if !defined(FLASH)
 			yaw = (atan2(dist[1], dist[0]) * 180 / M_PI);
-		#else
-			yaw = (myAtan2(dist[1], dist[0]) * 180 / M_PI);
-		#endif
-
 			if (yaw < 0)
 				yaw += 360;
 
 			forward = sqrt (dist[0]*dist[0] + dist[1]*dist[1]);
-		#if !defined(FLASH)
 			pitch = /*(int)*/ (atan2(dist[2], forward) * 180 / M_PI); // Manoel Kasimier - edited
-		#else
-			pitch = (myAtan2(dist[2], forward) * 180 / M_PI); //qb: added
-		#endif
 			if (pitch < 0)
 				pitch += 360;
 		}

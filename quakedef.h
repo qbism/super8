@@ -43,24 +43,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //define	PARANOID			// speed sapping error checking
 #define	GAMENAME	"id1"
 
-#ifdef FLASH
-#include "AS3.h"
-
-void trace(char *fmt, ...);
-
-FILE* as3OpenWriteFile(const char* filename);
-void as3UpdateFileSharedObject(const char* filename);
-void as3ReadFileSharedObject(const char* filename);
-
-//For Flash, we need to swap round the arguments for atan2
-#define myAtan2(opp, adj) atan2(adj, opp)
-
-#else
 #define trace(a, ...)
 
 #define myAtan2(opp, adj) atan2(opp, adj)
-
-#endif
 
 #define      HISTORY_FILE_NAME   "command_history.txt"  //qb: Baker/ezQuake command history
 #define		MAXCMDLINE	256

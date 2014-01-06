@@ -650,11 +650,7 @@ void Host_SmallSavegame_f (void)
     COM_DefaultExtension (name, ".GAM");
 
     Con_Printf ("Saving game to %s...\n", name);
-#ifdef FLASH
-    f = as3OpenWriteFile(name);
-#else
     f = fopen (name, "wb"); // Manoel Kasimier - reduced savegames - edited
-#endif
 
     if (!f)
     {
@@ -801,11 +797,8 @@ void Host_Savegame_f (void)
     sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
     COM_DefaultExtension (name, ".SAV"); // Manoel Kasimier - upper-case savegame filenames - edited
     Con_Printf ("Saving game to %s...\n", name);
-#ifdef FLASH
-    f = as3OpenWriteFile(name);
-#else
+
     f = fopen (name, "wb"); // Manoel Kasimier - reduced savegames - edited
-#endif
     if (!f)
     {
         Con_Printf ("ERROR: couldn't open.\n");

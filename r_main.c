@@ -60,10 +60,7 @@ int			r_clipflags;
 
 byte	palmap[32][32][32];		// For fast 15-bit lookup
 byte	palmapnofb[32][32][32];		// No fullbrights
-
-#if !defined(FLASH)
 byte		*r_stack_start;
-#endif
 
 //
 // view origin
@@ -265,12 +262,10 @@ void R_LoadSky_f (void); // Manoel Kasimier - skyboxes // Code taken from the To
 void R_Init (void)
 {
     int i;
-#if !defined(FLASH)
     int		dummy;
 
 // get stack position so we can guess if we are going to overflow
     r_stack_start = (byte *)&dummy;
-#endif
 
     MakeMy15to8(); //qb: from engoo
     //qb: R_InitTurb ();
@@ -927,7 +922,7 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj)
     }
     else
     {
-        pixelAspect = vid_nativeaspect/((float)(r_refdef.vrect.width) /(float)(r_refdef.vrect.height)); //qb Lavent correction
+        pixelAspect = vid_nativeaspect.value/((float)(r_refdef.vrect.width) /(float)(r_refdef.vrect.height)); //qb Lavent correction
         if(vid_windowed_mode.value)
             screenAspect = 1;
         else
@@ -1591,12 +1586,9 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     static float previous_fog_density;
     static dither;
 
-    //This causes problems for Flash when not using -O3
-#if !defined(FLASH)
     delta = (byte *)&dummy - r_stack_start;
     if (delta < -0x10000 || delta > 0x10000) //qb: was 10000. D_SQ_calloc is 0x10000.  Does it matter?
         Sys_Error ("R_RenderView: called without enough stack");
-#endif
 
     if ( Hunk_LowMark() & 3 )
         Sys_Error ("Hunk is missaligned");

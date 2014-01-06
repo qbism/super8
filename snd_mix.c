@@ -265,10 +265,6 @@ CHANNEL MIXING
 static void SND_PaintChannelFrom8 (channel_t *ch, sfxcache_t *sc, int endtime);
 static void SND_PaintChannelFrom16 (channel_t *ch, sfxcache_t *sc, int endtime);
 
-#ifdef FLASH
-AS3_Val _flashSampleData;
-#endif
-
 void S_PaintChannels(int endtime)
 {
     int		i;
@@ -365,29 +361,8 @@ void S_PaintChannels(int endtime)
             }
         }
 
-#ifdef FLASH
-        {
-            float flashData[2*PAINTBUFFER_SIZE];
-            int numSamples = end - paintedtime;	//Number of STEREO samples
-            float f;
-            int i;
-            for(i = 0; i < numSamples; i++)
-            {
-                float paintMultiple = sfxvolume.value / 32768.0f;
-
-                f = (float)paintbuffer[i].left * paintMultiple;
-                f = BigFloat(f);
-                flashData[2*i + 0] = f;
-                f = (float)paintbuffer[i].right * paintMultiple;
-                f = BigFloat(f);
-                flashData[2*i + 1] = f;
-            }
-            AS3_ByteArray_writeBytes(_flashSampleData, flashData, 2*numSamples*sizeof(float));
-        }
-#else
         // transfer out according to DMA format
         S_TransferPaintBuffer(end);
-#endif
         paintedtime = end;
     }
 }
