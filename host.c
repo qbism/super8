@@ -38,10 +38,7 @@ Memory is cleared / released when a server or client begins, not when they end.
 
 */
 
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-double	host_org_frametime;
 cvar_t	host_timescale = {"host_timescale", "0", "host_timescale[0.0 to 10.0] scales the passage of time on client and server."};
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
 
 void Palette_Init (void);
 void BuildGammaTable (float g);
@@ -226,15 +223,7 @@ void Host_CheckCoopValue (void)
         Cvar_SetValue("deathmatch", 0);
 }
 // Manoel Kasimier - Deathmatch/Coop not at the same time - end
-// Manoel Kasimier - TIMESCALE extension - begin
-void Host_CheckTimescaleValue (void)
-{
-    if (host_timescale.value < 0.0)
-        Cvar_SetValue("host_timescale", 0.0);
-    else if (host_timescale.value > 10.0)
-        Cvar_SetValue("host_timescale", 10.0);
-}
-// Manoel Kasimier - TIMESCALE extension - end
+
 /*
 =======================
 Host_InitLocal
@@ -244,9 +233,6 @@ void Host_InitLocal (void)
 {
     Host_InitCommands ();
 
-    // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-    Cvar_RegisterVariableWithCallback (&host_timescale, Host_CheckTimescaleValue); // Manoel Kasimier
-    // 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
     Cvar_RegisterVariable (&r_skyalpha); // Manoel Kasimier - translucent sky
 
     Cvar_RegisterVariable (&r_palette); // qb: default palette

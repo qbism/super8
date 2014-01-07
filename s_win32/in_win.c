@@ -1097,10 +1097,7 @@ void IN_JoyMove (usercmd_t *cmd)
         speed = cl_movespeedkey.value;
     else
         speed = 1;
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-//	aspeed = speed * host_frametime;
-    aspeed = speed * host_org_frametime;
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
+	aspeed = speed * host_frametime;
 
     // loop through the axes
     for (i = 0; i < JOY_MAX_AXES; i++)

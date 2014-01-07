@@ -379,8 +379,7 @@ void Chase_Init (void);
 void Chase_Update (void);
 
 dfunction_t *ED_FindFunction (char *name);	// FrikaC - qcexec function
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-extern	double	host_org_frametime;extern int current_protocol; //qb
+extern int current_protocol; //qb
 
 #ifdef WEBDL    //qb: sometimes works, needs more testing
 extern cvar_t cl_web_download; //qb: R00k / Baker tute

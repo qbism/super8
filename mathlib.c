@@ -50,19 +50,6 @@ void ProjectPointOnPlane( vec3_t dst, const vec3_t p, const vec3_t normal )
 	dst[2] = p[2] - d * n[2];
 }
 
-
-float	anglemod(float a)
-{
-#if 0
-	if (a >= 0)
-		a -= 360*(int)(a/360);
-	else
-		a += 360*( 1 + (int)(-a/360) );
-	return a;
-#endif
-	return (360.0/65536.0) * ((int)(a*(65536.0/360.0)) & 65535); // edited
-}
-
 /*
 ==================
 BOPS_Error

@@ -36,7 +36,7 @@ cvar_t	cl_maxfps = {"cl_maxfps", "60", "cl_maxfps[value] Maximum frames-per-seco
 
 cvar_t	lookspring = {"lookspring","0", "lookspring[0/1] Toggles view recenter when mlook is not active.", true};
 cvar_t	lookstrafe = {"lookstrafe","0", "lookstrafe[0/1] Toggles mouse strafe when mlook is active.", true};
-cvar_t	sensitivity = {"sensitivity","11", "sensitivity[value] Sets mouse sensitivity.", true}; // edited
+cvar_t	sensitivity = {"sensitivity","6", "sensitivity[value] Sets mouse sensitivity.", true};
 
 cvar_t	m_pitch = {"m_pitch","0.022", "m_pitch[value] Sets speed of mouse lookup and lookdown when mlook is active. Negative value will reverse direction.", true};
 cvar_t	m_yaw = {"m_yaw","0.022", "m_yaw[value] Sets speed of left and right turns with mouse.", true};

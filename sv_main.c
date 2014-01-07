@@ -1675,8 +1675,7 @@ void SV_SpawnServer (char *server)
     sv.state = ss_active;
 
 // run two frames to allow everything to settle
-    host_org_frametime =	// 2001-10-20 TIMESCALE extension by Tomaz/Maddes
-        host_frametime = 0.1;
+    host_frametime = 0.1;
     SV_Physics ();
     SV_Physics ();
 
