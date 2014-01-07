@@ -74,7 +74,6 @@ char *pr_extensions[] =
     "DP_SV_ROTATINGBMODEL",
     "FRIK_FILE",
     "MK_EF_SHADOW",		// Manoel Kasimier
-    "TIMESCALE",	// 2001-10-20 TIMESCALE extension by Tomaz/Maddes
 
     /*
     "DP_EF_BLUE "

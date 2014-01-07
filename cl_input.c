@@ -368,15 +368,9 @@ void CL_AdjustAngles (void)
     float	up, down;
 
     if (in_speed.state & 1)
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-//		speed = host_frametime * cl_anglespeedkey.value;
-        speed = host_org_frametime * cl_anglespeedkey.value;
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
+		speed = host_frametime * cl_anglespeedkey.value;
     else
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-//		speed = host_frametime;
-        speed = host_org_frametime;
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
+		speed = host_frametime;
 
     if (!(in_strafe.state & 1))
     {

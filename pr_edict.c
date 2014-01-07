@@ -67,11 +67,6 @@ typedef struct
 
 static gefv_cache	gefvCache[GEFV_CACHESIZE] = {{NULL, ""}, {NULL, ""}};
 
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-ddef_t	*pr_global_cpu_frametime;
-ddef_t	*pr_global_org_frametime;
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
-
 // 2001-10-20 Extension System by LordHavoc  start
 void PR_Extension_List_f (void)
 {
@@ -1087,7 +1082,6 @@ void PR_LoadProgs (void)
 // 2001-09-14 Enhanced BuiltIn Function System (EBFS) by Maddes/Firestorm  end
     dfunction_t	*f; // FrikaC - EndFrame function
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
-    etype_t	type;	// 2001-10-20 TIMESCALE extension by Tomaz/Maddes
 
 // flush the non-C variable lookup cache
     for (i=0 ; i<GEFV_CACHESIZE ; i++)
@@ -1292,30 +1286,6 @@ void PR_LoadProgs (void)
     if ((f = ED_FindFunction ("EndFrame")) != NULL)
         EndFrame = (func_t)(f - pr_functions);
     // FrikaC - EndFrame function - end
-
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
-    pr_global_cpu_frametime = ED_FindGlobal ("cpu_frametime");
-    if (pr_global_cpu_frametime)
-    {
-        type = pr_global_cpu_frametime->type;
-        type &= ~DEF_SAVEGLOBAL;
-        if (type != ev_float)
-        {
-            pr_global_cpu_frametime = NULL;
-        }
-    }
-
-    pr_global_org_frametime = ED_FindGlobal ("org_frametime");
-    if (pr_global_org_frametime)
-    {
-        type = pr_global_org_frametime->type;
-        type &= ~DEF_SAVEGLOBAL;
-        if (type != ev_float)
-        {
-            pr_global_org_frametime = NULL;
-        }
-    }
-// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end
 }
 
 // 2001-09-14 Enhanced BuiltIn Function System (EBFS) by Maddes  start
