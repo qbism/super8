@@ -1789,7 +1789,8 @@ void PF_makestatic (void)
     int		i;
     float	scale=1;
     vec3_t	scalev= {0,0,0};
-    float	glow_size=0;
+    short	glow_size=0;
+    byte    glow_red,glow_green,glow_blue;
     int		bits=0;
     eval_t *val;
 
@@ -1839,6 +1840,21 @@ void PF_makestatic (void)
             glow_size = val->_float;
             bits |= U_GLOW_SIZE;
         }
+        if ((val = GetEdictFieldValue(ent, "glow_red")))
+        {
+            glow_red = (byte)(val->_float);
+            bits |= U_GLOW_RED;
+        }
+        if ((val = GetEdictFieldValue(ent, "glow_green")))
+        {
+            glow_green = (byte)(val->_float);
+            bits |= U_GLOW_GREEN;
+        }
+        if ((val = GetEdictFieldValue(ent, "glow_blue")))
+        {
+            glow_blue = (byte)(val->_float);
+            bits |= U_GLOW_BLUE;
+        }
         // write the message
         MSG_WriteLong(&sv.signon, bits);
         if (bits & U_SCALE)
@@ -1847,7 +1863,13 @@ void PF_makestatic (void)
             for (i=0 ; i<3 ; i++)
                 MSG_WriteFloat (&sv.signon, scalev[i]);
         if (bits & U_GLOW_SIZE)
-            MSG_WriteFloat (&sv.signon, glow_size);
+            MSG_WriteShort (&sv.signon, glow_size);
+        if (bits & U_GLOW_RED)
+            MSG_WriteByte (&sv.signon, glow_red);
+        if (bits & U_GLOW_GREEN)
+            MSG_WriteByte (&sv.signon, glow_green);
+        if (bits & U_GLOW_BLUE)
+            MSG_WriteByte (&sv.signon, glow_blue);
         MSG_WriteShort(&sv.signon, ent->v.effects);
     }
     // Manoel Kasimier - QC Alpha Scale Glow - end

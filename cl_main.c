@@ -856,7 +856,7 @@ void CL_RelinkEntities (void)
                 dl->dark = (ent->glow_size < 0); // Manoel Kasimier
                 dl->die = cl.time + 0.001;
                 dl->color = palmapnofb[ent->glow_red >>3] [ent->glow_green >>3] [ent->glow_blue >>3]; //qb: dyncol
-            }
+             }
 
         ent->forcelink = false;
 

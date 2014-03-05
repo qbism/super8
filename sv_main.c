@@ -735,7 +735,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
     float	scale=1;
     vec3_t	scalev= {0,0,0};
     float	glow_size=0;
-    float   glow_red, glow_green, glow_blue;
+    byte   glow_red, glow_green, glow_blue;
 
     // Tomaz - QC Alpha Scale Glow End
     float	frame_interval=0.1f; // Manoel Kasimier - QC frame_interval
@@ -886,31 +886,23 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             }
             if ((val = GetEdictFieldValue(ent, "glow_size")))
             {
-                glow_size = val->_float;
-                if (glow_size)
-                {
-                    bound(-250, glow_size, 250);
-                    if (glow_size > 250)
-                        glow_size = 250;
-                    else if (glow_size < -250)
-                        glow_size = -250;
-                    bits |= U_GLOW_SIZE;
-
-                }
+                glow_size = (short)val->_float;
+                bound(-250, glow_size, 250);
+                 bits |= U_GLOW_SIZE;
             }
             if (val = GetEdictFieldValue(ent, "glow_red"))
             {
-                glow_red = (byte)(val->_float*255.0);
+                glow_red = (byte)(val->_float);
                 bits |= U_GLOW_RED;
             }
             if (val = GetEdictFieldValue(ent, "glow_green"))
             {
-                glow_red = (byte)(val->_float*255.0);
+                glow_green = (byte)(val->_float);
                 bits |= U_GLOW_GREEN;
             }
             if (val = GetEdictFieldValue(ent, "glow_blue"))
             {
-                glow_red = (byte)(val->_float*255.0);
+                glow_blue = (byte)(val->_float);
                 bits |= U_GLOW_BLUE;
             }
             // Tomaz - QC Alpha Scale Glow End

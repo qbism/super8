@@ -879,7 +879,7 @@ void Mod_FlagFaces ( msurface_t *out)
 
     if (!Q_strncmp(out->texinfo->texture->name,"*",1))		// turbulent
     {
-        if (!Q_strncmp(out->texinfo->texture->name, "*glass",6))
+        if (!Q_strncmp(out->texinfo->texture->name, "*glass",6))  //qb:  glass is not turbulent
         {
             out->flags |= (SURF_DRAWTRANSLUCENT| SURF_DRAWTILED);
         }

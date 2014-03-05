@@ -2228,7 +2228,7 @@ typedef struct
 } modedesc_t;
 
 #define MAX_COLUMN_SIZE		7  //qb: was 5
-#define MODE_AREA_HEIGHT	(MAX_COLUMN_SIZE + 6)
+#define MODE_AREA_HEIGHT	(MAX_COLUMN_SIZE + 4)
 #define MAX_MODEDESCS		(MAX_COLUMN_SIZE*3)
 
 static modedesc_t	modedescs[MAX_MODEDESCS];

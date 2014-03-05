@@ -134,7 +134,7 @@
 				<Option type="0" />
 				<Option compiler="mingw32" />
 				<Compiler>
-					<Add option="-march=pentium-mmx" />
+					<Add option="-march=i486" />
 					<Add option="-O2" />
 					<Add option="-w" />
 					<Add option="-DWIN32" />
