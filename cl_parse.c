@@ -1067,7 +1067,13 @@ void CL_ParseStatic (void)
                 ent->scalev[i] = MSG_ReadFloat ();
 
         if (bits & U_GLOW_SIZE)
-            ent->glow_size = MSG_ReadFloat ();
+            ent->glow_size = MSG_ReadShort ();
+         if (bits & U_GLOW_RED)
+            ent->glow_red = MSG_ReadByte ();
+         if (bits & U_GLOW_GREEN)
+            ent->glow_green = MSG_ReadByte ();
+         if (bits & U_GLOW_BLUE)
+            ent->glow_blue = MSG_ReadByte ();
         ent->effects = MSG_ReadShort();
 
         if (ent->scale2 <= 0)

@@ -366,7 +366,7 @@ static void BGM_UpdateStream (void)
 			S_RawSamples(fileSamples, bgmstream->info.rate,
 							bgmstream->info.width,
 							bgmstream->info.channels,
-							raw, bgmvolume.value);
+							raw, bgmvolume.value*8.0); //qb: scale factor.
 		}
 		else if (res == 0)	/* EOF */
 		{
