@@ -106,7 +106,7 @@ entity_t	*CL_EntityNum (int num)
 {
     if (num < 0 || num >= cl.num_entities)
     {
-        if (num < 0 || num >= MAX_EDICTS)
+        if (num < 0 || num >= MAX_EDICTS)  //qb: johnfitz -- no more cl.max_edicts
             Host_Error ("CL_EntityNum: invalid edict (%d, max = %d)", num, MAX_EDICTS);
 
         while (cl.num_entities<=num)
@@ -169,7 +169,7 @@ void CL_ParseStartSoundPacket(void)
         Host_Error ("CL_ParseStartSoundPacket: %i > MAX_SOUNDS", sound_num);
     //qb: johnfitz end
 
-    if (ent > MAX_EDICTS) //qb:  johnfitz -- no more MAX_EDICTS
+    if (ent > MAX_EDICTS)  //qb: johnfitz -- no more cl.max_edicts
         Host_Error ("CL_ParseStartSoundPacket: ent = %i", ent);
 
     for (i=0 ; i<3 ; i++)
@@ -337,11 +337,11 @@ void CL_ParseServerInfo (void)
     if((current_protocol != PROTOCOL_NETQUAKE) && (current_protocol != PROTOCOL_QBS8)) // added
     {
         Con_Printf ("\n"); //becuase there's no newline after serverinfo print
-        Host_Error/*Con_Printf*/ ("Server returned version %i, not %i\n", current_protocol, PROTOCOL_NETQUAKE);
+        Con_Printf ("Server returned incompatible version %i\n", current_protocol);
         // Manoel Kasimier - 16-bit angles - edited - end
         return;
     }
-    else Con_Printf("Protocol version: %i", current_protocol);
+    else Con_Printf("Protocol version: %i\n", current_protocol);
 
 // parse maxclients
     cl.maxclients = MSG_ReadByte ();
@@ -644,7 +644,8 @@ void CL_ParseUpdate (int bits)
         }
         else
             forcelink = true;	// hack to make null model players work
-#ifdef GLQUAKE  //qb: TODO can use this?  SKIN
+
+#ifdef GLQUAKE  //qb: TODO can use skin?
         if (num > 0 && num <= cl.maxclients)
             R_TranslatePlayerSkin (num - 1);
 #endif

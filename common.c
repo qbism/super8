@@ -980,7 +980,6 @@ void COM_DefaultExtension (char *path, char *extension)
     Q_strcat (path, extension);
 }
 
-
 /*
 ==============
 COM_Parse

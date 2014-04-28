@@ -630,7 +630,7 @@ void Host_SmallSavegame_f (void)
         return;
     }
 
-    if (strstr(Cmd_Argv(1), ".."))
+    if (!strcmp(Cmd_Argv(1), ".") || strstr(Cmd_Argv(1), "..")) //qb: QS save vulnerability fix
     {
         Con_Printf ("Relative pathnames are not allowed.\n");
         return;
@@ -647,7 +647,7 @@ void Host_SmallSavegame_f (void)
 
     sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
 
-    COM_DefaultExtension (name, ".GAM");
+    COM_ForceExtension (name, ".GAM");
 
     Con_Printf ("Saving game to %s...\n", name);
     f = fopen (name, "wb"); // Manoel Kasimier - reduced savegames - edited
@@ -780,7 +780,7 @@ void Host_Savegame_f (void)
         return;
     }
 
-    if (strstr(Cmd_Argv(1), ".."))
+    if (!strcmp(Cmd_Argv(1), ".") || strstr(Cmd_Argv(1), "..")) //qb: QS save vulnerability fix
     {
         Con_Printf ("Relative pathnames are not allowed.\n");
         return;
@@ -795,7 +795,7 @@ void Host_Savegame_f (void)
         }
     }
     sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
-    COM_DefaultExtension (name, ".SAV"); // Manoel Kasimier - upper-case savegame filenames - edited
+    COM_ForceExtension (name, ".sav"); //qb: sve vulnerability fix
     Con_Printf ("Saving game to %s...\n", name);
 
     f = fopen (name, "wb"); // Manoel Kasimier - reduced savegames - edited
@@ -869,8 +869,7 @@ void Host_Loadgame_f (void)
     cls.demonum = -1;		// stop demo loop in case this fails
 
     sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
-    COM_DefaultExtension (name, ".SAV"); // Manoel Kasimier - upper-case savegame filenames - edited
-
+    COM_DefaultExtension (name, ".sav");
     // we can't call SCR_BeginLoadingPlaque, because too much stack space has
     // been used.  The menu calls it before stuffing loadgame command
     //	SCR_BeginLoadingPlaque ();
