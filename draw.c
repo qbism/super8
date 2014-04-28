@@ -884,7 +884,12 @@ void Draw_Fill (int x, int y, int w, int h, int c)
                 pusdest[u] = uc;
     }
 }
-//=============================================================================
+
+void M_Draw_Fill (int x, int y, int w, int h, byte c) //qb: from Makaqu
+{
+	Draw_Fill (x * scr_2d_scale_h, y * scr_2d_scale_v, w * scr_2d_scale_h, h * scr_2d_scale_v, c);
+}
+
 
 /*
 ================

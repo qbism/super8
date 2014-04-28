@@ -158,7 +158,7 @@ void SCR_DrawCenterString (void)
     if (cl.letterbox)
     {
         y = (scr_vrect.y + scr_vrect.height + 4) / scr_2d_scale_v;
-     }
+    }
     else
         // mankrip - svc_letterbox - end
         if (scr_center_lines <= 4)
@@ -319,12 +319,12 @@ void SCR_SizeDown_f (void)
 
 void SCR_SbarUp_f (void)  //qb: change sbar view
 {
-   if (sbar.value ==4) return;
+    if (sbar.value ==4) return;
     Cvar_SetValue("sbar", (float)(sbar.value + 1));
- }
+}
 void SCR_SbarDown_f (void)  //qb:
 {
-   if (sbar.value ==0) return;
+    if (sbar.value ==0) return;
     Cvar_SetValue("sbar", (float)(sbar.value - 1));
 
 }
@@ -1157,8 +1157,8 @@ void SCR_UpdateScreen (void)
 
     V_RenderView ();
 
-            //qb: dump this here
-        scr_2d_scale_h = vid.width / (360.0/sbar_scale.value);
+    //qb: dump this here
+    scr_2d_scale_h = vid.width / (360.0/sbar_scale.value);
     if (scr_2d_scale_h < 1)
         scr_2d_scale_h = 1;
     scr_2d_scale_v =  vid.height / (200.0/sbar_scale.value);
@@ -1246,9 +1246,9 @@ void SCR_UpdateScreen (void)
 
         VID_Update (&vrect);
     }
-    #ifdef _WIN32 //qb: jqavi
+#ifdef _WIN32 //qb: jqavi
     Movie_UpdateScreen ();
-    #endif
+#endif
 }
 
 
