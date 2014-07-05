@@ -24,7 +24,7 @@ int	d_vrectx, d_vrecty, d_vrectright_particle, d_vrectbottom_particle;
 int	d_y_aspect_shift, d_pix_min, d_pix_max, d_pix_shift;
 
 int		d_scantable[MAXHEIGHT];
-short	*zspantable[MAXHEIGHT];
+unsigned short	*zspantable[MAXHEIGHT];
 
 
 /*
@@ -34,18 +34,7 @@ D_ViewChanged
 */
 void D_ViewChanged (void)
 {
-    int rowbytes;
-
-    // Manoel Kasimier - buffered video (bloody hack) - begin
-#ifdef _WIN32
-    rowbytes = vid.rowbytes; //qb: was vid.width
-#else
-    // Manoel Kasimier - buffered video (bloody hack) - end
-    if (r_dowarp)
-        rowbytes = vid.rowbytes; //qb: was vid.width//WARP_WIDTH; // Manoel Kasimier - hi-res waterwarp & buffered video - edited
-    else
-        rowbytes = vid.rowbytes; //qb: was vid.width
-#endif // Manoel Kasimier - buffered video (bloody hack)
+    int rowbytes=vid.rowbytes;	// look below
 
     scale_for_mip = xscale;
     if (yscale > xscale)
@@ -75,7 +64,7 @@ void D_ViewChanged (void)
 			r_refdef.vrectbottom;// - (d_pix_max << d_y_aspect_shift); // Manoel Kasimier - FOV-based scaling - fixed
 
     {
-        int		i;
+		unsigned int		i;
 
         for (i=0 ; i<vid.height; i++)
         {

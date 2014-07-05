@@ -64,7 +64,7 @@ cvar_t	v_iyaw_level = {"v_iyaw_level", "0.3", "v_iyaw_level[value] Yaw level whe
 cvar_t	v_iroll_level = {"v_iroll_level", "0.1", "v_iroll_level[value] Roll level when v_idlescale is active.", false};
 cvar_t	v_ipitch_level = {"v_ipitch_level", "0.3", "v_ipitch_level[value] Pitch level when v_idlescale is active.", false};
 
-cvar_t	v_idlescale = {"v_idlescale", "0", "v_idlescale [value] – Scale of view idle effect.  0 is off. Otherwise generates view drift when player is idle.", false};
+cvar_t	v_idlescale = {"v_idlescale", "0", "v_idlescale [value] Scale of view idle effect.  0 is off. Otherwise generates view drift when player is idle.", false};
 
 cvar_t	crosshair = {"crosshair", "2", "crosshair[0-5] Crosshair type.  0 is off.", true};
 cvar_t	cl_crossx = {"cl_crossx", "0", "cl_crossx[value] Crosshair center x offset.", false};
@@ -1254,7 +1254,7 @@ void z_rot(struct my_coords *c, double roll)
     c->z = nz;
 }
 
-void rendercopy(int *dest, int side) //qb- added 'side'
+void rendercopy(int *dest)
 {
     int *p = (int*)vid.buffer;
     int x, y;
@@ -1384,7 +1384,7 @@ void renderside(B* bufs, double yaw, double pitch, double roll, int side)
     r_refdef.viewangles[YAW] = a.yaw;
     r_refdef.viewangles[PITCH] = a.pitch;
     r_refdef.viewangles[ROLL] = a.roll;
-    rendercopy((int *)bufs, side);
+    rendercopy((int *)bufs);
 };
 
 void R_RenderView_Fisheye()
@@ -1412,9 +1412,9 @@ void R_RenderView_Fisheye()
 
     if(pwidth!=width || pheight!=height || pfov!=fov)
     {
-        if(scrbufs) free(scrbufs);
-        if(offs) free(offs);
-        scrbufs = (B*)Q_malloc(scrsize*6, "scrbufs"); // front|right|back|left|top|bottom
+        if(scrbufs) Q_free(scrbufs);
+        if(offs) Q_free(offs);
+        scrbufs = (B*)Q_malloc(scrsize*6, "srcbufs"); // front|right|back|left|top|bottom
         offs = (B**)Q_malloc(scrsize*sizeof(B*), "offs");
         if(!scrbufs || !offs) Sys_Error ("R_RenderView_Fisheye: Memory allocation error.") ; // the rude way
         pwidth = width;

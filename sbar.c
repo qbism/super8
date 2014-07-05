@@ -16,27 +16,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
 // sbar.c -- status bar code
 
-/*
-Copyright (C) 1996-1997 Id Software, Inc.
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-See the GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
-*/
-// sbar.c -- status bar code
-
 #include "quakedef.h"
 
 #define STAT_MINUS		10	// num frame for '-' stats digit
@@ -62,6 +41,7 @@ qpic_t	*sb_face_invis_invuln;
 qboolean	sb_showscores;
 
 int			sb_lines;			// scan lines to draw
+extern float scr_2d_scale_h, scr_2d_scale_v;
 
 qpic_t      *rsb_invbar[2];
 qpic_t      *rsb_weapons[5];
@@ -96,6 +76,7 @@ cvar_t	crosshair_custom17	= {"crosshair_custom17","251", "crosshair_custom17[pal
 // Manoel Kasimier - end
 
 void Sbar_MiniDeathmatchOverlay (void);
+void Sbar_DeathmatchOverlay (void);
 
 /*
 ===============
@@ -148,7 +129,7 @@ void Sbar_SizeScreen (void)
     sb_lines = 0;
     if (sbar_show_bg.value)
         if (sbar.value > 0 && sbar.value < 4)
-            sb_lines = sbar.value * 24 * scr_2d_scale_v;
+            sb_lines = sbar.value * 24.0 * scr_2d_scale_v;
 }
 // mankrip - end
 /*
@@ -171,6 +152,8 @@ void Sbar_Init (void)
     Cvar_RegisterVariable (&sbar_show_armor);
     Cvar_RegisterVariable (&sbar_show_health);
     Cvar_RegisterVariable (&sbar_show_ammo);
+    Cvar_RegisterVariable (&sbar_show_bg);
+    Cvar_RegisterVariable (&sbar);
 
     Cvar_RegisterVariable (&crosshair_color);
     Cvar_RegisterVariable (&crosshair_custom16); //qb: custom color
@@ -508,6 +491,7 @@ void Sbar_UpdateScoreboard (void)
 Sbar_SoloScoreboard
 ===============
 */
+char *timetos (int mytime);
 void Sbar_SoloScoreboard (int x, int y, int vertical) // default 0, -48, 0
 {
 // mankrip - added and edited a lot of things in this function, I won't even bother myself commenting each one...
@@ -546,7 +530,7 @@ void Sbar_SoloScoreboard (int x, int y, int vertical) // default 0, -48, 0
         Sbar_DrawString (184, y + 4, str);
 
 // draw level name
-    l = strlen (cl.levelname);
+    l = Q_strlen (cl.levelname);
     if (vertical)
         Sbar_DrawString (x, y - 24, cl.levelname);
     else
@@ -1112,6 +1096,7 @@ void Sbar_DrawAmmo (int x, int x2, int y) // default 224, 248, 0
 }
 
 
+// Manoel Kasimier - crosshair - begin
 // crosshair alpha values: 0=transparent, 1=opaque, 3=33% transparent, 6=66% transparent
 byte	crosshair_tex[5][11][11] =
 {
@@ -1248,7 +1233,7 @@ void Sbar_Draw (void)
     if (cl.letterbox)
     {
         if (cl.letterbox == 1) // hack to ensure the whole screen will be black
-            Draw_Fill(0, (vid.height)/2, vid.width, 1, 0);
+            Draw_Fill(0, vid.height/2, vid.width, 1, 0);
         return;
     }
     // mankrip - svc_letterbox - end
@@ -1268,7 +1253,7 @@ void Sbar_Draw (void)
 // mankrip - begin
 
     Sbar_SizeScreen ();
-
+ 
     if ( (sb_showscores || sbar.value > 0) && sbar.value < 4)
     {
         if (sbar_show_bg.value)
@@ -1332,14 +1317,6 @@ void Sbar_Draw (void)
     }
     else if (sbar.value == 4)
     {
-#if 0
-        if (scr_viewsize.value < 100)
-        {
-            Draw_Fill (screen_left, 0, scr_vrect.x-screen_left, vid.height-screen_bottom, 0); // left
-            Draw_Fill (scr_vrect.x+scr_vrect.width, 0, vid.width-(scr_vrect.x+scr_vrect.width)-screen_right, vid.height-screen_bottom, 0); // right
-            Draw_Fill (scr_vrect.x, scr_vrect.y+scr_vrect.height, scr_vrect.width, vid.height-(scr_vrect.y+scr_vrect.height)-screen_bottom, 0); // bottom
-        }
-#endif
 #define SBAR_PADDING 4
         if (rogue || hipnotic)
             Sbar_SoloScoreboard (SBAR_PADDING, -49, 1);

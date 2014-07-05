@@ -22,9 +22,9 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
     #include "d_local.h"
 
     static finalvert_t
-       fv[2][8]
-    ,   * clipfv // mankrip
-       ;
+       fv[2][8];
+    //,   * clipfv // mankrip
+    //   ;
     static auxvert_t
        av[8]
        ;

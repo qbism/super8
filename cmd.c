@@ -42,6 +42,10 @@ int *trashspot;
 
 qboolean	cmd_wait;
 
+static	char	compl_common[MAX_FILELENGTH];
+static	int	compl_len;
+static	int	compl_clen;
+
 //=============================================================================
 
 /*
@@ -120,7 +124,7 @@ void Cbuf_InsertText (char *text)
     templen = cmd_text.cursize;
     if (templen)
     {
-        temp = Q_calloc (templen);
+        temp = Q_calloc ("Cbuf_InsertText", templen);
         memcpy (temp, cmd_text.data, templen);
         SZ_Clear (&cmd_text);
     }
@@ -333,7 +337,7 @@ char *CopyString (char *in)
 {
     char	*out;
 
-    out = Q_calloc (Q_strlen(in)+1);
+    out = Q_calloc ("CopyString", Q_strlen(in)+1);
     Q_strcpy (out, in);
     return out;
 }
@@ -372,7 +376,7 @@ void Cmd_Alias_f (void)
 
     if (!a)
     {
-        a = Q_calloc (sizeof(cmdalias_t));
+        a = Q_calloc ("Cmd_Alias_f", sizeof(cmdalias_t));
         a->next = cmd_alias;
         cmd_alias = a;
     }
@@ -436,7 +440,7 @@ static	char		*cmd_args = NULL;
 cmd_source_t	cmd_source;
 
 
-cmd_function_t	*cmd_functions;		// possible commands to execute
+static	cmd_function_t	*cmd_functions;		// possible commands to execute
 
 
 /*
@@ -1085,10 +1089,10 @@ extern	int	con_x;
 
 static void PaddedPrint (char *s)
 {
-    unsigned		nextcolx = 0;
+    unsigned int		nextcolx = 0;
 
     if (con_x)
-        nextcolx = (unsigned)((con_x + COLUMNWIDTH) / COLUMNWIDTH) * COLUMNWIDTH;
+        nextcolx = (unsigned int)((con_x + COLUMNWIDTH) / COLUMNWIDTH) * COLUMNWIDTH;
 
     if (nextcolx > con_linewidth - MINCOLUMNWIDTH
             || (con_x && nextcolx + Q_strlen(s) >= con_linewidth))
@@ -1400,14 +1404,18 @@ void LOC_LoadLocations (void)
 	location_t *thisloc;
 	int i;
 	float temp;
+	searchpath_t    *found;  //qb: from Levent modification
 
 	numlocations = 0;
 
 	COM_StripExtension (cl.worldmodel->name + 5 /* +5 = skip "maps/" */, base_map_name);
 	sprintf (locs_filename, "locs/%s.loc", base_map_name);
 
-	if (COM_FOpenFile (locs_filename, &f, cl.worldmodel->loadinfo.searchpath) == -1)
+	if (COM_FOpenFile (locs_filename, &f, &found) == -1)
 		return;
+	strncpy (cl.worldmodel->loadinfo.searchpath, found->filename, MAX_OSPATH);
+	//if (COM_FOpenFile (locs_filename, &f, cl.worldmodel->loadinfo.searchpath) == -1)
+	//	return;
 
 	thisloc = locations;
 	while (!feof(f) && numlocations < MAX_LOCATIONS)

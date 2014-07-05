@@ -27,7 +27,6 @@ void Draw_DebugChar (char num);
 #endif
 void Draw_TransPic (int x, int y, qpic_t *pic);
 void Draw_TransPicMirror (int x, int y, qpic_t *pic); // Manoel Kasimier
-void Draw_TransPicTranslate (int x, int y, qpic_t *pic, byte *translation);
 void Draw_ConsoleBackground (int lines);
 void Draw_TileClear (int x, int y, int w, int h);
 void Draw_Fill (int x, int y, int w, int h, int c);
@@ -40,6 +39,7 @@ qpic_t *Draw_CachePic (char *path);
 void M_Print (int cx, int cy, char *str);
 void M_PrintWhite (int cx, int cy, char *str);
 void M_DrawTransPic (int x, int y, qpic_t *pic, qboolean sscale);
+void M_DrawTransPicTranslate (int x, int y, qpic_t *pic, qboolean sscale);
 void M_DrawTextBox (int x, int y, int width, int lines);
 void M_DrawPlaque (char *c, qboolean b);
 // Manoel Kasimier - end

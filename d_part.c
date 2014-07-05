@@ -29,9 +29,9 @@ void D_DrawParticle_33_C (particle_t *pparticle) // Manoel Kasimier
     vec3_t	local, transformed;
     float	zi;
     byte	*pdest;
-    short	*pz;
+    unsigned short	*pz;
     int		i, izi, pix, count, u, v;
-    byte	*dottexture; // Manoel Kasimier
+//    byte	*dottexture; // Manoel Kasimier
 
 // transform point
     VectorSubtract (pparticle->org, r_origin, local);
@@ -117,9 +117,9 @@ void D_DrawParticle_50_C (particle_t *pparticle) //qb
     vec3_t	local, transformed;
     float	zi;
     byte	*pdest;
-    short	*pz;
+    unsigned short	*pz;
     int		i, izi, pix, count, u, v;
-    byte	*dottexture; // Manoel Kasimier
+//    byte	*dottexture; // Manoel Kasimier
 
 // transform point
     VectorSubtract (pparticle->org, r_origin, local);
@@ -204,9 +204,9 @@ void D_DrawParticle_66_C (particle_t *pparticle) // Manoel Kasimier
     vec3_t	local, transformed;
     float	zi;
     byte	*pdest;
-    short	*pz;
+    unsigned short	*pz;
     int		i, izi, pix, count, u, v;
-    byte	*dottexture; // Manoel Kasimier
+//    byte	*dottexture; // Manoel Kasimier
 
 // transform point
     VectorSubtract (pparticle->org, r_origin, local);
@@ -290,9 +290,9 @@ void D_DrawParticle_C (particle_t *pparticle) // Manoel Kasimier
     vec3_t	local, transformed;
     float	zi;
     byte	*pdest;
-    short	*pz;
+    unsigned short	*pz;
     int		i, izi, pix, count, u, v;
-    byte	*dottexture; // Manoel Kasimier
+//    byte	*dottexture; // Manoel Kasimier
 
 // transform point
     VectorSubtract (pparticle->org, r_origin, local);

@@ -369,8 +369,8 @@ void ParseWorldspawn (void)
     char key[128], value[4096];
     char *data;
 
-    fog_density = 0.0;
-    data = COM_Parse(cl.worldmodel->entities);
+//    fog_density = 0.0;
+    data = COM_Parse((char*)cl.worldmodel->entities);
     if (!data)
         return; // error
     if (com_token[0] != '{')

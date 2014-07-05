@@ -295,11 +295,11 @@ void Host_WriteConfiguration (void)
 void WriteHelp(FILE *f)
 {
     cvar_t	*var;
-    cmd_function_t	*cmd;
+    //cmd_function_t      *cmd;
 #ifdef WIN32
     SYSTEM_INFO siSysInfo;
     OSVERSIONINFO osvi;
-    BOOL bIsWindowsXPorLater;
+//    BOOL bIsWindowsXPorLater;
     char os_name[100];
 
     ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
@@ -682,7 +682,7 @@ float frame_timescale = 1.0f; //DEMO_REWIND - qb: Baker change
 qboolean Host_FilterTime (float time)
 {
     double	fps;
-    static double lastmaxfps;
+//    static double lastmaxfps;
 
     realtime += time;
 
@@ -963,12 +963,12 @@ void Palette_Init (void) //qb: idea from Engoo
 Host_Init
 ====================
 */
-byte colormap_cel[256*COLORLEVELS]; // Manoel Kasimier - EF_CELSHADING
+pixel_t colormap_cel[256*COLORLEVELS]; // Manoel Kasimier - EF_CELSHADING
 void M_Credits_f (void); // Manoel Kasimier
 void SCR_Adjust (void); // Manoel Kasimier - screen positioning
 void Host_Init (quakeparms_t *parms)
 {
-    loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
+//    loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
 
     if (standard_quake)
         minimum_memory = MINIMUM_MEMORY;

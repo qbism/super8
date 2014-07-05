@@ -122,7 +122,8 @@ int Cvar_CompleteCountPossible (char *partial)
 Cvar_Set
 ============
 */
-void Cvar_Set (char *var_name, char *value)
+
+cvar_t *Cvar_SetWithNoCallback (char *var_name, char *value)
 {
 	cvar_t	*var;
 	qboolean changed;
@@ -131,14 +132,14 @@ void Cvar_Set (char *var_name, char *value)
 	if (!var)
 	{	// there is an error in C code if this happens
 		Con_DPrintf ("Cvar_Set: variable %s not found\n", var_name); // edited
-		return;
+		return 0;
 	}
 
 	changed = Q_strcmp(var->string, value);
 
-	free (var->string);	// free the old value string
+	Q_free (var->string);	// free the old value string
 
-	var->string = Q_calloc (Q_strlen(value)+1);
+	var->string = Q_calloc ("Cvar_SetWithNoCallback", Q_strlen(value)+1);
 	Q_strcpy (var->string, value);
 	var->value = Q_atof (var->string);
 	if (var->server && changed)
@@ -147,6 +148,15 @@ void Cvar_Set (char *var_name, char *value)
 		if (svs.maxclients > 1) // Manoel Kasimier
 			SV_BroadcastPrintf ("\"%s\" changed to \"%s\"\n", var->name, var->string);
 	}
+	return var;
+}
+
+void Cvar_Set (char *var_name, char *value)
+{
+	cvar_t	*var;
+
+	var = Cvar_SetWithNoCallback(var_name, value);
+
 	//Heffo - Cvar Callback Function
 	if(var->Cvar_Changed)
 		var->Cvar_Changed();
@@ -160,10 +170,10 @@ Cvar_SetValue
 */
 void Cvar_SetValue (char *var_name, float value)
 {
-Cvar_Set (var_name, COM_NiceFloatString(value));
 	//char	val[32];
-	//sprintf (val, "%f", value); //qb: both COM_NiceFloatString and MK_cleanftos fail here when passed float variable.
+	//sprintf (val, "%f", value);
 	//Cvar_Set (var_name, val);
+	Cvar_Set (var_name, COM_NiceFloatString(value));
 }
 
 
@@ -194,12 +204,12 @@ void Cvar_RegisterVariable (cvar_t *variable)
 
 // copy the value off, because future sets will free it
 	oldstr = variable->string;
-	variable->string = Q_calloc (Q_strlen(variable->string)+1);
+	variable->string = Q_calloc ("Cvar_RegisterVariable", Q_strlen(variable->string)+1);
 	Q_strcpy (variable->string, oldstr);
 	variable->value = Q_atof (variable->string);
 
 	//qb:  remember default
-	variable->defaultstring = Q_calloc (Q_strlen(variable->string));
+	variable->defaultstring = Q_calloc ("Cvar_RegisterVariable", Q_strlen(variable->string)+1);
 	Q_strcpy (variable->defaultstring, variable->string);
 
 

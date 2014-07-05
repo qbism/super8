@@ -69,7 +69,8 @@ int scandir(const char *dir, struct dirent ***namelist,
     if (closedir(d)) return(-1);
     if (i == 0) return(-1);
     if (compar != NULL)
-        qsort((void *)(*namelist), (size_t)i, sizeof(struct dirent *), (void *)compar);
+        qsort((void *)(*namelist), (size_t)i, sizeof(struct dirent *),
+                        (int (*)(const void *, const void *)) compar);
 
     return(i);
 }
@@ -80,19 +81,19 @@ int alphasort(const struct dirent **a, const struct dirent **b)
     return(strcmpi((*a)->d_name, (*b)->d_name));
 }
 
-void SetSavename ()
+void SetSavename (void)
 {
     // savename must always be 8 uppercase alphanumeric characters
     // non-alphanumeric characters (for example, spaces) must be converted to underscores
     int         i;
     char        *s;
     // backup old string
-    s = Q_calloc (Q_strlen(savename.string)+1);
+    s = Q_calloc ("SetSavename", Q_strlen(savename.string)+1);
     Q_strcpy (s, savename.string);
     // free the old value string
     free (savename.string);
 
-    savename.string = Q_calloc (8+1);
+    savename.string = Q_calloc ("SetSavename", 8+1);
     for (i=0; i<8; i++)
     {
         if (!s[i]) // string was shorter than 8 characters
@@ -822,7 +823,7 @@ void M_PopUp_f (char *s, char *cmd)
     popup_message = s;
     if (Q_strlen(cmd))
     {
-        popup_command = Q_calloc (Q_strlen(cmd)+1);
+        popup_command = Q_calloc ("M_PopUp_f", Q_strlen(cmd)+1);
         Q_strcpy (popup_command, cmd);
     }
     else
@@ -831,7 +832,7 @@ void M_PopUp_f (char *s, char *cmd)
 
 void M_PopUp_Draw (void)
 {
-    int y = (MIN_VID_HEIGHT/*vid.height*/ - 48) / 2 + 24 + 16;
+//    int y = (min_vid_height/*vid.height*/ - 48) / 2 + 24 + 16;
 
     if (wasInMenus)
     {
@@ -1233,7 +1234,7 @@ void M_ScanSaves (qboolean smallsave) // Manoel Kasimier - edited
             Q_strcat(fileinfo, va("\n%s / %s", k_enemies, t_enemies));
             Q_strcat(fileinfo, va("\n%s / %s", f_secrets, t_secrets));
         }
-        m_fileinfo[i] = Q_calloc(Q_strlen(fileinfo)+1);
+        m_fileinfo[i] = Q_calloc("M_ScanSaves", Q_strlen(fileinfo)+1);
         Q_strcpy(m_fileinfo[i], fileinfo);
         // Manoel Kasimier - end
 
@@ -1640,7 +1641,7 @@ void M_AddEpisode (void)
 
     numepisodes++;
 
-    episodes[numepisodes].description = Q_calloc (strlen(Cmd_Argv(1))+1);
+    episodes[numepisodes].description = Q_calloc ("M_AddEpisode", strlen(Cmd_Argv(1))+1);
     strcpy (episodes[numepisodes].description, Cmd_Argv(1));
     episodes[numepisodes].firstLevel = nummaps;
 }
@@ -1662,11 +1663,11 @@ void M_AddMap (void)
     if ((key_dest == key_menu) && (m_state == m_gameoptions))
         return;
 
-    s = Q_calloc (strlen(Cmd_Argv(1))+1);
+    s = Q_calloc ("M_AddMap", strlen(Cmd_Argv(1))+1);
     strcpy (s, Cmd_Argv(1));
     levels[nummaps].name = s;
 
-    s = Q_calloc (strlen(Cmd_Argv(2))+1);
+    s = Q_calloc ("M_AddMap", strlen(Cmd_Argv(2))+1);
     strcpy (s, Cmd_Argv(2));
     levels[nummaps].description = s;
 
@@ -1681,16 +1682,16 @@ void M_SetDefaultEpisodes (episode_t *myepisodes, int epcount, level_t *mylevels
     nummaps = levcount;
     for (i=0; i<=numepisodes; i++)
     {
-        episodes[i].description = Q_calloc (strlen(myepisodes[i].description)+1);
+        episodes[i].description = Q_calloc ("M_SetDefaultEpisodes", strlen(myepisodes[i].description)+1);
         strcpy (episodes[i].description, myepisodes[i].description);
         episodes[i].firstLevel = myepisodes[i].firstLevel;
         episodes[i].levels = myepisodes[i].levels;
     }
     for (i=0; i<=nummaps; i++)
     {
-        levels[i].name                  = Q_calloc (strlen(mylevels[i].name)+1);
+        levels[i].name                  = Q_calloc ("M_SetDefaultEpisodes", strlen(mylevels[i].name)+1);
         strcpy (levels[i].name                  , mylevels[i].name);
-        levels[i].description   = Q_calloc (strlen(mylevels[i].description)+1);
+        levels[i].description   = Q_calloc ("M_SetDefaultEpisodes", strlen(mylevels[i].description)+1);
         strcpy (levels[i].description   , mylevels[i].description);
     }
 }
@@ -1941,7 +1942,7 @@ void M_GameOptions_Key (int key)
         {
             // Manoel Kasimier - begin
             char *s;
-            s = Q_calloc (Q_strlen(levels[episodes[startepisode].firstLevel + startlevel].name)+1);
+            s = Q_calloc ("M_GameOptions_Key", Q_strlen(levels[episodes[startepisode].firstLevel + startlevel].name)+1);
             Q_strcpy (s, levels[episodes[startepisode].firstLevel + startlevel].name);
             // run "listen 0", so host_netport will be re-examined
             if (sv.active)
@@ -2011,7 +2012,7 @@ int isFile(const struct dirent *nombre)
 
 void M_Menu_MapList_f (void)
 {
-    int x;
+        int x = 0;
     int i;
     key_dest = key_menu;
     m_state = m_maplist;
@@ -2045,7 +2046,7 @@ void M_Menu_MapList_f (void)
 void M_MapList_Draw (void)
 {
     qpic_t   *p;
-    int      x;
+//    int      x;
 
     M_DrawTransPic (16, 4, Draw_CachePic ("gfx/qplaque.lmp"), false );
     p = Draw_CachePic ("gfx/p_multi.lmp");
@@ -2060,6 +2061,7 @@ void M_MapList_Draw (void)
 void M_MapList_Key (int key)
 {
     int i, x;
+    x = 0;
     switch (key)
     {
     case K_ESCAPE:
@@ -2648,11 +2650,11 @@ void M_Keys_AddCmd (void)
     if ((key_dest == key_menu) && (m_state == m_keys))
         return;
 
-    s = Q_calloc (strlen(Cmd_Argv(1))+1);
+    s = Q_calloc ("M_Keys_AddCmd", strlen(Cmd_Argv(1))+1);
     strcpy (s, Cmd_Argv(1));
     bindnames [numcommands][0] = s;
 
-    s = Q_calloc (strlen(Cmd_Argv(2))+1);
+    s = Q_calloc ("M_Keys_AddCmd", strlen(Cmd_Argv(2))+1);
     strcpy (s, Cmd_Argv(2));
     bindnames [numcommands][1] = s;
 
@@ -2707,9 +2709,9 @@ void M_Keys_SetDefaultCmds (void)
     numcommands = NUMCOMMANDS;
     for (i=0; i<numcommands; i++)
     {
-        bindnames[i][0] = Q_calloc (strlen(defaultbindnames[i][0])+1);
+        bindnames[i][0] = Q_calloc ("M_Keys_SetDefaultCmds", strlen(defaultbindnames[i][0])+1);
         strcpy (bindnames[i][0], defaultbindnames[i][0]);
-        bindnames[i][1] = Q_calloc (strlen(defaultbindnames[i][1])+1);
+        bindnames[i][1] = Q_calloc ("M_Keys_SetDefaultCmds", strlen(defaultbindnames[i][1])+1);
         strcpy (bindnames[i][1], defaultbindnames[i][1]);
     }
 }

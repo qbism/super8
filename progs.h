@@ -156,3 +156,8 @@ void ED_PrintEdicts (void);
 void ED_PrintNum (int ent);
 
 eval_t *GetEdictFieldValue(edict_t *ed, char *field);
+
+// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  start
+extern ddef_t	*pr_global_cpu_frametime;
+extern ddef_t	*pr_global_org_frametime;
+// 2001-10-20 TIMESCALE extension by Tomaz/Maddes  end

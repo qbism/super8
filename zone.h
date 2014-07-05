@@ -119,7 +119,7 @@ void Cache_Report (void);
 
 //qb: jqavi begin
 void *Q_malloc (size_t size, char *caller);         // joe
-void *Q_calloc (size_t n);
+void *Q_calloc (char *str, size_t n);
 void *Q_realloc (void *ptr, size_t size);
 void *Q_strdup (const char *str);
 //qb: jqavi end

@@ -163,6 +163,20 @@ void R_InsertNewEdges (edge_t *edgestoadd, edge_t *edgelist);
 void R_StepActiveU (edge_t *pedge);
 void R_RemoveEdges (edge_t *pedge);
 
+void R_AliasTransformAndProjectFinalVerts (finalvert_t *fv,
+        stvert_t *pstverts);
+void R_AliasSetUpTransform (int trivial_accept);
+void R_AliasTransformVector (vec3_t in, vec3_t out);
+void R_AliasTransformFinalVert (finalvert_t *fv, auxvert_t *av,
+                                trivertx_t *pverts, stvert_t *pstverts);
+void R_AliasProjectFinalVert (finalvert_t *fv, auxvert_t *av);
+// Manoel Kasimier - model interpolation - begin
+void R_AliasSetUpBlendedTransform (int trivial_accept);
+void R_AliasTransformAndProjectFinalBlendedVerts (finalvert_t *fv,
+        stvert_t *pstverts);
+void R_AliasTransformFinalBlendedVert (finalvert_t *fv, auxvert_t *av,
+                                       trivertx_t *pverts1, trivertx_t *pverts2, stvert_t *pstverts);
+
 extern void R_Surf8Start (void);
 extern void R_Surf8End (void);
 extern void R_Surf16Start (void);

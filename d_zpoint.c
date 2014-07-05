@@ -28,7 +28,7 @@ D_DrawZPoint
 void D_DrawZPoint (void)
 {
 	byte	*pdest;
-	short	*pz;
+	unsigned short	*pz;
 	int		izi;
 	
 	pz = d_pzbuffer + (d_zwidth * r_zpointdesc.v) + r_zpointdesc.u;

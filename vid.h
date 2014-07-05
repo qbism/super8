@@ -22,7 +22,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define MIN_VID_WIDTH 360 //qb: change to define
 #define MIN_VID_HEIGHT 200
 
-//qb: replace all with byte.  typedef byte pixel_t;
+typedef byte pixel_t;
 
 typedef struct vrect_s
 {
@@ -30,11 +30,11 @@ typedef struct vrect_s
 	struct vrect_s	*pnext;
 } vrect_t;
 
-extern	byte colormap_cel[256*COLORLEVELS]; // Manoel Kasimier - EF_CELSHADING
+extern	pixel_t colormap_cel[256*COLORLEVELS]; // Manoel Kasimier - EF_CELSHADING
 typedef struct
 {
-	byte			*buffer;		// invisible buffer
-	byte			*colormap;		// 256 * VID_GRADES size
+	pixel_t			*buffer;		// invisible buffer
+	pixel_t			*colormap;		// 256 * VID_GRADES size
 	unsigned short	*colormap16;	// 256 * VID_GRADES size
 	int				fullbright;		// index of first fullbright color
 	int     		rowbytes;	// may be > width if displayed in a window //qb: signed per szo

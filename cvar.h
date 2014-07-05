@@ -68,6 +68,9 @@ void 	Cvar_RegisterVariable (cvar_t *variable);
 // registers a cvar that allready has the name, string, and optionally the
 // archive elements set.
 
+cvar_t *Cvar_SetWithNoCallback (char *var_name, char *value);
+// do not fire up callback Cvar_Set() version
+
 void 	Cvar_Set (char *var_name, char *value);
 // equivelant to "<name> <variable>" typed at the console
 

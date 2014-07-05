@@ -62,14 +62,14 @@ void S_CodecShutdown (void);
 /* Callers of the following S_CodecOpenStream* functions
  * are reponsible for attaching any path to the filename */
 
-snd_stream_t *S_CodecOpenStreamType (const char *filename, unsigned int type);
+snd_stream_t *S_CodecOpenStreamType (char *filename, unsigned int type);
 	/* Decides according to the required type. */
 
-snd_stream_t *S_CodecOpenStreamAny (const char *filename);
+snd_stream_t *S_CodecOpenStreamAny (char *filename);
 	/* Decides according to file extension. if the
 	 * name has no extension, try all available. */
 
-snd_stream_t *S_CodecOpenStreamExt (const char *filename);
+snd_stream_t *S_CodecOpenStreamExt (char *filename);
 	/* Decides according to file extension. the name
 	 * MUST have an extension. */
 
@@ -77,7 +77,7 @@ void S_CodecCloseStream (snd_stream_t *stream);
 int S_CodecReadStream (snd_stream_t *stream, int bytes, void *buffer);
 int S_CodecRewindStream (snd_stream_t *stream);
 
-snd_stream_t *S_CodecUtilOpen(const char *filename, snd_codec_t *codec);
+snd_stream_t *S_CodecUtilOpen(char *filename, snd_codec_t *codec);
 void S_CodecUtilClose(snd_stream_t **stream);
 
 

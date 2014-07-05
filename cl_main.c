@@ -17,6 +17,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 // cl_main.c  -- client main loop
 
 #include "quakedef.h"
+#include "bgmusic.h"
 #include "curl.h"
 
 // we need to declare some mouse variables here, because the menu system
@@ -43,7 +44,7 @@ cvar_t	m_yaw = {"m_yaw","0.022", "m_yaw[value] Sets speed of left and right turn
 cvar_t	m_forward = {"m_forward","1", "m_forward[value] Forward and reverse mouse speed.", true};
 cvar_t	m_side = {"m_side","0.8", "m_side[value] Strafe speed with mouse.", true};
 cvar_t	m_look = {"m_look","1", "m_look[0/1] Mouse look toggle.", true}; // Manoel Kasimier - m_look
-cvar_t	cutscene = {"cutscene", "1", "cutscene[0/1] Toggles whether or not to show cutscenes."};
+cvar_t	cutscene = {"cutscene", "1", "cutscene[0/1] Toggles whether or not to show cutscenes."}; // Nehahra
 
 #ifdef WEBDL    //qb: sometimes works, needs more testing
 cvar_t cl_web_download = {"cl_web_download", "1", "cl_web_download[0/1] Toggle allow downloads.", true}; //qb: R00k / Baker tute

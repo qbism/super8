@@ -278,7 +278,8 @@ SV_TouchLinks
 //qb SV_TouchLinks ported from mh
 void SV_TouchLinks ( edict_t *ent, areanode_t *node )
 {
-	link_t		*l, *next;
+	link_t		*l;
+	//link_t *next;
 	edict_t		*touch;
 	int			old_self, old_other, touched = 0, i;
 

@@ -43,7 +43,7 @@ extern	int nanmask;
 #define anglemod(a)	((360.0 / 65536) * ((int)((a) * (65536 / 360.0)) & 65535)) //qb: move this here
 
 void VectorMA (vec3_t veca, float scale, vec3_t vecb, vec3_t vecc);
-
+vec_t VectorDistance (vec3_t x,vec3_t y);
 vec_t _DotProduct (vec3_t v1, vec3_t v2);
 void _VectorSubtract (vec3_t veca, vec3_t vecb, vec3_t out);
 void _VectorAdd (vec3_t veca, vec3_t vecb, vec3_t out);

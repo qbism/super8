@@ -30,7 +30,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 typedef struct
 {
     void			*pdest;
-    short			*pz;
+    unsigned short			*pz;
     int				count;
     byte			*ptex;
     int				sfrac, tfrac, light, zi;
@@ -86,7 +86,7 @@ spanpackage_t			*a_spans;
 spanpackage_t			*d_pedgespanpackage;
 static int				ystart;
 byte					*d_pdest, *d_ptex;
-short					*d_pz;
+unsigned short					*d_pz;
 int						d_sfrac, d_tfrac, d_light, d_zi;
 int						d_ptexextrastep, d_sfracextrastep;
 int						d_tfracextrastep, d_lightextrastep, d_pdestextrastep;
@@ -154,7 +154,7 @@ D_PolysetDrawFinalVerts
 void D_PolysetDrawFinalVerts (finalvert_t *fv, int numverts)
 {
     int		i, z;
-    short	*zbuf;
+    unsigned short	*zbuf;
 
     for (i=0 ; i<numverts ; i++, fv++)
     {
@@ -321,7 +321,7 @@ void D_PolysetRecursiveTriangle (int *lp1, int *lp2, int *lp3)
     int		d;
     int		new[6];
     int		z;
-    short	*zbuf;
+    unsigned short	*zbuf;
 
     d = lp2[0] - lp1[0];
     if (d < -1 || d > 1)
@@ -607,7 +607,7 @@ void D_PolysetDrawSpans8 (spanpackage_t *pspanpackage)
     int		lsfrac, ltfrac;
     int		llight;
     int		lzi;
-    short	*lpz;
+    unsigned short	*lpz;
 
     do
     {
@@ -708,7 +708,7 @@ void D_PolysetDrawSpans8_66 (spanpackage_t *pspanpackage) // Manoel Kasimier - t
     int		lsfrac, ltfrac;
     int		llight;
     int		lzi;
-    short	*lpz;
+    unsigned short	*lpz;
 
     do
     {
@@ -778,7 +778,7 @@ void D_PolysetDrawSpans8_50(spanpackage_t *pspanpackage) //qb
     int		lsfrac, ltfrac;
     int		llight;
     int		lzi;
-    short	*lpz;
+    unsigned short	*lpz;
 
     do
     {
@@ -849,7 +849,7 @@ void D_PolysetDrawSpans8_33 (spanpackage_t *pspanpackage) // Manoel Kasimier - t
     int		lsfrac, ltfrac;
     int		llight;
     int		lzi;
-    short	*lpz;
+    unsigned short	*lpz;
 
     do
     {
@@ -919,7 +919,7 @@ void D_PolysetDrawSpans8_Stippled (spanpackage_t *pspanpackage) // Manoel Kasimi
     int		lsfrac, ltfrac;
     int		llight;
     int		lzi;
-    short	*lpz;
+    unsigned short	*lpz;
 
     do
     {
@@ -990,7 +990,7 @@ void D_PolysetDrawSpans8_Add (spanpackage_t *pspanpackage) // Manoel Kasimier - 
     int		lsfrac, ltfrac;
     int		llight;
     int		lzi;
-    short	*lpz;
+    unsigned short	*lpz;
 
     do
     {
@@ -1055,7 +1055,7 @@ void D_PolysetDrawSpans8_Shadow (spanpackage_t *pspanpackage) // Manoel Kasimier
     int		lcount;
     byte	*lpdest;
     int		lzi;
-    short	*lpz;
+    unsigned short	*lpz;
     // Manoel Kasimier - begin
     int		dist;
     byte	*shadowmap;
@@ -1145,7 +1145,7 @@ void D_PolysetDrawSpans8_Outline (spanpackage_t *pspanpackage)
     int		lcount;
     byte	*lpdest;
     int		lzi;
-    short	*lpz;
+    unsigned short	*lpz;
     int		firstline = true;
 //	byte	*prevlpdest; // previous
     unsigned int	prevbegin=0, prevend=0, nextbegin, nextend; // previous
@@ -1279,7 +1279,7 @@ void D_PolysetDrawSpans8_Cel (spanpackage_t *pspanpackage)
     int		lsfrac, ltfrac;
     int		llight;
     int		lzi;
-    short	*lpz;
+    unsigned short	*lpz;
 
     do
     {
@@ -1348,7 +1348,7 @@ void D_PolysetDrawSpans8_Metal (spanpackage_t *pspanpackage)
     int		lsfrac, ltfrac;
     int		llight;
     int		lzi;
-    short	*lpz;
+    unsigned short	*lpz;
 
     do
     {

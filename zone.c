@@ -750,7 +750,7 @@ void *Q_malloc (size_t size, char *caller)
     void   *p;
 
     if (!(p = malloc(size)))
-        Sys_Error ("Insufficient free memory for Q_malloc. Caller: %s", caller);
+        Sys_Error ("Q_malloc(): %s: Failed to allocate %lu bytes. Check disk space", caller, size);
 
     return p;
 }
@@ -760,12 +760,12 @@ void *Q_malloc (size_t size, char *caller)
 Q_calloc
 ===================
 */
-void *Q_calloc (size_t n)
+void *Q_calloc (char *str, size_t n)
 {
     void   *p;
 
-    if (!(p = calloc(n, 1)))  //qb- always 1 !
-        Sys_Error ("Not enough memory free; check disk space");
+    if (!(p = calloc(1, n)))  //qb- always 1 !
+        Sys_Error ("Q_calloc(): %s: Failed to allocate %lu bytes. Check disk space", str, n);
 
     return p;
 }
@@ -780,7 +780,7 @@ void *Q_realloc (void *ptr, size_t size)
     void   *p;
 
     if (!(p = realloc(ptr, size)))
-        Sys_Error ("Not enough memory free; check disk space");
+        Sys_Error ("Q_realloc(): Failed to allocate %lu bytes. Check disk space", size);
 
     return p;
 }
@@ -792,10 +792,17 @@ Q_strdup
 */
 void *Q_strdup (const char *str)
 {
-    char *d = (char *)(malloc (strlen (str) + 1)); // Allocate memory
-    if (d != NULL)
+	unsigned long size;
+	char *d;
+
+	size = strlen(str);
+	size++;
+
+    d = (char *)malloc (size); // Allocate memory
+    if (d)
         strcpy (d,str);                            // Copy string if okay
-    else Sys_Error ("Q_strdup:  Not enough memory free");
+    else
+		Sys_Error ("Q_strdup:  Failed to allocate %lu bytes. Check disk space", size);
     return d;
 }
 

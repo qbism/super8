@@ -31,7 +31,7 @@ static struct qsockaddr broadcastaddr;
 static unsigned long myAddr;
 
 qboolean	winsock_lib_initialized;
-/*
+
 int (PASCAL FAR *pWSAStartup)(WORD wVersionRequired, LPWSADATA lpWSAData);
 int (PASCAL FAR *pWSACleanup)(void);
 int (PASCAL FAR *pWSAGetLastError)(void);
@@ -50,7 +50,7 @@ struct hostent FAR * (PASCAL FAR *pgethostbyaddr)(const char FAR * addr,
 												  int len, int type);
 int (PASCAL FAR *pgetsockname)(SOCKET s, struct sockaddr FAR *name,
 							   int FAR * namelen);
-*/
+
 #include "net_wins.h"
 
 int winsock_initialized = 0;
@@ -377,7 +377,7 @@ int WINS_Read (int socket, byte *buf, int len, struct qsockaddr *addr)
 	int addrlen = sizeof (struct qsockaddr);
 	int ret;
 
-	ret = precvfrom (socket, buf, len, 0, (struct sockaddr *)addr, &addrlen);
+	ret = precvfrom (socket, (char*)buf, len, 0, (struct sockaddr *)addr, &addrlen);
 	if (ret == -1)
 	{
 		int errorno = pWSAGetLastError();
@@ -431,7 +431,7 @@ int WINS_Write (int socket, byte *buf, int len, struct qsockaddr *addr)
 {
 	int ret;
 
-	ret = psendto (socket, buf, len, 0, (struct sockaddr *)addr, sizeof(struct qsockaddr));
+	ret = psendto (socket, (char*)buf, len, 0, (struct sockaddr *)addr, sizeof(struct qsockaddr));
 	if (ret == -1)
 		if (pWSAGetLastError() == WSAEWOULDBLOCK)
 			return 0;

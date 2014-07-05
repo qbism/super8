@@ -55,7 +55,7 @@ read from the demo file.
 //qb: added from proquake 3.50
 //plus Baker single player fix http://forums.inside3d.com/viewtopic.php?t=4567
 // JPG 1.05 - support for recording demos after connecting to the server
-byte	demo_head[3][MAX_MSGLEN];
+char	demo_head[3][MAX_MSGLEN];
 int		demo_head_size[2];
 
 /*
@@ -160,7 +160,9 @@ void PushFrameposEntry (long fbaz)
 {
 	framepos_t	*newf;
 
-	newf = malloc (sizeof(framepos_t)); // Demo rewind
+	newf = Q_malloc (sizeof(framepos_t), "PushFrameposEntry()"); // Demo rewind
+	if (!newf)
+		Sys_Error("PushFrameposEntry(): cannot alloc");
 	newf->baz = fbaz;
 
 	if (!dem_framepos)
@@ -181,7 +183,7 @@ static void EraseTopEntry (void)
 
 	top = dem_framepos;
 	dem_framepos = dem_framepos->next;
-	free (top);
+	Q_free (top);
 }//DEMO_REWIND
 
 /*
@@ -460,12 +462,12 @@ void CL_Record_f (void)
 
         for (i = 0 ; i < 2 ; i++)
         {
-            net_message.data = demo_head[i];
+            net_message.data = (byte*)demo_head[i];
             net_message.cursize = demo_head_size[i];
             CL_WriteDemoMessage();
         }
 
-        net_message.data = demo_head[2];
+        net_message.data = (byte*)demo_head[2];
         SZ_Clear (&net_message);
 
         // current names, colors, and frag counts

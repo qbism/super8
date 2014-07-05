@@ -25,156 +25,157 @@ void MakeMy15to8();
 void ParseWorldspawn (void);
 void R_LoadPalette_f (void); //qb: load an alternate palette
 
-extern short		*d_pzbuffer;
-extern unsigned int	d_zwidth;
-extern int			d_scantable[MAXHEIGHT];
+extern unsigned short           *d_pzbuffer;
+extern unsigned int     d_zwidth;
+extern int                      d_scantable[MAXHEIGHT];
 
-void		*colormap;
-//vec3_t		viewlightvec; // Manoel Kasimier - changed alias models lighting - removed
-//alight_t	r_viewlighting = {128, 192, viewlightvec}; // Manoel Kasimier - changed alias models lighting - removed
-float		r_time1;
-unsigned int			r_numallocatededges;
-//qb: remove     qboolean	r_drawpolys;
-//qb: remove     qboolean	r_drawculledpolys;
-//qb: remove     qboolean	r_worldpolysbacktofront;
-qboolean	r_recursiveaffinetriangles = true;
-int			r_pixbytes = 1;
-float		r_aliasuvscale = 1.0;
-int			r_outofsurfaces;
-int			r_outofedges;
+void            *colormap;
+//vec3_t                viewlightvec; // Manoel Kasimier - changed alias models lighting - removed
+//alight_t      r_viewlighting = {128, 192, viewlightvec}; // Manoel Kasimier - changed alias models lighting - removed
+float           r_time1;
+unsigned int                    r_numallocatededges;
+//qb: remove     qboolean       r_drawpolys;
+//qb: remove     qboolean       r_drawculledpolys;
+//qb: remove     qboolean       r_worldpolysbacktofront;
+qboolean        r_recursiveaffinetriangles = true;
+int                     r_pixbytes = 1;
+float           r_aliasuvscale = 1.0;
+int                     r_outofsurfaces;
+int                     r_outofedges;
 
-qboolean	r_dowarp, r_dowarpold, r_viewchanged;
+qboolean        r_dowarp, r_dowarpold, r_viewchanged;
 
-int			numbtofpolys;
-btofpoly_t	*pbtofpolys;
-mvertex_t	*r_pcurrentvertbase;
+int                     numbtofpolys;
+btofpoly_t      *pbtofpolys;
+mvertex_t       *r_pcurrentvertbase;
 
-int			c_surf;
-unsigned int	r_maxsurfsseen, r_maxedgesseen, r_cnumsurfs;
-qboolean	r_surfsonstack;
-int			r_clipflags;
+int                     c_surf;
+unsigned int    r_maxsurfsseen, r_maxedgesseen, r_cnumsurfs;
+qboolean        r_surfsonstack;
+int                     r_clipflags;
+
+int      sintable[SIN_BUFFER_SIZE];
 
 //qb: from engoo
 // COLOR Translation stuff
 // Came straight out of image.c of Quake2 tools
 
-byte	palmap[32][32][32];		// For fast 15-bit lookup
-byte	palmapnofb[32][32][32];		// No fullbrights
-byte		*r_stack_start;
+byte    palmap[32][32][32];             // For fast 15-bit lookup
+byte    palmapnofb[32][32][32];         // No fullbrights
+byte            *r_stack_start;
 
 //
 // view origin
 //
-vec3_t	vup, base_vup;
-vec3_t	vpn, base_vpn;
-vec3_t	vright, base_vright;
-vec3_t	r_origin;
+vec3_t  vup, base_vup;
+vec3_t  vpn, base_vpn;
+vec3_t  vright, base_vright;
+vec3_t  r_origin;
 
 //
 // screen size info
 //
-refdef_t	r_refdef;
-float		xcenter, ycenter;
-float		xscale, yscale;
-float		xscaleinv, yscaleinv;
-float		xscaleshrink, yscaleshrink;
-float		aliasxscale, aliasyscale, aliasxcenter, aliasycenter;
+refdef_t        r_refdef;
+float           xcenter, ycenter;
+float           xscale, yscale;
+float           xscaleinv, yscaleinv;
+float           xscaleshrink, yscaleshrink;
+float           aliasxscale, aliasyscale, aliasxcenter, aliasycenter;
 
-int		screenwidth;
+int             screenwidth;
 
-float	pixelAspect;
-float	screenAspect;
-float	verticalFieldOfView;
-float	xOrigin, yOrigin;
+float   pixelAspect;
+float   screenAspect;
+float   verticalFieldOfView;
+float   xOrigin, yOrigin;
 
-mplane_t	screenedge[4];
+mplane_t        screenedge[4];
 
 float ditherfog[DITHER_NUMRANDS]; //qb: pseudorandom dither
 
 //
 // refresh flags
 //
-int		r_framecount = 1;	// so frame counts initialized to 0 don't match
-int		r_visframecount;
-int		d_spanpixcount;
-int		r_polycount;
-int		r_drawnpolycount;
-int		r_wholepolycount;
+int             r_framecount = 1;       // so frame counts initialized to 0 don't match
+int             r_visframecount;
+int             d_spanpixcount;
+int             r_polycount;
+int             r_drawnpolycount;
+int             r_wholepolycount;
 
-#define		VIEWMODNAME_LENGTH	256
-char		viewmodname[VIEWMODNAME_LENGTH+1];
-int			modcount;
+#define         VIEWMODNAME_LENGTH      256
+char            viewmodname[VIEWMODNAME_LENGTH+1];
+int                     modcount;
 
-int			*pfrustum_indexes[4];
-int			r_frustum_indexes[4*6];
+int                     *pfrustum_indexes[4];
+int                     r_frustum_indexes[4*6];
 
-int		reinit_surfcache = 1;	// if 1, surface cache is currently empty and
+int             reinit_surfcache = 1;   // if 1, surface cache is currently empty and
 // must be reinitialized for current cache size
 
-mleaf_t		*r_viewleaf, *r_oldviewleaf;
+mleaf_t         *r_viewleaf, *r_oldviewleaf;
 
-texture_t	*r_notexture_mip;
+texture_t       *r_notexture_mip;
 
-float		r_aliastransition, r_resfudge;
+float           r_aliastransition, r_resfudge;
 
-int		d_lightstylevalue[256];	// 8.8 fraction of base light value
+int             d_lightstylevalue[256]; // 8.8 fraction of base light value
 
-float	dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
-float	se_time1, se_time2, de_time1, de_time2, dv_time1, dv_time2;
+float   dp_time1, dp_time2, db_time1, db_time2, rw_time1, rw_time2;
+float   se_time1, se_time2, de_time1, de_time2, dv_time1, dv_time2;
 
 void R_MarkLeaves (void);
 
-extern cvar_t		vid_windowed_mode; //qb
+extern cvar_t           vid_windowed_mode; //qb
 
-cvar_t	r_draworder = {"r_draworder","0", "r_draworder[0/1] Toggle draw backward spans."};
-cvar_t	r_speeds = {"r_speeds","0", "r_speeds[0/1] Toggle display of drawing time, face clips, polygon count, drawn polygon count, and surfaces per frame."};
+cvar_t  r_draworder = {"r_draworder","0", "r_draworder[0/1] Toggle draw backward spans."};
+cvar_t  r_speeds = {"r_speeds","0", "r_speeds[0/1] Toggle display of drawing time, face clips, polygon count, drawn polygon count, and surfaces per frame."};
 
 //qb: fte stain cvars
 cvar_t r_stainfadeamount = {"r_stainfadeamount", "0.5", "r_stainfadeamount[value] Amount to fade stain each cycle."};
 cvar_t r_stainfadetime = {"r_stainfadetime", "5.0", "r_stainfadetime[time] How long a stain will stay before fading."};
 cvar_t r_stains = {"r_stains", "0.75", "r_stains[0.0 - 1.0] Stainmap opacity.  Set to 0 to turn off stains."}; //zero to one
 
-cvar_t	r_timegraph = {"r_timegraph","0", "r_timegraph[0/1] Toggle display of a performance graph. (Lower levels means better performance.)"};
-cvar_t	r_graphheight = {"r_graphheight","10", "r_graphheight[value] Set the number of lines displayed in the timegraph."};
-cvar_t	r_clearcolor = {"r_clearcolor","2", "r_clearcolor[palette index] The color for areas outside of the current map. Only seen if moving with noclip."};
-cvar_t	r_waterwarp = {"r_waterwarp","1", "r_waterwarp[0/1] Toggles whether the view is warped when in a liquid."};
-cvar_t	r_fullbright = {"r_fullbright","0", "r_fullbright[0/1] Toggles shading off."};
-cvar_t	r_drawentities = {"r_drawentities","1", "r_drawentities[0/1] Toggles the drawing of all objects (entities)."};
-cvar_t	r_drawviewmodel = {"r_drawviewmodel","1", "r_drawviewmodel[0/1] Toggles drawing of first-person model.", true}; // Manoel Kasimier - saved in the config file - edited
-cvar_t	r_aliasstats = {"r_polymodelstats","0", "r_polymodelstats[0/1] Show number of polygon models drawn per frame."};
-cvar_t	r_dspeeds = {"r_dspeeds","0", "r_dspeeds[0/1]-Toggles the display of drawing times per frame:  render time, particles, world, brushes, scan edges, entities, and viewmodel."};
-cvar_t	r_drawflat = {"r_drawflat", "0", "r_drawflat[0/1] Toggles the drawing of texture maps (0=use texture maps.)"};
-cvar_t	r_ambient = {"r_ambient", "15", "r_ambient[value] Set minimum value for map lighting."}; //qb: avoid total black
+cvar_t  r_timegraph = {"r_timegraph","0", "r_timegraph[0/1] Toggle display of a performance graph. (Lower levels means better performance.)"};
+cvar_t  r_graphheight = {"r_graphheight","10", "r_graphheight[value] Set the number of lines displayed in the timegraph."};
+cvar_t  r_clearcolor = {"r_clearcolor","2", "r_clearcolor[palette index] The color for areas outside of the current map. Only seen if moving with noclip."};
+cvar_t  r_waterwarp = {"r_waterwarp","1", "r_waterwarp[0/1] Toggles whether the view is warped when in a liquid."};
+cvar_t  r_fullbright = {"r_fullbright","0", "r_fullbright[0/1] Toggles shading off."};
+cvar_t  r_drawentities = {"r_drawentities","1", "r_drawentities[0/1] Toggles the drawing of all objects (entities)."};
+cvar_t  r_drawviewmodel = {"r_drawviewmodel","1", "r_drawviewmodel[0/1] Toggles drawing of first-person model.", true}; // Manoel Kasimier - saved in the config file - edited
+cvar_t  r_aliasstats = {"r_polymodelstats","0", "r_polymodelstats[0/1] Show number of polygon models drawn per frame."};
+cvar_t  r_dspeeds = {"r_dspeeds","0", "r_dspeeds[0/1]-Toggles the display of drawing times per frame:  render time, particles, world, brushes, scan edges, entities, and viewmodel."};
+cvar_t  r_drawflat = {"r_drawflat", "0", "r_drawflat[0/1] Toggles the drawing of texture maps (0=use texture maps.)"};
+cvar_t  r_ambient = {"r_ambient", "15", "r_ambient[value] Set minimum value for map lighting."}; //qb: avoid total black
 //qb: nolerp list from FQ
-cvar_t	r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs/braztall.mdl,progs/brazshrt.mdl,progs/longtrch.mdl,progs/flame_pyre.mdl,progs/v_saw.mdl,progs/v_xfist.mdl,progs/h2stuff/newfire.mdl",
-                         "r_nolerp_list[models] Do not smooth animation for these models."
-                       };
+cvar_t  r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs/braztall.mdl,progs/brazshrt.mdl,progs/longtrch.mdl,progs/flame_pyre.mdl,progs/v_saw.mdl,progs/v_xfist.mdl,progs/h2stuff/newfire.mdl",
+                         "r_nolerp_list[models] Do not smooth animation for these models."};
 
 
-cvar_t	r_coloredlights = {"r_coloredlights", "1", "r_coloredlights[0/1] Toggle use of colored lighting.", true}; //qb:
-cvar_t	r_clbaseweight = {"r_clbaseweight", "0.9", "r_clbaseweight[0.0 - 1.0] Importance of texture color in colored lighting precalculation.", true}; //qb: base pixel weight for color map blending
-cvar_t	r_clcolorweight= {"r_clcolorweight", "0.65", "r_clcolorweight[0.0 - 1.0] Importance of lighting color in colored lighting precalculation.", true}; //qb: color weight for color map blending
+cvar_t  r_coloredlights = {"r_coloredlights", "1", "r_coloredlights[0/1] Toggle use of colored lighting.", true}; //qb:
+cvar_t  r_clbaseweight = {"r_clbaseweight", "0.9", "r_clbaseweight[0.0 - 1.0] Importance of texture color in colored lighting precalculation.", true}; //qb: base pixel weight for color map blending
+cvar_t  r_clcolorweight= {"r_clcolorweight", "0.65", "r_clcolorweight[0.0 - 1.0] Importance of lighting color in colored lighting precalculation.", true}; //qb: color weight for color map blending
 
 cvar_t r_fog = {"r_fog", "1", "r_fog[0/1] Toggle rendering of fog.", true}; //qb:  draw fog?
 
-cvar_t	r_reportsurfout = {"r_reportsurfout", "0", "r_reportsurfout[0/1] Toggle report of surfaces dropped because > r_maxsurfs."};
-cvar_t	r_maxsurfs = {"r_maxsurfs", "63000", "r_maxsurfs[value] Sets the maximum number of surfaces. Setting take effect on map restart."};
-cvar_t	r_numsurfs = {"r_numsurfs", "0", "r_numsurfs[0/1] Toggles display of number of surfaces in current view."};
-cvar_t	r_reportedgeout = {"r_reportedgeout", "0", "r_reportedgeout[0/1] Toggle report of edges dropped because > r_maxedges."};
-cvar_t	r_maxedges = {"r_maxedges", "63000", "r_maxedges[value] Sets the maximum number of edges. Setting take effect on map restart."};
-cvar_t	r_numedges = {"r_numedges", "0", "r_numedges[0/1] Toggles display of number of surfaces in current view."};
+cvar_t  r_reportsurfout = {"r_reportsurfout", "0", "r_reportsurfout[0/1] Toggle report of surfaces dropped because > r_maxsurfs."};
+cvar_t  r_maxsurfs = {"r_maxsurfs", "63000", "r_maxsurfs[value] Sets the maximum number of surfaces. Setting take effect on map restart."};
+cvar_t  r_numsurfs = {"r_numsurfs", "0", "r_numsurfs[0/1] Toggles display of number of surfaces in current view."};
+cvar_t  r_reportedgeout = {"r_reportedgeout", "0", "r_reportedgeout[0/1] Toggle report of edges dropped because > r_maxedges."};
+cvar_t  r_maxedges = {"r_maxedges", "63000", "r_maxedges[value] Sets the maximum number of edges. Setting take effect on map restart."};
+cvar_t  r_numedges = {"r_numedges", "0", "r_numedges[0/1] Toggles display of number of surfaces in current view."};
 
-//cvar_t	r_letterbox = {"r_letterbox","0"}; // Manoel Kasimier - r_letterbox
+//cvar_t        r_letterbox = {"r_letterbox","0"}; // Manoel Kasimier - r_letterbox
 // Manoel Kasimier - changed alias models lighting - begin
-cvar_t	r_light_vec_x = {"r_light_vec_x", "-1", "r_light_vec_x[value] X vector when r_light_style is active."};
-cvar_t	r_light_vec_y = {"r_light_vec_y", "0", "r_light_vec_y[value] Y vector when r_light_style is active."};
-cvar_t	r_light_vec_z = {"r_light_vec_z", "-1", "r_light_vec_z[value] Z vector when r_light_style is active."};
-cvar_t	r_light_style = {"r_light_style", "1", "r_light_style[0/1] Toggle dramatic lighting of models.", true};
+cvar_t  r_light_vec_x = {"r_light_vec_x", "-1", "r_light_vec_x[value] X vector when r_light_style is active."};
+cvar_t  r_light_vec_y = {"r_light_vec_y", "0", "r_light_vec_y[value] Y vector when r_light_style is active."};
+cvar_t  r_light_vec_z = {"r_light_vec_z", "-1", "r_light_vec_z[value] Z vector when r_light_style is active."};
+cvar_t  r_light_style = {"r_light_style", "1", "r_light_style[0/1] Toggle dramatic lighting of models.", true};
 // Manoel Kasimier - changed alias models lighting - end
-cvar_t	r_wateralpha = {"r_wateralpha","0.50", "r_wateralpha[0.0 - 1.0] Alpha of water surfaces.", true}; // Manoel Kasimier - translucent water
-cvar_t	r_glassalpha = {"r_glassalpha","0.33", "r_glassalpha[0.0 - 1.0] Alpha of glass surfaces.", true}; //qb: *glass
-cvar_t	r_shadowhack = {"r_shadowhack", "0", "r_shadowhack[0/1] Toggle use of darklights to fake entity shadows.", false};
-cvar_t	r_shadowhacksize = {"r_shadowhacksize", "2.7", "r_shadowhacksize[value] Radius factor of fake entity shadows.", true};
+cvar_t  r_wateralpha = {"r_wateralpha","0.50", "r_wateralpha[0.0 - 1.0] Alpha of water surfaces.", true}; // Manoel Kasimier - translucent water
+cvar_t  r_glassalpha = {"r_glassalpha","0.33", "r_glassalpha[0.0 - 1.0] Alpha of glass surfaces.", true}; //qb: *glass
+cvar_t  r_shadowhack = {"r_shadowhack", "0", "r_shadowhack[0/1] Toggle use of darklights to fake entity shadows.", false};
+cvar_t  r_shadowhacksize = {"r_shadowhacksize", "2.7", "r_shadowhacksize[value] Radius factor of fake entity shadows.", true};
 
 //qb: particle cvars
 cvar_t  r_part_scale = {"r_part_scale", "1.0", "r_part_scale[value] Particle scale.", true};
@@ -189,15 +190,13 @@ cvar_t  r_part_explo2_time = {"r_part_explo2_time", "0.3", "r_part_explo2_time[v
 cvar_t  r_part_explo2_vel = {"r_part_explo2_vel", "300", "r_part_explo2_vel[value] Particle velocity for explo2 effect.", true};
 cvar_t  r_part_sticky_time = {"r_part_sticky_time", "24", "r_part_sticky_time[value] Lifespan for sticky particles.", true};
 
-cvar_t	thread_warp = {"thread_warp","4", "thread_warp[value] Number of threads to use for waterwarp, up to 16.  Values less than 2 are unthreaded", true}; // Manoel Kasimier - saved in the config file - edited
-cvar_t	thread_flip = {"thread_flip","2", "thread_flip[value] Number of threads to use for flipping graphics to video, up to 16.  Values less than 2 are unthreaded", true}; // Manoel Kasimier - saved in the config file - edited
-cvar_t	thread_fog = {"thread_fog","4", "thread_fog[value] Number of threads to use for fog effect, up to 16.  Values less than 2 are unthreaded", true}; // Manoel Kasimier - saved in the config file - edited
+cvar_t  thread_warp = {"thread_warp","4", "thread_warp[value] Number of threads to use for waterwarp, up to 16.  Values less than 2 are unthreaded", true}; // Manoel Kasimier - saved in the config file - edited
+cvar_t  thread_flip = {"thread_flip","2", "thread_flip[value] Number of threads to use for flipping graphics to video, up to 16.  Values less than 2 are unthreaded", true}; // Manoel Kasimier - saved in the config file - edited
+cvar_t  thread_fog = {"thread_fog","4", "thread_fog[value] Number of threads to use for fog effect, up to 16.  Values less than 2 are unthreaded", true}; // Manoel Kasimier - saved in the config file - edited
 
 
 //void CreatePassages (void); // Manoel Kasimier - removed
 //void SetVisibilityByPassages (void); // Manoel Kasimier - removed
-
-int      sintable[SIN_BUFFER_SIZE];
 
 void R_InitSin (void)
 {
@@ -213,10 +212,10 @@ void R_InitSin (void)
 R_InitTextures
 ==================
 */
-void	R_InitTextures (void)
+void    R_InitTextures (void)
 {
-    int		x,y, m;
-    byte	*dest;
+    int         x,y, m;
+    byte        *dest;
 
 // create a simple checkerboard texture for the default
     r_notexture_mip = Hunk_AllocName (sizeof(texture_t) + 16*16+8*8+4*4+2*2, "notexture");
@@ -261,8 +260,8 @@ void R_LoadSky_f (void); // Manoel Kasimier - skyboxes // Code taken from the To
 
 void R_Init (void)
 {
-    int i;
-    int		dummy;
+ //   int i;
+    int         dummy;
 
 // get stack position so we can guess if we are going to overflow
     r_stack_start = (byte *)&dummy;
@@ -313,7 +312,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_maxedges);
 
     Cvar_RegisterVariable (&r_skyname); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
-//	Cvar_RegisterVariableWithCallback (&r_letterbox, SCR_Adjust); // Manoel Kasimier - r_letterbox
+//      Cvar_RegisterVariableWithCallback (&r_letterbox, SCR_Adjust); // Manoel Kasimier - r_letterbox
     // Manoel Kasimier - changed alias models lighting - begin
     Cvar_RegisterVariable (&r_light_vec_x);
     Cvar_RegisterVariable (&r_light_vec_y);
@@ -380,15 +379,15 @@ void CL_ParseEntityLump (char *entdata)
         return;
     data = COM_Parse (data);
     if (!data || com_token[0] != '{')
-        return;							// error
+        return;                                                 // error
 
     while (1)
     {
         data = COM_Parse (data);
         if (!data)
-            return;						// error
+            return;                                             // error
         if (com_token[0] == '}')
-            break;						// end of worldspawn
+            break;                                              // end of worldspawn
 
         if (com_token[0] == '_')
             Q_strcpy(key, com_token + 1);
@@ -396,20 +395,20 @@ void CL_ParseEntityLump (char *entdata)
             Q_strcpy(key, com_token);
 
         while (key[Q_strlen(key)-1] == ' ')
-            key[Q_strlen(key)-1] = 0;		// remove trailing spaces
+            key[Q_strlen(key)-1] = 0;           // remove trailing spaces
 
         data = COM_Parse (data);
         if (!data)
-            return;						// error
+            return;                                             // error
         Q_strcpy (value, com_token);
 
         if (Q_strcmp (key, "sky") == 0 || Q_strcmp (key, "skyname") == 0 ||
                 Q_strcmp (key, "qlsky") == 0)
-            //	Cvar_Set ("r_skyname", value);
+            //  Cvar_Set ("r_skyname", value);
             // Manoel Kasimier - begin
         {
             Cbuf_AddText(va("wait;loadsky %s\n", value));
-            //	R_LoadSky(value);
+            //  R_LoadSky(value);
             return; // Manoel Kasimier
         }
         // Manoel Kasimier - end
@@ -423,7 +422,7 @@ void CL_ParseEntityLump (char *entdata)
     // Manoel Kasimier - begin
     if (r_skyname.string[0])
         Cbuf_AddText(va("wait;loadsky %s\n", r_skyname.string));
-    //	R_LoadSky(r_skyname.string); // crashes the engine if the r_skyname cvar is set before the game boots
+    //  R_LoadSky(r_skyname.string); // crashes the engine if the r_skyname cvar is set before the game boots
     else
         R_LoadSky("");
     // Manoel Kasimier - end
@@ -468,11 +467,11 @@ BestColor - qb: from qlumpy
 */
 int BestColor (int r, int g, int b, int start, int stop)
 {
-    int	i;
-    int	dr, dg, db;
-    int	bestdistortion, distortion;
-    int	bestcolor;
-    byte	*pal;
+    int i;
+    int dr, dg, db;
+    int bestdistortion, distortion;
+    int bestcolor;
+    byte        *pal;
 
     r = bound (0,r,254);
     g = bound (0,g,254);
@@ -495,7 +494,7 @@ int BestColor (int r, int g, int b, int start, int stop)
         if (distortion < bestdistortion)
         {
             if (!distortion)
-                return i;		// perfect match
+                return i;               // perfect match
 
             bestdistortion = distortion;
             bestcolor = i;
@@ -513,7 +512,7 @@ void GrabAlphamap (void) //qb: based on Engoo
     byte *colmap;
 
     ay = 0.666667;
-    ae = 1.0 - ay;				// base pixels
+    ae = 1.0 - ay;                              // base pixels
     colmap = alphamap;
 
     for (l=0; l<256; l++)
@@ -566,14 +565,14 @@ void GrabFogmap (void) //qb: yet another lookup
 
 void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show through
 {
-    int c,p,i, r,g,b;
-    float rc,gc,bc, rp,gp,bp, coloravg, brightscale;
+    int c,p, r,g,b;
+    float rc,gc,bc, rp,gp,bp, coloravg; //, brightscale;
     float ay, ae;
     byte *colmap;
 
     if(coloredlights == 1)
     {
-        ae = bound (0, r_clbaseweight.value, 1.0);	    		// base pixels
+        ae = bound (0, r_clbaseweight.value, 1.0);                      // base pixels
         ay = bound (0, r_clcolorweight.value, 1.0);             //color
     }
     else
@@ -626,7 +625,7 @@ void GrabAdditivemap (void) //qb: based on Engoo
     byte *colmap;
 
     ay = 1.0;
-    ae = 1.0;				// base pixels
+    ae = 1.0;                           // base pixels
     colmap = additivemap;
 
     for (l=0; l<256; l++)
@@ -656,9 +655,9 @@ fullbright colors start at the top of the palette.
 */
 void GrabColormap (void)  //qb: fixed, was a little screwy
 {
-    int		l, c, red, green, blue;
-    float	frac, fracscaled;
-    float   rscaled, gscaled, bscaled;
+    int         l, c, red, green, blue;
+    float       frac; //, fracscaled;
+//    float   rscaled, gscaled, bscaled;
     byte *colmap;
 
     colmap = host_colormap;
@@ -717,8 +716,8 @@ R_LoadPalette
 
 int R_LoadPalette (char *name) //qb: load an alternate palette
 {
-    loadedfile_t	*fileinfo;
-    char	pathname[MAX_QPATH];
+    loadedfile_t        *fileinfo;
+    char        pathname[MAX_QPATH];
 
     Q_snprintfz (pathname, sizeof(pathname), "gfx/%s.lmp", name);
 
@@ -763,14 +762,14 @@ R_NewMap
 */
 void R_NewMap (void)
 {
-    int		i;
+    int         i;
 
 // clear out efrags in case the level hasn't been reloaded
 // FIXME: is this one short?
     for (i=0 ; i<cl.worldmodel->numleafs ; i++)
         cl.worldmodel->leafs[i].efrags = NULL;
 
-    CL_ParseEntityLump (cl.worldmodel->entities); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
+    CL_ParseEntityLump ((char*)cl.worldmodel->entities); // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
     r_viewleaf = NULL;
     R_ClearParticles ();
     R_BuildLightmaps(); //qb: ftestain
@@ -831,8 +830,8 @@ R_SetVrect
 */
 void R_SetVrect (vrect_t *pvrectin, vrect_t *pvrect, int lineadj)
 {
-    int		h;
-    float	size;
+    int         h;
+    float       size;
 
     size = scr_viewsize.value > 100 ? 100 : scr_viewsize.value;
     if (cl.intermission)
@@ -847,7 +846,7 @@ void R_SetVrect (vrect_t *pvrectin, vrect_t *pvrect, int lineadj)
     if (pvrect->width < 96)
     {
         size = 96.0 / pvrectin->width;
-        pvrect->width = 96;	// min for icons
+        pvrect->width = 96;     // min for icons
     }
     pvrect->width &= ~7;
     pvrect->height = pvrectin->height * size;
@@ -882,8 +881,8 @@ Guaranteed to be called before the first refresh
 */
 void R_ViewChanged (vrect_t *pvrect, int lineadj)
 {
-    int		i;
-    float	res_scale;
+    int         i;
+    float       res_scale;
 
     r_viewchanged = true;
 
@@ -1006,9 +1005,9 @@ R_MarkLeaves
 */
 void R_MarkLeaves (void)
 {
-    byte	*vis;
-    mnode_t	*node;
-    int		i;
+    byte        *vis;
+    mnode_t     *node;
+    int         i;
 
     if (r_oldviewleaf == r_viewleaf)
         return;
@@ -1051,12 +1050,12 @@ void R_DrawEntity (int i) // Manoel Kasimier
         if (!chase_active.value)
         {
             // 2000-01-09 ChaseCam fix by FrikaC  end
-            return;	// don't draw the player
+            return;     // don't draw the player
             // 2000-01-09 ChaseCam fix by FrikaC  start
         }
         else
         {
-//				currententity->angles[0] *= 0.3;
+//                              currententity->angles[0] *= 0.3;
             currententity->angles[0] = 0;
             currententity->angles[2] = 0;
         }
@@ -1084,17 +1083,17 @@ void R_DrawEntity (int i) // Manoel Kasimier
 }
 void R_DrawEntitiesOnList (void)
 {
-    int			i; // Manoel Kasimier
+    int                 i; // Manoel Kasimier
 
     if (!r_drawentities.value)
         return;
 
     for (i=0 ; i<cl_numvisedicts ; i++)
     {
-//		cl_visedicts[i]->effects -= cl_visedicts[i]->effects & (EF_CELSHADING|EF_REFLECTIVE); // for betatesting
+//              cl_visedicts[i]->effects -= cl_visedicts[i]->effects & (EF_CELSHADING|EF_REFLECTIVE); // for betatesting
         // Manoel Kasimier - begin
-        if (cl_visedicts[i]->alpha != ENTALPHA_DEFAULT			// Manoel Kasimier - QC Alpha
-                || cl_visedicts[i]->effects & (EF_ADDITIVE|EF_SHADOW|EF_CELSHADING))	// Manoel Kasimier
+        if (cl_visedicts[i]->alpha != ENTALPHA_DEFAULT                  // Manoel Kasimier - QC Alpha
+                || cl_visedicts[i]->effects & (EF_ADDITIVE|EF_SHADOW|EF_CELSHADING))    // Manoel Kasimier
             continue; // skip translucent objects
         R_DrawEntity (i);
         // Manoel Kasimier - end
@@ -1141,7 +1140,7 @@ void R_DrawEntitiesOnList (void)
     for (i=0 ; i<cl_numvisedicts ; i++)
     {
         if(cl_visedicts[i]->alpha == ENTALPHA_DEFAULT
-                && !(cl_visedicts[i]->effects & EF_ADDITIVE))	// Manoel Kasimier - additive rendering
+                && !(cl_visedicts[i]->effects & EF_ADDITIVE))   // Manoel Kasimier - additive rendering
             continue;
         if (cl_visedicts[i]->effects & EF_SHADOW)
             continue;
@@ -1159,19 +1158,19 @@ void R_DrawViewModel (int opaque)
 {
     /* // Manoel Kasimier - changed alias models lighting - removed - begin
     // FIXME: remove and do real lighting
-    float		lightvec[3] = {-1, 0, 0};
-    int			j;
-    int			lnum;
-    vec3_t		dist;
-    float		add;
-    dlight_t	*dl;
+    float               lightvec[3] = {-1, 0, 0};
+    int                 j;
+    int                 lnum;
+    vec3_t              dist;
+    float               add;
+    dlight_t    *dl;
     */ // Manoel Kasimier - changed alias models lighting - removed - end
 
     currententity = &cl.viewent;
     // Manoel Kasimier - edited - begin
     if ((!currententity->model)
             || (cl.stats[STAT_HEALTH] <= 0)
-//	|| ((cl.items & IT_INVISIBILITY) && (r_framecount & 1)) // Manoel Kasimier - stipple alpha - removed
+//      || ((cl.items & IT_INVISIBILITY) && (r_framecount & 1)) // Manoel Kasimier - stipple alpha - removed
             || (chase_active.value)
             || (!r_drawviewmodel.value) // || r_fov_greater_than_90)
        )
@@ -1225,9 +1224,9 @@ R_BmodelCheckBBox
 */
 int R_BmodelCheckBBox (model_t *clmodel, float *minmaxs)
 {
-    int			i, *pindex, clipflags;
-    vec3_t		acceptpt, rejectpt;
-    double		d;
+    int                 i, *pindex, clipflags;
+    vec3_t              acceptpt, rejectpt;
+    double              d;
 
     clipflags = 0;
 
@@ -1363,10 +1362,11 @@ R_DrawBEntitiesOnList
 */
 void R_DrawBEntitiesOnList (void)
 {
-    int			i, j, k, clipflags;
-    vec3_t		oldorigin;
-    model_t		*clmodel;
-    float		minmaxs[6];
+//      int k;
+    int                 i, j, clipflags;
+    vec3_t              oldorigin;
+    model_t             *clmodel;
+    float               minmaxs[6];
 
     if (!r_drawentities.value)
         return;
@@ -1401,7 +1401,7 @@ void R_DrawBEntitiesOnList (void)
                 VectorCopy (currententity->origin, r_entorigin);
                 VectorSubtract (r_origin, r_entorigin, modelorg);
                 // FIXME: is this needed?
-                //	VectorCopy (modelorg, r_worldmodelorg); // Manoel Kasimier - removed
+                //      VectorCopy (modelorg, r_worldmodelorg); // Manoel Kasimier - removed
 
                 r_pcurrentvertbase = clmodel->vertexes;
 
@@ -1471,9 +1471,9 @@ void R_DrawBEntitiesOnList (void)
 R_EdgeDrawing
 ================
 */
-static edge_t	ledges[NUMSTACKEDGES +
+static edge_t   ledges[NUMSTACKEDGES +
                        ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
-static surf_t	lsurfs[NUMSTACKSURFACES +
+static surf_t   lsurfs[NUMSTACKSURFACES +
                        ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
 void R_EdgeDrawing (void)
 {
@@ -1523,13 +1523,13 @@ void R_EdgeDrawing (void)
 
     if (!r_dspeeds.value)
     {
-        S_ExtraUpdate ();	// don't let sound get messed up if going slow
+        S_ExtraUpdate ();       // don't let sound get messed up if going slow
     }
 
     R_ScanEdges ();
 }
 
-static int			fogindex;  //qb: fog
+static int                      fogindex;  //qb: fog
 
 typedef struct fogslice_s //qb: for multithreading
 {
@@ -1539,9 +1539,9 @@ typedef struct fogslice_s //qb: for multithreading
 
 void FogLoop (fogslice_t* fs)
 {
-    static byte	*pbuf;
-    static dither;
-    static unsigned short	*pz;
+    static byte *pbuf;
+    static int dither;
+    static unsigned short       *pz;
     static int level;
     static int xref, yref;
 
@@ -1557,7 +1557,6 @@ void FogLoop (fogslice_t* fs)
                 *pbuf = fogmap[*pbuf + (int)vid.colormap[fogindex + level*256]*256];
             pbuf++;
         }
-
     }
 }
 
@@ -1574,17 +1573,18 @@ r_refdef must be set before the first call
 
 void R_RenderView (void) //qb: so can only setup frame once, for fisheye and stereo.
 {
-    int		dummy;
-    int		delta;
+    int         dummy;
+    int         delta;
 
     //qb: originally based on Makaqu fog.  added global fog, dithering, optimizing
-    static int			xref, yref;
-    static byte		*pbuf, *vidfog;
+    static int                  xref, yref;
+    static byte         *pbuf; //, *vidfog;
     static byte        noise;
-    static unsigned short		*pz;
+   static unsigned short               *pz;
     static int          i, level, numthreads;
     static float previous_fog_density;
-    static dither;
+    static int dither;
+    static float normalize;
 
     delta = (byte *)&dummy - r_stack_start;
     if (delta < -0x10000 || delta > 0x10000) //qb: was 10000. D_SQ_calloc is 0x10000.  Does it matter?
@@ -1606,7 +1606,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 #ifdef PASSAGES
     SetVisibilityByPassages ();
 #else
-    R_MarkLeaves ();	// done here so we know if we're in water
+    R_MarkLeaves ();    // done here so we know if we're in water
 #endif
 
 // make FDIV fast. This reduces timing precision after we've been running for a
@@ -1619,7 +1619,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 
     if (!r_dspeeds.value)
     {
-        S_ExtraUpdate ();	// don't let sound get messed up if going slow
+        S_ExtraUpdate ();       // don't let sound get messed up if going slow
     }
 
     r_foundwater = r_drawwater = false; // Manoel Kasimier - translucent water
@@ -1627,13 +1627,13 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
 
     if (!r_dspeeds.value)
     {
-        S_ExtraUpdate ();	// don't let sound get messed up if going slow
+        S_ExtraUpdate ();       // don't let sound get messed up if going slow
     }
 
     if (r_dspeeds.value)
     {
         se_time2 = Sys_DoubleTime (); // scan edges time
-//		de_time1 = se_time2; // draw entities time
+//              de_time1 = se_time2; // draw entities time
     }
 //   R_DrawViewModel (true); qb: move after particles
 
@@ -1677,7 +1677,6 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
             FogDitherInit(); //dither includes density factor, so regenerate when it changes
         previous_fog_density = fog_density;
         //qb:  fogindex calc includes some color correction- brightness, saturation
-        float normalize;
         normalize = 240.0/(0.05+fog_red+fog_green+fog_blue);
         fogindex = 32*256 + palmapnofb[(int)(min(fog_red*normalize, 255))>>3][(int)(min(fog_green*normalize,255))>>3][(int)(min(fog_blue*normalize,255))>>3];
 

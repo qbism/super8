@@ -22,20 +22,22 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 extern	HWND	mainwindow;
 
-/* // Manoel Kasimier - CD player in menu - removed - begin
-static qboolean cdValid = false;
-static qboolean	playing = false;
-static qboolean	wasPlaying = false;
-*/ // Manoel Kasimier - CD player in menu - removed - end
-//static qboolean	initialized = false;
-//static qboolean	enabled = false; // Manoel Kasimier - CD player in menu - removed
-//static qboolean playLooping = false; // Manoel Kasimier - CD player in menu - removed
-static float	cdvolume;
-static byte 	remap[100];
+qboolean cdValid = false;
+qboolean	playing = false;
+qboolean	wasPlaying = false;
+qboolean	initialized = false;
+qboolean	enabled = false;
+qboolean    playLooping = false;
+byte		cdrom;
+byte		playTrack;
+byte		maxTrack;
+float	cdvolume;
+byte 	remap[100];
 byte audioTrack[1+99+1];
 //static byte		playTrack; // Manoel Kasimier - CD player in menu - removed
 //static byte		maxTrack; // Manoel Kasimier - CD player in menu - removed
 cvar_t cd_enabled = {"cd_enabled", "1", "cd_enabled[0/1] Toggle CD player enable.", true}; // Manoel Kasimier
+
 
 // Hexen 2 - begin
 static UINT CD_ID;

@@ -1493,7 +1493,7 @@ vector aim(entity, missilespeed)
 =============
 */
 cvar_t	sv_aim_h = {"sv_aim_h", "1", "sv_aim_h[0.0 to 1.0] Horizontal aim, 0 is full automatic 1 is full player control.", true}; // Manoel Kasimier - horizontal autoaim
-cvar_t	sv_aim = {"sv_aim", "1", "sv_aim[0.0 to 1.0] Vertical aim, 0 is full automatic 1 is full player control."}; // Manoel Kasimier - saving aim value
+cvar_t	sv_aim = {"sv_aim", "1", "sv_aim[0.0 to 1.0] Vertical aim, 0 is full automatic 1 is full player control.", true}; // Manoel Kasimier - saving aim value
 
 void PF_aim (void)
 {
@@ -2067,7 +2067,7 @@ void PF_strzone (void)
 {
     char *m, *p;
     m = G_STRING(OFS_PARM0);
-    p = Q_calloc(Q_strlen(m) + 1);
+    p = Q_calloc("PF_strzone", Q_strlen(m) + 1);
     Q_strcpy(p, m);
 
     G_INT(OFS_RETURN) = p - pr_strings;

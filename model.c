@@ -526,9 +526,12 @@ Mod_LoadLighting
 */
 void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
 {
-    int		i, j, k, r, g, b;
-    float   weight, wlout;
-    byte	*out, *lout, *data;
+	//int j;
+    int		i, k, r, g, b;
+    //float   weight;
+	//float wlout;
+    byte	*out, *data;
+	//byte *lout;
     char	litname[1024];
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
 

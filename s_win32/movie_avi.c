@@ -435,7 +435,7 @@ void Capture_WriteAudio (int samples, byte *sample_buffer)
 			Con_Printf ("ERROR: mp3bufsize is zero\n");
 			return;
 		}
-		mp3_buffer = Q_calloc (mp3_bufsize);
+		mp3_buffer = Q_calloc ("Capture_WriteAudio", mp3_bufsize);
 
 		memset (&m_mp3_stream_header, 0, sizeof(m_mp3_stream_header));
 		m_mp3_stream_header.cbStruct = sizeof(m_mp3_stream_header);

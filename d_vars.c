@@ -34,11 +34,11 @@ float	d_sdivzorigin, d_tdivzorigin, d_ziorigin;
 
 fixed16_t	sadjust, tadjust, bbextents, bbextentt;
 
-byte			*cacheblock;
+pixel_t			*cacheblock;
 int				cachewidth;
-byte			*d_viewbuffer;
-short			*d_pzbuffer;
-int	             d_zrowbytes; //qb: signed per szo
-int	             d_zwidth;
+pixel_t			*d_viewbuffer;
+unsigned short			*d_pzbuffer;
+unsigned int	             d_zrowbytes; //qb: signed per szo
+unsigned int	             d_zwidth;
 
 

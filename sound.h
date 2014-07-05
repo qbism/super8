@@ -64,7 +64,7 @@ typedef struct
 	int		leftvol;		// 0-255 volume
 	int		rightvol;		// 0-255 volume
 	int		end;			// end time in global paintsamples
-	int 	pos;			// sample position in sfx
+	unsigned int 	pos;			// sample position in sfx
 	int		looping;		// where to loop, -1 = no looping
 	int		entnum;			// to allow overriding a specific sound
 	int		entchannel;		//

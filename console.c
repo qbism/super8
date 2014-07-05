@@ -22,7 +22,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include <fcntl.h>
 #include "quakedef.h"
 
-unsigned 		con_linewidth;
+unsigned int 		con_linewidth;
 
 float		con_cursorspeed = 4;
 
@@ -144,10 +144,11 @@ Con_CheckResize
 If the line width has changed, reformat the buffer.
 ================
 */
+static char tbuf[CON_TEXTSIZE];
 void Con_CheckResize (void)
 {
     int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
-    char	tbuf[CON_TEXTSIZE];
+
 
     width = (vid.width >> 3) - 2;
 
@@ -302,7 +303,7 @@ void Con_Print (char *txt)
 {
     int		y;
     int		c;
-    unsigned    l;
+	unsigned int l;
     static int	cr;
     int		mask;
 
