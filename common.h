@@ -143,7 +143,7 @@ float MSG_ReadAngle (void);
 
 void Q_strcpy (char *dest, char *src);
 void Q_strncpy (char *dest, char *src, int count);
-unsigned Q_strlen (char *str);
+unsigned int Q_strlen (char *str);
 char *Q_strrchr (char *s, char c);
 void Q_strcat (char *dest, char *src);
 int Q_strcmp (char *s1, char *s2);
@@ -253,7 +253,7 @@ extern	char	com_gamedir[MAX_OSPATH];
 //qb: qrack begin
 extern	char	com_basedir[MAX_OSPATH];	// by joe
 
-searchpath_t	*com_searchpaths;
+extern searchpath_t	*com_searchpaths;
 
 //qb: qrack end
 

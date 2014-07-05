@@ -23,6 +23,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 cvar_t	d_mipcap = {"d_mipcap", "0", "d_mipcap [0-3] max undetail texture level."};
 cvar_t	d_mipscale = {"d_mipscale", "1", "d_mipscale [value] undetail distance."};
+cvar_t	d_subdiv16 = {"d_subdiv16", "1", "d_subdiv16 [0/1] use division per 16 pixel instead of per 8 pixel. Faster, less accurate", true};
 
 surfcache_t		*d_initial_rover;
 qboolean		d_roverwrapped;

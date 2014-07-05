@@ -85,20 +85,6 @@ float	r_avertexnormals[NUMVERTEXNORMALS][3] =
 #include "anorms.h"
 };
 
-void R_AliasTransformAndProjectFinalVerts (finalvert_t *fv,
-        stvert_t *pstverts);
-void R_AliasSetUpTransform (int trivial_accept);
-void R_AliasTransformVector (vec3_t in, vec3_t out);
-void R_AliasTransformFinalVert (finalvert_t *fv, auxvert_t *av,
-                                trivertx_t *pverts, stvert_t *pstverts);
-void R_AliasProjectFinalVert (finalvert_t *fv, auxvert_t *av);
-// Manoel Kasimier - model interpolation - begin
-void R_AliasSetUpBlendedTransform (int trivial_accept);
-void R_AliasTransformAndProjectFinalBlendedVerts (finalvert_t *fv,
-        stvert_t *pstverts);
-void R_AliasTransformFinalBlendedVert (finalvert_t *fv, auxvert_t *av,
-                                       trivertx_t *pverts1, trivertx_t *pverts2, stvert_t *pstverts);
-
 void VectorInterpolate (vec3_t v1, vec_t frac, vec3_t v2, vec3_t v)
 {
     if (frac < (1.0/255.0))
@@ -1326,11 +1312,12 @@ void R_AliasSetupBlendedFrame (void)
 R_AliasDrawModel
 ================
 */
+static finalvert_t finalverts[MAXALIASVERTS +
+                               ((CACHE_SIZE - 1) / sizeof(finalvert_t)) + 1];
+static auxvert_t auxverts[MAXALIASVERTS];
+
 void R_AliasDrawModel (/* alight_t *plighting */) // Manoel Kasimier - edited
 {
-    finalvert_t		finalverts[MAXALIASVERTS +
-                               ((CACHE_SIZE - 1) / sizeof(finalvert_t)) + 1];
-    auxvert_t		auxverts[MAXALIASVERTS];
 
     r_amodels_drawn++;
 

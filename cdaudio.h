@@ -23,17 +23,17 @@ void CDAudio_Resume(void);
 void CDAudio_Shutdown(void);
 void CDAudio_Update(void);
 // Manoel Kasimier - CD player in menu - begin
-static qboolean cdValid = false;
-static qboolean	playing = false;
-static qboolean	wasPlaying = false;
-static qboolean	initialized = false;
-static qboolean	enabled = false;
-static qboolean playLooping = false;
-static float	cdvolume;
-static byte 	remap[100];
-static byte		cdrom;
-static byte		playTrack;
-static byte		maxTrack;
+extern qboolean cdValid;
+extern qboolean	playing;
+extern qboolean	wasPlaying;
+extern qboolean	initialized;
+extern qboolean	enabled;
+extern qboolean playLooping;
+//extern float	cdvolume;
+//extern byte 	remap[100];
+extern byte		cdrom;
+extern byte		playTrack;
+extern byte		maxTrack;
 extern byte audioTrack[1+99+1]; // first and last values are dummy, and should always be zero
 extern	cvar_t cd_enabled;
 // Manoel Kasimier - CD player in menu - end

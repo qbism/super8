@@ -333,7 +333,7 @@ Plays a local sound to a specific client, others can't hear it.
 ==================
 */
 
-void SV_LocalSound (client_t *client, char *sample, char volume)
+void SV_LocalSound (client_t *client, char *sample, byte volume)
 {
     int sound_num;
     int field_mask;
@@ -892,17 +892,17 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             }
             if (val = GetEdictFieldValue(ent, "glow_red"))
             {
-                glow_red = (byte)(val->_float);
+                glow_red = (byte)(val->_float*255.0);
                 bits |= U_GLOW_RED;
             }
             if (val = GetEdictFieldValue(ent, "glow_green"))
             {
-                glow_green = (byte)(val->_float);
+                glow_red = (byte)(val->_float*255.0);
                 bits |= U_GLOW_GREEN;
             }
             if (val = GetEdictFieldValue(ent, "glow_blue"))
             {
-                glow_blue = (byte)(val->_float);
+                glow_red = (byte)(val->_float*255.0);
                 bits |= U_GLOW_BLUE;
             }
             // Tomaz - QC Alpha Scale Glow End
@@ -1489,7 +1489,7 @@ Tell all the clients that the server is changing levels
 */
 void SV_SendReconnect (void)
 {
-    char	data[128];
+    byte	data[128];
     sizebuf_t	msg;
 
     msg.data = data;
@@ -1659,7 +1659,7 @@ void SV_SpawnServer (char *server)
 // serverflags are for cross level information (sigils)
     pr_global_struct->serverflags = svs.serverflags;
 
-    ED_LoadFromFile (sv.worldmodel->entities);
+    ED_LoadFromFile ((char*)sv.worldmodel->entities);
 
     sv.active = true;
 

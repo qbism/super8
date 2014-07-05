@@ -20,6 +20,10 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "winquake.h"
 #include "errno.h"
 #include "resource.h"
+#ifdef _OPENWATCOM_
+#include <sys/types.h>
+#include <direct.h>
+#endif
 #include "conproc.h"
 
 #define MINIMUM_WIN_MEMORY		0x0880000
@@ -42,7 +46,7 @@ qboolean			isDedicated;
 static qboolean		sc_return_on_enter = false;
 HANDLE				hinput, houtput;
 
-static char			*tracking_tag = "Clams & Mooses";
+//static char			*tracking_tag = "Clams & Mooses";
 
 static HANDLE	tevent;
 static HANDLE	hFile;
@@ -553,8 +557,9 @@ char *Sys_ConsoleInput (void)
 	static char	text[256];
 	static int		len;
 	INPUT_RECORD	recs[1024];
-	int		dummy;
-	int		ch, numread, numevents;
+	unsigned long		dummy;
+	int		ch;
+	unsigned long numread, numevents;
 
 	if (!isDedicated)
 		return NULL;
@@ -565,14 +570,14 @@ char *Sys_ConsoleInput (void)
 		if (!GetNumberOfConsoleInputEvents (hinput, &numevents))
 			Sys_Error ("Error getting # of console events");
 
-		if (numevents <= 0)
+		if (!numevents)
 			break;
 
 		if (!ReadConsoleInput(hinput, recs, 1, &numread))
 			Sys_Error ("Error reading console input");
 
 		if (numread != 1)
-			Sys_Error ("Couldn't read console input");
+			Sys_Error ("Couldn't read console input, read %lu", numread);
 
 		if (recs[0].EventType == KEY_EVENT)
 		{
@@ -810,9 +815,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	parms.membase = Q_malloc (parms.memsize, "parms.membase");
 
 	if (!parms.membase)
-		Sys_Error ("Not enough memory free; check disk space\n");
+		Sys_Error ("WinMain(): Not enough memory free; check disk space\n");
 
-	Sys_PageIn (parms.membase, parms.memsize);
+	//one of several tweaks/fixes/type corrections from Levent
+	// it is not enough anyway
+	//Sys_PageIn (parms.membase, parms.memsize);
 
 	tevent = CreateEvent(NULL, FALSE, FALSE, NULL);
 

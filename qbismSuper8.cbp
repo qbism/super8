@@ -68,7 +68,6 @@
 					<Add library="vorbis" />
 					<Add library="ogg" />
 					<Add library="mad" />
-					<Add library="..\..\CodeBlocks\MinGW\lib\libpthreadGC2.dll.a" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32 no music">
@@ -76,14 +75,12 @@
 				<Option working_dir="../../quake" />
 				<Option object_output="s_win32/Release_nomusic" />
 				<Option type="0" />
-				<Option compiler="mingw32" />
+				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-march=pentium-mmx" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O3" />
 					<Add option="-w" />
-					<Add option="-D_REENTRANT" />
-					<Add option="-DR_THREADED" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
@@ -93,7 +90,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="..\..\CodeBlocks\MinGW\lib\libpthreadGC2.dll.a" />
 				</Linker>
 			</Target>
 			<Target title="icore Win32">
@@ -101,7 +97,7 @@
 				<Option working_dir="../../quake" />
 				<Option object_output="s_win32/Release_icore" />
 				<Option type="0" />
-				<Option compiler="mingw32" />
+				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-march=corei7" />
 					<Add option="-fomit-frame-pointer" />
@@ -124,7 +120,7 @@
 					<Add library="vorbis" />
 					<Add library="ogg" />
 					<Add library="mad" />
-					<Add library="..\..\CodeBlocks\MinGW\lib\libpthreadGC2.dll.a" />
+					<Add directory="s_win32/codecs/x86" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32 XP">

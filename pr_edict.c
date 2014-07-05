@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 
-qboolean		pr_alpha_supported; //qb: from Fitzquake
-
 func_t	EndFrame; // FrikaC - EndFrame function
+
+qboolean		pr_alpha_supported; //qb: from Fitzquake
 
 dprograms_t		*progs;
 dfunction_t		*pr_functions;
@@ -54,7 +54,7 @@ cvar_t	savedgamecfg = {"savedgamecfg", "0", "Used by progs.dat.", true};
 cvar_t	saved1 = {"saved1", "0", "Used by progs.dat.", true};
 cvar_t	saved2 = {"saved2", "0", "Used by progs.dat.", true};
 cvar_t	saved3 = {"saved3", "0", "Used by progs.dat.", true};
-cvar_t	saved4 = {"saved4", "0", "Used by progs.dat..", true};
+cvar_t	saved4 = {"saved4", "0", "Used by progs.dat.", true};
 
 #define	MAX_FIELD_LEN	64
 #define GEFV_CACHESIZE	2

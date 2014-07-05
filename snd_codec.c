@@ -40,11 +40,14 @@ static snd_codec_t *codecs;
 S_CodecRegister
 =================
 */
+
 static void S_CodecRegister(snd_codec_t *codec)
 {
 	codec->next = codecs;
 	codecs = codec;
+
 }
+
 
 /*
 =================
@@ -97,7 +100,7 @@ void S_CodecShutdown (void)
 S_CodecOpenStream
 =================
 */
-snd_stream_t *S_CodecOpenStreamType (const char *filename, unsigned int type)
+snd_stream_t *S_CodecOpenStreamType (char *filename, unsigned int type)
 {
 	snd_codec_t *codec;
 	snd_stream_t *stream;
@@ -126,11 +129,11 @@ snd_stream_t *S_CodecOpenStreamType (const char *filename, unsigned int type)
 	return stream;
 }
 
-snd_stream_t *S_CodecOpenStreamExt (const char *filename)
+snd_stream_t *S_CodecOpenStreamExt (char *filename)
 {
 	snd_codec_t *codec;
 	snd_stream_t *stream;
-	const char *ext;
+	char *ext;
 
 	ext = COM_FileExtension(filename);
 	if (! *ext)
@@ -157,11 +160,11 @@ snd_stream_t *S_CodecOpenStreamExt (const char *filename)
 	return stream;
 }
 
-snd_stream_t *S_CodecOpenStreamAny (const char *filename)
+snd_stream_t *S_CodecOpenStreamAny (char *filename)
 {
 	snd_codec_t *codec;
 	snd_stream_t *stream;
-	const char *ext;
+	char *ext;
 
 	ext = COM_FileExtension(filename);
 	if (! *ext)	/* try all available */
@@ -222,7 +225,7 @@ int S_CodecReadStream (snd_stream_t *stream, int bytes, void *buffer)
 
 /* Util functions (used by codecs) */
 
-snd_stream_t *S_CodecUtilOpen(const char *filename, snd_codec_t *codec)
+snd_stream_t *S_CodecUtilOpen(char *filename, snd_codec_t *codec)
 {
 	snd_stream_t *stream;
 	FILE *handle;

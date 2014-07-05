@@ -28,7 +28,7 @@ int				*r_turb_turb;
 int				r_turb_spancount;
 
 extern cvar_t thread_warp;
-extern byte *warpbuf;
+extern pixel_t *warpbuf;
 extern cvar_t vid_ddraw;
 
 void D_DrawTurbulent8Span (void);
@@ -284,17 +284,18 @@ void D_WarpScreen (void)
 #ifdef R_THREADED
     static warpslice_t ws[MAXWARPTHREADS];  //qb:  threads
     static pthread_t warpthread[MAXWARPTHREADS];
+    static int numthreads;
 #endif
 
     static byte  *tempdest;
     static int  *row, *col, *turb_x_temp;
-    static int count, spancount, y, numthreads;
+    static int count, spancount, y;
 
     turb_x = intsintable_x + (int) (timeoffset * uwarpscale);
     turb_y = intsintable_y + (int) (timeoffset * vwarpscale);
 
     src = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
-    dest= warpbuf  + scr_vrect.y * vid.rowbytes + scr_vrect.x;
+    dest= warpbuf + scr_vrect.y * vid.rowbytes + scr_vrect.x;
 
 #ifdef R_THREADED
     numthreads = min(thread_warp.value,MAXWARPTHREADS);
@@ -458,6 +459,7 @@ void D_WarpScreen (void)
     }
     else
 #endif
+
     {
         //qb: copy buffer to video
         src = warpbuf + scr_vrect.y * vid.width + scr_vrect.x;
@@ -501,7 +503,7 @@ void Turbulent8 (espan_t *pspan)
 {
     static int				count;  //qb: do more static.
     static int				izi, izistep, izistep2, sturb, tturb, teste; // Manoel Kasimier - translucent water
-    static short			*pz; // Manoel Kasimier - translucent water
+    static unsigned short			*pz; // Manoel Kasimier - translucent water
     static fixed16_t		snext, tnext;
     static float			sdivz, tdivz, zi, z, du, dv, spancountminus1;
     static float			sdivz16stepu, tdivz16stepu, zi16stepu;
@@ -1717,7 +1719,7 @@ void D_DrawZSpans (espan_t *pspan)
 {
     static int				count, doublecount, izistep;
     static int				izi;
-    static short			*pdest;
+    static unsigned short			*pdest;
     static unsigned		ltemp;
     static double			zi;
     static float			du, dv;

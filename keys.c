@@ -452,7 +452,7 @@ void Key_SetShiftBinding (int keynum, char *binding)
 // allocate memory for new binding
 	l = Q_strlen (binding);
 	if (!l) return; // Manoel Kasimier - true unbinding
-	new = Q_calloc (l+1);
+	new = Q_calloc ("Key_SetShiftBinding", l+1);
 	Q_strcpy (new, binding);
 	new[l] = 0;
 	shiftbindings[keynum] = new;
@@ -549,7 +549,7 @@ void Key_SetBinding (int keynum, char *binding)
 // allocate memory for new binding
 	l = Q_strlen (binding);
 	if (!l) return; // Manoel Kasimier - true unbinding
-	new = Q_calloc (l+1);
+	new = Q_calloc ("Key_SetBinding", l+1);
 	Q_strcpy (new, binding);
 	new[l] = 0;
 	keybindings[keynum] = new;

@@ -2,7 +2,7 @@
     Copyright (C) 1999-2012 other authors as noted in code comments
 
 This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software+
+the terms of the GNU General Public License as published by the Free Software
 Foundation; either version 3 of the License, or (at your option) any later version.
 This program is distributed in the hope that it will be useful, but WITHOUT ANY
 WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
@@ -17,11 +17,14 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "../quakedef.h"
 #include "winquake.h"
+#include <winuser.h>
 #include "../d_local.h"
 #include "resource.h"
+#include "../bgmusic.h"
 #include <ddraw.h>
 
-extern cvar_t thread_flip;  //qb: threading
+
+extern cvar_t cv_num_flip_jobs, thread_flip;
 
 // true if the ddraw driver started up OK
 qboolean    vid_usingddraw = false;
@@ -32,9 +35,8 @@ HWND hWndWinQuake = NULL;
 // compatibility
 HWND mainwindow = NULL;
 
-RGBQUAD		colors[256];  //qb: make global (used in movie.c)
-
-byte gammatable[256];
+RGBQUAD         colors[256];  //qb: make global (used in movie.c)
+extern byte gammatable[256];
 
 static void Check_Gamma (void)
 {
@@ -62,7 +64,7 @@ static void Check_Gamma (void)
 /*
 =================================================================================================================
 
-				DIRECTDRAW VIDEO DRIVER
+                                DIRECTDRAW VIDEO DRIVER
 
 =================================================================================================================
 */
@@ -80,7 +82,8 @@ DIRECTDRAWCREATEPROC QDirectDrawCreate = NULL;
 
 unsigned int ddpal[256];
 
-byte *vidbuf = NULL, *warpbuf = NULL;
+pixel_t *vidbuf = NULL;
+pixel_t *warpbuf = NULL;
 
 int dd_window_width = 640;
 int dd_window_height = 480;
@@ -102,7 +105,7 @@ void DD_UpdateRects (int width, int height)
 }
 
 
-void VID_CreateDDrawDriver (int width, int height, byte *palette, byte **buffer, int *rowbytes)
+void VID_CreateDDrawDriver (int width, int height, byte *palette, pixel_t **buffer, int *rowbytes)
 {
     HRESULT hr;
     DDSURFACEDESC ddsd;
@@ -110,8 +113,10 @@ void VID_CreateDDrawDriver (int width, int height, byte *palette, byte **buffer,
     vid_usingddraw = false;
     dd_window_width = width;
     dd_window_height = height;
-
-    vidbuf = (byte *) Q_malloc (width * height, "vidbuf"); //qb: was malloc
+    Q_free (vidbuf);
+    vidbuf = (pixel_t *) Q_malloc (width * height, "vidbuf"); //qb: was malloc
+    Q_free (warpbuf);
+    warpbuf = (pixel_t *) Q_malloc (width * height, "warpbuf"); //qb: was malloc
     buffer[0] = vidbuf;
     rowbytes[0] = width;
 
@@ -161,7 +166,7 @@ void VID_CreateDDrawDriver (int width, int height, byte *palette, byte **buffer,
 /*
 =================================================================================================================
 
-				GDI VIDEO DRIVER
+                                GDI VIDEO DRIVER
 
 =================================================================================================================
 */
@@ -169,8 +174,8 @@ void VID_CreateDDrawDriver (int width, int height, byte *palette, byte **buffer,
 // common bitmap definition
 typedef struct dibinfo
 {
-    BITMAPINFOHEADER	header;
-    RGBQUAD				acolors[256];
+    BITMAPINFOHEADER    header;
+    RGBQUAD                             acolors[256];
 } dibinfo_t;
 
 
@@ -216,7 +221,7 @@ void VID_CreateGDIDriver (int width, int height, byte *palette)
     hDIBSection = CreateDIBSection (hdcGDI,
                                     pbmiDIB,
                                     DIB_RGB_COLORS,
-                                    &pDIBBase,
+                                    (void**)&pDIBBase,
                                     NULL,
                                     0);
 
@@ -242,27 +247,21 @@ void VID_CreateGDIDriver (int width, int height, byte *palette)
 
     if ((previously_selected_GDI_obj = SelectObject (hdcDIBSection, hDIBSection)) == NULL)
         Sys_Error ("DIB_Init() - SelectObject failed\n");
+    Q_free (warpbuf);
+   warpbuf = (pixel_t *) Q_malloc (width * height, "warpbuf"); //qb: was malloc
 
     // create a palette
     Check_Gamma ();
     VID_SetPalette (palette);
+
 }
 
 
 void VID_UnloadAllDrivers (void)
 {
     // shut down ddraw
-    if (vidbuf)
-    {
-        free (vidbuf);
-        vidbuf = NULL;
-    }
-
-    if (warpbuf)
-    {
-        free (warpbuf);
-        warpbuf = NULL;
-    }
+        Q_free (vidbuf);
+        Q_free (warpbuf);
 
     if (dd_Clipper)
     {
@@ -324,95 +323,94 @@ void VID_UnloadAllDrivers (void)
 }
 
 
-// prefer to startup with directdraw
+// prefer to startup with directdraw, not!
 cvar_t vid_ddraw = {"vid_ddraw", "0", "vid_ddraw[0/1] Toggle use direct draw.", true};
 
 // compatibility
-qboolean		DDActive;
+qboolean                DDActive;
 
-#define MAX_MODE_LIST	24 //qb: this many will fit on menu, I think
-#define VID_ROW_SIZE	3
+#define MAX_MODE_LIST   24 //qb: this many will fit on menu, I think
+#define VID_ROW_SIZE    3
 #define VID_WINDOWED_MODES 3 //qb
 
 HWND WINAPI InitializeWindow (HINSTANCE hInstance, int nCmdShow);
 
-int			DIBWidth, DIBHeight;
-RECT		WindowRect;
-DWORD		WindowStyle, ExWindowStyle;
+int                     DIBWidth, DIBHeight;
+RECT            WindowRect;
+DWORD           WindowStyle, ExWindowStyle;
 
-int			window_center_x, window_center_y, window_x, window_y, window_width, window_height;
-RECT		window_rect;
+int                     window_center_x, window_center_y, window_x, window_y, window_width, window_height;
+RECT            window_rect;
 
-static DEVMODE	gdevmode;
-static qboolean	windowed_mode_set;
-static int		firstupdate = 1;
-static qboolean	vid_initialized = false, vid_palettized;
-static int		vid_fulldib_on_focus_mode;
-static qboolean	force_minimized, in_mode_set, is_mode0x13, force_mode_set;
-static int		windowed_mouse;
-static qboolean	palette_changed, syscolchg, vid_mode_set, hide_window, pal_is_nostatic;
-static HICON	hIcon;
+static DEVMODE  gdevmode;
+static qboolean windowed_mode_set;
+static int              firstupdate = 1;
+static qboolean vid_initialized = false, vid_palettized;
+static int              vid_fulldib_on_focus_mode;
+static qboolean force_minimized, in_mode_set, force_mode_set;//, is_mode0x13;
+static qboolean palette_changed, vid_mode_set, hide_window;//, pal_is_nostatic;
+static HICON    hIcon;
 
-viddef_t	vid;				// global video state
+viddef_t        vid;                            // global video state
 
-#define MODE_WINDOWED			0
-#define MODE_SETTABLE_WINDOW	2
-#define NO_MODE					(MODE_WINDOWED - 1)
-#define MODE_FULLSCREEN_DEFAULT	(MODE_WINDOWED + VID_WINDOWED_MODES) //qb: was 3
+#define MODE_WINDOWED                   0
+#define MODE_SETTABLE_WINDOW    2
+#define NO_MODE                                 (MODE_WINDOWED - 1)
+#define MODE_FULLSCREEN_DEFAULT (MODE_WINDOWED + VID_WINDOWED_MODES) //qb: was 3
 
 // Note that 0 is MODE_WINDOWED
-cvar_t		vid_mode = {"vid_mode", "3", "vid_mode[value] Video mode.", true}; //qb: was false
-cvar_t		vid_default_mode_win = {"vid_default_mode_win", "0", "vid_default_mode_win[value] Default windowed mode.", true};
-cvar_t		vid_wait = {"vid_wait", "1", "vid_wait[0/1] Toggle wait for vertical refresh.", true};
-cvar_t		vid_config_x = {"vid_config_x", "1280", "vid_config_x[value] Custom windowed mode width.", true};
-cvar_t		vid_config_y = {"vid_config_y", "720", "vid_config_y[value] Custom windowed mode height.", true};
-cvar_t		_windowed_mouse = {"_windowed_mouse", "1", "_windowed_mouse[0/1] Toggle allow mouse in windowed mode.", true};
-cvar_t		vid_fullscreen_mode = {"vid_fullscreen_mode", "3", "vid_fullscreen_mode[value]  Initial fullscreen mode.", true};
-cvar_t		vid_windowed_mode = {"vid_windowed_mode", "0", "vid_windowed_mode[value]  Initial windowed mode.", true};
-cvar_t		vid_window_x = {"vid_window_x", "0", "vid_window_x[value] Window placement on screen.", false}; //qb: was true
-cvar_t		vid_window_y = {"vid_window_y", "0", "vid_window_y[value] Window placement on screen.", false};
-cvar_t		vid_nativeaspect = {"vid_nativeaspect", "1.0", "vid_nativeaspect[value] Autodected unless set in cfg file.", false};
+cvar_t          vid_mode = {"vid_mode", "3", "vid_mode[value] Video mode.", true}; //qb: was false
+cvar_t          vid_default_mode_win = {"vid_default_mode_win", "0", "vid_default_mode_win[value] Default windowed mode.", true};
+cvar_t          vid_wait = {"vid_wait", "1", "vid_wait[0/1] Toggle wait for vertical refresh.", true};
+cvar_t          vid_config_x = {"vid_config_x", "1280", "vid_config_x[value] Custom windowed mode width.", true};
+cvar_t          vid_config_y = {"vid_config_y", "720", "vid_config_y[value] Custom windowed mode height.", true};
+cvar_t          _windowed_mouse = {"_windowed_mouse", "1", "_windowed_mouse[0/1] Toggle allow mouse in windowed mode.", true};
+cvar_t          vid_fullscreen_mode = {"vid_fullscreen_mode", "3", "vid_fullscreen_mode[value]  Initial fullscreen mode.", true};
+cvar_t          vid_windowed_mode = {"vid_windowed_mode", "0", "vid_windowed_mode[value]  Initial windowed mode.", true};
+cvar_t          vid_window_x = {"vid_window_x", "0", "vid_window_x[value] Window placement on screen.", false}; //qb: was true
+cvar_t          vid_window_y = {"vid_window_y", "0", "vid_window_y[value] Window placement on screen.", false};
+cvar_t          vid_nativeaspect = {"vid_nativeaspect", "1.0", "vid_nativeaspect[value] Autodected unless set in cfg file.", false};
 
-int			vid_modenum = NO_MODE;
-int			vid_testingmode, vid_realmode;
-double		vid_testendtime;
-int			vid_default = MODE_FULLSCREEN_DEFAULT; //qb
-static int	windowed_default;
+int                     vid_modenum = NO_MODE;
+int                     vid_testingmode, vid_realmode;
+double          vid_testendtime;
+int                     vid_default = MODE_FULLSCREEN_DEFAULT; //qb
+static int      windowed_default;
 
-modestate_t	modestate = MS_UNINIT;
+modestate_t     modestate = MS_UNINIT;
 
-static byte		*vid_surfcache;
-static int		vid_surfcachesize;
+static byte             *vid_surfcache;
+static int              vid_surfcachesize;
 
-byte	vid_curpal[256*3];
+byte    vid_curpal[256*3];
 
-unsigned short	d_8to16table[256];
-unsigned	d_8to24table[256];
+unsigned short  d_8to16table[256];
+unsigned        d_8to24table[256];
 
 int     mode;
 
 typedef struct
 {
-    modestate_t	type;
-    int			width;
-    int			height;
-    int			modenum;
-    int			fullscreen;
-    char		modedesc[13];
+    modestate_t type;
+    int                 width;
+    int                 height;
+    int                 modenum;
+    int                 fullscreen;
+    char                modedesc[13];
 } vmode_t;
 
-static vmode_t	modelist[MAX_MODE_LIST];
-static int		nummodes = VID_WINDOWED_MODES;	// reserve space for windowed mode  //qb: was 3
+static vmode_t  modelist[MAX_MODE_LIST];
+static int              nummodes = VID_WINDOWED_MODES;  // reserve space for windowed mode  //qb: was 3
 
-static vmode_t	*pcurrentmode;
+//static vmode_t        *pcurrentmode;
 
-int		aPage;					// Current active display page
-int		vPage;					// Current visible display page
-int		waitVRT = true;			// True to wait for retrace on flip
+int             aPage;                                  // Current active display page
+int             vPage;                                  // Current visible display page
+int             waitVRT = true;                 // True to wait for retrace on flip
 
-static vmode_t	badmode;
+static vmode_t  badmode;
 
-static byte	backingbuf[48*24];
+//static byte   backingbuf[48*24];
 
 void VID_MenuDraw (void);
 void VID_MenuKey (int key);
@@ -446,7 +444,7 @@ VID_RememberWindowPos
 */
 void VID_RememberWindowPos (void)
 {
-    RECT	rect;
+    RECT        rect;
 
     if (GetWindowRect (hWndWinQuake, &rect))
     {
@@ -527,7 +525,7 @@ ClearAllStates
 */
 void ClearAllStates (void)
 {
-    int		i;
+    int         i;
 
     // send an up event for each key, to make sure the server clears them all
     for (i = 0; i < 256; i++)
@@ -559,7 +557,7 @@ VID_AllocBuffers
 */
 qboolean VID_AllocBuffers (int width, int height)
 {
-    int		tsize, tbuffersize;
+    int         tsize, tbuffersize;
 
     tbuffersize = width * height * sizeof (*d_pzbuffer);
     tsize = D_SurfaceCacheForRes (width, height);
@@ -585,9 +583,9 @@ qboolean VID_AllocBuffers (int width, int height)
 
 void VID_InitModes (HINSTANCE hInstance)
 {
-    WNDCLASS		wc;
-    HDC				hdc;
-    int				i;
+    WNDCLASS            wc;
+    HDC                         hdc;
+    //int                               i;
     hIcon = LoadIcon (hInstance, MAKEINTRESOURCE (IDI_ICON2));
     /* Register the frame class */
     wc.style         = CS_OWNDC;
@@ -691,12 +689,14 @@ VID_GetDisplayModes
 */
 void VID_GetDisplayModes (void)
 {
-    DEVMODE	devmode;
-    int		i, j, modenum, cmodes, existingmode, originalnummodes, lowestres;
+    DEVMODE     devmode;
+        //int j, cmodes;
+    int         i, modenum, existingmode, originalnummodes, lowestres;
     int     highestres; //qb: use this as basis for video aspect ratio
-    int		numlowresmodes, bpp, done;
-    int		cstretch, istretch, mstretch;
-    BOOL	stat;
+    //int               numlowresmodes;
+        //int bpp, done;
+    //int               cstretch, istretch, mstretch;
+    BOOL        stat;
 
     // enumerate > 8 bpp modes
     originalnummodes = nummodes;
@@ -778,8 +778,8 @@ void VID_DestroyWindow (void)
 
 qboolean VID_SetWindowedMode (int modenum)
 {
-    HDC				hdc;
-    LONG			wlong;
+    //HDC                               hdc;
+    //LONG                      wlong;
 
     if (!windowed_mode_set)
     {
@@ -871,8 +871,8 @@ qboolean VID_SetWindowedMode (int modenum)
 
     vid.numpages = 1;
 
-//	vid.maxwarpwidth = WARP_WIDTH; //qb: from Manoel Kasimier - hi-res waterwarp - removed
-//	vid.maxwarpheight = WARP_HEIGHT; //qb: from Manoel Kasimier - hi-res waterwarp - removed
+//      vid.maxwarpwidth = WARP_WIDTH; //qb: from Manoel Kasimier - hi-res waterwarp - removed
+//      vid.maxwarpheight = WARP_HEIGHT; //qb: from Manoel Kasimier - hi-res waterwarp - removed
 
     vid.height = vid.conheight = DIBHeight;
     vid.width = vid.conwidth = DIBWidth;
@@ -890,7 +890,7 @@ qboolean VID_SetWindowedMode (int modenum)
 
 qboolean VID_SetFullDIBMode (int modenum)
 {
-    HDC				hdc;
+    //HDC                               hdc;
     VID_DestroyWindow ();
 
     gdevmode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
@@ -935,8 +935,8 @@ qboolean VID_SetFullDIBMode (int modenum)
     UpdateWindow (hWndWinQuake);
 
     vid.numpages = 1;
-//	vid.maxwarpwidth = WARP_WIDTH; //qb: from Manoel Kasimier - hi-res waterwarp - removed
-//	vid.maxwarpheight = WARP_HEIGHT; //qb: from Manoel Kasimier - hi-res waterwarp - removed
+//      vid.maxwarpwidth = WARP_WIDTH; //qb: from Manoel Kasimier - hi-res waterwarp - removed
+//      vid.maxwarpheight = WARP_HEIGHT; //qb: from Manoel Kasimier - hi-res waterwarp - removed
 
     vid.height = vid.conheight = DIBHeight;
     vid.width = vid.conwidth = DIBWidth;
@@ -955,7 +955,7 @@ qboolean VID_SetFullDIBMode (int modenum)
 
 void VID_RestoreOldMode (int original_mode)
 {
-    static qboolean	inerror = false;
+    static qboolean     inerror = false;
 
     if (inerror)
         return;
@@ -988,17 +988,17 @@ void VID_SetDefaultMode (void)
 
 int VID_SetMode (int modenum, byte *palette)
 {
-    int				original_mode, temp, dummy;
-    qboolean		stat;
-    MSG				msg;
-    HDC				hdc;
+    int                         original_mode, temp;//, dummy;
+    qboolean            stat;
+    MSG                         msg;
+    HDC                         hdc;
     byte    *src;
 
 
     if(r_dowarp)
     {
         Con_Printf("Unable to change video mode while in liquid...\nplease jump out first!\n");  //qb: fixme
-        return;
+        return 0;
     }
 
 
@@ -1006,7 +1006,15 @@ int VID_SetMode (int modenum, byte *palette)
     {
         if (vid_modenum == NO_MODE)
         {
+            if (modenum == vid_default)
+            {
+                modenum = windowed_default;
+            }
+            else
+            {
             modenum = vid_default;
+            }
+
             Cvar_SetValue ("vid_mode", (float) modenum);
         }
         else
@@ -1017,7 +1025,7 @@ int VID_SetMode (int modenum, byte *palette)
     }
 
     if (!force_mode_set && (modenum == vid_modenum))
-        return true;
+        return 1;
 
     // so Con_Printfs don't mess us up by forcing vid and snd updates
     temp = scr_disabled_for_loading;
@@ -1086,11 +1094,6 @@ int VID_SetMode (int modenum, byte *palette)
     // if ddraw failed to come up we disable the cvar too
     if (vid_ddraw.value && !vid_usingddraw) Cvar_Set ("vid_ddraw", "0");
 
-    if (warpbuf) //qb: only do this once, whenever vid mode changes.
-        Q_free(warpbuf);
-    //qb: debug   Sys_Error("vid.rowbytes %i vid.height %i", vid.rowbytes, vid.height);
-    warpbuf = (byte *)Q_malloc(DIBWidth*DIBHeight, "warpbuf");
-
     // more crap for the console
     vid.conrowbytes = vid.rowbytes;
 
@@ -1107,11 +1110,11 @@ int VID_SetMode (int modenum, byte *palette)
     if (!stat)
     {
         VID_RestoreOldMode (original_mode);
-        return false;
+        return 0;
     }
 
     if (hide_window)
-        return true;
+        return 1;
 
     // now we try to make sure we get the focus on the mode switch, because
     // sometimes in some systems we don't.  We grab the foreground, then
@@ -1142,7 +1145,7 @@ int VID_SetMode (int modenum, byte *palette)
     {
         // couldn't get memory for this mode; try to fall back to previous mode
         VID_RestoreOldMode (original_mode);
-        return false;
+        return 0;
     }
 
     D_InitCaches (vid_surfcache, vid_surfcachesize);
@@ -1172,7 +1175,7 @@ int VID_SetMode (int modenum, byte *palette)
     in_mode_set = false;
     vid.recalc_refdef = 1;
 
-    return true;
+    return 1;
 }
 
 
@@ -1198,7 +1201,7 @@ void VID_SetPalette (byte *palette)
         }
         else
         {
-            HDC			hdc;
+            //HDC                       hdc;
 
             if (hdcDIBSection)
             {
@@ -1238,9 +1241,10 @@ void VID_ShiftPalette (byte *palette)
 
 void VID_Init (byte *palette)
 {
-    int		i, bestmatch, bestmatchmetric, t, dr, dg, db;
-    int		basenummodes;
-    byte	*ptmp;
+        //int i, t, bestmatch, bestmatchmetric;
+    //int               dr, dg, db;
+    int         basenummodes;
+    //byte      *ptmp;
     static qboolean firsttime = true;
 
     Check_Gamma ();
@@ -1312,8 +1316,8 @@ void VID_Init (byte *palette)
 
 void VID_Shutdown (void)
 {
-    HDC				hdc;
-    int				dummy;
+    //HDC                               hdc;
+    //int                               dummy;
 
     if (vid_initialized)
     {
@@ -1335,8 +1339,8 @@ void VID_Shutdown (void)
 }
 
 //qb: fog
-extern short		*d_pzbuffer;
-extern unsigned int	d_zwidth;
+extern unsigned short           *d_pzbuffer;
+extern unsigned int     d_zwidth;
 
 #define UNROLL_SPAN_SHIFT   5  //qb: from MK unroll
 #define UNROLL_SPAN_MAX   (1 << UNROLL_SPAN_SHIFT) // 32
@@ -1359,9 +1363,11 @@ typedef struct flipslice_s  //qb: for multithreading
 
 void FlipLoop (flipslice_t* fs)
 {
-    static byte *psrc, *src;
-    static unsigned *pdst, *dst;
-    static int spancount, rollcount, y;
+    byte *psrc, *src;
+    unsigned int *pdst, *dst;
+    int rollcount, y, r;
+        int spancount, s;
+
 
     dst = fs->dst;
     src = fs->src;
@@ -1687,23 +1693,6 @@ void FlipScreen (vrect_t *rects)
         }
         else if (hdcDIBSection)
         {
-            /*   if (vid.bottomup)  //qb: this was a temporary hack until the madness of inverted bitmap was cleaned up.
-
-                   StretchBlt
-                   (
-                       hdcGDI,
-                       rects->x+ (rects->width %4) >>1,
-                       rects->y,
-                       rects->x + (rects->width >>2)<<2,
-                       rects->y + rects->height,
-                       hdcDIBSection,
-                       rects->x + (rects->width %4) >>1,
-                       rects->y + rects->height,
-                       (rects->width >>2)<<2,
-                       0 - rects->height,
-                       SRCCOPY
-                   );
-               else */
             BitBlt
             (
                 hdcGDI,
@@ -1876,9 +1865,9 @@ void AppActivate (BOOL fActive, BOOL minimize)
 *
 ****************************************************************************/
 {
-    HDC			hdc;
-    int			i, t;
-    static BOOL	sound_active;
+    HDC                 hdc;
+    int                 i, t;
+    static BOOL sound_active;
     ActiveApp = fActive;
 
     // messy, but it seems to work
@@ -1925,7 +1914,7 @@ void AppActivate (BOOL fActive, BOOL minimize)
             {
                 if (vid_initialized)
                 {
-                    msg_suppress_1 = true;	// don't want to see normal mode set message
+                    msg_suppress_1 = true;      // don't want to see normal mode set message
                     VID_SetMode (vid_fulldib_on_focus_mode, vid_curpal);
                     msg_suppress_1 = false;
                     t = in_mode_set;
@@ -1952,7 +1941,7 @@ void AppActivate (BOOL fActive, BOOL minimize)
                 {
                     force_minimized = true;
                     i = vid_fulldib_on_focus_mode;
-                    msg_suppress_1 = true;	// don't want to see normal mode set message
+                    msg_suppress_1 = true;      // don't want to see normal mode set message
                     VID_SetMode (windowed_default, vid_curpal);
                     msg_suppress_1 = false;
                     vid_fulldib_on_focus_mode = i;
@@ -2018,11 +2007,12 @@ LONG WINAPI MainWndProc (
     WPARAM  wParam,
     LPARAM  lParam)
 {
-    LONG			lRet = 0;
-    int				fwKeys, xPos, yPos, fActive, fMinimized, temp;
-    HDC				hdc;
-    PAINTSTRUCT		ps;
-    static int		recursiveflag;
+    LONG                        lRet = 0;
+        //int                           fwKeys, xPos, yPos;
+    int                         fActive, fMinimized, temp;
+    HDC                         hdc;
+    PAINTSTRUCT         ps;
+    //static int                recursiveflag;
 
     switch (uMsg)
     {
@@ -2217,21 +2207,21 @@ LONG WINAPI MainWndProc (
     return lRet;
 }
 
-static int	vid_line, vid_wmodes;
+static int      vid_line, vid_wmodes;
 
 typedef struct
 {
-    int		modenum;
-    char	*desc;
-    int		iscur;
-    int		width;
+    int         modenum;
+    char        *desc;
+    int         iscur;
+    int         width;
 } modedesc_t;
 
-#define MAX_COLUMN_SIZE		7  //qb: was 5
-#define MODE_AREA_HEIGHT	(MAX_COLUMN_SIZE + 4)
-#define MAX_MODEDESCS		(MAX_COLUMN_SIZE*3)
+#define MAX_COLUMN_SIZE         7  //qb: was 5
+#define MODE_AREA_HEIGHT        (MAX_COLUMN_SIZE + 4)
+#define MAX_MODEDESCS           (MAX_COLUMN_SIZE*3)
 
-static modedesc_t	modedescs[MAX_MODEDESCS];
+static modedesc_t       modedescs[MAX_MODEDESCS];
 
 /*
 ================
@@ -2240,12 +2230,12 @@ VID_MenuDraw
 */
 void VID_MenuDraw (void)
 {
-    qpic_t		*p;
-    char		*ptr;
-    int			lnummodes, i, j, k, column, row, dup, dupmode;
-    char		temp[100];
-    vmode_t		*pv;
-    modedesc_t	tmodedesc;
+    qpic_t              *p;
+    char                *ptr;
+    int                 lnummodes, i, j, k, column, row, dup, dupmode;
+    char                temp[100];
+    vmode_t             *pv;
+    modedesc_t  tmodedesc;
     p = Draw_CachePic ("gfx/vidmodes.lmp");
     M_DrawTransPic ( ( MIN_VID_WIDTH-p->width)/2, 4, p, false); //qb: from Manoel Kasimier + Dan East
 
@@ -2261,10 +2251,12 @@ void VID_MenuDraw (void)
             modedescs[i].iscur = 1;
     }
 
-    vid_wmodes = 3;
+        //vid_wmodes = 3;
+    vid_wmodes = VID_WINDOWED_MODES;
     lnummodes = VID_NumModes ();
 
-    for (i = 3; i < lnummodes; i++)
+    //for (i = 3; i < lnummodes; i++)
+    for (i = VID_WINDOWED_MODES; i < lnummodes; i++)
     {
         ptr = VID_GetModeDescriptionMemCheck (i);
         pv = VID_GetModePtr (i);
@@ -2273,7 +2265,7 @@ void VID_MenuDraw (void)
         {
             dup = 0;
 
-            for (j = 3; j < vid_wmodes; j++)
+            for (j = VID_WINDOWED_MODES; j < vid_wmodes; j++)
             {
                 if (!strcmp (modedescs[j].desc, ptr))
                 {
@@ -2313,7 +2305,8 @@ void VID_MenuDraw (void)
 
     // sort the modes on width (to handle picking up oddball dibonly modes
     // after all the others)
-    for (i = 3; i < (vid_wmodes - 1); i++)
+    //for (i = 3; i < (vid_wmodes - 1); i++)
+    for (i = VID_WINDOWED_MODES; i < (vid_wmodes - 1); i++)
     {
         for (j = (i + 1); j < vid_wmodes; j++)
         {
@@ -2330,7 +2323,7 @@ void VID_MenuDraw (void)
     column = 16;
     row = 36 + 1 * 8;  //qb: save a row, was 1 * 8
 
-    for (i = 0; i < 3; i++)
+    for (i = 0; i < VID_WINDOWED_MODES; i++)
     {
         if (modedescs[i].iscur)
             M_PrintWhite (column, row, modedescs[i].desc);
@@ -2340,13 +2333,13 @@ void VID_MenuDraw (void)
         column += 13 * 8;
     }
 
-    if (vid_wmodes > 3)
+    if (vid_wmodes > VID_WINDOWED_MODES)
     {
         M_Print (12 * 8, 36 + 3 * 8, "Fullscreen Modes");
         column = 16;
         row = 36 + 4 * 8;  //qb: was 6 * 8, save a couple rows for more modes.
 
-        for (i = 3; i < vid_wmodes; i++)
+    for (i = VID_WINDOWED_MODES; i < vid_wmodes; i++)
         {
             if (modedescs[i].iscur)
                 M_PrintWhite (column, row, modedescs[i].desc);
@@ -2355,7 +2348,7 @@ void VID_MenuDraw (void)
 
             column += 13 * 8;
 
-            if (((i - 3) % VID_ROW_SIZE) == (VID_ROW_SIZE - 1))
+        if (((i - VID_WINDOWED_MODES) % VID_ROW_SIZE) == (VID_ROW_SIZE-1))
             {
                 column = 16;
                 row += 8;
@@ -2399,7 +2392,7 @@ void VID_MenuDraw (void)
         row = 36 + 1 * 8 + (vid_line / VID_ROW_SIZE) * 8; //qb: was 36 + 2 * 8, more rows.
         column = 8 + (vid_line % VID_ROW_SIZE) * 13 * 8;
 
-        if (vid_line >= 3)
+        if (vid_line >= VID_WINDOWED_MODES)
             row += 2 * 8;  //qb: was 3 * 8; more rows
 
         M_DrawCharacter (column, row, 12 + ((int) (realtime * 4) & 1), false);
@@ -2422,7 +2415,7 @@ void VID_MenuKey (int key)
     case K_ESCAPE:
         S_LocalSound ("misc/menu1.wav");
         M_Video_f ();  //qb: from Manoel Kasiemer - edited
-//		M_Menu_Options_f ();
+//              M_Menu_Options_f ();
         break;
     case K_LEFTARROW:
         S_LocalSound ("misc/menu1.wav");
@@ -2533,7 +2526,7 @@ VID_CheckModedescFixup
 */
 void VID_CheckModedescFixup (int mode)
 {
-    int		x, y;
+    int         x, y;
 
 //qb: restore custom window mode #if 0
     if (mode == MODE_SETTABLE_WINDOW)
@@ -2555,8 +2548,8 @@ VID_GetModeDescriptionMemCheck
 */
 char *VID_GetModeDescriptionMemCheck (int mode)
 {
-    char		*pinfo;
-    vmode_t		*pv;
+    char                *pinfo;
+    vmode_t             *pv;
 
     if ((mode < 0) || (mode >= nummodes))
         return NULL;
@@ -2583,8 +2576,8 @@ VID_GetModeDescription
 */
 char *VID_GetModeDescription (int mode)
 {
-    char		*pinfo;
-    vmode_t		*pv;
+    char                *pinfo;
+    vmode_t             *pv;
 
     if ((mode < 0) || (mode >= nummodes))
         return NULL;
@@ -2605,8 +2598,8 @@ Tacks on "windowed" or "fullscreen"
 */
 char *VID_GetModeDescription2 (int mode)
 {
-    static char	pinfo[40];
-    vmode_t		*pv;
+    static char pinfo[40];
+    vmode_t             *pv;
 
     if ((mode < 0) || (mode >= nummodes))
         return NULL;
@@ -2635,8 +2628,8 @@ char *VID_GetModeDescription2 (int mode)
 
 char *VID_GetExtModeDescription (int mode)
 {
-    static char	pinfo[40];
-    vmode_t		*pv;
+    static char pinfo[40];
+    vmode_t             *pv;
 
     if ((mode < 0) || (mode >= nummodes))
         return NULL;
@@ -2689,7 +2682,7 @@ VID_DescribeMode_f
 */
 void VID_DescribeMode_f (void)
 {
-    int		modenum;
+    int         modenum;
     modenum = Q_atoi (Cmd_Argv (1));
     Con_Printf ("%s\n", VID_GetExtModeDescription (modenum));
 }
@@ -2702,10 +2695,10 @@ VID_DescribeModes_f
 */
 void VID_DescribeModes_f (void)
 {
-    int			i, lnummodes;
-    char		*pinfo;
-    qboolean	na;
-    vmode_t		*pv;
+    int                 i, lnummodes;
+    char                *pinfo;
+    qboolean    na;
+    vmode_t             *pv;
     na = false;
     lnummodes = VID_NumModes ();
 
@@ -2739,8 +2732,8 @@ VID_TestMode_f
 */
 void VID_TestMode_f (void)
 {
-    int		modenum;
-    double	testduration;
+    int         modenum;
+    double      testduration;
 
     if (!vid_testingmode)
     {
@@ -2804,8 +2797,8 @@ VID_ForceMode_f
 */
 void VID_ForceMode_f (void)
 {
-    int		modenum;
-    double	testduration;
+    int         modenum;
+    //double    testduration;
 
     if (!vid_testingmode)
     {

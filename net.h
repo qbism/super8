@@ -137,7 +137,7 @@ typedef struct qsocket_s
 
 	unsigned int	receiveSequence;
 	unsigned int	unreliableReceiveSequence;
-	int				receiveMessageLength;
+	unsigned int	receiveMessageLength;
 	byte			receiveMessage [NET_MAXMESSAGE];
 
 	struct qsockaddr	addr;

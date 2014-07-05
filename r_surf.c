@@ -422,9 +422,9 @@ void R_AddDynamicLights (void)
         for (i=0 ; i<3 ; i++)
             impact[i] = origin_for_ent[i] -  //qb: from inside3d post:   mankrip - dynamic lights on moving brush models fix - edited
                         surf->plane->normal[i]*dist;
-        {
-            surf->plane->normal[i]*dist;
-        }
+ //       {
+ //           surf->plane->normal[i]*dist;
+ //       }
 
         local[0] = DotProduct (impact, tex->vecs[0]) + tex->vecs[0][3];
         local[1] = DotProduct (impact, tex->vecs[1]) + tex->vecs[1][3];

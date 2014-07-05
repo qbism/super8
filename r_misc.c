@@ -314,7 +314,7 @@ void R_SetupFrame (void)
 {
     int				edgecount;
     vrect_t			vrect;
-    float			w, h;
+//    float			w, h;
 
 // don't allow cheats in multiplayer
     if (cl.maxclients > 1)

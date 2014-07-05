@@ -274,7 +274,7 @@ void BGM_PlayCDtrack (byte track, qboolean looping)
 {
 //qb: Simplified from QS.
 	char tmp[MAX_QPATH];
-	const char *ext;
+//	const char *ext;
 
 	BGM_Stop();
 	if (!CDAudio_Play(track, looping) == 0)
@@ -398,9 +398,9 @@ void BGM_Update (void)
 	if (old_volume != bgmvolume.value)
 	{
 		if (bgmvolume.value < 0)
-			Cvar_Set ("bgmvolume", "0.0");
+			Cvar_Set ("snd_bgmvolume", "0.0");
 		else if (bgmvolume.value > 1)
-			Cvar_Set ("bgmvolume", "1.0");
+			Cvar_Set ("snd_bgmvolume", "1.0");
 		old_volume = bgmvolume.value;
 	}
 	if (bgmstream)

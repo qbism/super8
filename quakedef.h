@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #ifdef R_THREADED
 #ifdef WIN32
-#include "C:\CodeBlocks\MinGW\include\pthread.h"  //qb: multithreaded functions
+#include <pthread.h> //qb: multithreaded functions
 #endif
 #endif
 
@@ -298,13 +298,13 @@ extern	char	key_lines[CMDLINES][MAXCMDLINE];
 extern	int	edit_line;
 extern	int	key_linepos;
 
-static	char	compl_common[MAX_FILELENGTH];
-static	int	compl_len;
-static	int	compl_clen;
+//extern	char	compl_common[MAX_FILELENGTH];
+//extern	int	compl_len;
+//extern	int	compl_clen;
 
 //qb: qrack complete command end
 
-extern	unsigned  con_linewidth;
+extern	unsigned int	con_linewidth;
 
 void Host_ClearMemory (void);
 void Host_ServerFrame (void);
@@ -317,6 +317,7 @@ void Host_Frame (float time);
 void Host_Quit_f (void);
 void Host_ClientCommands (char *fmt, ...);
 void Host_ShutdownServer (qboolean crash);
+void Host_Stopdemo_f (void);
 
 //qb: add declarations
 void COM_CreatePath (char *path);
@@ -328,7 +329,7 @@ void History_Shutdown (void);
 void CRC_Init(unsigned short *crcvalue);
 void CRC_ProcessByte(unsigned short *crcvalue, byte data);
 unsigned short CRC_Value(unsigned short crcvalue);
-void SV_LocalSound (client_t *client, char *sample, char volume);
+void SV_LocalSound (client_t *client, char *sample, byte volume);
 int R_LoadPalette (char *name);
 void Fog_ParseServerMessage (void);
 qboolean R_LoadSkybox (char *name);

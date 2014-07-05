@@ -25,7 +25,7 @@ static int		minindex, maxindex;
 static sspan_t	*sprite_spans;
 
 static int			count, spancount, izistep;
-static int			izi, u, v;
+static int                      izi; //, u, v;
 static byte		    *pbase, *pdest;
 static fixed16_t	s, t, snext, tnext, sstep, tstep;
 static float		sdivz, tdivz, zi, z, du, dv, spancountminus1;
@@ -658,7 +658,7 @@ void D_SpriteDrawSpans_Stippled (sspan_t *pspan) // Manoel Kasimier - transparen
     float		sdivz, tdivz, zi, z, du, dv, spancountminus1;
     float		sdivz8stepu, tdivz8stepu, zi8stepu;
     byte		btemp;
-    short		*pz;
+	unsigned short		*pz;
     int			teste; // Manoel Kasimier - stipple alpha
 
 
@@ -822,7 +822,7 @@ void D_SpriteDrawSpans_Add (sspan_t *pspan) // Manoel Kasimier - transparencies
     float		sdivz, tdivz, zi, z, du, dv, spancountminus1;
     float		sdivz8stepu, tdivz8stepu, zi8stepu;
     byte		btemp;
-    short		*pz;
+	unsigned short		*pz;
 
 
     sstep = 0;	// keep compiler happy
@@ -975,7 +975,7 @@ void D_SpriteDrawSpans_Shadow (sspan_t *pspan) // Manoel Kasimier - transparenci
     float		sdivz, tdivz, zi, z, du, dv, spancountminus1;
     float		sdivz8stepu, tdivz8stepu, zi8stepu;
     byte		btemp;
-    short		*pz;
+	unsigned short		*pz;
     float intensity; // Manoel Kasimier
 
 

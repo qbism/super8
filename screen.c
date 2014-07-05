@@ -37,8 +37,8 @@ cvar_t		scr_viewsize = {"viewsize","100", "viewsize[value] Reduce view size by a
 cvar_t		scr_fov = {"fov","91.25", "fov[1.0 to 170.0] Field-of-view angle."};	// 10 - 170 //qb: 91.25 works best for fisheye
 cvar_t		scr_conspeed = {"scr_conspeed","1000", "scr_conspeed[value] Console screen scroll speed."};
 cvar_t		scr_showpause = {"showpause","1", "scr_showpause[0/1] Show 'pause' plaque. Turn off for screenshots."};
-cvar_t		scr_centertime = {"scr_centertime","2.5", "scr_centertime[time] How long center print hint messages are displayed."};
-cvar_t		scr_printspeed = {"scr_printspeed","16", "scr_printspeed[time] Time between each letter during episode end messages."}; // 8 // Manoel Kasimier - edited
+cvar_t		scr_centertime = {"scr_centertime","2", "scr_centertime[time(s)] How long center print hint messages are displayed."};
+cvar_t		scr_printspeed = {"scr_printspeed","16", "scr_printspeed[time(ms)] Time between each letter during episode end messages."}; // 8 // Manoel Kasimier - edited
 cvar_t      scr_fadecolor = {"scr_fadecolor","4", "scr_fadecolor[value] Screen tint during menu display.", true};  //qb: background color for fadescreen2
 
 qboolean	scr_initialized;		// ready to draw
@@ -446,7 +446,7 @@ void SCR_DrawFPS (void)
         last_realtime = realtime;
     }
 
-    sprintf(st, "%6.2f FPS", fps);
+    sprintf(st, "%0.2f FPS", fps);
 
     x = 300; //qb
     if (scr_vrect.y > 0)
@@ -796,7 +796,7 @@ void LoadPCX (char *filename, byte **pic, int *width, int *height)
     if (!fileinfo)
         // Manoel Kasimier - end
         return;
-    pcxbuf = (char *)fileinfo->data; // Manoel Kasimier
+    pcxbuf = fileinfo->data; // Manoel Kasimier
 
 //
 // parse the PCX file

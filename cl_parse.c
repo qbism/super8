@@ -17,6 +17,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 // cl_parse.c  -- parse a message received from the server
 
 #include "quakedef.h"
+#include "bgmusic.h"
+
 
 char *svc_strings[] =
 {
@@ -317,13 +319,13 @@ void CL_ParseServerInfo (void)
 
 #ifdef WEBDL
     char url[1024];  //qb: R00k / Baker tute
-#endif
     qboolean success = false;
     char download_tempname[MAX_QPATH],download_finalname[MAX_QPATH];
     char folder[MAX_QPATH];
     char name[MAX_QPATH];
+#endif
 
-    byte	tmp[256]; //qb: for Dan East pocketquake
+    char        tmp[256]; //qb: for Dan East pocketquake
 
     Con_DPrintf ("Serverinfo packet received.\n");
 //

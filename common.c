@@ -29,6 +29,8 @@ static char     *safeargvs[NUM_SAFE_ARGVS] =
 cvar_t  registered = {"registered","0", "registered[0/1] 0 is shareware, 1 is full game version."};
 cvar_t  cmdline = {"cmdline","0", "cmdline[string] command line read by stuffcmds for dynamic mod loading.", false, true};
 
+
+searchpath_t	*com_searchpaths;
 qboolean        com_modified;   // set true if using non-id files
 
 //int             static_registered = 1;  // only for startup check, then set // Manoel Kasimier - removing pop.lmp check - removed
@@ -155,9 +157,9 @@ void Q_strncpy (char *dest, char *src, int count)
         *dest++ = 0;
 }
 
-unsigned Q_strlen (char *str)
+unsigned int Q_strlen (char *str)
 {
-    unsigned      count;
+    unsigned int             count;
 
     count = 0;
     while (str[count])
@@ -168,7 +170,7 @@ unsigned Q_strlen (char *str)
 
 char *Q_strrchr(char *s, char c)
 {
-    unsigned len = Q_strlen(s);
+    unsigned int len = Q_strlen(s);
     s += len;
     while (len--)
         if (*--s == c) return s;
@@ -754,7 +756,7 @@ char *MSG_ReadString (void)
 {
     static char     string[2048];
     int             c;
-    unsigned        l;
+	unsigned int l;
 
     l = 0;
     do
@@ -1423,7 +1425,7 @@ needed.  This is for the convenience of developers using ISDN from home.
 void COM_CopyFile (char *netpath, char *cachepath)
 {
     int             in, out;
-    unsigned             remaining, count;
+    unsigned int             remaining, count;
     char    buf[4096];
 
     remaining = Sys_FileOpenRead (netpath, &in);
@@ -1685,7 +1687,7 @@ loadedfile_t *COM_LoadFile (char *path, int usehunk)
     else if (usehunk == 0)
 // 2001-09-12 Returning information about loaded file by Maddes  start
 //		buf = Z_Malloc (len+1);
-        buf = Q_calloc (bufsize);
+        buf = Q_calloc ("COM_LoadFile", bufsize);
 // 2001-09-12 Returning information about loaded file by Maddes  end
     else if (usehunk == 3)
 // 2001-09-12 Returning information about loaded file by Maddes  start
@@ -1785,6 +1787,7 @@ Loads the header and directory, adding the files at the beginning
 of the list so they override previous pack files.
 =================
 */
+static dpackfile_t info[MAX_FILES_IN_PACK];
 pack_t *COM_LoadPackFile (char *packfile)
 {
     dpackheader_t   header;
@@ -1793,7 +1796,7 @@ pack_t *COM_LoadPackFile (char *packfile)
     int                             numpackfiles;
     pack_t                  *pack;
     int                             packhandle;
-    dpackfile_t             info[MAX_FILES_IN_PACK];
+
     unsigned short          crc;
 
     if (Sys_FileOpenRead (packfile, &packhandle) == -1)

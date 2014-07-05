@@ -385,7 +385,9 @@ void Host_Changelevel_f (void)
 {
 
     char	level[MAX_QPATH];
-    unsigned		i;
+    char	str[MAX_QPATH*3];
+    int		i, r;
+    FILE	*f;
 
     if (Cmd_Argc() != 2)
     {
@@ -407,10 +409,7 @@ void Host_Changelevel_f (void)
     SV_SaveSpawnparms ();
     Q_strcpy (level, Cmd_Argv(1));
     // Manoel Kasimier - map transition lists - begin
-    {
-        char	str[MAX_QPATH*3];
-        int		i, r;
-        FILE	*f;
+
 
         if (pr_global_struct->deathmatch)
             f = fopen (va("%s/maps/maps_dm.txt", com_gamedir), "r");
@@ -452,7 +451,6 @@ void Host_Changelevel_f (void)
             }
             fclose (f);
         }
-    }
 
     // Manoel Kasimier - map transition lists - end
     allowcheats = sv_cheats.value;
@@ -589,7 +587,7 @@ void Host_SavegameComment (char *text)
 // Manoel Kasimier - small saves - begin
 //
 //======================================
-char *COM_NiceFloatString (float f); // Manoel Kasimier - reduced savegames
+extern char *COM_NiceFloatString (float f); // Manoel Kasimier - reduced savegames
 
 /*
 ====================
@@ -1060,7 +1058,7 @@ void Host_Version_f (void)
 {
     Con_Printf ("\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n"
                 "\n   \01\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\03"
-               "\02\n   SUPER8 SERVER BUILD %s"
+               "\02\n   QBISM SERVER BUILD %s"
                                   "\n   \07\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\11"
                                   "\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n", BUILDVERSION);
     Con_Printf ("Exe: "__TIME__" "__DATE__"\n");

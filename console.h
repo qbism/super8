@@ -29,7 +29,7 @@ extern	int		edit_line;
 extern	int		key_linepos;
 extern char chat_buffer[];
 extern qboolean team_message;
-extern char *COM_NiceFloatString (float f); //qb: from FQmV
+extern char *COM_NiceFloatString(float floatvalue); // qb: from FQmV
 
 extern void M_Main_f (void); // edited
 

@@ -34,7 +34,7 @@ void Vibration_Stop (int player) // 0=player1, 1=player2
 #define iDirectInputCreate(a,b,c,d)	pDirectInputCreate(a,b,c,d)
 
 HRESULT (WINAPI *pDirectInputCreate)(HINSTANCE hinst, DWORD dwVersion,
-                                     LPDIRECTINPUT * lplpDirectInput, LPUNKNOWN punkOuter);
+                                     LPDIRECTINPUTA * lplpDirectInput, LPUNKNOWN punkOuter); //qb: was LPDIRECTINPUT, watcom is weird.
 
 // mouse variables
 cvar_t	m_filter = {"m_filter","0", "m_filter[0/1] Toggle mouse input smoothing by averaging samples."};
@@ -114,7 +114,7 @@ int			joy_id;
 DWORD		joy_flags;
 DWORD		joy_numbuttons;
 
-static LPDIRECTINPUT		g_pdi;
+static LPDIRECTINPUTA            g_pdi;
 static LPDIRECTINPUTDEVICE	g_pMouse;
 
 static JOYINFOEX	ji;
@@ -1053,7 +1053,7 @@ qboolean IN_ReadJoystick (void)
     else
     {
         // read error occurred
-        // turning off the joystick seems too harsh for 1 read error,\
+        // turning off the joystick seems too harsh for 1 read error,
         // but what should be done?
         // Con_Printf ("IN_ReadJoystick: no response\n");
         // joy_avail = false;

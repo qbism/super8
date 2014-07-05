@@ -30,13 +30,15 @@ extern cvar_t vid_ddraw;
 short	capture_audio_samples[44100];	// big enough buffer for 1fps at 44100Hz
 int	captured_audio_samples;
 
-static	int	out_size, ssize, outbuf_size;
-static	byte	*outbuf, *picture_buf;
+//static int ssize;
+//static	int	out_size, outbuf_size;
+//static	byte	*outbuf
+//static byte *picture_buf;
 static	FILE	*moviefile;
 
 float	hack_ctr;
 
-static qboolean OnChange_capture_dir (cvar_t *var, char *string);
+//static qboolean OnChange_capture_dir (cvar_t *var, char *string);
 
 cvar_t   capture_codec   = {"capture_codec", "XVID", "capture_codec[code] A 4-letter code for the desired codec.", true}; //qb: jqavi, change to XVID default
 
@@ -198,7 +200,8 @@ void Movie_Init (void)
 }
 
 void Movie_StopPlayback (void)
-{    if (!cls.capturedemo)
+{
+    if (!cls.capturedemo)
         return;
 
     cls.capturedemo = false;
@@ -219,7 +222,8 @@ double Movie_FrameTime (void)
 
 void Movie_UpdateScreen (void)  //qb: add stretch and gamma to capture
 {
-    int	i, j, k, rowp;
+	//int k;
+    int	i, j, rowp;
     int r,g,b; //qb:
     byte	*buffer, *p, *hwpal;
 
@@ -290,7 +294,7 @@ qboolean Movie_GetSoundtime (void)
 
     return true;
 }
-
+/*
 static qboolean OnChange_capture_dir (cvar_t *var, char *string)
 {
     if (Movie_IsActive())
@@ -301,3 +305,5 @@ static qboolean OnChange_capture_dir (cvar_t *var, char *string)
 
     return false;
 }
+*/
+

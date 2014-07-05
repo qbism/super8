@@ -193,7 +193,7 @@ void R_ClearParticles (void)
 void R_ReadPointFile_f (void)
 {
     FILE	*f;
-    vec3_t	org;
+    vec3_t	org={0,0,0};
     int		r;
     int		c;
     particle_t	*p;
@@ -779,7 +779,8 @@ void R_DrawParticles (void)
 {
     particle_t		*p, *kill;
     mleaf_t         *l;
-    float			grav, grav2, percent;
+    float			grav;
+	//float grav2, percent;
     int				i;
     float			time2, time3;
     float			time1;
@@ -788,7 +789,7 @@ void R_DrawParticles (void)
 
 // hexen 2
     vec3_t		diff;
-    qboolean	in_solid;
+//    qboolean	in_solid;
 
     VectorScale (vright, xscaleshrink, r_pright);
     VectorScale (vup, yscaleshrink, r_pup);
@@ -925,7 +926,8 @@ void R_DrawParticles (void)
                 break;
 
             case pt_staticfade:
-                p->alpha + frametime*p->alphavel;
+                //p->alpha + frametime*p->alphavel;
+                p->alpha += frametime*p->alphavel;
 
                 if (p->alpha <= 0)
                     p->die = -1;
@@ -1142,7 +1144,7 @@ void R_ParticleBeam (vec3_t start, vec3_t end, int thecol)
     int			j;
     particle_t	*p;
     int			dec;
-    static int	tracercount;
+//    static int	tracercount;
     int	wat;
     //int	thecol;
 

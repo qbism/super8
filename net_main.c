@@ -53,8 +53,8 @@ int messagesReceived = 0;
 int unreliableMessagesSent = 0;
 int unreliableMessagesReceived = 0;
 
-cvar_t	net_messagetimeout = {"net_messagetimeout","300", "net_messagetimeout[value] Sets how long to wait before deciding network connection is lost."};
-cvar_t	net_connecttimeout = {"net_connecttimeout","10", "net_connecttimeout[value] Minimum time between messages for flood protection."};	//qb: Baker net fix - From ProQuake - qkick/qflood protection
+cvar_t	net_messagetimeout = {"net_messagetimeout","300", "net_messagetimeout[value(ms)] Minimum time between messages for flood protection."};
+cvar_t	net_connecttimeout = {"net_connecttimeout","10", "net_connecttimeout[value(ms)] Sets maximum time to wait before deciding network connection is lost."};	//qb: Baker net fix - From ProQuake - qkick/qflood protection
 cvar_t	hostname = {"hostname", "UNNAMED", "hostname[name] Name of server."};
 
 qboolean	configRestored = false;

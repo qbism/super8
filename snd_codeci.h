@@ -38,7 +38,7 @@ struct snd_codec_s
 {
 	unsigned int type;	/* handled data type. (1U << n) */
 	qboolean initialized;	/* init succeedded */
-	const char *ext;	/* expected extension */
+	char *ext;	/* expected extension */
 	CODEC_INIT initialize;
 	CODEC_SHUTDOWN shutdown;
 	CODEC_OPEN codec_open;

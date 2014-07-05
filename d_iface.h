@@ -142,6 +142,7 @@ void D_PolysetDraw (void);
 void D_PolysetDraw_C (void); // Manoel Kasimier - transparencies
 void D_PolysetDrawFinalVerts (finalvert_t *fv, int numverts);
 void D_DrawParticle_C (particle_t *pparticle); // Manoel Kasimier - enabled C particle renderer
+void D_DrawParticle_50_C (particle_t *pparticle);
 void D_DrawParticle_66_C (particle_t *pparticle); // Manoel Kasimier - translucent particles
 void D_DrawParticle_33_C (particle_t *pparticle); // Manoel Kasimier - translucent particles
 //void D_DrawPoly (void); qb: this engine draws spans
@@ -181,7 +182,7 @@ extern void *acolormap;	// FIXME: should go away
 
 typedef struct
 {
-	byte		*surfdat;	// destination for generated surface
+	pixel_t		*surfdat;	// destination for generated surface
 	int			rowbytes;	// destination logical width in bytes
 	msurface_t	*surf;		// description for surface to generate
 	fixed8_t	lightadj[MAXLIGHTMAPS];
