@@ -1571,7 +1571,7 @@ r_refdef must be set before the first call
 */
 #define MAXFOGTHREADS          16   //qb: for multithreading
 
-void R_RenderView (void) //qb: so can only setup frame once, for fisheye and stereo.
+void R_RenderView (void) //qb: so can just setup frame once, for fisheye and stereo.
 {
     int         dummy;
     int         delta;
@@ -1581,7 +1581,7 @@ void R_RenderView (void) //qb: so can only setup frame once, for fisheye and ste
     static byte         *pbuf; //, *vidfog;
     static byte        noise;
    static unsigned short               *pz;
-    static int          i, level, numthreads;
+    static int          level, numthreads;
     static float previous_fog_density;
     static int dither;
     static float normalize;

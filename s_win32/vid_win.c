@@ -28,6 +28,7 @@ extern cvar_t cv_num_flip_jobs, thread_flip;
 
 // true if the ddraw driver started up OK
 qboolean    vid_usingddraw = false;
+void Con_CenterPrintf (int linewidth, char *fmt, ...); //qb: for warning
 
 // main application window
 HWND hWndWinQuake = NULL;
@@ -82,8 +83,8 @@ DIRECTDRAWCREATEPROC QDirectDrawCreate = NULL;
 
 unsigned int ddpal[256];
 
-pixel_t *vidbuf = NULL;
-pixel_t *warpbuf = NULL;
+pixel_t *vidbuf;
+pixel_t *warpbuf;
 
 int dd_window_width = 640;
 int dd_window_height = 480;
@@ -116,7 +117,7 @@ void VID_CreateDDrawDriver (int width, int height, byte *palette, pixel_t **buff
     Q_free (vidbuf);
     vidbuf = (pixel_t *) Q_malloc (width * height, "vidbuf"); //qb: was malloc
     Q_free (warpbuf);
-    warpbuf = (pixel_t *) Q_malloc (width * height, "warpbuf"); //qb: was malloc
+    warpbuf = (pixel_t *) Q_malloc (width * height, "warpbuf");
     buffer[0] = vidbuf;
     rowbytes[0] = width;
 
@@ -241,14 +242,14 @@ void VID_CreateGDIDriver (int width, int height, byte *palette)
 
     // clear the buffer
     memset (pDIBBase, 0xff, width * height);
+        Q_free (warpbuf);
+    warpbuf = (pixel_t *) Q_malloc (width * height, "warpbuf");
 
     if ((hdcDIBSection = CreateCompatibleDC (hdcGDI)) == NULL)
         Sys_Error ("DIB_Init() - CreateCompatibleDC failed\n");
 
     if ((previously_selected_GDI_obj = SelectObject (hdcDIBSection, hDIBSection)) == NULL)
         Sys_Error ("DIB_Init() - SelectObject failed\n");
-    Q_free (warpbuf);
-   warpbuf = (pixel_t *) Q_malloc (width * height, "warpbuf"); //qb: was malloc
 
     // create a palette
     Check_Gamma ();
@@ -992,17 +993,13 @@ int VID_SetMode (int modenum, byte *palette)
     qboolean            stat;
     MSG                         msg;
     HDC                         hdc;
-    byte    *src;
-
 
     if(r_dowarp)
     {
-        Con_Printf("Unable to change video mode while in liquid...\nplease jump out first!\n");  //qb: fixme
+        Con_CenterPrintf(30, "Unable to change video mode while in liquid...\nplease jump out first!\n");  //qb: fixme
         return 0;
     }
-
-
-    while ((modenum >= nummodes) || (modenum < 0))
+     while ((modenum >= nummodes) || (modenum < 0))
     {
         if (vid_modenum == NO_MODE)
         {
@@ -1493,7 +1490,7 @@ void FlipLoop (flipslice_t* fs)
 
 void FlipScreen (vrect_t *rects)
 {
-    static int i, numrects, numthreads;
+    static int numrects;
     static int spancount, rollcount, y;
     static byte *psrc, *src;
     static unsigned *pdst, *dst;
@@ -1506,6 +1503,7 @@ void FlipScreen (vrect_t *rects)
 #ifdef R_THREADED
     static pthread_t flipthread[MAXFLIPTHREADS];
     static flipslice_t fs[MAXFLIPTHREADS]; //qb:  threads
+    static int numthreads;
 #endif
     while (rects)
     {
