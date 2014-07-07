@@ -21,12 +21,12 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "version.h" //qb - generated from bat
 
 int current_protocol = PROTOCOL_QBS8; //qb
-server_t		sv;
-server_static_t	svs;
+server_t                sv;
+server_static_t svs;
 
-cvar_t	sv_cullentities		= {"sv_cullentities","1", "sv_cullentities[0-3] Antiwallhack. 0=off, 1=players, 2=players and entities, 3=doors, plats, etc. ", false, true}; //qb: qrack
+cvar_t  sv_cullentities         = {"sv_cullentities","1", "sv_cullentities[0-3] Antiwallhack. 0=off, 1=players, 2=players and entities, 3=doors, plats, etc. ", false, true}; //qb: qrack
 cvar_t  sv_progs = {"sv_progs", "progs.dat", "sv_progs[name.dat] Specify which progs to use." }; //qb: enginex
-char	localmodels[MAX_MODELS][6];			// inline model names for precache //qb: was 5
+char    localmodels[MAX_MODELS][6];                     // inline model names for precache //qb: was 5
 
 //============================================================================
 
@@ -163,7 +163,7 @@ SV_Init
 */
 void SV_Init (void)
 {
-    int		i;
+    int         i;
     Cvar_RegisterVariable (&sv_progs); //qb:  fitzquake
     Cvar_RegisterVariable (&sv_cullentities); //qb: from qrack
     Cvar_RegisterVariable (&sv_cheats); //qb
@@ -206,7 +206,7 @@ Make sure the event gets sent to all clients
 */
 void SV_StartParticle (vec3_t org, vec3_t dir, int color, int count)
 {
-    int		i, v;
+    int         i, v;
 
     if (sv.datagram.cursize > MAX_DATAGRAM-16)
         return;
@@ -391,8 +391,8 @@ This will be sent on the initial connection and upon each server load.
 */
 void SV_SendServerinfo (client_t *client)
 {
-    char			**s;
-    char			message[2048];
+    char                        **s;
+    char                        message[2048];
     int     i;
 
     if (client->sendsignon == true)  //qb - don't send serverinfo twice.
@@ -420,17 +420,17 @@ void SV_SendServerinfo (client_t *client)
 
     MSG_WriteString (&client->message,message);
 
-	//qb: from johnfitz -- only send the first 256 model and sound precaches if protocol is 15
-	for (i=0,s = sv.model_precache+1 ; *s; s++,i++)
-		if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
-			MSG_WriteString (&client->message, *s);
-	MSG_WriteByte (&client->message, 0);
+        //qb: from johnfitz -- only send the first 256 model and sound precaches if protocol is 15
+        for (i=0,s = sv.model_precache+1 ; *s; s++,i++)
+                if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
+                        MSG_WriteString (&client->message, *s);
+        MSG_WriteByte (&client->message, 0);
 
-	for (i=0,s = sv.sound_precache+1 ; *s ; s++,i++)
-		if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
-			MSG_WriteString (&client->message, *s);
-	MSG_WriteByte (&client->message, 0);
-	//johnfitz
+        for (i=0,s = sv.sound_precache+1 ; *s ; s++,i++)
+                if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
+                        MSG_WriteString (&client->message, *s);
+        MSG_WriteByte (&client->message, 0);
+        //johnfitz
 
 // send music
     MSG_WriteByte (&client->message, svc_cdtrack);
@@ -445,7 +445,7 @@ void SV_SendServerinfo (client_t *client)
     MSG_WriteByte (&client->message, 1);
 
     client->sendsignon = true;
-    client->spawned = false;		// need prespawn, spawn, etc
+    client->spawned = false;            // need prespawn, spawn, etc
 }
 
 /*
@@ -458,12 +458,12 @@ once for a player each game, not once for each level change.
 */
 void SV_ConnectClient (int clientnum)
 {
-    edict_t			*ent;
-    client_t		*client;
-    int				edictnum;
+    edict_t                     *ent;
+    client_t            *client;
+    int                         edictnum;
     struct qsocket_s *netconnection;
-    int				i;
-    float			spawn_parms[NUM_SPAWN_PARMS];
+    int                         i;
+    float                       spawn_parms[NUM_SPAWN_PARMS];
 
     client = svs.clients + clientnum;
 
@@ -487,7 +487,7 @@ void SV_ConnectClient (int clientnum)
     client->edict = ent;
     client->message.data = client->msgbuf;
     client->message.maxsize = sizeof(client->msgbuf);
-    client->message.allowoverflow = true;		// we can catch it
+    client->message.allowoverflow = true;               // we can catch it
 
 #ifdef IDGODS
     client->privileged = IsID(&client->netconnection->addr);
@@ -519,8 +519,8 @@ SV_CheckForNewClients
 */
 void SV_CheckForNewClients (void)
 {
-    struct qsocket_s	*ret;
-    int				i;
+    struct qsocket_s    *ret;
+    int                         i;
 
 //
 // check for new connections
@@ -579,43 +579,43 @@ crosses a waterline.
 =============================================================================
 */
 
-int		fatbytes;
-byte	fatpvs[MAX_MAP_LEAFS/8];
+int             fatbytes;
+byte    fatpvs[MAX_MAP_LEAFS/8];
 
 //qb:  from FQ
 void SV_AddToFatPVS (vec3_t org, mnode_t *node, model_t *worldmodel) //johnfitz -- added worldmodel as a parameter
 {
-	int		i;
-	byte	*pvs;
-	mplane_t	*plane;
-	float	d;
+        int             i;
+        byte    *pvs;
+        mplane_t        *plane;
+        float   d;
 
-	while (1)
-	{
-	// if this is a leaf, accumulate the pvs bits
-		if (node->contents < 0)
-		{
-			if (node->contents != CONTENTS_SOLID)
-			{
-				pvs = Mod_LeafPVS ( (mleaf_t *)node, worldmodel); //johnfitz -- worldmodel as a parameter
-				for (i=0 ; i<fatbytes ; i++)
-					fatpvs[i] |= pvs[i];
-			}
-			return;
-		}
+        while (1)
+        {
+        // if this is a leaf, accumulate the pvs bits
+                if (node->contents < 0)
+                {
+                        if (node->contents != CONTENTS_SOLID)
+                        {
+                                pvs = Mod_LeafPVS ( (mleaf_t *)node, worldmodel); //johnfitz -- worldmodel as a parameter
+                                for (i=0 ; i<fatbytes ; i++)
+                                        fatpvs[i] |= pvs[i];
+                        }
+                        return;
+                }
 
-		plane = node->plane;
-		d = DotProduct (org, plane->normal) - plane->dist;
-		if (d > 8)
-			node = node->children[0];
-		else if (d < -8)
-			node = node->children[1];
-		else
-		{	// go down both
-			SV_AddToFatPVS (org, node->children[0], worldmodel); //johnfitz -- worldmodel as a parameter
-			node = node->children[1];
-		}
-	}
+                plane = node->plane;
+                d = DotProduct (org, plane->normal) - plane->dist;
+                if (d > 8)
+                        node = node->children[0];
+                else if (d < -8)
+                        node = node->children[1];
+                else
+                {       // go down both
+                        SV_AddToFatPVS (org, node->children[0], worldmodel); //johnfitz -- worldmodel as a parameter
+                        node = node->children[1];
+                }
+        }
 }
 
 /*
@@ -628,10 +628,10 @@ given point.
 */
 byte *SV_FatPVS (vec3_t org, model_t *worldmodel) //johnfitz -- added worldmodel as a parameter
 {
-	fatbytes = (worldmodel->numleafs+31)>>3;
-	memset (fatpvs, 0, fatbytes);
-	SV_AddToFatPVS (org, worldmodel->nodes, worldmodel); //johnfitz -- worldmodel as a parameter
-	return fatpvs;
+        fatbytes = (worldmodel->numleafs+31)>>3;
+        memset (fatpvs, 0, fatbytes);
+        SV_AddToFatPVS (org, worldmodel->nodes, worldmodel); //johnfitz -- worldmodel as a parameter
+        return fatpvs;
 }
 
 //=============================================================================
@@ -722,23 +722,23 @@ SV_WriteEntitiesToClient
 
 =============
 */
-void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
+void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
 {
-    unsigned int	i;  //qb
-    int		e;
-    int		bits;
-    byte	*pvs;
-    vec3_t	org;
-    float	miss;
-    edict_t	*ent;
+    unsigned int        i;  //qb
+    int         e;
+    int         bits;
+    byte        *pvs;
+    vec3_t      org;
+    float       miss;
+    edict_t     *ent;
     // Tomaz - QC Alpha Scale Glow Begin
-    float	scale=1;
-    vec3_t	scalev= {0,0,0};
-    float	glow_size=0;
+    float       scale=1;
+    vec3_t      scalev= {0,0,0};
+    float       glow_size=0;
     byte   glow_red, glow_green, glow_blue;
 
     // Tomaz - QC Alpha Scale Glow End
-    float	frame_interval=0.1f; // Manoel Kasimier - QC frame_interval
+    float       frame_interval=0.1f; // Manoel Kasimier - QC frame_interval
     int clentnum; //Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT //qb
     eval_t *val; //Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT
 
@@ -753,14 +753,14 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
     ent = NEXT_EDICT(sv.edicts);
     for (e=1 ; e<sv.num_edicts ; e++, ent = NEXT_EDICT(ent))
     {
-        if (ent != clent)	// clent is ALWAYS sent
+        if (ent != clent)       // clent is ALWAYS sent
         {
             // don't send if flagged for NODRAW and there are no lighting effects
             if (ent->v.effects == EF_NODRAW)
                 continue;
 
 // ignore if not touching a PV leaf
-            if (ent != clent)	// clent is ALWAYS sent
+            if (ent != clent)   // clent is ALWAYS sent
             {
 // ignore ents without visible models
                 if (!ent->v.modelindex || !pr_strings[ent->v.model])
@@ -819,7 +819,7 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             bits |= U_ANGLE3;
 
         if (ent->v.movetype == MOVETYPE_STEP)
-            bits |= U_NOLERP;	// don't mess up the step animation
+            bits |= U_NOLERP;   // don't mess up the step animation
 
         if (ent->baseline.colormap != ent->v.colormap)
             bits |= U_COLORMAP;
@@ -897,12 +897,12 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
             }
             if (val = GetEdictFieldValue(ent, "glow_green"))
             {
-                glow_red = (byte)(val->_float*255.0);
+                glow_green = (byte)(val->_float*255.0);
                 bits |= U_GLOW_GREEN;
             }
             if (val = GetEdictFieldValue(ent, "glow_blue"))
             {
-                glow_red = (byte)(val->_float*255.0);
+                glow_blue = (byte)(val->_float*255.0);
                 bits |= U_GLOW_BLUE;
             }
             // Tomaz - QC Alpha Scale Glow End
@@ -954,8 +954,8 @@ void SV_WriteEntitiesToClient (edict_t	*clent, sizebuf_t *msg)
         if (bits & U_MODEL)
         {
             if (current_protocol == PROTOCOL_QBS8)
-                MSG_WriteShort (msg,	ent->v.modelindex);
-            else MSG_WriteByte (msg,	ent->v.modelindex);
+                MSG_WriteShort (msg,    ent->v.modelindex);
+            else MSG_WriteByte (msg,    ent->v.modelindex);
         }
         if (bits & U_FRAME)
             MSG_WriteByte (msg, ent->v.frame);
@@ -1021,8 +1021,8 @@ SV_CleanupEnts
 */
 void SV_CleanupEnts (void)
 {
-    int		e;
-    edict_t	*ent;
+    int         e;
+    edict_t     *ent;
 
     ent = NEXT_EDICT(sv.edicts);
     for (e=1 ; e<sv.num_edicts ; e++, ent = NEXT_EDICT(ent))
@@ -1040,11 +1040,11 @@ SV_WriteClientdataToMessage
 */
 void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
 {
-    int		bits;
-    int		i;
-    edict_t	*other;
-    int		items;
-    eval_t	*val;
+    int         bits;
+    int         i;
+    edict_t     *other;
+    int         items;
+    eval_t      *val;
 
 //
 // send a damage message
@@ -1065,7 +1065,7 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
 //
 // send the current viewpos offset from the view entity
 //
-    SV_SetIdealPitch ();		// how much to look up / down ideally
+    SV_SetIdealPitch ();                // how much to look up / down ideally
 
 // a fixangle might get lost in a dropped packet.  Oh well.
     if ( ent->v.fixangle )
@@ -1116,7 +1116,7 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
     if (ent->v.armorvalue)
         bits |= SU_ARMOR;
 
-//	if (ent->v.weapon)
+//      if (ent->v.weapon)
     bits |= SU_WEAPON;
 
 // send the data
@@ -1145,7 +1145,7 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
             MSG_WriteChar (msg, ent->v.velocity[i]/16);
     }
 
-// [always sent]	if (bits & SU_ITEMS)
+// [always sent]        if (bits & SU_ITEMS)
     MSG_WriteLong (msg, items);
 
     if (bits & SU_WEAPONFRAME)
@@ -1205,8 +1205,8 @@ SV_SendClientDatagram
 */
 qboolean SV_SendClientDatagram (client_t *client)
 {
-    byte		buf[MAX_DATAGRAM];
-    sizebuf_t	msg;
+    byte                buf[MAX_DATAGRAM];
+    sizebuf_t   msg;
 
     msg.data = buf;
     msg.maxsize = sizeof(buf);
@@ -1247,7 +1247,7 @@ SV_UpdateToReliableMessages
 */
 void SV_UpdateToReliableMessages (void)
 {
-    int			i, j;
+    int                 i, j;
     client_t *client;
 
 // check for changes to be sent over the reliable streams
@@ -1289,8 +1289,8 @@ message buffer
 */
 void SV_SendNop (client_t *client)
 {
-    sizebuf_t	msg;
-    byte		buf[4];
+    sizebuf_t   msg;
+    byte                buf[4];
 
     msg.data = buf;
     msg.maxsize = sizeof(buf);
@@ -1299,7 +1299,7 @@ void SV_SendNop (client_t *client)
     MSG_WriteByte (&msg, svc_nop);
 
     if (NET_SendUnreliableMessage (client->netconnection, &msg) == -1)
-        SV_DropClient (true);	// if the message couldn't send, kick off
+        SV_DropClient (true);   // if the message couldn't send, kick off
     client->last_message = realtime;
 }
 
@@ -1310,7 +1310,7 @@ SV_SendClientMessages
 */
 void SV_SendClientMessages (void)
 {
-    int			i;
+    int                 i;
 
 // update frags, names, etc
     SV_UpdateToReliableMessages ();
@@ -1337,7 +1337,7 @@ void SV_SendClientMessages (void)
             {
                 if (realtime - host_client->last_message > 5)
                     SV_SendNop (host_client);
-                continue;	// don't send out non-signon messages
+                continue;       // don't send out non-signon messages
             }
         }
 
@@ -1355,17 +1355,17 @@ void SV_SendClientMessages (void)
         {
             if (!NET_CanSendMessage (host_client->netconnection))
             {
-//				I_Printf ("can't write\n");
+//                              I_Printf ("can't write\n");
                 continue;
             }
 
             if (host_client->dropasap)
-                SV_DropClient (false);	// went to another level
+                SV_DropClient (false);  // went to another level
             else
             {
                 if (NET_SendMessage (host_client->netconnection
                                      , &host_client->message) == -1)
-                    SV_DropClient (true);	// if the message couldn't send, kick off
+                    SV_DropClient (true);       // if the message couldn't send, kick off
                 SZ_Clear (&host_client->message);
                 host_client->last_message = realtime;
                 host_client->sendsignon = false;
@@ -1395,7 +1395,7 @@ SV_ModelIndex
 */
 int SV_ModelIndex (char *name)
 {
-    int		i;
+    int         i;
 
     if (!name || !name[0])
         return 0;
@@ -1416,9 +1416,9 @@ SV_CreateBaseline
 */
 void SV_CreateBaseline (void)
 {
-    int			i;
-    edict_t			*svent;
-    int				entnum;
+    int                 i;
+    edict_t                     *svent;
+    int                         entnum;
 
     for (entnum = 0; entnum < sv.num_edicts ; entnum++)
     {
@@ -1489,8 +1489,8 @@ Tell all the clients that the server is changing levels
 */
 void SV_SendReconnect (void)
 {
-    byte	data[128];
-    sizebuf_t	msg;
+    byte        data[128];
+    sizebuf_t   msg;
 
     msg.data = data;
     msg.cursize = 0;
@@ -1516,7 +1516,7 @@ transition to another level
 */
 void SV_SaveSpawnparms (void)
 {
-    int		i, j;
+    int         i, j;
 
     svs.serverflags = pr_global_struct->serverflags;
 
@@ -1543,15 +1543,15 @@ This is called at the start of each level
 */
 void SV_SpawnServer (char *server)
 {
-    edict_t		*ent;
-    int			i;
+    edict_t             *ent;
+    int                 i;
     // let's not have any servers with no name
     if (hostname.string[0] == 0)
         Cvar_Set ("hostname", "UNNAMED");
     scr_centertime_off = 0;
 
     Con_Printf ("SpawnServer: %s\n",server); //qb - change to con_printf
-    svs.changelevel_issued = false;		// now safe to issue another
+    svs.changelevel_issued = false;             // now safe to issue another
 
 //
 // tell all connected clients that we are going to a new level
@@ -1645,7 +1645,7 @@ void SV_SpawnServer (char *server)
     memset (&ent->v, 0, progs->entityfields * 4);
     ent->free = false;
     ent->v.model = sv.worldmodel->name - pr_strings;
-    ent->v.modelindex = 1;		// world model
+    ent->v.modelindex = 1;              // world model
     ent->v.solid = SOLID_BSP;
     ent->v.movetype = MOVETYPE_PUSH;
 

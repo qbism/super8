@@ -22,10 +22,10 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "r_local.h"
 #include "d_local.h"
 
-byte	*r_turb_pbase, *r_turb_pdest;
-static fixed16_t		r_turb_s, r_turb_t, r_turb_sstep, r_turb_tstep;
-int				*r_turb_turb;
-int				r_turb_spancount;
+byte    *r_turb_pbase, *r_turb_pdest;
+static fixed16_t                r_turb_s, r_turb_t, r_turb_sstep, r_turb_tstep;
+int                             *r_turb_turb;
+int                             r_turb_spancount;
 
 extern cvar_t thread_warp;
 extern pixel_t *warpbuf;
@@ -132,7 +132,7 @@ D_WarpScreen //qb: from MK inside3d tute + add multihreading
 typedef struct warpslice_s  //qb: for multithreading
 {
     int rowstart, rowend;
-    byte		*src, *dest;
+    byte                *src, *dest;
     int  *turb_x, *turb_y;
 } warpslice_t;
 
@@ -148,7 +148,7 @@ void WarpLoop (warpslice_t* ws)
     turb_x = ws->turb_x;
     turb_y = ws->turb_y;
 
-    for (y = ws->rowstart ; y < ws->rowend ; y++, dest += vid.width)
+    for (y = ws->rowstart ; y < ws->rowend ; y++, dest += r_refdef.vrect.width)
     {
         tempdest = dest;
         row = warprow + y;
@@ -304,7 +304,7 @@ void D_WarpScreen (void)
         for (i=0; i<numthreads; i++)
         {
             ws[i].src = src;
-            ws[i].dest = dest + vid.width * i * (r_refdef.vrect.height/numthreads);
+            ws[i].dest = dest + r_refdef.vrect.width * i * (r_refdef.vrect.height/numthreads);
             ws[i].turb_x = turb_x;
             ws[i].turb_y = turb_y;
             ws[i].rowstart= i*(r_refdef.vrect.height/numthreads);
@@ -326,7 +326,7 @@ void D_WarpScreen (void)
 #endif
 
     {
-        for (y = 0 ; y < r_refdef.vrect.height ; y++, dest += vid.width)
+        for (y = 0 ; y < r_refdef.vrect.height ; y++, dest += r_refdef.vrect.width)
         {
             tempdest = dest;
             row = warprow + y;
@@ -449,26 +449,13 @@ void D_WarpScreen (void)
         }
     }
 
-    //qb: swap buffer if ddraw (gdi driver can't handle it at this point)
-#ifdef WIN32
-    if (vid_ddraw.value)
-    {
-        src = vid.buffer;
-        vid.buffer = warpbuf;
-        warpbuf = src;
-    }
-    else
-#endif
-
-    {
-        //qb: copy buffer to video
-        src = warpbuf + scr_vrect.y * vid.width + scr_vrect.x;
+     //qb: copy buffer to video
+        src = warpbuf + scr_vrect.y * vid.rowbytes + scr_vrect.x;
         dest = vid.buffer + scr_vrect.y * vid.rowbytes + scr_vrect.x;
         for (i=0;
-                i<scr_vrect.height;
-                i++, src += vid.width, dest += vid.rowbytes)
-            memcpy(dest, src, scr_vrect.width);
-    }
+                i<r_refdef.vrect.height;
+                i++, src += r_refdef.vrect.width, dest += vid.rowbytes)
+            memcpy(dest, src, r_refdef.vrect.width);
 }
 
 /*
@@ -478,7 +465,7 @@ D_DrawTurbulent8Span
 */
 void D_DrawTurbulent8Span (void)
 {
-//	int		sturb, tturb;
+//      int             sturb, tturb;
 
     do
     {
@@ -501,17 +488,17 @@ Turbulent8
 */
 void Turbulent8 (espan_t *pspan)
 {
-    static int				count;  //qb: do more static.
-    static int				izi, izistep, izistep2, sturb, tturb, teste; // Manoel Kasimier - translucent water
-    static unsigned short			*pz; // Manoel Kasimier - translucent water
-    static fixed16_t		snext, tnext;
-    static float			sdivz, tdivz, zi, z, du, dv, spancountminus1;
-    static float			sdivz16stepu, tdivz16stepu, zi16stepu;
+    static int                          count;  //qb: do more static.
+    static int                          izi, izistep, izistep2, sturb, tturb, teste; // Manoel Kasimier - translucent water
+    static unsigned short                       *pz; // Manoel Kasimier - translucent water
+    static fixed16_t            snext, tnext;
+    static float                        sdivz, tdivz, zi, z, du, dv, spancountminus1;
+    static float                        sdivz16stepu, tdivz16stepu, zi16stepu;
 
     r_turb_turb = sintable + ((int)(cl.time*SPEED)&(CYCLE-1));
 
-    r_turb_sstep = 0;	// keep compiler happy
-    r_turb_tstep = 0;	// ditto
+    r_turb_sstep = 0;   // keep compiler happy
+    r_turb_tstep = 0;   // ditto
 
     r_turb_pbase = (byte *)cacheblock;
 
@@ -540,7 +527,7 @@ void Turbulent8 (espan_t *pspan)
         sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
         tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
         zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-        z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+        z = (float)0x10000 / zi;        // prescale to 16.16 fixed-point
         // we count on FP exceptions being turned off to avoid range problems // Manoel Kasimier - translucent water
         izi = (int)(zi * 0x8000 * 0x10000); // Manoel Kasimier - translucent water
 
@@ -573,13 +560,13 @@ void Turbulent8 (espan_t *pspan)
                 sdivz += sdivz16stepu;
                 tdivz += tdivz16stepu;
                 zi += zi16stepu;
-                z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+                z = (float)0x10000 / zi;        // prescale to 16.16 fixed-point
 
                 snext = (int)(sdivz * z) + sadjust;
                 if (snext > bbextents)
                     snext = bbextents;
                 else if (snext < 16)
-                    snext = 16;	// prevent round-off error on <0 steps from
+                    snext = 16; // prevent round-off error on <0 steps from
                 //  from causing overstepping & running off the
                 //  edge of the texture
 
@@ -587,7 +574,7 @@ void Turbulent8 (espan_t *pspan)
                 if (tnext > bbextentt)
                     tnext = bbextentt;
                 else if (tnext < 16)
-                    tnext = 16;	// guard against round-off error on <0 steps
+                    tnext = 16; // guard against round-off error on <0 steps
 
                 r_turb_sstep = (snext - r_turb_s) >> 4;
                 r_turb_tstep = (tnext - r_turb_t) >> 4;
@@ -602,12 +589,12 @@ void Turbulent8 (espan_t *pspan)
                 sdivz += d_sdivzstepu * spancountminus1;
                 tdivz += d_tdivzstepu * spancountminus1;
                 zi += d_zistepu * spancountminus1;
-                z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+                z = (float)0x10000 / zi;        // prescale to 16.16 fixed-point
                 snext = (int)(sdivz * z) + sadjust;
                 if (snext > bbextents)
                     snext = bbextents;
                 else if (snext < 16)
-                    snext = 16;	// prevent round-off error on <0 steps from
+                    snext = 16; // prevent round-off error on <0 steps from
                 //  from causing overstepping & running off the
                 //  edge of the texture
 
@@ -615,7 +602,7 @@ void Turbulent8 (espan_t *pspan)
                 if (tnext > bbextentt)
                     tnext = bbextentt;
                 else if (tnext < 16)
-                    tnext = 16;	// guard against round-off error on <0 steps
+                    tnext = 16; // guard against round-off error on <0 steps
 
                 if (r_turb_spancount > 1)
                 {
@@ -747,18 +734,19 @@ static byte         *pbase, *pdest;
 static fixed16_t    s, t, snext, tnext, sstep, tstep;
 static float        sdivz, tdivz, zi, z, du, dv, spancountminus1;
 static float        sdivzstepu, tdivzstepu, zistepu;
-static int		    izi, izistep; // mankrip
-static short		*pz; // mankrip
+static int                  izi, izistep; // mankrip
+static short            *pz; // mankrip
+static unsigned cw_local;  //qb: using a const is faster, based on assembly output
 
 //qbism: pointer to pbase and macroize idea from mankrip
-#define WRITEPDEST(i) { pdest[i] = *(pbase + (s >> 16) + (t >> 16) * cachewidth); s+=sstep; t+=tstep;}
+#define WRITEPDEST(i) { pdest[i] = *(pbase + (s >> 16) + (t >> 16) * cw_local); s+=sstep; t+=tstep;} //qb: using a const is faster
 
 void D_DrawSpans16 (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll = big speed gain!
 {
     sstep = 0;   // keep compiler happy
     tstep = 0;   // ditto
-
-    pbase = (byte *)cacheblock;
+    cw_local = cachewidth; //qb: static is faster, based on assembly output
+     pbase = (byte *)cacheblock;
     sdivzstepu = d_sdivzstepu * 16;
     tdivzstepu = d_tdivzstepu * 16;
     zistepu = d_zistepu * 16;
@@ -879,8 +867,9 @@ void D_DrawSpans16 (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll = b
 void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
 {
 
-    sstep = 0;	// keep compiler happy
-    tstep = 0;	// ditto
+    sstep = 0;  // keep compiler happy
+    tstep = 0;  // ditto
+    cw_local = cachewidth;
 
     pbase = (byte *)cacheblock;
 
@@ -910,7 +899,7 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
         sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
         tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
         zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-        z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+        z = (float)0x10000 / zi;        // prescale to 16.16 fixed-point
         // we count on FP exceptions being turned off to avoid range problems // mankrip
         izi = (int) (zi * 0x8000 * 0x10000); // mankrip
 
@@ -959,67 +948,67 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
             // mankrip - begin
             pdest += 16;
             pz += 16;
-            if (pz[-16] <= (izi >> 16)) pdest[-16] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-16] * 256];
+            if (pz[-16] <= (izi >> 16)) pdest[-16] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-16] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-15] <= (izi >> 16)) pdest[-15] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-15] * 256];
+            if (pz[-15] <= (izi >> 16)) pdest[-15] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-15] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-14] <= (izi >> 16)) pdest[-14] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-14] * 256];
+            if (pz[-14] <= (izi >> 16)) pdest[-14] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-14] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-13] <= (izi >> 16)) pdest[-13] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-13] * 256];
+            if (pz[-13] <= (izi >> 16)) pdest[-13] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-13] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-12] <= (izi >> 16)) pdest[-12] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-12] * 256];
+            if (pz[-12] <= (izi >> 16)) pdest[-12] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-12] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-11] <= (izi >> 16)) pdest[-11] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-11] * 256];
+            if (pz[-11] <= (izi >> 16)) pdest[-11] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-11] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-10] <= (izi >> 16)) pdest[-10] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-10] * 256];
+            if (pz[-10] <= (izi >> 16)) pdest[-10] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-10] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -9] * 256];
+            if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -9] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -8] * 256];
+            if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -8] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -7] * 256];
+            if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -7] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -6] * 256];
+            if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -6] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -5] * 256];
+            if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -5] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -4] * 256];
+            if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -4] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -3] * 256];
+            if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -3] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -2] * 256];
+            if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -2] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -1] * 256];
+            if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -1] * 256];
             izi += izistep;
             // mankrip - end
 
@@ -1069,82 +1058,82 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
             switch (spancount)
             {
             case 16:
-                if (pz[-16] <= (izi >> 16)) pdest[-16] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-16] * 256];
+                if (pz[-16] <= (izi >> 16)) pdest[-16] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-16] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 15:
-                if (pz[-15] <= (izi >> 16)) pdest[-15] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-15] * 256];
+                if (pz[-15] <= (izi >> 16)) pdest[-15] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-15] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 14:
-                if (pz[-14] <= (izi >> 16)) pdest[-14] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-14] * 256];
+                if (pz[-14] <= (izi >> 16)) pdest[-14] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-14] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 13:
-                if (pz[-13] <= (izi >> 16)) pdest[-13] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-13] * 256];
+                if (pz[-13] <= (izi >> 16)) pdest[-13] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-13] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 12:
-                if (pz[-12] <= (izi >> 16)) pdest[-12] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-12] * 256];
+                if (pz[-12] <= (izi >> 16)) pdest[-12] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-12] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 11:
-                if (pz[-11] <= (izi >> 16)) pdest[-11] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-11] * 256];
+                if (pz[-11] <= (izi >> 16)) pdest[-11] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-11] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 10:
-                if (pz[-10] <= (izi >> 16)) pdest[-10] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-10] * 256];
+                if (pz[-10] <= (izi >> 16)) pdest[-10] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-10] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  9:
-                if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -9] * 256];
+                if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -9] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  8:
-                if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -8] * 256];
+                if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -8] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  7:
-                if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -7] * 256];
+                if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -7] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  6:
-                if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -6] * 256];
+                if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -6] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  5:
-                if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -5] * 256];
+                if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -5] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  4:
-                if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -4] * 256];
+                if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -4] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  3:
-                if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -3] * 256];
+                if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -3] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  2:
-                if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -2] * 256];
+                if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -2] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  1:
-                if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -1] * 256];
+                if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -1] * 256];
                 break;
             }
         }
@@ -1156,8 +1145,9 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
 
 void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
 {
-    sstep = 0;	// keep compiler happy
-    tstep = 0;	// ditto
+    sstep = 0;  // keep compiler happy
+    tstep = 0;  // ditto
+    cw_local = cachewidth;
 
     pbase = (byte *)cacheblock;
 
@@ -1187,7 +1177,7 @@ void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
         sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
         tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
         zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-        z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+        z = (float)0x10000 / zi;        // prescale to 16.16 fixed-point
         // we count on FP exceptions being turned off to avoid range problems // mankrip
         izi = (int) (zi * 0x8000 * 0x10000); // mankrip
 
@@ -1236,67 +1226,67 @@ void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
             // mankrip - begin
             pdest += 16;
             pz += 16;
-            if (pz[-16] <= (izi >> 16)) pdest[-16] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-16] * 256];
+            if (pz[-16] <= (izi >> 16)) pdest[-16] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-16] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-15] <= (izi >> 16)) pdest[-15] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-15] * 256];
+            if (pz[-15] <= (izi >> 16)) pdest[-15] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-15] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-14] <= (izi >> 16)) pdest[-14] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-14] * 256];
+            if (pz[-14] <= (izi >> 16)) pdest[-14] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-14] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-13] <= (izi >> 16)) pdest[-13] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-13] * 256];
+            if (pz[-13] <= (izi >> 16)) pdest[-13] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-13] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-12] <= (izi >> 16)) pdest[-12] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-12] * 256];
+            if (pz[-12] <= (izi >> 16)) pdest[-12] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-12] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-11] <= (izi >> 16)) pdest[-11] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-11] * 256];
+            if (pz[-11] <= (izi >> 16)) pdest[-11] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-11] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-10] <= (izi >> 16)) pdest[-10] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-10] * 256];
+            if (pz[-10] <= (izi >> 16)) pdest[-10] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-10] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -9] * 256];
+            if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -9] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -8] * 256];
+            if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -8] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -7] * 256];
+            if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -7] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -6] * 256];
+            if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -6] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -5] * 256];
+            if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -5] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -4] * 256];
+            if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -4] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -3] * 256];
+            if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -3] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -2] * 256];
+            if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -2] * 256];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -1] * 256];
+            if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -1] * 256];
             izi += izistep;
             // mankrip - end
 
@@ -1346,82 +1336,82 @@ void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
             switch (spancount)
             {
             case 16:
-                if (pz[-16] <= (izi >> 16)) pdest[-16] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-16] * 256];
+                if (pz[-16] <= (izi >> 16)) pdest[-16] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-16] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 15:
-                if (pz[-15] <= (izi >> 16)) pdest[-15] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-15] * 256];
+                if (pz[-15] <= (izi >> 16)) pdest[-15] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-15] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 14:
-                if (pz[-14] <= (izi >> 16)) pdest[-14] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-14] * 256];
+                if (pz[-14] <= (izi >> 16)) pdest[-14] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-14] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 13:
-                if (pz[-13] <= (izi >> 16)) pdest[-13] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-13] * 256];
+                if (pz[-13] <= (izi >> 16)) pdest[-13] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-13] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 12:
-                if (pz[-12] <= (izi >> 16)) pdest[-12] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-12] * 256];
+                if (pz[-12] <= (izi >> 16)) pdest[-12] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-12] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 11:
-                if (pz[-11] <= (izi >> 16)) pdest[-11] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-11] * 256];
+                if (pz[-11] <= (izi >> 16)) pdest[-11] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-11] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 10:
-                if (pz[-10] <= (izi >> 16)) pdest[-10] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[-10] * 256];
+                if (pz[-10] <= (izi >> 16)) pdest[-10] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-10] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  9:
-                if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -9] * 256];
+                if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -9] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  8:
-                if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -8] * 256];
+                if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -8] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  7:
-                if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -7] * 256];
+                if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -7] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  6:
-                if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -6] * 256];
+                if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -6] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  5:
-                if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -5] * 256];
+                if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -5] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  4:
-                if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -4] * 256];
+                if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -4] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  3:
-                if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -3] * 256];
+                if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -3] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  2:
-                if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -2] * 256];
+                if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -2] * 256];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  1:
-                if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cachewidth) + pdest[ -1] * 256];
+                if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -1] * 256];
                 break;
             }
         }
@@ -1433,8 +1423,9 @@ void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
 
 void D_DrawSpans16_BlendBackwards (espan_t *pspan)
 {
-    sstep = 0;	// keep compiler happy
-    tstep = 0;	// ditto
+    sstep = 0;  // keep compiler happy
+    tstep = 0;  // ditto
+    cw_local = cachewidth;
 
     pbase = (byte *)cacheblock;
 
@@ -1464,7 +1455,7 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
         sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
         tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
         zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-        z = (float)0x10000 / zi;	// prescale to 16.16 fixed-point
+        z = (float)0x10000 / zi;        // prescale to 16.16 fixed-point
         // we count on FP exceptions being turned off to avoid range problems // mankrip
         izi = (int) (zi * 0x8000 * 0x10000); // mankrip
 
@@ -1513,67 +1504,67 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
             // mankrip - begin
             pdest += 16;
             pz += 16;
-            if (pz[-16] <= (izi >> 16)) pdest[-16] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-16]];
+            if (pz[-16] <= (izi >> 16)) pdest[-16] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-16]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-15] <= (izi >> 16)) pdest[-15] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-15]];
+            if (pz[-15] <= (izi >> 16)) pdest[-15] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-15]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-14] <= (izi >> 16)) pdest[-14] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-14]];
+            if (pz[-14] <= (izi >> 16)) pdest[-14] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-14]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-13] <= (izi >> 16)) pdest[-13] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-13]];
+            if (pz[-13] <= (izi >> 16)) pdest[-13] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-13]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-12] <= (izi >> 16)) pdest[-12] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-12]];
+            if (pz[-12] <= (izi >> 16)) pdest[-12] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-12]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-11] <= (izi >> 16)) pdest[-11] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-11]];
+            if (pz[-11] <= (izi >> 16)) pdest[-11] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-11]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[-10] <= (izi >> 16)) pdest[-10] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-10]];
+            if (pz[-10] <= (izi >> 16)) pdest[-10] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-10]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -9]];
+            if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -9]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -8]];
+            if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -8]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -7]];
+            if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -7]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -6]];
+            if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -6]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -5]];
+            if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -5]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -4]];
+            if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -4]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -3]];
+            if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -3]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -2]];
+            if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -2]];
             izi += izistep;
             s += sstep;
             t += tstep;
-            if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -1]];
+            if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -1]];
             izi += izistep;
             // mankrip - end
 
@@ -1623,82 +1614,82 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
             switch (spancount)
             {
             case 16:
-                if (pz[-16] <= (izi >> 16)) pdest[-16] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-16]];
+                if (pz[-16] <= (izi >> 16)) pdest[-16] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-16]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 15:
-                if (pz[-15] <= (izi >> 16)) pdest[-15] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-15]];
+                if (pz[-15] <= (izi >> 16)) pdest[-15] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-15]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 14:
-                if (pz[-14] <= (izi >> 16)) pdest[-14] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-14]];
+                if (pz[-14] <= (izi >> 16)) pdest[-14] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-14]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 13:
-                if (pz[-13] <= (izi >> 16)) pdest[-13] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-13]];
+                if (pz[-13] <= (izi >> 16)) pdest[-13] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-13]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 12:
-                if (pz[-12] <= (izi >> 16)) pdest[-12] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-12]];
+                if (pz[-12] <= (izi >> 16)) pdest[-12] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-12]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 11:
-                if (pz[-11] <= (izi >> 16)) pdest[-11] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-11]];
+                if (pz[-11] <= (izi >> 16)) pdest[-11] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-11]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case 10:
-                if (pz[-10] <= (izi >> 16)) pdest[-10] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[-10]];
+                if (pz[-10] <= (izi >> 16)) pdest[-10] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-10]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  9:
-                if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -9]];
+                if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -9]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  8:
-                if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -8]];
+                if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -8]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  7:
-                if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -7]];
+                if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -7]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  6:
-                if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -6]];
+                if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -6]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  5:
-                if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -5]];
+                if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -5]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  4:
-                if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -4]];
+                if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -4]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  3:
-                if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -3]];
+                if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -3]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  2:
-                if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -2]];
+                if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -2]];
                 izi += izistep;
                 s += sstep;
                 t += tstep;
             case  1:
-                if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cachewidth) * 256 + pdest[ -1]];
+                if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -1]];
                 break;
             }
         }
@@ -1717,12 +1708,12 @@ D_DrawZSpans
 
 void D_DrawZSpans (espan_t *pspan)
 {
-    static int				count, doublecount, izistep;
-    static int				izi;
-    static unsigned short			*pdest;
-    static unsigned		ltemp;
-    static double			zi;
-    static float			du, dv;
+    static int                          count, doublecount, izistep;
+    static int                          izi;
+    static unsigned short                       *pdest;
+    static unsigned             ltemp;
+    static double                       zi;
+    static float                        du, dv;
 
 // FIXME: check for clamping/range problems
 // we count on FP exceptions being turned off to avoid range problems

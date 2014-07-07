@@ -6,7 +6,7 @@
 		<Option makefile="MAKEFILE" />
 		<Option execution_dir="C:/qbismSuper8/qbS8src/s_win32/" />
 		<Option pch_mode="2" />
-		<Option compiler="mingw32" />
+		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug Win32">
 				<Option platforms="Windows;" />
@@ -14,12 +14,11 @@
 				<Option working_dir="../../quake" />
 				<Option object_output="s_win32/Debug" />
 				<Option type="0" />
-				<Option compiler="mingw32" />
+				<Option compiler="gcc" />
 				<Option parameters=" -heapsize 64000 -map start" />
 				<Compiler>
-					<Add option="-march=pentium-mmx" />
+					<Add option="-pg" />
 					<Add option="-g" />
-					<Add option="-D_REENTRANT" />
 					<Add option="-DR_THREADED" />
 					<Add option="-DWIN32" />
 					<Add option="-D_WINDOWS" />
@@ -33,11 +32,11 @@
 					<Add directory="./dxsdk/sdk/inc" />
 				</ResourceCompiler>
 				<Linker>
+					<Add option="-pg -lgmon" />
 					<Add library="vorbisfile" />
 					<Add library="vorbis" />
 					<Add library="ogg" />
 					<Add library="mad" />
-					<Add library="..\..\CodeBlocks\MinGW\lib\libpthreadGC2.dll.a" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32">
@@ -45,12 +44,11 @@
 				<Option working_dir="../../quake" />
 				<Option object_output="s_win32/Release" />
 				<Option type="0" />
-				<Option compiler="mingw32" />
+				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-march=pentium-mmx" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O3" />
-					<Add option="-w" />
 					<Add option="-D_REENTRANT" />
 					<Add option="-DR_THREADED" />
 					<Add option="-DWIN32" />
@@ -64,10 +62,10 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add library="vorbisfile" />
-					<Add library="vorbis" />
-					<Add library="ogg" />
-					<Add library="mad" />
+					<Add library="s_win32\codecs\x86\libvorbisfile.dll.a" />
+					<Add library="s_win32\codecs\x86\libvorbis.dll.a" />
+					<Add library="s_win32\codecs\x86\libogg.dll.a" />
+					<Add library="s_win32\codecs\x86\libmad.dll.a" />
 				</Linker>
 			</Target>
 			<Target title="Release Win32 no music">
@@ -128,7 +126,7 @@
 				<Option working_dir="../../quake" />
 				<Option object_output="s_win32/Release_unthreaded" />
 				<Option type="0" />
-				<Option compiler="mingw32" />
+				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-march=i486" />
 					<Add option="-O2" />
@@ -142,9 +140,11 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-m32" />
 			<Add directory="s_win32/codecs/include" />
 		</Compiler>
 		<Linker>
+			<Add option="-m32" />
 			<Add library="winmm" />
 			<Add library="wsock32" />
 			<Add library="dinput" />
@@ -155,7 +155,6 @@
 			<Add before="version.bat" />
 		</ExtraCommands>
 		<Unit filename="adivtab.h" />
-		<Unit filename="anorm_dots.h" />
 		<Unit filename="anorms.h" />
 		<Unit filename="bgmusic.c">
 			<Option compilerVar="CC" />
@@ -191,7 +190,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="common.h" />
-		<Unit filename="conproc.h" />
 		<Unit filename="console.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -338,22 +336,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="render.h" />
-		<Unit filename="s_flash/cd_flash.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_flash/in_flash.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_flash/sys_flash.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="s_flash/vid_flash.c">
-			<Option compilerVar="CC" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="s_win32/cd_win.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -366,7 +348,6 @@
 		<Unit filename="s_win32/movie.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="s_win32/movie.h" />
 		<Unit filename="s_win32/movie_avi.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -380,6 +361,7 @@
 		<Unit filename="s_win32/net_wins.h" />
 		<Unit filename="s_win32/qbism-s8.rc">
 			<Option compilerVar="WINDRES" />
+			<Option compiler="gcc" use="1" buildCommand="$rescomp $res_includes -J rc -O coff -F pe-i386 -i $file -o $resource_output" />
 		</Unit>
 		<Unit filename="s_win32/resource.h" />
 		<Unit filename="s_win32/snd_win.c">
@@ -466,7 +448,7 @@
 			<envvars />
 			<AutoVersioning>
 				<Scheme minor_max="10" build_max="0" rev_max="0" rev_rand_max="10" build_times_to_increment_minor="100" />
-				<Settings autoincrement="1" date_declarations="1" update_manifest="1" do_auto_increment="0" ask_to_increment="0" language="C++" svn="1" svn_directory="C:\qbismSuper8\qbS8src" header_path="version.h" />
+				<Settings autoincrement="1" date_declarations="1" use_define="0" update_manifest="1" do_auto_increment="0" ask_to_increment="0" language="C++" svn="1" svn_directory="C:\qbismSuper8\qbS8src" header_path="version.h" />
 				<Changes_Log show_changes_editor="0" app_title="released version %M.%m.%b of %p" changeslog_path="ChangesLog.txt" />
 				<Code header_guard="VERSION_H" namespace="AutoVersion" prefix="" />
 			</AutoVersioning>
