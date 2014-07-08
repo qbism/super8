@@ -1490,7 +1490,7 @@ void FlipLoop (flipslice_t* fs)
 
 void FlipScreen (vrect_t *rects)
 {
-    static int numrects;
+    static int i, numrects;
     static int spancount, rollcount, y;
     static byte *psrc, *src;
     static unsigned *pdst, *dst;
