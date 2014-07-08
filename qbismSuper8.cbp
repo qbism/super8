@@ -49,6 +49,7 @@
 					<Add option="-march=pentium-mmx" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O3" />
+					<Add option="-w" />
 					<Add option="-D_REENTRANT" />
 					<Add option="-DR_THREADED" />
 					<Add option="-DWIN32" />
@@ -97,7 +98,7 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-march=corei7" />
+					<Add option="-march=core2" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O3" />
 					<Add option="-w" />
@@ -120,23 +121,6 @@
 					<Add library="mad" />
 					<Add directory="s_win32/codecs/x86" />
 				</Linker>
-			</Target>
-			<Target title="Release Win32 XP">
-				<Option output="../../quake/qbismS8_xp" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../../quake" />
-				<Option object_output="s_win32/Release_unthreaded" />
-				<Option type="0" />
-				<Option compiler="gcc" />
-				<Compiler>
-					<Add option="-march=i486" />
-					<Add option="-O2" />
-					<Add option="-w" />
-					<Add option="-DWIN32" />
-					<Add option="-DNDEBUG" />
-					<Add option="-D_WINDOWS" />
-					<Add option="-D_WIN32" />
-					<Add directory="." />
-				</Compiler>
 			</Target>
 		</Build>
 		<Compiler>
