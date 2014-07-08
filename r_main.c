@@ -1577,7 +1577,7 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     int         delta;
 
     //qb: originally based on Makaqu fog.  added global fog, dithering, optimizing
-    static int                  xref, yref;
+    static int                  i, xref, yref;
     static byte         *pbuf; //, *vidfog;
     static byte        noise;
    static unsigned short               *pz;

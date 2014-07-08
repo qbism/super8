@@ -1550,7 +1550,6 @@ void Mod_LoadBrushModel (model_t *mod, void *buffer, loadedfile_t *brush_fileinf
     dmodel_t 	*bm;
     int			fhandle;	// 2001-12-28 .VIS support by Maddes
 
-    coloredlights = (int)r_coloredlights.value; // sanity check
     loadmodel->type = mod_brush;
     header = (dheader_t *)buffer;
 
