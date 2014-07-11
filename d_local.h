@@ -66,14 +66,16 @@ extern float	d_sdivzorigin, d_tdivzorigin, d_ziorigin;
 extern fixed16_t	sadjust, tadjust;
 extern fixed16_t	bbextents, bbextentt;
 
-void D_DrawSpans8 (espan_t *pspans);
-void D_DrawSpans16 (espan_t *pspans);  //qb: up it to 16
+void D_DrawSpans16 (espan_t *pspans);
 void D_DrawZSpans (espan_t *pspans);
+void D_DrawSpans16_C (espan_t *pspans);  //qb: up it to 16
+void D_DrawZSpans_C (espan_t *pspans);
 void D_DrawSpans16_Blend (espan_t *pspan);
 void D_DrawSpans16_Blend50 (espan_t *pspan);
 void D_DrawSpans16_BlendBackwards (espan_t *pspan);
 void Turbulent8 (espan_t *pspan);
 void D_SpriteDrawSpans (sspan_t *pspan);
+void D_SpriteDrawSpans_C (sspan_t *pspan);
 
 void D_DrawSkyScans8 (espan_t *pspan);
 void D_DrawSkyScans16 (espan_t *pspan);

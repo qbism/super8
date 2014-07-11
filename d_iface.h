@@ -139,7 +139,6 @@ void D_Aff8Patch (void *pcolormap);
 //qb: removed       void D_BeginDirectRect (int x, int y, byte *pbitmap, int width, int height);
 //qb: removed       void D_EndDirectRect (int x, int y, int width, int height);
 void D_PolysetDraw (void);
-void D_PolysetDraw_C (void); // Manoel Kasimier - transparencies
 void D_PolysetDrawFinalVerts (finalvert_t *fv, int numverts);
 void D_DrawParticle_C (particle_t *pparticle); // Manoel Kasimier - enabled C particle renderer
 void D_DrawParticle_50_C (particle_t *pparticle);
