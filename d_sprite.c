@@ -33,13 +33,6 @@ static float		sdivzstepu, tdivzstepu, zistepu;
 static byte		    btemp;
 static short		*pz;
 static msprite_t	*psprite;
-/*
-=====================
-D_SpriteDrawSpans
-=====================
-*/
-//qb: 'generic' version of subdiv16 sprites with code from mh and mankrip leilei post http://forums.inside3d.com/viewtopic.php?t=5268
-
 
 /*
 =====================
@@ -51,7 +44,7 @@ D_SpriteDrawSpans
 #define PARALLELCHECK(i) { btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth); if (btemp != 255 && (pz[i] <= izi))  { pz[i] = izi; pdest[i] = btemp;} s+=sstep; t+=tstep;}
 #define ORIENTEDCHECK(i) { btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth); if (btemp != 255 && pz[i] <= (izi >> 16)){ pz[i] = izi >> 16; pdest[i] = btemp;} s+=sstep; t+=tstep; izi+=izistep;}
 
-void D_SpriteDrawSpans (sspan_t *pspan)
+void D_SpriteDrawSpans_C (sspan_t *pspan)
 {
 
     sstep = 0;   // keep compiler happy

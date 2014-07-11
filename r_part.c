@@ -845,6 +845,7 @@ void R_DrawParticles (void)
         else if (alpha <= 0.76)
             D_DrawParticle_66_C (p);
         else
+            //D_DrawParticle(p);  //qb: disabled because no FOV scaling
             D_DrawParticle_C (p);  // renamed to not conflict with the asm version
 
         if (!sv_freezephysics.value || !sv_cheats.value)

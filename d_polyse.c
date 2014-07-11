@@ -526,7 +526,7 @@ D_PolysetCalcGradients
 ================
 */
 //qb: updated from MK inside3d post 8/18/13
-    void D_PolysetCalcGradients_C (int skinwidth) // mankrip - transparencies - edited
+    void D_PolysetCalcGradients (int skinwidth) // mankrip - transparencies - edited
     {
        static float
           xstepdenominv
@@ -599,7 +599,7 @@ void InitGel (byte *palette)
 D_PolysetDrawSpans8
 ================
 */
-void D_PolysetDrawSpans8 (spanpackage_t *pspanpackage)
+void D_PolysetDrawSpans8_C (spanpackage_t *pspanpackage)
 {
     int		lcount;
     byte	*lpdest;
@@ -1435,7 +1435,7 @@ void D_RasterizeAliasPolySmooth (void)
 //
 //	D_PolysetCalcGradients (r_affinetridesc.skinwidth); // Manoel Kasimier - transparencies - removed
     // Manoel Kasimier - transparencies - begin
-    D_PolysetCalcGradients_C (r_affinetridesc.skinwidth);
+    D_PolysetCalcGradients(r_affinetridesc.skinwidth);
     // Manoel Kasimier - transparencies - end
 
 //
@@ -1647,7 +1647,7 @@ void D_RasterizeAliasPolySmooth (void)
             D_PolysetDrawSpans8_Shadow (a_spans);
     // Manoel Kasimier - EF_SHADOW - end
         else if (currententity->alpha == ENTALPHA_DEFAULT) // Manoel Kasimier - transparencies
-            D_PolysetDrawSpans8 (a_spans);
+            D_PolysetDrawSpans8_C (a_spans);
     // Manoel Kasimier - transparencies - begin
         else if (sw_stipplealpha.value)
             D_PolysetDrawSpans8_Stippled (a_spans);
@@ -1705,7 +1705,7 @@ void D_RasterizeAliasPolySmooth (void)
                 D_PolysetDrawSpans8_Shadow (pstart);
         // Manoel Kasimier - EF_SHADOW - end
             else if (currententity->alpha == ENTALPHA_DEFAULT) // Manoel Kasimier - transparencies
-                D_PolysetDrawSpans8 (pstart);
+                D_PolysetDrawSpans8_C (pstart);
         // Manoel Kasimier - transparencies - begin
             else if (sw_stipplealpha.value)
                 D_PolysetDrawSpans8_Stippled (pstart);

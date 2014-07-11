@@ -17,7 +17,6 @@
 				<Option compiler="gcc" />
 				<Option parameters=" -heapsize 64000 -map start" />
 				<Compiler>
-					<Add option="-pg" />
 					<Add option="-g" />
 					<Add option="-DR_THREADED" />
 					<Add option="-DWIN32" />
@@ -32,7 +31,6 @@
 					<Add directory="./dxsdk/sdk/inc" />
 				</ResourceCompiler>
 				<Linker>
-					<Add option="-pg -lgmon" />
 					<Add library="vorbisfile" />
 					<Add library="vorbis" />
 					<Add library="ogg" />
@@ -46,12 +44,10 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-march=pentium-mmx" />
+					<Add option="-march=i686" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O3" />
 					<Add option="-w" />
-					<Add option="-D_REENTRANT" />
-					<Add option="-DR_THREADED" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
@@ -185,6 +181,8 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="cvar.h" />
+		<Unit filename="d_draw.S" />
+		<Unit filename="d_draw16.S" />
 		<Unit filename="d_edge.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -199,6 +197,7 @@
 		<Unit filename="d_part.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="d_parta.S" />
 		<Unit filename="d_polyse.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -208,6 +207,7 @@
 		<Unit filename="d_sky.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="d_spr8.S" />
 		<Unit filename="d_sprite.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -217,6 +217,7 @@
 		<Unit filename="d_vars.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="d_varsa.S" />
 		<Unit filename="d_zpoint.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -319,6 +320,7 @@
 		<Unit filename="r_vars.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="r_varsa.S" />
 		<Unit filename="render.h" />
 		<Unit filename="s_win32/cd_win.c">
 			<Option compilerVar="CC" />

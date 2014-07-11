@@ -267,7 +267,6 @@ void R_Init (void)
     r_stack_start = (byte *)&dummy;
 
     MakeMy15to8(); //qb: from engoo
-    //qb: R_InitTurb ();
     R_InitSin(); //qb: from MK tute on inside3d
 
     Cmd_AddCommand ("loadpalette", R_LoadPalette_f);
