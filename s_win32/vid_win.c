@@ -24,8 +24,6 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include <ddraw.h>
 
 
-extern cvar_t cv_num_flip_jobs, thread_flip;
-
 // true if the ddraw driver started up OK
 qboolean    vid_usingddraw = false;
 void Con_CenterPrintf (int linewidth, char *fmt, ...); //qb: for warning
@@ -1348,146 +1346,6 @@ FlipScreen
 ================
 */
 
-typedef struct flipslice_s  //qb: for multithreading
-{
-    int rowstart, rowend;
-    byte *src;
-    unsigned int *dst;
-    unsigned int lpitch;
-    vrect_t *rects;
-} flipslice_t;
-
-
-void FlipLoop (flipslice_t* fs)
-{
-    byte *psrc, *src;
-    unsigned int *pdst, *dst;
-    int rollcount, y, r;
-        int spancount, s;
-
-
-    dst = fs->dst;
-    src = fs->src;
-
-    for (y = fs->rowstart; y < fs->rowend; y++, src += vid.rowbytes, dst += fs->lpitch)
-    {
-        psrc = src;
-        pdst = dst;
-
-        rollcount = fs->rects->width >> UNROLL_SPAN_SHIFT; // divided by 32
-        spancount = fs->rects->width %  UNROLL_SPAN_MAX; // remainder of the above division (min zero, max 32)
-        while (rollcount--)
-        {
-            pdst[0] = ddpal[psrc[0]];
-            pdst[1] = ddpal[psrc[1]];
-            pdst[2] = ddpal[psrc[2]];
-            pdst[3] = ddpal[psrc[3]];
-            pdst[4] = ddpal[psrc[4]];
-            pdst[5] = ddpal[psrc[5]];
-            pdst[6] = ddpal[psrc[6]];
-            pdst[7] = ddpal[psrc[7]];
-            pdst[8] = ddpal[psrc[8]];
-            pdst[9] = ddpal[psrc[9]];
-            pdst[10] = ddpal[psrc[10]];
-            pdst[11] = ddpal[psrc[11]];
-            pdst[12] = ddpal[psrc[12]];
-            pdst[13] = ddpal[psrc[13]];
-            pdst[14] = ddpal[psrc[14]];
-            pdst[15] = ddpal[psrc[15]];
-            pdst[16] = ddpal[psrc[16]];
-            pdst[17] = ddpal[psrc[17]];
-            pdst[18] = ddpal[psrc[18]];
-            pdst[19] = ddpal[psrc[19]];
-            pdst[20] = ddpal[psrc[20]];
-            pdst[21] = ddpal[psrc[21]];
-            pdst[22] = ddpal[psrc[22]];
-            pdst[23] = ddpal[psrc[23]];
-            pdst[24] = ddpal[psrc[24]];
-            pdst[25] = ddpal[psrc[25]];
-            pdst[26] = ddpal[psrc[26]];
-            pdst[27] = ddpal[psrc[27]];
-            pdst[28] = ddpal[psrc[28]];
-            pdst[29] = ddpal[psrc[29]];
-            pdst[30] = ddpal[psrc[30]];
-            pdst[31] = ddpal[psrc[31]];
-            psrc+= UNROLL_SPAN_MAX;
-            pdst+= UNROLL_SPAN_MAX;
-        }
-
-        if (spancount)
-        {
-            switch (spancount)
-            {
-            case 1:
-                pdst[0] = ddpal[psrc[0]];
-            case 2:
-                pdst[1] = ddpal[psrc[1]];
-            case 3:
-                pdst[2] = ddpal[psrc[2]];
-            case 4:
-                pdst[3] = ddpal[psrc[3]];
-            case 5:
-                pdst[4] = ddpal[psrc[4]];
-            case 6:
-                pdst[5] = ddpal[psrc[5]];
-            case 7:
-                pdst[6] = ddpal[psrc[6]];
-            case 8:
-                pdst[7] = ddpal[psrc[7]];
-            case 9:
-                pdst[8] = ddpal[psrc[8]];
-            case 10:
-                pdst[9] = ddpal[psrc[9]];
-            case 11:
-                pdst[10] = ddpal[psrc[10]];
-            case 12:
-                pdst[11] = ddpal[psrc[11]];
-            case 13:
-                pdst[12] = ddpal[psrc[12]];
-            case 14:
-                pdst[13] = ddpal[psrc[13]];
-            case 15:
-                pdst[14] = ddpal[psrc[14]];
-            case 16:
-                pdst[15] = ddpal[psrc[15]];
-            case 17:
-                pdst[16] = ddpal[psrc[16]];
-            case 18:
-                pdst[17] = ddpal[psrc[17]];
-            case 19:
-                pdst[18] = ddpal[psrc[18]];
-            case 20:
-                pdst[19] = ddpal[psrc[19]];
-            case 21:
-                pdst[20] = ddpal[psrc[20]];
-            case 22:
-                pdst[21] = ddpal[psrc[21]];
-            case 23:
-                pdst[22] = ddpal[psrc[22]];
-            case 24:
-                pdst[23] = ddpal[psrc[23]];
-            case 25:
-                pdst[24] = ddpal[psrc[24]];
-            case 26:
-                pdst[25] = ddpal[psrc[25]];
-            case 27:
-                pdst[26] = ddpal[psrc[26]];
-            case 28:
-                pdst[27] = ddpal[psrc[27]];
-            case 29:
-                pdst[28] = ddpal[psrc[28]];
-            case 30:
-                pdst[29] = ddpal[psrc[29]];
-            case 31:
-                pdst[30] = ddpal[psrc[30]];
-            }
-        }
-    }
-}
-
-#define MAXFLIPTHREADS          16  //qb: for multithreading
-
-
 void FlipScreen (vrect_t *rects)
 {
     static int i, numrects;
@@ -1500,11 +1358,6 @@ void FlipScreen (vrect_t *rects)
     static HRESULT hr = S_OK;
     numrects = 0;
 
-#ifdef R_THREADED
-    static pthread_t flipthread[MAXFLIPTHREADS];
-    static flipslice_t fs[MAXFLIPTHREADS]; //qb:  threads
-    static int numthreads;
-#endif
     while (rects)
     {
         if (vid_usingddraw)
@@ -1528,32 +1381,6 @@ void FlipScreen (vrect_t *rects)
                 // convert pitch to unsigned int addressable
                 ddsd.lPitch >>= 2;
 
-#ifdef R_THREADED
-                numthreads = min(thread_flip.value,MAXFLIPTHREADS);
-                if (numthreads > 1)
-                {
-                    for (i=0; i<numthreads; i++)
-                    {
-                        fs[i].src = src + vid.rowbytes * i * (rects->height/numthreads);
-                        fs[i].dst = dst + ddsd.lPitch * i * (rects->height/numthreads);
-                        fs[i].lpitch = ddsd.lPitch;
-                        fs[i].rects = rects;
-                        fs[i].rowstart= i*(rects->height/numthreads);
-                        if (i+1 == numthreads)
-                            fs[i].rowend = rects->height;
-                        else
-                            fs[i].rowend = (i+1)*(rects->height/numthreads);
-                        pthread_create(&flipthread[i], NULL, FlipLoop, &fs[i]);
-                    }
-//wait for threads to finish
-                    for (i=0; i<numthreads; i++)
-                    {
-                        pthread_join(flipthread[i], NULL);
-                    }
-                }
-                else
-#endif
-                {
                     for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
                     {
                         psrc = src;
@@ -1668,8 +1495,6 @@ void FlipScreen (vrect_t *rects)
                             }
                         }
                     }
-
-                }
 
                 IDirectDrawSurface_Unlock (dd_BackBuffer, NULL);
 
