@@ -91,7 +91,7 @@ float   xOrigin, yOrigin;
 
 mplane_t        screenedge[4];
 
-float ditherfog[DITHER_NUMRANDS]; //qb: pseudorandom dither
+int ditherfog[DITHER_NUMRANDS]; //qb: pseudorandom dither
 
 //
 // refresh flags
@@ -149,7 +149,8 @@ cvar_t  r_drawflat = {"r_drawflat", "0", "r_drawflat[0/1] Toggles the drawing of
 cvar_t  r_ambient = {"r_ambient", "15", "r_ambient[value] Set minimum value for map lighting."}; //qb: avoid total black
 //qb: nolerp list from FQ
 cvar_t  r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,progs/braztall.mdl,progs/brazshrt.mdl,progs/longtrch.mdl,progs/flame_pyre.mdl,progs/v_saw.mdl,progs/v_xfist.mdl,progs/h2stuff/newfire.mdl",
-                         "r_nolerp_list[models] Do not smooth animation for these models."};
+                         "r_nolerp_list[models] Do not smooth animation for these models."
+                        };
 
 
 cvar_t  r_coloredlights = {"r_coloredlights", "1", "r_coloredlights[0/1] Toggle use of colored lighting.", true}; //qb:
@@ -190,13 +191,6 @@ cvar_t  r_part_explo2_time = {"r_part_explo2_time", "0.3", "r_part_explo2_time[v
 cvar_t  r_part_explo2_vel = {"r_part_explo2_vel", "300", "r_part_explo2_vel[value] Particle velocity for explo2 effect.", true};
 cvar_t  r_part_sticky_time = {"r_part_sticky_time", "24", "r_part_sticky_time[value] Lifespan for sticky particles.", true};
 
-cvar_t  thread_warp = {"thread_warp","4", "thread_warp[value] Number of threads to use for waterwarp, up to 16.  Values less than 2 are unthreaded", true}; // Manoel Kasimier - saved in the config file - edited
-cvar_t  thread_flip = {"thread_flip","2", "thread_flip[value] Number of threads to use for flipping graphics to video, up to 16.  Values less than 2 are unthreaded", true}; // Manoel Kasimier - saved in the config file - edited
-cvar_t  thread_fog = {"thread_fog","4", "thread_fog[value] Number of threads to use for fog effect, up to 16.  Values less than 2 are unthreaded", true}; // Manoel Kasimier - saved in the config file - edited
-
-
-//void CreatePassages (void); // Manoel Kasimier - removed
-//void SetVisibilityByPassages (void); // Manoel Kasimier - removed
 
 void R_InitSin (void)
 {
@@ -249,10 +243,8 @@ R_Init
 void FogDitherInit(void)
 {
     int i;
-    float dfactor;
-    dfactor = max(1.0-fog_density,0.01)* 0.33; //qb: would rather hand-tune this multiplier than make cvar.
-    for (i=0; i<DITHER_NUMRANDS; i++)
-        ditherfog[i] = dfactor + (float)(rand()%10000)/100000.0;
+     for (i=0; i<DITHER_NUMRANDS; i++)
+        ditherfog[i] = rand()%8;
 }
 
 int R_LoadPalette (char *name); //qb: load an alternate palette
@@ -260,7 +252,7 @@ void R_LoadSky_f (void); // Manoel Kasimier - skyboxes // Code taken from the To
 
 void R_Init (void)
 {
- //   int i;
+//   int i;
     int         dummy;
 
 // get stack position so we can guess if we are going to overflow
@@ -344,11 +336,6 @@ void R_Init (void)
     Cvar_RegisterVariable(&r_part_explo2_time);
     Cvar_RegisterVariable(&r_part_explo2_vel);
     Cvar_RegisterVariable(&r_part_sticky_time);
-
-    //qb: threads
-    Cvar_RegisterVariable(&thread_warp);
-    Cvar_RegisterVariable(&thread_flip);
-    Cvar_RegisterVariable(&thread_fog);
 
     view_clipplanes[0].leftedge = true;
     view_clipplanes[1].rightedge = true;
@@ -1530,36 +1517,6 @@ void R_EdgeDrawing (void)
 
 static int                      fogindex;  //qb: fog
 
-typedef struct fogslice_s //qb: for multithreading
-{
-    int rowstart, rowend;
-} fogslice_t;
-
-
-void FogLoop (fogslice_t* fs)
-{
-    static byte *pbuf;
-    static int dither;
-    static unsigned short       *pz;
-    static int level;
-    static int xref, yref;
-
-    dither = 0;
-    for (yref=fs->rowstart ; yref<fs->rowend; yref++)
-    {
-        pbuf = vid.buffer + d_scantable[yref];
-        pz = d_pzbuffer + (d_zwidth * yref);
-        for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
-        {
-            level = (int)(*(pz++) * ditherfog[dither++ % DITHER_NUMRANDS]);
-            if (level > 0 && level < 31)
-                *pbuf = fogmap[*pbuf + (int)vid.colormap[fogindex + level*256]*256];
-            pbuf++;
-        }
-    }
-}
-
-
 
 /*
 ================
@@ -1568,7 +1525,6 @@ R_RenderView
 r_refdef must be set before the first call
 ================
 */
-#define MAXFOGTHREADS          16   //qb: for multithreading
 
 void R_RenderView (void) //qb: so can just setup frame once, for fisheye and stereo.
 {
@@ -1577,10 +1533,9 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
 
     //qb: originally based on Makaqu fog.  added global fog, dithering, optimizing
     static int                  i, xref, yref;
-    static byte         *pbuf; //, *vidfog;
-    static byte        noise;
-   static unsigned short               *pz;
-    static int          level, numthreads;
+    static byte         *colmap, *pbuf; //, *vidfog;
+    static unsigned short               *pz;
+    static unsigned int          level;
     static float previous_fog_density;
     static int dither;
     static float normalize;
@@ -1665,11 +1620,6 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     R_DrawViewModel (true); //qb: draw after particles.  it's worth the overdraw.
     R_DrawViewModel (false); // Manoel Kasimier
 
-#ifdef R_THREADED
-    static pthread_t fogthread[MAXFOGTHREADS];
-    static fogslice_t fogs[MAXFOGTHREADS]; //qb: threads
-#endif
-
     if (fog_density && r_fog.value) //qb: fog
     {
         if(previous_fog_density != fog_density)
@@ -1677,43 +1627,20 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
         previous_fog_density = fog_density;
         //qb:  fogindex calc includes some color correction- brightness, saturation
         normalize = 240.0/(0.05+fog_red+fog_green+fog_blue);
-        fogindex = 32*256 + palmapnofb[(int)(min(fog_red*normalize, 255))>>3][(int)(min(fog_green*normalize,255))>>3][(int)(min(fog_blue*normalize,255))>>3];
+        fogindex = 32*256 + palmapnofb[(int)(min(fog_red*normalize, 255))/8][(int)(min(fog_green*normalize,255))/8][(int)(min(fog_blue*normalize,255))/8];
+        colmap = vid.colormap + fogindex;
 
-#ifdef R_THREADED
-        numthreads = min(thread_fog.value,MAXFOGTHREADS);
-        if(numthreads >1)
+        dither = 0;
+        for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
         {
-            for (i=0; i<numthreads; i++)
+            pbuf = vid.buffer + d_scantable[yref];
+            pz = d_pzbuffer + (d_zwidth * yref);
+            for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
             {
-                fogs[i].rowstart= r_refdef.vrect.y + i*(r_refdef.vrect.height/numthreads);
-                if (i+1 == numthreads)
-                    fogs[i].rowend = r_refdef.vrect.height;
-                else
-                    fogs[i].rowend = fogs[i].rowstart + r_refdef.vrect.height/numthreads;
-                pthread_create(&fogthread[i], NULL, FogLoop, &fogs[i]);
-            }
-            /* Wait for Threads to Finish */
-            for (i=0; i<numthreads; i++)
-            {
-                pthread_join(fogthread[i], NULL);
-            }
-        }
-        else
-#endif
-        {
-            dither = 0;
-            for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
-            {
-                pbuf = vid.buffer + d_scantable[yref];
-                pz = d_pzbuffer + (d_zwidth * yref);
-                for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
-                {
-                    level = (int)(*(pz++) * ditherfog[dither++ % DITHER_NUMRANDS]);
-                    if (level > 0 && level < 31)
-                        *pbuf = fogmap[*pbuf + (int)vid.colormap[fogindex + level*256]*256];
-                    pbuf++;
-                }
-                noise += 13;
+                level = (unsigned int)(*(pz++)/4 + ditherfog[dither++ % DITHER_NUMRANDS]);
+                if (level < 31)
+                    *pbuf = fogmap[*pbuf + (int)(colmap[level*256])*256];
+                pbuf++;
             }
         }
     }
@@ -1740,7 +1667,6 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
 
     if (r_reportedgeout.value && r_outofedges)
         Con_Printf ("Short roughly %d edges\n", r_outofedges * 2 / 3);
-
 }
 
 
