@@ -1525,7 +1525,8 @@ D_DrawZSpans
 =============
 */
 
-void D_DrawZSpans_C (espan_t *pspan)
+#ifndef id386
+void D_DrawZSpans (espan_t *pspan)
 {
     static int                          count, doublecount, izistep;
     static int                          izi;
@@ -1579,6 +1580,5 @@ void D_DrawZSpans_C (espan_t *pspan)
     }
     while ((pspan = pspan->pnext) != NULL);
 }
-
-
+#endif
 

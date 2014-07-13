@@ -72,7 +72,7 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-march=pentium-mmx" />
+					<Add option="-march=i686" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O3" />
 					<Add option="-w" />
@@ -121,6 +121,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-m32" />
+			<Add option="-DASM386" />
 			<Add directory="s_win32/codecs/include" />
 		</Compiler>
 		<Linker>
@@ -136,6 +137,8 @@
 		</ExtraCommands>
 		<Unit filename="adivtab.h" />
 		<Unit filename="anorms.h" />
+		<Unit filename="asm_draw.h" />
+		<Unit filename="asm_i386.h" />
 		<Unit filename="bgmusic.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -275,6 +278,7 @@
 		<Unit filename="progdefs.q1" />
 		<Unit filename="progs.h" />
 		<Unit filename="protocol.h" />
+		<Unit filename="quakeasm.h" />
 		<Unit filename="quakedef.h" />
 		<Unit filename="r_aclip.c">
 			<Option compilerVar="CC" />

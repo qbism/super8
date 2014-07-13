@@ -44,7 +44,8 @@ D_SpriteDrawSpans
 #define PARALLELCHECK(i) { btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth); if (btemp != 255 && (pz[i] <= izi))  { pz[i] = izi; pdest[i] = btemp;} s+=sstep; t+=tstep;}
 #define ORIENTEDCHECK(i) { btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth); if (btemp != 255 && pz[i] <= (izi >> 16)){ pz[i] = izi >> 16; pdest[i] = btemp;} s+=sstep; t+=tstep; izi+=izistep;}
 
-void D_SpriteDrawSpans_C (sspan_t *pspan)
+#ifndef id386
+void D_SpriteDrawSpans (sspan_t *pspan)
 {
 
     sstep = 0;   // keep compiler happy
@@ -354,6 +355,7 @@ void D_SpriteDrawSpans_C (sspan_t *pspan)
         while (pspan->count != DS_SPAN_LIST_END);
     }
 }
+#endif
 
 void D_SpriteDrawSpans_66 (sspan_t *pspan) // Manoel Kasimier - transparencies
 {
