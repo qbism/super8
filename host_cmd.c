@@ -793,7 +793,7 @@ void Host_Savegame_f (void)
         }
     }
     sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
-    COM_ForceExtension (name, ".sav"); //qb: sve vulnerability fix
+    COM_ForceExtension (name, ".sav"); //qb: save vulnerability fix
     Con_Printf ("Saving game to %s...\n", name);
 
     f = fopen (name, "wb"); // Manoel Kasimier - reduced savegames - edited
@@ -1058,7 +1058,7 @@ void Host_Version_f (void)
 {
     Con_Printf ("\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n"
                 "\n   \01\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\03"
-               "\02\n   QBISM SERVER BUILD %s"
+               "\02\n   SUPER8 SERVER BUILD %s"
                                   "\n   \07\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\11"
                                   "\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n", BUILDVERSION);
     Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
