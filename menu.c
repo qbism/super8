@@ -36,7 +36,7 @@ extern byte translationTable[256];
 float scr_2d_scale_h = 1.0,     scr_2d_scale_v = 1.0;
 int scr_2d_offset_x, scr_2d_offset_y;
 
-cvar_t  savename = {"savename","QBS8____", "savename[name] Save game name prefix."}; // 8 uppercase characters
+cvar_t  savename = {"savename","QBS8_", "savename[name] Save game name prefix."}; // 8 uppercase characters
 
 //qb: needed for Rikku2000 maplist, but not included w/ mingw
 int scandir(const char *dir, struct dirent ***namelist,
@@ -93,10 +93,10 @@ void SetSavename (void)
     // free the old value string
     free (savename.string);
 
-    savename.string = Q_calloc ("SetSavename", 8+1);
-    for (i=0; i<8; i++)
+    savename.string = Q_calloc ("SetSavename", 5+1);
+    for (i=0; i<5; i++)
     {
-        if (!s[i]) // string was shorter than 8 characters
+        if (!s[i]) // string was shorter than 5 characters
             break;
         if ((s[i] >= '0' && s[i] <= '9') || (s[i] >= 'A' && s[i] <= 'Z'))
             savename.string[i] = s[i];
@@ -105,7 +105,7 @@ void SetSavename (void)
         else
             savename.string[i] = '_';
     }
-    for (; i<8; i++) // fill the remaining characters, if the string was shorter than 8 characters
+    for (; i<5; i++) // fill the remaining characters, if the string was shorter than 5 characters //qb: make room for save number.
         savename.string[i] = '_';
     savename.string[i] = 0; // null termination
     savename.value = 0;
@@ -832,8 +832,6 @@ void M_PopUp_f (char *s, char *cmd)
 
 void M_PopUp_Draw (void)
 {
-//    int y = (min_vid_height/*vid.height*/ - 48) / 2 + 24 + 16;
-
     if (wasInMenus)
     {
         m_state = m_prevstate;
@@ -1163,7 +1161,7 @@ void M_ScanSaves (qboolean smallsave) // Manoel Kasimier - edited
             free(m_fileinfo[i]);
         m_fileinfo[i] = NULL;
 
-        sprintf (name, "%s/%s.%c%i%i", com_gamedir, savename.string, smallsave?'G':'S', i/10, i%10);
+        sprintf (name, "%s/%s%c%i%i.sav", com_gamedir, savename.string, smallsave?'G':'S', i/10, i%10);
 
         // Manoel Kasimier - end
 
@@ -1425,10 +1423,11 @@ void M_Save_Key (int k)
                         if (loadable[i] == false)
                         {
                             //qb: removed refresh.  simply exit menu instead
-                            Cbuf_AddText (va ("save%s %s.%c%i%i\n", (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10));
+                            Cbuf_AddText (va ("save%s %s%c%i%i.sav\n", (m_state==m_savesmall)?"small":"", savename.string,
+                                              (m_state==m_savesmall)?'G':'S', i/10, i%10)); //qb: switch to .sav extension
                         }
                         else
-                            M_PopUp_f ((m_state==m_savesmall)?"Overwrite saved game?":"Overwrite saved state?", va ("save%s %s.%c%i%i\n",
+                            M_PopUp_f ((m_state==m_savesmall)?"Overwrite saved game?":"Overwrite saved state?", va ("save%s %s%c%i%i.sav\n",
                                        (m_state==m_savesmall)?"small":"", savename.string, (m_state==m_savesmall)?'G':'S', i/10, i%10));
                         return;
                     }
@@ -1438,7 +1437,7 @@ void M_Save_Key (int k)
                         // Host_Loadgame_f can't bring up the loading plaque because too much
                         // stack space has been used, so do it now
                         SCR_BeginLoadingPlaque ();
-                        Cbuf_AddText (va ("load%s %s.%c%i%i\n", (m_state==m_loadsmall)?"small":"", savename.string, (m_state==m_loadsmall)?'G':'S', i/10, i%10) );
+                        Cbuf_AddText (va ("load%s %s%c%i%i.sav\n", (m_state==m_loadsmall)?"small":"", savename.string, (m_state==m_loadsmall)?'G':'S', i/10, i%10) );
                         fade_level = 0; // BlackAura - Menu background fading
                         return;
                         // Manoel Kasimier - begin

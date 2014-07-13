@@ -1339,7 +1339,6 @@ typedef struct searchpath_s
 	struct searchpath_s *next;
 } searchpath_t;
 */ // 2001-09-12 Returning from which searchpath a file was loaded by Maddes
-searchpath_t    *com_searchpaths;
 
 /*
 ============
