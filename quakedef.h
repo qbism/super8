@@ -26,13 +26,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <setjmp.h>
 
-//#define	GLTEST			// experimental stuff
+#if defined(_WIN32) && !defined(WINDED)
+
+#ifdef ASM386
+#define id386	1
+#endif
+
+#endif
 
 #define	QUAKE_GAME			// as opposed to utilities
 
-#define	D3DQUAKE_VERSION	0
-#define	WINQUAKE_VERSION	7
-#define	LINUX_VERSION		0
 
 //define	PARANOID			// speed sapping error checking
 #define	GAMENAME	"id1"
@@ -348,8 +351,8 @@ extern	int			sb_lines;			// scan lines to draw
 extern	float		scr_2d_scale_h, scr_2d_scale_v;
 
 extern int		minimum_memory;
-extern byte     palmapnofb[32][32][32];
-extern byte	    palmap[32][32][32];
+extern byte     palmapnofb[64][64][64];
+extern byte	    palmap[64][64][64]; //qb: higher-quality from engoo (palmap2)
 extern byte		*draw_chars;
 
 extern cvar_t   cmdline;

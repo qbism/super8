@@ -21,7 +21,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #define DITHER_NUMRANDS 3947 //qb: number of random floats for fog dithering
 
-void MakeMy15to8();
+void MakeMy18to8();
 void ParseWorldspawn (void);
 void R_LoadPalette_f (void); //qb: load an alternate palette
 
@@ -60,8 +60,8 @@ int      sintable[SIN_BUFFER_SIZE];
 // COLOR Translation stuff
 // Came straight out of image.c of Quake2 tools
 
-byte    palmap[32][32][32];             // For fast 15-bit lookup
-byte    palmapnofb[32][32][32];         // No fullbrights
+byte    palmap[64][64][64];             // For fast 15-bit lookup
+byte    palmapnofb[64][64][64];         // No fullbrights
 byte            *r_stack_start;
 
 //
@@ -258,7 +258,7 @@ void R_Init (void)
 // get stack position so we can guess if we are going to overflow
     r_stack_start = (byte *)&dummy;
 
-    MakeMy15to8(); //qb: from engoo
+    MakeMy18to8(); //qb: from engoo
     R_InitSin(); //qb: from MK tute on inside3d
 
     Cmd_AddCommand ("loadpalette", R_LoadPalette_f);
@@ -424,27 +424,35 @@ COLORMAP GRABBING
 =============================================================================
 */
 
-//qb: 15to8 stealed from engoo.
+//qb: 18to8 stealed from engoo.
 
-void MakeMy15to8()
+void MakeMy18to8()
 {
     int r, g, b, beastcolor, beefstcolor;
-    for (r=0 ; r<256 ; r+=8)
+    for (r=0 ; r<256 ; r+=4)
     {
-        for (g=0 ; g<256 ; g+=8)
+        for (g=0 ; g<256 ; g+=4)
         {
-            for (b=0 ; b<256 ; b+=8)
+            for (b=0 ; b<256 ; b+=4)
             {
                 beastcolor = BestColor (r, g, b, 0, 254);
                 beefstcolor = BestColor (r, g, b, 0, 223);
-                palmap[r>>3][g>>3][b>>3] = beastcolor;
-                palmapnofb[r>>3][g>>3][b>>3] = beefstcolor;
+                palmap[r>>2][g>>2][b>>2] = beastcolor;
+                palmapnofb[r>>2][g>>2][b>>2] = beefstcolor;
             }
         }
     }
 }
 
-
+int FindColor18 (int r, int g, int b) //qb: from engoo
+{
+	int		bestcolor;
+    r = bound (0,r,254);
+    g = bound (0,g,254);
+    b = bound (0,b,254);
+	bestcolor = palmap[r>>2][g>>2][b>>2];
+	return bestcolor;
+}
 
 /*
 ===============
@@ -532,7 +540,7 @@ void GrabAlpha50map (void) //qb: 50% / 50% alpha
     }
 }
 
-void GrabFogmap (void) //qb: yet another lookup
+void GrabFogmap (void) //qb: better fog blending from engoo
 {
     int c,l, r,g,b;
     byte *colmap;
@@ -544,10 +552,10 @@ void GrabFogmap (void) //qb: yet another lookup
             r = host_basepal[c*3] + host_basepal[l*3];
             g = host_basepal[c*3+1] + host_basepal[l*3+1];
             b = host_basepal[c*3+2] + host_basepal[l*3+2];
-            *colmap++ = BestColor(r,g,b, 0, 254); // High quality color tables get best color
+            *colmap++ = FindColor18(r,g,b); //qb: from engoo.  looks better for fog
         }
     }
-}
+ }
 
 void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show through
 {
@@ -1539,6 +1547,7 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     static float previous_fog_density;
     static int dither;
     static float normalize;
+    static int fogcolmap[32]; //qb: precompute level
 
     delta = (byte *)&dummy - r_stack_start;
     if (delta < -0x10000 || delta > 0x10000) //qb: was 10000. D_SQ_calloc is 0x10000.  Does it matter?
@@ -1627,8 +1636,9 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
         previous_fog_density = fog_density;
         //qb:  fogindex calc includes some color correction- brightness, saturation
         normalize = 240.0/(0.05+fog_red+fog_green+fog_blue);
-        fogindex = 32*256 + palmapnofb[(int)(min(fog_red*normalize, 255))/8][(int)(min(fog_green*normalize,255))/8][(int)(min(fog_blue*normalize,255))/8];
-        colmap = vid.colormap + fogindex;
+        fogindex = 32*256 + palmapnofb[(int)(min(fog_red*normalize, 255))/4][(int)(min(fog_green*normalize,255))/4][(int)(min(fog_blue*normalize,255))/4];
+        for (i=0; i<31; i++)
+            fogcolmap[i] = (int)vid.colormap[fogindex+i*256]*256;
 
         dither = 0;
         for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
@@ -1637,9 +1647,9 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
             pz = d_pzbuffer + (d_zwidth * yref);
             for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
             {
-                level = (unsigned int)(*(pz++)/4 + ditherfog[dither++ % DITHER_NUMRANDS]);
+                level = (unsigned int)(*(pz++)/4 + *(ditherfog + (dither++ % DITHER_NUMRANDS)));
                 if (level < 31)
-                    *pbuf = fogmap[*pbuf + (int)(colmap[level*256])*256];
+                    *pbuf = *(fogmap + *pbuf + *(fogcolmap+level));
                 pbuf++;
             }
         }

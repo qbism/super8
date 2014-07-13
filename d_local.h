@@ -75,7 +75,6 @@ void D_DrawSpans16_Blend50 (espan_t *pspan);
 void D_DrawSpans16_BlendBackwards (espan_t *pspan);
 void Turbulent8 (espan_t *pspan);
 void D_SpriteDrawSpans (sspan_t *pspan);
-void D_SpriteDrawSpans_C (sspan_t *pspan);
 
 void D_DrawSkyScans8 (espan_t *pspan);
 void D_DrawSkyScans16 (espan_t *pspan);
