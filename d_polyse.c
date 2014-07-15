@@ -30,7 +30,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 typedef struct
 {
     void			*pdest;
-    unsigned short			*pz;
+    short			*pz;
     int				count;
     byte			*ptex;
     int				sfrac, tfrac, light, zi;
@@ -154,7 +154,7 @@ D_PolysetDrawFinalVerts
 void D_PolysetDrawFinalVerts (finalvert_t *fv, int numverts)
 {
     int		i, z;
-    unsigned short	*zbuf;
+    short	*zbuf;
 
     for (i=0 ; i<numverts ; i++, fv++)
     {
@@ -321,7 +321,7 @@ void D_PolysetRecursiveTriangle (int *lp1, int *lp2, int *lp3)
     int		d;
     int		new[6];
     int		z;
-    unsigned short	*zbuf;
+    short	*zbuf;
 
     d = lp2[0] - lp1[0];
     if (d < -1 || d > 1)
@@ -607,7 +607,7 @@ void D_PolysetDrawSpans8_C (spanpackage_t *pspanpackage)
     int		lsfrac, ltfrac;
     int		llight;
     int		lzi;
-    unsigned short	*lpz;
+    short	*lpz;
 
     do
     {
@@ -708,7 +708,7 @@ void D_PolysetDrawSpans8_66 (spanpackage_t *pspanpackage) // Manoel Kasimier - t
     int		lsfrac, ltfrac;
     int		llight;
     int		lzi;
-    unsigned short	*lpz;
+    short	*lpz;
 
     do
     {
@@ -778,7 +778,7 @@ void D_PolysetDrawSpans8_50(spanpackage_t *pspanpackage) //qb
     int		lsfrac, ltfrac;
     int		llight;
     int		lzi;
-    unsigned short	*lpz;
+    short	*lpz;
 
     do
     {

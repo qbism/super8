@@ -37,7 +37,7 @@ fixed16_t	sadjust, tadjust, bbextents, bbextentt;
 pixel_t			*cacheblock;
 int				cachewidth;
 pixel_t			*d_viewbuffer;
-unsigned short			*d_pzbuffer;
+short			*d_pzbuffer;
 unsigned int	             d_zrowbytes; //qb: signed per szo
 unsigned int	             d_zwidth;
 

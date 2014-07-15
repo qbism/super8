@@ -23,9 +23,9 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "d_local.h"
 
 byte    *r_turb_pbase, *r_turb_pdest;
-static fixed16_t                r_turb_s, r_turb_t, r_turb_sstep, r_turb_tstep;
-int                             *r_turb_turb;
-int                             r_turb_spancount;
+static fixed16_t   r_turb_s, r_turb_t, r_turb_sstep, r_turb_tstep;
+int                *r_turb_turb;
+int                r_turb_spancount;
 
 extern pixel_t *warpbuf;
 extern cvar_t vid_ddraw;
@@ -309,7 +309,7 @@ void Turbulent8 (espan_t *pspan)
 {
     static int                          count;  //qb: do more static.
     static int                          izi, izistep, izistep2, sturb, tturb, teste; // Manoel Kasimier - translucent water
-    static unsigned short                       *pz; // Manoel Kasimier - translucent water
+    static short                       *pz; // Manoel Kasimier - translucent water
     static fixed16_t            snext, tnext;
     static float                        sdivz, tdivz, zi, z, du, dv, spancountminus1;
     static float                        sdivz16stepu, tdivz16stepu, zi16stepu;
@@ -1525,7 +1525,7 @@ D_DrawZSpans
 =============
 */
 
-#ifndef id386
+#if	!id386
 void D_DrawZSpans (espan_t *pspan)
 {
     static int                          count, doublecount, izistep;

@@ -44,7 +44,7 @@ D_SpriteDrawSpans
 #define PARALLELCHECK(i) { btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth); if (btemp != 255 && (pz[i] <= izi))  { pz[i] = izi; pdest[i] = btemp;} s+=sstep; t+=tstep;}
 #define ORIENTEDCHECK(i) { btemp = *(pbase + (s >> 16) + (t >> 16) * cachewidth); if (btemp != 255 && pz[i] <= (izi >> 16)){ pz[i] = izi >> 16; pdest[i] = btemp;} s+=sstep; t+=tstep; izi+=izistep;}
 
-#ifndef id386
+#if	!id386
 void D_SpriteDrawSpans (sspan_t *pspan)
 {
 
@@ -653,7 +653,7 @@ void D_SpriteDrawSpans_Stippled (sspan_t *pspan) // Manoel Kasimier - transparen
     float		sdivz, tdivz, zi, z, du, dv, spancountminus1;
     float		sdivz8stepu, tdivz8stepu, zi8stepu;
     byte		btemp;
-	unsigned short		*pz;
+	short		*pz;
     int			teste; // Manoel Kasimier - stipple alpha
 
 
@@ -817,7 +817,7 @@ void D_SpriteDrawSpans_Add (sspan_t *pspan) // Manoel Kasimier - transparencies
     float		sdivz, tdivz, zi, z, du, dv, spancountminus1;
     float		sdivz8stepu, tdivz8stepu, zi8stepu;
     byte		btemp;
-	unsigned short		*pz;
+	short		*pz;
 
 
     sstep = 0;	// keep compiler happy
@@ -970,7 +970,7 @@ void D_SpriteDrawSpans_Shadow (sspan_t *pspan) // Manoel Kasimier - transparenci
     float		sdivz, tdivz, zi, z, du, dv, spancountminus1;
     float		sdivz8stepu, tdivz8stepu, zi8stepu;
     byte		btemp;
-	unsigned short		*pz;
+	short		*pz;
     float intensity; // Manoel Kasimier
 
 

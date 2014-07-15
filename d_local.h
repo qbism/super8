@@ -69,7 +69,6 @@ extern fixed16_t	bbextents, bbextentt;
 void D_DrawSpans16 (espan_t *pspans);
 void D_DrawZSpans (espan_t *pspans);
 void D_DrawSpans16_C (espan_t *pspans);  //qb: up it to 16
-void D_DrawZSpans_C (espan_t *pspans);
 void D_DrawSpans16_Blend (espan_t *pspan);
 void D_DrawSpans16_Blend50 (espan_t *pspan);
 void D_DrawSpans16_BlendBackwards (espan_t *pspan);
@@ -92,7 +91,7 @@ extern cvar_t r_fog;
 
 extern int D_MipLevelForScale (float scale);
 
-extern unsigned short *d_pzbuffer;
+extern short *d_pzbuffer;
 extern unsigned int d_zrowbytes, d_zwidth;
 
 extern int	*d_pscantable;
