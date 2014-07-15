@@ -28,9 +28,9 @@ D_DrawZPoint
 void D_DrawZPoint (void)
 {
 	byte	*pdest;
-	unsigned short	*pz;
+	short	*pz;
 	int		izi;
-	
+
 	pz = d_pzbuffer + (d_zwidth * r_zpointdesc.v) + r_zpointdesc.u;
 	pdest = d_viewbuffer + d_scantable[r_zpointdesc.v] + r_zpointdesc.u;
 	izi = (int)(r_zpointdesc.zi * 0x8000);

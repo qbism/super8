@@ -1334,7 +1334,7 @@ void VID_Shutdown (void)
 }
 
 //qb: fog
-extern unsigned short           *d_pzbuffer;
+extern short           *d_pzbuffer;
 extern unsigned int     d_zwidth;
 
 #define UNROLL_SPAN_SHIFT   5  //qb: from MK unroll

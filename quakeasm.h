@@ -23,12 +23,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 //#define GLQUAKE	1
 
-#if defined(_WIN32) && !defined(WINDED)
-
 #ifdef ASM386
 #define id386	1
-#endif
-
+#else
+#define id386	0
 #endif
 
 // !!! must be kept the same as in d_iface.h !!!

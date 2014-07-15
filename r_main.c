@@ -25,7 +25,7 @@ void MakeMy18to8();
 void ParseWorldspawn (void);
 void R_LoadPalette_f (void); //qb: load an alternate palette
 
-extern unsigned short           *d_pzbuffer;
+extern short           *d_pzbuffer;
 extern unsigned int     d_zwidth;
 extern int                      d_scantable[MAXHEIGHT];
 
@@ -1542,7 +1542,7 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     //qb: originally based on Makaqu fog.  added global fog, dithering, optimizing
     static int                  i, xref, yref;
     static byte         *colmap, *pbuf; //, *vidfog;
-    static unsigned short               *pz;
+    static short               *pz;
     static unsigned int          level;
     static float previous_fog_density;
     static int dither;
