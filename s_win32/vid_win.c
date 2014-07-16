@@ -1521,10 +1521,10 @@ void FlipScreen (vrect_t *rects)
                 hdcGDI,
                 rects->x+(rects->width %4) /2,
                 rects->y,
-                rects->x + (rects->width /4)*4,
+                rects->x + (int)(rects->width /4)*4,
                 rects->y + rects->height,
                 hdcDIBSection,
-                rects->x+(rects->width %4) /2,
+                rects->x +(rects->width %4) /2,
                 rects->y,
                 SRCCOPY
             );

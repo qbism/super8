@@ -77,7 +77,7 @@ static aedge_t	aedges[12] =
 
 //qb: dumped from r_2d.c (deleted)
 cvar_t	r_interpolation = {"r_interpolation", "1", "r_interpolation[0/1] Toggle model animation interpolation."}; // Manoel Kasimier - model interpolation
-cvar_t	sw_stipplealpha = {"sw_stipplealpha","0", "sw_stipplealpha[0/1] Toggle use of stippling rather than transparency.", true};
+//cvar_t	sw_stipplealpha = {"sw_stipplealpha","0", "sw_stipplealpha[0/1] Toggle use of stippling rather than transparency.", true};
 /* qb: alias models show through completely- cvar_t	r_sprite_addblend = {"r_sprite_addblend","0", true}; */
 
 float	r_avertexnormals[NUMVERTEXNORMALS][3] =

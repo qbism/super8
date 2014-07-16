@@ -111,5 +111,5 @@ extern float	d_scalemip[3];
 extern void (*d_drawspans) (espan_t *pspan);
 
 extern byte	*skyunderlay, *skyoverlay; // Manoel Kasimier - smooth sky
-extern cvar_t sw_stipplealpha; // Manoel Kasimier
+//qb: remove stipple  extern cvar_t sw_stipplealpha; // Manoel Kasimier
 

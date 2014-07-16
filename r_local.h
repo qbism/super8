@@ -72,7 +72,7 @@ extern cvar_t	r_maxedges;
 extern cvar_t	r_numedges;
 extern cvar_t	r_skyname; // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 extern cvar_t	r_skyalpha; // Manoel Kasimier - translucent sky
-extern cvar_t	sw_stipplealpha; // Manoel Kasimier
+//extern cvar_t	sw_stipplealpha; // Manoel Kasimier
 //extern cvar_t	r_sprite_addblend; // Manoel Kasimier
 extern cvar_t   r_nolerp_list; //qb: //from FQ
 
