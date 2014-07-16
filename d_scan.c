@@ -436,7 +436,7 @@ void Turbulent8 (espan_t *pspan)
             // Manoel Kasimier - translucent water - begin
             if (r_drawwater)
             {
-                if (r_wateralpha.value <= 0.24) // <25%
+               /* if (r_wateralpha.value <= 0.24) // <25%
                 {
                     teste = ((((int)r_turb_pdest-(int)d_viewbuffer) / screenwidth)+1) & 1;
                     if (teste) // 25% transparency
@@ -476,7 +476,7 @@ stipple:
                         while (--r_turb_spancount > 0);
                     }
                 }
-                else if (r_wateralpha.value <= 0.41) // 33%
+                else */ if (r_wateralpha.value <= 0.41) // 33%
                 {
                     do
                     {
@@ -497,8 +497,23 @@ stipple:
                 }
                 else if (r_wateralpha.value < 0.61 || !alphamap) // 50%
                 {
-                    teste = ((((int)r_turb_pdest-(int)d_viewbuffer) / screenwidth)+1) & 1;
-                    goto stipple;
+                     do
+                    {
+                        if (*pz <= (izi >> 16))
+                        {
+                            sturb = ((r_turb_s + r_turb_turb[(r_turb_t>>16)&(CYCLE-1)])>>16)&63;
+                            tturb = ((r_turb_t + r_turb_turb[(r_turb_s>>16)&(CYCLE-1)])>>16)&63;
+#define temp *(r_turb_pbase + (tturb<<6) + sturb)
+                            *r_turb_pdest = alpha50map[temp + *r_turb_pdest*256];
+                        }
+                        *r_turb_pdest++;
+                        izi += izistep;
+                        pz++;
+                        r_turb_s += r_turb_sstep;
+                        r_turb_t += r_turb_tstep;
+                    }
+                    while (--r_turb_spancount > 0);
+
                 }
                 else //if (r_wateralpha.value >= 0.66 && alphamap) // 66%
                 {

@@ -313,7 +313,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_interpolation); // Manoel Kasimier - model interpolation
     Cvar_RegisterVariable (&r_wateralpha); // Manoel Kasimier - translucent water
     Cvar_RegisterVariable (&r_glassalpha); //qb: *glass
-    Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
+//    Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
 //    Cvar_RegisterVariable (&r_sprite_addblend); // Manoel Kasimier
     Cvar_RegisterVariable (&r_shadowhack); //qb: engoo shadowhack
     Cvar_RegisterVariable (&r_shadowhacksize); //qb
