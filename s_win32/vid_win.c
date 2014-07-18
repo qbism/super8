@@ -240,7 +240,7 @@ void VID_CreateGDIDriver (int width, int height, byte *palette)
 
     // clear the buffer
     memset (pDIBBase, 0xff, width * height);
-        Q_free (warpbuf);
+    Q_free (warpbuf);
     warpbuf = (pixel_t *) Q_malloc (width * height, "warpbuf");
 
     if ((hdcDIBSection = CreateCompatibleDC (hdcGDI)) == NULL)
@@ -259,8 +259,8 @@ void VID_CreateGDIDriver (int width, int height, byte *palette)
 void VID_UnloadAllDrivers (void)
 {
     // shut down ddraw
-        Q_free (vidbuf);
-        Q_free (warpbuf);
+    Q_free (vidbuf);
+    Q_free (warpbuf);
 
     if (dd_Clipper)
     {
@@ -368,13 +368,15 @@ cvar_t          vid_fullscreen_mode = {"vid_fullscreen_mode", "3", "vid_fullscre
 cvar_t          vid_windowed_mode = {"vid_windowed_mode", "0", "vid_windowed_mode[value]  Initial windowed mode.", true};
 cvar_t          vid_window_x = {"vid_window_x", "0", "vid_window_x[value] Window placement on screen.", false}; //qb: was true
 cvar_t          vid_window_y = {"vid_window_y", "0", "vid_window_y[value] Window placement on screen.", false};
-cvar_t          vid_nativeaspect = {"vid_nativeaspect", "1.0", "vid_nativeaspect[value] Autodected unless set in cfg file.", false};
+cvar_t          vid_nativeaspect = {"vid_nativeaspect", "0.0", "vid_nativeaspect[value] Autodected unless this is set manually.", true};
 
-int                     vid_modenum = NO_MODE;
-int                     vid_testingmode, vid_realmode;
-double          vid_testendtime;
-int                     vid_default = MODE_FULLSCREEN_DEFAULT; //qb
-static int      windowed_default;
+float       nativeaspect;
+float       calc_nativeaspect = 1.0;
+int         vid_modenum = NO_MODE;
+int         vid_testingmode, vid_realmode;
+double      vid_testendtime;
+int         vid_default = MODE_FULLSCREEN_DEFAULT; //qb
+static int  windowed_default;
 
 modestate_t     modestate = MS_UNINIT;
 
@@ -435,6 +437,14 @@ char *VID_GetModeDescription2 (int mode);
 char *VID_GetModeDescriptionMemCheck (int mode);
 void VID_CheckModedescFixup (int mode);
 
+
+
+void Vid_SetAspect (void)
+{
+    if (vid_nativeaspect.value > 0.0)
+        nativeaspect = vid_nativeaspect.value;
+    else nativeaspect = calc_nativeaspect;
+}
 
 /*
 ================
@@ -689,11 +699,11 @@ VID_GetDisplayModes
 void VID_GetDisplayModes (void)
 {
     DEVMODE     devmode;
-        //int j, cmodes;
+    //int j, cmodes;
     int         i, modenum, existingmode, originalnummodes, lowestres;
     int     highestres; //qb: use this as basis for video aspect ratio
     //int               numlowresmodes;
-        //int bpp, done;
+    //int bpp, done;
     //int               cstretch, istretch, mstretch;
     BOOL        stat;
 
@@ -747,7 +757,7 @@ void VID_GetDisplayModes (void)
                     if (modelist[nummodes].width > highestres)
                     {
                         highestres = modelist[nummodes].width;
-                        Cvar_SetValue ("vid_nativeaspect", ((float) modelist[nummodes].width)/ (float)modelist[nummodes].height);
+                        calc_nativeaspect = (float) modelist[nummodes].width/ (float)modelist[nummodes].height;
                         if ((modelist[nummodes].width <= 1024) && (modelist[nummodes].height <= 768))
                             vid_default = nummodes;
                         Con_Printf("mode %i   ", nummodes);
@@ -755,6 +765,8 @@ void VID_GetDisplayModes (void)
                     }
                     nummodes++;
                 }
+                if (vid_nativeaspect.value > 0.0)
+                    nativeaspect = vid_nativeaspect.value;
             }
         }
         modenum++;
@@ -997,7 +1009,7 @@ int VID_SetMode (int modenum, byte *palette)
         Con_CenterPrintf(30, "Unable to change video mode while in liquid...\nplease jump out first!\n");  //qb: fixme
         return 0;
     }
-     while ((modenum >= nummodes) || (modenum < 0))
+    while ((modenum >= nummodes) || (modenum < 0))
     {
         if (vid_modenum == NO_MODE)
         {
@@ -1007,7 +1019,7 @@ int VID_SetMode (int modenum, byte *palette)
             }
             else
             {
-            modenum = vid_default;
+                modenum = vid_default;
             }
 
             Cvar_SetValue ("vid_mode", (float) modenum);
@@ -1236,7 +1248,7 @@ void VID_ShiftPalette (byte *palette)
 
 void VID_Init (byte *palette)
 {
-        //int i, t, bestmatch, bestmatchmetric;
+    //int i, t, bestmatch, bestmatchmetric;
     //int               dr, dg, db;
     int         basenummodes;
     //byte      *ptmp;
@@ -1257,7 +1269,7 @@ void VID_Init (byte *palette)
         Cvar_RegisterVariable (&vid_windowed_mode);
         Cvar_RegisterVariable (&vid_window_x);
         Cvar_RegisterVariable (&vid_window_y);
-        Cvar_RegisterVariable (&vid_nativeaspect);
+        Cvar_RegisterVariableWithCallback (&vid_nativeaspect, Vid_SetAspect);
 
         Cmd_AddCommand ("vid_testmode", VID_TestMode_f);
         Cmd_AddCommand ("vid_nummodes", VID_NumModes_f);
@@ -1381,120 +1393,120 @@ void FlipScreen (vrect_t *rects)
                 // convert pitch to unsigned int addressable
                 ddsd.lPitch >>= 2;
 
-                    for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
+                for (y = 0; y < rects->height; y++, src += vid.rowbytes, dst += ddsd.lPitch)
+                {
+                    psrc = src;
+                    pdst = dst;
+
+                    rollcount = rects->width >> UNROLL_SPAN_SHIFT; // divided by 32
+                    spancount = rects->width %  UNROLL_SPAN_MAX; // remainder of the above division (min zero, max 32)
+                    while (rollcount--)
                     {
-                        psrc = src;
-                        pdst = dst;
+                        pdst[0] = ddpal[psrc[0]];
+                        pdst[1] = ddpal[psrc[1]];
+                        pdst[2] = ddpal[psrc[2]];
+                        pdst[3] = ddpal[psrc[3]];
+                        pdst[4] = ddpal[psrc[4]];
+                        pdst[5] = ddpal[psrc[5]];
+                        pdst[6] = ddpal[psrc[6]];
+                        pdst[7] = ddpal[psrc[7]];
+                        pdst[8] = ddpal[psrc[8]];
+                        pdst[9] = ddpal[psrc[9]];
+                        pdst[10] = ddpal[psrc[10]];
+                        pdst[11] = ddpal[psrc[11]];
+                        pdst[12] = ddpal[psrc[12]];
+                        pdst[13] = ddpal[psrc[13]];
+                        pdst[14] = ddpal[psrc[14]];
+                        pdst[15] = ddpal[psrc[15]];
+                        pdst[16] = ddpal[psrc[16]];
+                        pdst[17] = ddpal[psrc[17]];
+                        pdst[18] = ddpal[psrc[18]];
+                        pdst[19] = ddpal[psrc[19]];
+                        pdst[20] = ddpal[psrc[20]];
+                        pdst[21] = ddpal[psrc[21]];
+                        pdst[22] = ddpal[psrc[22]];
+                        pdst[23] = ddpal[psrc[23]];
+                        pdst[24] = ddpal[psrc[24]];
+                        pdst[25] = ddpal[psrc[25]];
+                        pdst[26] = ddpal[psrc[26]];
+                        pdst[27] = ddpal[psrc[27]];
+                        pdst[28] = ddpal[psrc[28]];
+                        pdst[29] = ddpal[psrc[29]];
+                        pdst[30] = ddpal[psrc[30]];
+                        pdst[31] = ddpal[psrc[31]];
+                        psrc+= UNROLL_SPAN_MAX;
+                        pdst+= UNROLL_SPAN_MAX;
+                    }
 
-                        rollcount = rects->width >> UNROLL_SPAN_SHIFT; // divided by 32
-                        spancount = rects->width %  UNROLL_SPAN_MAX; // remainder of the above division (min zero, max 32)
-                        while (rollcount--)
+                    if (spancount)
+                    {
+                        switch (spancount)
                         {
+                        case 1:
                             pdst[0] = ddpal[psrc[0]];
+                        case 2:
                             pdst[1] = ddpal[psrc[1]];
+                        case 3:
                             pdst[2] = ddpal[psrc[2]];
+                        case 4:
                             pdst[3] = ddpal[psrc[3]];
+                        case 5:
                             pdst[4] = ddpal[psrc[4]];
+                        case 6:
                             pdst[5] = ddpal[psrc[5]];
+                        case 7:
                             pdst[6] = ddpal[psrc[6]];
+                        case 8:
                             pdst[7] = ddpal[psrc[7]];
+                        case 9:
                             pdst[8] = ddpal[psrc[8]];
+                        case 10:
                             pdst[9] = ddpal[psrc[9]];
+                        case 11:
                             pdst[10] = ddpal[psrc[10]];
+                        case 12:
                             pdst[11] = ddpal[psrc[11]];
+                        case 13:
                             pdst[12] = ddpal[psrc[12]];
+                        case 14:
                             pdst[13] = ddpal[psrc[13]];
+                        case 15:
                             pdst[14] = ddpal[psrc[14]];
+                        case 16:
                             pdst[15] = ddpal[psrc[15]];
+                        case 17:
                             pdst[16] = ddpal[psrc[16]];
+                        case 18:
                             pdst[17] = ddpal[psrc[17]];
+                        case 19:
                             pdst[18] = ddpal[psrc[18]];
+                        case 20:
                             pdst[19] = ddpal[psrc[19]];
+                        case 21:
                             pdst[20] = ddpal[psrc[20]];
+                        case 22:
                             pdst[21] = ddpal[psrc[21]];
+                        case 23:
                             pdst[22] = ddpal[psrc[22]];
+                        case 24:
                             pdst[23] = ddpal[psrc[23]];
+                        case 25:
                             pdst[24] = ddpal[psrc[24]];
+                        case 26:
                             pdst[25] = ddpal[psrc[25]];
+                        case 27:
                             pdst[26] = ddpal[psrc[26]];
+                        case 28:
                             pdst[27] = ddpal[psrc[27]];
+                        case 29:
                             pdst[28] = ddpal[psrc[28]];
+                        case 30:
                             pdst[29] = ddpal[psrc[29]];
+                        case 31:
                             pdst[30] = ddpal[psrc[30]];
-                            pdst[31] = ddpal[psrc[31]];
-                            psrc+= UNROLL_SPAN_MAX;
-                            pdst+= UNROLL_SPAN_MAX;
-                        }
-
-                        if (spancount)
-                        {
-                            switch (spancount)
-                            {
-                            case 1:
-                                pdst[0] = ddpal[psrc[0]];
-                            case 2:
-                                pdst[1] = ddpal[psrc[1]];
-                            case 3:
-                                pdst[2] = ddpal[psrc[2]];
-                            case 4:
-                                pdst[3] = ddpal[psrc[3]];
-                            case 5:
-                                pdst[4] = ddpal[psrc[4]];
-                            case 6:
-                                pdst[5] = ddpal[psrc[5]];
-                            case 7:
-                                pdst[6] = ddpal[psrc[6]];
-                            case 8:
-                                pdst[7] = ddpal[psrc[7]];
-                            case 9:
-                                pdst[8] = ddpal[psrc[8]];
-                            case 10:
-                                pdst[9] = ddpal[psrc[9]];
-                            case 11:
-                                pdst[10] = ddpal[psrc[10]];
-                            case 12:
-                                pdst[11] = ddpal[psrc[11]];
-                            case 13:
-                                pdst[12] = ddpal[psrc[12]];
-                            case 14:
-                                pdst[13] = ddpal[psrc[13]];
-                            case 15:
-                                pdst[14] = ddpal[psrc[14]];
-                            case 16:
-                                pdst[15] = ddpal[psrc[15]];
-                            case 17:
-                                pdst[16] = ddpal[psrc[16]];
-                            case 18:
-                                pdst[17] = ddpal[psrc[17]];
-                            case 19:
-                                pdst[18] = ddpal[psrc[18]];
-                            case 20:
-                                pdst[19] = ddpal[psrc[19]];
-                            case 21:
-                                pdst[20] = ddpal[psrc[20]];
-                            case 22:
-                                pdst[21] = ddpal[psrc[21]];
-                            case 23:
-                                pdst[22] = ddpal[psrc[22]];
-                            case 24:
-                                pdst[23] = ddpal[psrc[23]];
-                            case 25:
-                                pdst[24] = ddpal[psrc[24]];
-                            case 26:
-                                pdst[25] = ddpal[psrc[25]];
-                            case 27:
-                                pdst[26] = ddpal[psrc[26]];
-                            case 28:
-                                pdst[27] = ddpal[psrc[27]];
-                            case 29:
-                                pdst[28] = ddpal[psrc[28]];
-                            case 30:
-                                pdst[29] = ddpal[psrc[29]];
-                            case 31:
-                                pdst[30] = ddpal[psrc[30]];
-                            }
                         }
                     }
+                }
 
                 IDirectDrawSurface_Unlock (dd_BackBuffer, NULL);
 
@@ -1831,7 +1843,7 @@ LONG WINAPI MainWndProc (
     LPARAM  lParam)
 {
     LONG                        lRet = 0;
-        //int                           fwKeys, xPos, yPos;
+    //int                           fwKeys, xPos, yPos;
     int                         fActive, fMinimized, temp;
     HDC                         hdc;
     PAINTSTRUCT         ps;
@@ -1869,7 +1881,7 @@ LONG WINAPI MainWndProc (
                 break;
             }
 
-            // fall through windowed and allow the screen saver to start
+        // fall through windowed and allow the screen saver to start
         default:
 
             if (!in_mode_set)
@@ -1948,8 +1960,8 @@ LONG WINAPI MainWndProc (
             Key_Event (MapKey (lParam), false);
 
         break;
-        // this is complicated because Win32 seems to pack multiple mouse events into
-        // one update sometimes, so we always check all states and look for events
+    // this is complicated because Win32 seems to pack multiple mouse events into
+    // one update sometimes, so we always check all states and look for events
     case WM_LBUTTONDOWN:
     case WM_LBUTTONUP:
     case WM_RBUTTONDOWN:
@@ -1975,9 +1987,9 @@ LONG WINAPI MainWndProc (
         }
 
         break;
-        // JACK: This is the mouse wheel with the Intellimouse
-        // Its delta is either positive or neg, and we generate the proper
-        // Event.
+    // JACK: This is the mouse wheel with the Intellimouse
+    // Its delta is either positive or neg, and we generate the proper
+    // Event.
     case WM_MOUSEWHEEL:
 
         if ((short) HIWORD (wParam) > 0)
@@ -2074,7 +2086,7 @@ void VID_MenuDraw (void)
             modedescs[i].iscur = 1;
     }
 
-        //vid_wmodes = 3;
+    //vid_wmodes = 3;
     vid_wmodes = VID_WINDOWED_MODES;
     lnummodes = VID_NumModes ();
 
@@ -2162,7 +2174,7 @@ void VID_MenuDraw (void)
         column = 16;
         row = 36 + 4 * 8;  //qb: was 6 * 8, save a couple rows for more modes.
 
-    for (i = VID_WINDOWED_MODES; i < vid_wmodes; i++)
+        for (i = VID_WINDOWED_MODES; i < vid_wmodes; i++)
         {
             if (modedescs[i].iscur)
                 M_PrintWhite (column, row, modedescs[i].desc);
@@ -2171,7 +2183,7 @@ void VID_MenuDraw (void)
 
             column += 13 * 8;
 
-        if (((i - VID_WINDOWED_MODES) % VID_ROW_SIZE) == (VID_ROW_SIZE-1))
+            if (((i - VID_WINDOWED_MODES) % VID_ROW_SIZE) == (VID_ROW_SIZE-1))
             {
                 column = 16;
                 row += 8;
