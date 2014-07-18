@@ -767,6 +767,7 @@ void VID_GetDisplayModes (void)
                 }
                 if (vid_nativeaspect.value > 0.0)
                     nativeaspect = vid_nativeaspect.value;
+                else nativeaspect = calc_nativeaspect;
             }
         }
         modenum++;
@@ -1360,7 +1361,7 @@ FlipScreen
 
 void FlipScreen (vrect_t *rects)
 {
-    static int i, numrects;
+    static int numrects;
     static int spancount, rollcount, y;
     static byte *psrc, *src;
     static unsigned *pdst, *dst;

@@ -86,7 +86,7 @@ cvar_t	noexit = {"noexit","0", "noexit[0/1] Toggles off map exit trigger.",false
 
 cvar_t	developer = {"developer","0", "developer[0/1] Toggles extra info displayed in console for developers."};
 
-cvar_t	skill = {"skill","1", "skill [1-4] – Set the skill level of the game."};						// 0 - 3
+cvar_t	skill = {"skill","1", "skill [0-3] – Set the skill level of the game."};						// 0 - 3
 cvar_t	deathmatch = {"deathmatch","0", "deathmatch[0/1] Toggles dm mode."};			// 0, 1, or 2
 cvar_t	coop = {"coop","0", "coop[0/1] Toggles coop mode."};			// 0 or 1
 
