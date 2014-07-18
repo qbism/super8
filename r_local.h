@@ -121,7 +121,9 @@ extern	float	verticalFieldOfView;
 extern	float	xOrigin, yOrigin;
 
 extern	int		r_visframecount;
-extern  cvar_t     vid_nativeaspect; //qb
+extern  float   calc_nativeaspect; //qb: calculated from max vid mode
+extern  float   nativeaspect; //qb: calculate if cvar isn't set
+extern  cvar_t  vid_nativeaspect; //qb: set in config
 
 //=============================================================================
 
