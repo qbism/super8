@@ -263,47 +263,6 @@ void CL_KeepaliveMessage (void)
     SZ_Clear (&cls.message);
 }
 
-#ifdef WEBDL    //qb: sometimes works, needs more testing
-/*
-=====================
-CL_WebDownloadProgress //qb: R00k / Baker tute
-Callback function for webdownloads.
-Since Web_Get only returns once it's done, we have to do various things here:
-Update download percent, handle input, redraw UI and send net packets.
-=====================
-*/
-//qb: neither version seems to work.
-/*static int CL_WebDownloadProgress( double percent )
-{
-    static double time, oldtime, newtime;
-
-    cls.download.percent = percent;
-    CL_KeepaliveMessage();
-
-    newtime = Sys_DoubleTime ();
-    time = newtime - oldtime;
-
-    Host_Frame (time);
-
-    oldtime = newtime;
-
-    return cls.download.disconnect; // abort if disconnect received
-}*/
-
-int CL_WebDownloadProgress (double percent)
-{
-    static int oldpct = -1;
-
-    if ((int) percent != oldpct)
-    {
-        printf ("...Downloading %i%%\n", (int) percent);
-        oldpct = (int) percent;
-    }
-
-    return 1;
-}
-#endif
-
 static char	model_precache[MAX_MODELS][MAX_QPATH];
 static char	sound_precache[MAX_SOUNDS][MAX_QPATH];
 /*
@@ -317,15 +276,7 @@ void CL_ParseServerInfo (void)
     int		i;
     int		nummodels, numsounds;
 
-#ifdef WEBDL
-    char url[1024];  //qb: R00k / Baker tute
-    qboolean success = false;
-    char download_tempname[MAX_QPATH],download_finalname[MAX_QPATH];
-    char folder[MAX_QPATH];
-    char name[MAX_QPATH];
-#endif
-
-    char        tmp[256]; //qb: for Dan East pocketquake
+    char        tmp[256]; //qb: from Dan East pocketquake, dynamic console width
 
     Con_DPrintf ("Serverinfo packet received.\n");
 //
@@ -426,54 +377,6 @@ void CL_ParseServerInfo (void)
         cl.model_precache[i] = Mod_ForName (model_precache[i], false);
         if (cl.model_precache[i] == NULL)
         {
-#ifdef WEBDL    //qb: sometimes works, needs more testing
-            if (cl_web_download.value && cl_web_download_url.string) //qb: R00k / Baker tute
-            {
-//Create the FULL path where the file should be written
-                Q_snprintfz (download_tempname, MAX_OSPATH, "%s/%s.tmp", com_gamedir, model_precache[i]);
-
-//determine the proper folder and create it, the OS will ignore if already exsists
-                COM_GetFolder(model_precache[i],folder);// "progs/","maps/"
-                Q_snprintfz (name, sizeof(name), "%s/%s", com_gamedir, folder);
-                Sys_mkdir (name);
-
-                Con_Printf( "Web downloading: %s from %s%s\n", model_precache[i], cl_web_download_url.string, model_precache[i]);
-
-//assign the url + path + file + extension we want
-                Q_snprintfz( url, sizeof( url ), "%s%s", cl_web_download_url.string, model_precache[i]);
-
-                cls.download.web = true;
-                cls.download.disconnect = false;
-                cls.download.percent = 0.0;
-//let libCURL do it's magic!!
-                success = Web_Get(url, NULL, download_tempname, false, 600, 30, CL_WebDownloadProgress);
-
-                cls.download.web = false;
-                if (success)
-                {
-                    Con_Printf("Web download succesful: %s\n", download_tempname);
-//Rename the .tmp file to the final precache filename
-                    Q_snprintfz (download_finalname, MAX_OSPATH, "%s/%s", com_gamedir, model_precache[i]);
-                    rename (download_tempname, download_finalname);
-                    Cbuf_AddText (va("connect %u\n",net_hostport));//reconnect after each success
-                    return;
-                }
-                else
-                {
-                    remove (download_tempname);
-                    Con_Printf( "Web download of %s failed\n", download_tempname );
-                    return;
-                }
-                if( cls.download.disconnect )//if the user type disconnect in the middle of the download
-                {
-                    cls.download.disconnect = false;
-                    CL_Disconnect_f();
-                    return;
-                }
-            }
-            else
-#endif //WEBDL
-
             {
                 Con_Printf("Model %s not found\n", model_precache[i]);
                 return;
@@ -487,56 +390,6 @@ void CL_ParseServerInfo (void)
         cl.sound_precache[i] = S_PrecacheSound (sound_precache[i]);
         if (cl.sound_precache[i] == NULL)
         {
-#ifdef WEBDL    //qb: sometimes works, needs more testing
-            if (cl_web_download.value && cl_web_download_url.string) //qb: R00k / Baker tute
-            {
-//Create the FULL path where the file should be written
-                Q_snprintfz (download_tempname, MAX_OSPATH, "%s/%s.tmp", com_gamedir, sound_precache[i]);
-
-//determine the proper folder and create it, the OS will ignore if already exsists
-                COM_GetFolder(sound_precache[i],folder);// "progs/","maps/"
-                Q_snprintfz (name, sizeof(name), "%s/%s", com_gamedir, folder);
-                Sys_mkdir (name);
-
-                Con_Printf( "Web downloading: %s from %s%s\n", sound_precache[i], cl_web_download_url.string, sound_precache[i]);
-
-//assign the url + path + file + extension we want
-                Q_snprintfz( url, sizeof( url ), "%s%s", cl_web_download_url.string, sound_precache[i]);
-
-                cls.download.web = true;
-                cls.download.disconnect = false;
-                cls.download.percent = 0.0;
-
-//let libCURL do it's magic!!
-                success = Web_Get(url, NULL, download_tempname, false, 600, 30, CL_WebDownloadProgress);
-
-                cls.download.web = false;
-
-                if (success)
-                {
-                    Con_Printf("Web download succesful: %s\n", download_tempname);
-//Rename the .tmp file to the final precache filename
-                    Q_snprintfz (download_finalname, MAX_OSPATH, "%s/%s", com_gamedir, sound_precache[i]);
-                    rename (download_tempname, download_finalname);
-
-                    Cbuf_AddText (va("connect %u\n",net_hostport));//reconnect after each success
-                    return;
-                }
-                else
-                {
-                    remove (download_tempname);
-                    Con_Printf( "Web download of %s failed\n", download_tempname );
-                    return;
-                }
-
-                 if( cls.download.disconnect )//if the user type disconnect in the middle of the download
-                {
-                    cls.download.disconnect = false;
-                    CL_Disconnect_f();
-                    return;
-                }
-            }
-#endif
             //qb: normally just ignore missing sounds
         }
         CL_KeepaliveMessage ();

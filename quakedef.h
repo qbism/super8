@@ -377,11 +377,3 @@ void Chase_Update (void);
 
 dfunction_t *ED_FindFunction (char *name);	// FrikaC - qcexec function
 extern int current_protocol; //qb
-
-#ifdef WEBDL    //qb: sometimes works, needs more testing
-extern cvar_t cl_web_download; //qb: R00k / Baker tute
-extern cvar_t cl_web_download_url;
-
-extern int Web_Get( const char *url, const char *referer, const char *name, int resume,
-                    int max_downloading_time, int timeout, int ( *_progress )(double) );
-#endif

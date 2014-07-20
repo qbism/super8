@@ -46,11 +46,6 @@ cvar_t	m_side = {"m_side","0.8", "m_side[value] Strafe speed with mouse.", true}
 cvar_t	m_look = {"m_look","1", "m_look[0/1] Mouse look toggle.", true}; // Manoel Kasimier - m_look
 cvar_t	cutscene = {"cutscene", "1", "cutscene[0/1] Toggles whether or not to show cutscenes."}; // Nehahra
 
-#ifdef WEBDL    //qb: sometimes works, needs more testing
-cvar_t cl_web_download = {"cl_web_download", "1", "cl_web_download[0/1] Toggle allow downloads.", true}; //qb: R00k / Baker tute
-cvar_t cl_web_download_url = {"cl_web_download_url", "http://qb:.com/_q1maps/", "cl_web_download_url[http] Web address to download content.", true};
-#endif // WEBDL
-
 client_static_t	cls;
 client_state_t	cl;
 
@@ -247,15 +242,6 @@ void CL_Disconnect (void)
  	S_StopAllSounds (true);
 	BGM_Stop(); //qb: QS
 	CDAudio_Stop();
-
-#ifdef WEBDL    //qb: sometimes works, needs more testing
-// We have to shut down webdownloading first
-    if( cls.download.web )  //qb: R00k / Baker tute
-    {
-        cls.download.disconnect = true;
-        return;
-    }
-#endif //WEBDL
 
 // ToChriS 1.67 - begin clear effects
 //void CL_ClearCshifts (void)
@@ -792,7 +778,7 @@ void CL_RelinkEntities (void)
                 dl->radius = 200 + (rand()&31);
                 dl->minlight = 32;
                 dl->die = cl.time + 0.1;
-                dl->color = palmapnofb[8][10][16]; //qb: dyncol
+                dl->color = palmapnofb[18][21][19]; //qb: dyncol
             }
             if (ent->effects & EF_BRIGHTLIGHT)
             {
@@ -801,7 +787,7 @@ void CL_RelinkEntities (void)
                 dl->origin[2] += 16;
                 dl->radius = 400 + (rand()&31);
                 dl->die = cl.time + 0.001;
-                dl->color = palmapnofb[16][12][6]; //qb: dyncol
+                dl->color = palmapnofb[35][28][18]; //qb: dyncol
             }
             if (ent->effects & EF_DIMLIGHT)
             {
@@ -809,7 +795,7 @@ void CL_RelinkEntities (void)
                 VectorCopy (ent->origin,  dl->origin);
                 dl->radius = 200 + (rand()&31);
                 dl->die = cl.time + 0.001;
-                dl->color = palmapnofb[8][6][4]; //qb: dyncol
+                dl->color = palmapnofb[18][16][8]; //qb: dyncol
             }
 
         } // Manoel Kasimier
@@ -830,9 +816,24 @@ void CL_RelinkEntities (void)
             else if (ent->effects & EF_ZOMGIB)
                 R_RocketTrail (oldorg, ent->origin, 4);
             else if (ent->effects & EF_TRACER)
+            {
+                dl = CL_AllocDlight (i); //qb: add monster muzzleflash ala directQ
+                VectorCopy (ent->origin,  dl->origin);
+                dl->origin[2] += 16;
+                dl->radius = 300 + (rand()&31);
+                dl->die = cl.time + 0.1;
+                dl->color = palmapnofb[4][36][6]; //qb: dyncol
                 R_RocketTrail (oldorg, ent->origin, 3);
+            }
             else if (ent->effects & EF_TRACER2)
+            {
                 R_RocketTrail (oldorg, ent->origin, 5);
+                dl = CL_AllocDlight (i);
+                VectorCopy (ent->origin, dl->origin);
+                dl->radius = 200;
+                dl->die = cl.time + 0.01;
+                dl->color = palmapnofb[36][26][8];
+            }
             else if (ent->effects & EF_ROCKET)
             {
                 R_RocketTrail (oldorg, ent->origin, 0);
@@ -840,12 +841,19 @@ void CL_RelinkEntities (void)
                 VectorCopy (ent->origin, dl->origin);
                 dl->radius = 200;
                 dl->die = cl.time + 0.01;
-                dl->color = palmapnofb[18][8][4];
+                dl->color = palmapnofb[30][28][16];
             }
             else if (ent->effects & EF_GRENADE)
                 R_RocketTrail (oldorg, ent->origin, 1);
             else if (ent->effects & EF_TRACER3)
+            {
                 R_RocketTrail (oldorg, ent->origin, 6);
+                dl = CL_AllocDlight (i);
+                VectorCopy (ent->origin, dl->origin);
+                dl->radius = 200;
+                dl->die = cl.time + 0.01;
+                dl->color = palmapnofb[30][6][30];
+            }
         } // Manoel Kasimier
         // Tomaz - QC Glow
         if (ent->glow_size)
@@ -1073,11 +1081,6 @@ void CL_Init (void)
     Cvar_RegisterVariable (&m_side);
     Cvar_RegisterVariable (&m_look); // Manoel Kasimier - m_look
     Cvar_RegisterVariable (&cutscene); // Nehahra
-
-#ifdef WEBDL    //qb: sometimes works, needs more testing
-    Cvar_RegisterVariable (&cl_web_download);  //qb: R00k / Baker tute
-    Cvar_RegisterVariable (&cl_web_download_url);
-#endif
 
     Cmd_AddCommand ("entities", CL_PrintEntities_f);
     Cmd_AddCommand ("disconnect", CL_Disconnect_f);
