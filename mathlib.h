@@ -88,12 +88,9 @@ int BoxOnPlaneSide (vec3_t emins, vec3_t emaxs, struct mplane_s *plane);
 #define bound(min,num,max) (num >= min ? (num < max ? num : max) : min)
 #define CLAMP(min, x, max) ((x) < (min) ? (min) : (x) > (max) ? (max) : (x)) //johnfitz
 
-#ifndef min
 #define min(val1,val2) (val2 < val1 ? val2 : val1)
-#endif
-#ifndef max
 #define max(val1,val2) (val2 > val1 ? val2 : val1)
-#endif
+
 // 2001-11-15 DarkPlaces general builtin functions by LordHavoc  end
 
 #define Q_rint(x) ((x) > 0 ? (int)((x) + 0.5) : (int)((x) - 0.5)) //qb: jqavi -todo- use elsewhere? look at jq and fitzq

@@ -527,8 +527,8 @@ Mod_LoadLighting
 void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
 {
 	//int j;
-    int		i, k, r, g, b;
-    //float   weight;
+    int		i, k;
+    float   normalize, r, g, b;
 	//float wlout;
     byte	*out, *data;
 	//byte *lout;
@@ -558,7 +558,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                 i = LittleLong(((int *)data)[1]);
                 if (i == 1)
                 {
-                    loadmodel->colordata = Hunk_AllocName (l->filelen+18, "modcolor"); //qb: need some padding
+                    loadmodel->colordata = Hunk_AllocName (l->filelen+3, "modcolor"); //qb: need some padding
                     k=8;
                     out = loadmodel->colordata;
                     while(k <= fileinfo->filelen)
@@ -566,9 +566,13 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                         r = data[k++];
                         g = data[k++];
                         b = data[k++];
-                        *out++ = BestColor(r*1.1, g*1.2, b*1.1, 0, 254); //qb: need a little boost on colored light
+                        normalize = sqrt(r*r + g*g + b*b)*1.0+0.01;
+                        *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
                     }
                     Q_free(fileinfo);
+                    *out++ = BestColor(r/9.0+r/normalize, g/2+g/normalize, g/2+g/normalize,0,254); //qb: bleed-over for dither
+                    *out++ = BestColor(r/2+r/normalize, g/2+g/normalize, g/2+g/normalize,0,254);
+                    *out++ = BestColor(r/2+r/normalize, g/2+g/normalize, g/2+g/normalize,0,254);
                     return;
                 }
                 else
@@ -578,8 +582,8 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                 Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
         }
         //qb: no lit.  Still need something for colored dynamic lights.
-        loadmodel->colordata = Hunk_AllocName (l->filelen+20, "modcolor"); //qb: need some padding
-        memset (loadmodel->colordata, 1, l->filelen+20);  //qb: fill w/ color index
+        loadmodel->colordata = Hunk_AllocName (l->filelen+3, "modcolor"); //qb: need some padding
+        memset (loadmodel->colordata, 1, l->filelen+3);  //qb: fill w/ color index
     }
 }
 

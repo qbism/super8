@@ -154,9 +154,6 @@ cvar_t  r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,prog
 
 
 cvar_t  r_coloredlights = {"r_coloredlights", "1", "r_coloredlights[0/1] Toggle use of colored lighting.", true}; //qb:
-cvar_t  r_clbaseweight = {"r_clbaseweight", "0.9", "r_clbaseweight[0.0 - 1.0] Importance of texture color in colored lighting precalculation.", true}; //qb: base pixel weight for color map blending
-cvar_t  r_clcolorweight= {"r_clcolorweight", "0.65", "r_clcolorweight[0.0 - 1.0] Importance of lighting color in colored lighting precalculation.", true}; //qb: color weight for color map blending
-
 cvar_t r_fog = {"r_fog", "1", "r_fog[0/1] Toggle rendering of fog.", true}; //qb:  draw fog?
 
 cvar_t  r_reportsurfout = {"r_reportsurfout", "0", "r_reportsurfout[0/1] Toggle report of surfaces dropped because > r_maxsurfs."};
@@ -243,7 +240,7 @@ R_Init
 void FogDitherInit(void)
 {
     int i;
-     for (i=0; i<DITHER_NUMRANDS; i++)
+    for (i=0; i<DITHER_NUMRANDS; i++)
         ditherfog[i] = rand()%8;
 }
 
@@ -284,9 +281,6 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_drawflat);
     Cvar_RegisterVariable (&r_ambient);
     Cvar_RegisterVariable (&r_coloredlights); //qb:
-    Cvar_RegisterVariable (&r_clbaseweight); //qb:
-    Cvar_RegisterVariable (&r_clcolorweight); //qb:
-//qb:    Cvar_RegisterVariable (&r_colmaprange); //qb:
     Cvar_RegisterVariable (&r_fog); //qb:
 
     Cvar_RegisterVariable (&r_clearcolor);
@@ -444,16 +438,6 @@ void MakeMy18to8()
     }
 }
 
-int FindColor18 (int r, int g, int b) //qb: from engoo
-{
-	int		bestcolor;
-    r = bound (0,r,254);
-    g = bound (0,g,254);
-    b = bound (0,b,254);
-	bestcolor = palmap[r>>2][g>>2][b>>2];
-	return bestcolor;
-}
-
 /*
 ===============
 BestColor - qb: from qlumpy
@@ -552,22 +536,25 @@ void GrabFogmap (void) //qb: better fog blending from engoo
             r = host_basepal[c*3] + host_basepal[l*3];
             g = host_basepal[c*3+1] + host_basepal[l*3+1];
             b = host_basepal[c*3+2] + host_basepal[l*3+2];
-            *colmap++ = FindColor18(r,g,b); //qb: from engoo.  looks better for fog
+            r = bound(0,r,254);
+            g = bound(0,g,254);
+            b = bound(0,b,254);
+            *colmap++ = palmap[r>>2][g>>2][b>>2]; //qb: from engoo.  looks better for fog
         }
     }
- }
+}
 
 void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show through
 {
     int c,p, r,g,b;
-    float rc,gc,bc, rp,gp,bp, coloravg; //, brightscale;
-    float ay, ae;
+    float rc,gc,bc, rp,gp,bp; //, brightscale;
+    float ay, ae, normalize;
     byte *colmap;
 
     if(coloredlights == 1)
     {
-        ae = bound (0, r_clbaseweight.value, 1.0);                      // base pixels
-        ay = bound (0, r_clcolorweight.value, 1.0);             //color
+        ae = 0.55;
+        ay = 0.45;
     }
     else
     {
@@ -582,13 +569,11 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
         rc=host_basepal[c*3];
         gc=host_basepal[c*3+1];
         bc=host_basepal[c*3+2];
-        coloravg = (rc+gc+bc+sqrt(rc+gc+bc))/4.0;
-        rc = (rc-coloravg)*ay;
-        if (rc < 0) rc = 0;
-        bc = (bc-coloravg)*ay;
-        if (bc < 0) bc = 0;
-        gc = (gc-coloravg)*ay;
-        if (gc < 0) gc = 0;
+        //normalize = sqrt(rc*rc + gc*gc + bc*bc)*25.0+0.01; //plus saturation
+
+       // rc = min (rc*rc/normalize, 254.0);
+       // gc = min (gc*gc/normalize, 254.0);
+       // bc = min (bc*bc/normalize, 254.0);
 
         for (p=0 ; p<256 ; p++)
         {
@@ -599,14 +584,16 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
                 rp=host_basepal[p*3];
                 gp=host_basepal[p*3+1];
                 bp=host_basepal[p*3+2];
-                // brightscale = (float)(rp+gp+bp)/(brightcolor+0.5);
 
-                //bright = sqrt((rl+gl+bl)/(host_basepal[c*3]+host_basepal[c*3+1]+host_basepal[c*3+2]+1.0));
-                r = rp+rc ; //(rc * rc * ay)+ rp * (ae + (rc * ay));
-                g = gp+gc ; //(gc * gc * ay)+ gp * (ae + (gc * ay));
-                b = bp+bc ; //(bc * bc * ay)+ bp * (ae + (bc * ay));
+                r = bound(0,(rc * ay)+ rp * (ae + (rc * ae)),254);
+                g = bound(0,(gc * ay)+ gp * (ae + (gc * ae)),254);
+                b = bound(0,(bc * ay)+ bp * (ae + (bc * ae)),254);
 
-                *colmap++ = BestColor(r,g,b, 0, 223);
+                 r = bound(0,rc*ay+rp*ae,254);
+                g = bound(0,gc*ay+gp*ae,254);
+                b = bound(0,bc*ay+bp*ae,254);
+
+                *colmap++ = palmapnofb[r>>2][g>>2][b>>2];
             }
         }
     }
@@ -614,7 +601,7 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
 
 void GrabAdditivemap (void) //qb: based on Engoo
 {
-    int c,l, red, green, blue;
+    int c,l, r, g, b;
     float ay, ae;
     byte *colmap;
 
@@ -626,10 +613,10 @@ void GrabAdditivemap (void) //qb: based on Engoo
     {
         for (c=0 ; c<256 ; c++)
         {
-            red = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
-            green = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
-            blue = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
-            *colmap++ = BestColor(red,green,blue, 0, 254); // High quality color tables get best color
+            r = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
+            g = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
+            b = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
+            *colmap++ = palmap[r>>2][g>>2][b>>2]; // High quality color tables get best color
         }
     }
 }

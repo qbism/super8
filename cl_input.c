@@ -257,7 +257,7 @@ void IN_Impulse (void)
     in_impulse=Q_atoi(Cmd_Argv(1));
 }
 
-//qb: bestweapon, via FQ Mark V
+
 static int weaponstat[7] = {STAT_SHELLS, STAT_SHELLS, STAT_NAILS, STAT_NAILS, STAT_ROCKETS, STAT_ROCKETS, STAT_CELLS};
 
 /*

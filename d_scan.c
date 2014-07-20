@@ -30,8 +30,6 @@ int                r_turb_spancount;
 extern pixel_t *warpbuf;
 extern cvar_t vid_ddraw;
 
-void D_DrawTurbulent8Span (void);
-
 // mankrip - hi-res waterwarp - begin
 int *intsintable_x = NULL,   *intsintable_y = NULL,   *warpcolumn = NULL,   *warprow = NULL;
 byte *turbdest = NULL,   *turbsrc = NULL;
@@ -277,27 +275,15 @@ void D_WarpScreen (void)
         memcpy(dest, src, r_refdef.vrect.width);
 }
 
-/*
-=============
-D_DrawTurbulent8Span
-=============
-*/
-void D_DrawTurbulent8Span (void)
-{
-//      int             sturb, tturb;
 
-    do
-    {
-#define sturb (((r_turb_s + r_turb_turb[(r_turb_t>>16)&(CYCLE-1)])>>16)&63) // Manoel Kasimier - edited
-#define tturb (((r_turb_t + r_turb_turb[(r_turb_s>>16)&(CYCLE-1)])>>16)&63) // Manoel Kasimier - edited
-        *r_turb_pdest++ = *(r_turb_pbase + (tturb<<6) + sturb);
-        r_turb_s += r_turb_sstep;
-        r_turb_t += r_turb_tstep;
-    }
-    while (--r_turb_spancount > 0);
-#undef sturb
-#undef tturb
-}
+static int          count, spancount;
+static byte         *pbase, *pdest;
+static fixed16_t    s, t, snext, tnext, sstep, tstep;
+static float        sdivz, tdivz, zi, z, du, dv, spancountminus1;
+static float        sdivzstepu, tdivzstepu, zistepu;
+static int          izi, izistep; // mankrip
+static short        *pz; // mankrip
+static unsigned cw_local;  //qb: using a const is faster, based on assembly output
 
 
 /*
@@ -307,23 +293,14 @@ Turbulent8
 */
 void Turbulent8 (espan_t *pspan)
 {
-    static int                          count;  //qb: do more static.
-    static int                          izi, izistep, izistep2, sturb, tturb, teste; // Manoel Kasimier - translucent water
-    static short                       *pz; // Manoel Kasimier - translucent water
-    static fixed16_t            snext, tnext;
-    static float                        sdivz, tdivz, zi, z, du, dv, spancountminus1;
-    static float                        sdivz16stepu, tdivz16stepu, zi16stepu;
+    static int     izistep2, sturb, tturb, teste; // Manoel Kasimier - translucent water
 
     r_turb_turb = sintable + ((int)(cl.time*SPEED)&(CYCLE-1));
-
-    r_turb_sstep = 0;   // keep compiler happy
-    r_turb_tstep = 0;   // ditto
-
     r_turb_pbase = (byte *)cacheblock;
 
-    sdivz16stepu = d_sdivzstepu * 16;
-    tdivz16stepu = d_tdivzstepu * 16;
-    zi16stepu = d_zistepu * 16;
+    sdivzstepu = d_sdivzstepu * 16;
+    tdivzstepu = d_tdivzstepu * 16;
+    zistepu = d_zistepu * 16;
 
     // Manoel Kasimier - translucent water - begin
 // we count on FP exceptions being turned off to avoid range problems
@@ -376,9 +353,9 @@ void Turbulent8 (espan_t *pspan)
             {
                 // calculate s/z, t/z, zi->fixed s and t at far end of span,
                 // calculate s and t steps across span by shifting
-                sdivz += sdivz16stepu;
-                tdivz += tdivz16stepu;
-                zi += zi16stepu;
+                sdivz += sdivzstepu;
+                tdivz += tdivzstepu;
+                zi += zistepu;
                 z = (float)0x10000 / zi;        // prescale to 16.16 fixed-point
 
                 snext = (int)(sdivz * z) + sadjust;
@@ -436,47 +413,7 @@ void Turbulent8 (espan_t *pspan)
             // Manoel Kasimier - translucent water - begin
             if (r_drawwater)
             {
-               /* if (r_wateralpha.value <= 0.24) // <25%
-                {
-                    teste = ((((int)r_turb_pdest-(int)d_viewbuffer) / screenwidth)+1) & 1;
-                    if (teste) // 25% transparency
-                    {
-stipple:
-                        if (!(((int)r_turb_pdest + teste) & 1)) // if we are in the wrong pixel,
-                        {
-                            if (r_turb_spancount == 1)
-                                goto end_of_loop;
-                            // this is not working the way it should. it's drawing 1 pixel outside of the screen.
-                            // advance one pixel
-                            *r_turb_pdest++;
-                            izi += izistep;
-                            pz++;
-                            r_turb_s += r_turb_sstep;
-                            r_turb_t += r_turb_tstep;
-                            r_turb_spancount = (r_turb_spancount/2); // -1
-                        }
-                        else
-                            r_turb_spancount = (r_turb_spancount+1)/2;
-                        // multiply steps by 2
-                        r_turb_sstep*=2;
-                        r_turb_tstep*=2;
-                        do
-                        {
-#define sturb2 (((r_turb_s + r_turb_turb[(r_turb_t>>16)&(CYCLE-1)])>>16)&63)
-#define tturb2 (((r_turb_t + r_turb_turb[(r_turb_s>>16)&(CYCLE-1)])>>16)&63)
-                            if (*pz <= (izi >> 16))
-                                *r_turb_pdest = *(r_turb_pbase + (tturb2<<6) + sturb2);
-                            // advance two pixels
-                            r_turb_pdest += 2;
-                            pz += 2;
-                            izi += izistep2;
-                            r_turb_s += r_turb_sstep;
-                            r_turb_t += r_turb_tstep;
-                        }
-                        while (--r_turb_spancount > 0);
-                    }
-                }
-                else */ if (r_wateralpha.value <= 0.41) // 33%
+  if (r_wateralpha.value <= 0.41) // 33%
                 {
                     do
                     {
@@ -497,7 +434,7 @@ stipple:
                 }
                 else if (r_wateralpha.value < 0.61 || !alphamap) // 50%
                 {
-                     do
+                    do
                     {
                         if (*pz <= (izi >> 16))
                         {
@@ -537,7 +474,19 @@ stipple:
             }
             else
                 // Manoel Kasimier - translucent water - end
-                D_DrawTurbulent8Span ();
+            {
+                do //qb: just move D_DrawTurbulent8Span stuff here
+                {
+#define sturb (((r_turb_s + r_turb_turb[(r_turb_t>>16)&(CYCLE-1)])>>16)&63) // Manoel Kasimier - edited
+#define tturb (((r_turb_t + r_turb_turb[(r_turb_s>>16)&(CYCLE-1)])>>16)&63) // Manoel Kasimier - edited
+                    *r_turb_pdest++ = *(r_turb_pbase + (tturb<<6) + sturb);
+                    r_turb_s += r_turb_sstep;
+                    r_turb_t += r_turb_tstep;
+                }
+                while (--r_turb_spancount > 0);
+#undef sturb
+#undef tturb
+            }
 
 end_of_loop: // Manoel Kasimier - translucent water
             r_turb_s = snext;
@@ -563,22 +512,11 @@ D_DrawSpans
 //============================================*/
 
 
-static int          count, spancount;
-static byte         *pbase, *pdest;
-static fixed16_t    s, t, snext, tnext, sstep, tstep;
-static float        sdivz, tdivz, zi, z, du, dv, spancountminus1;
-static float        sdivzstepu, tdivzstepu, zistepu;
-static int                  izi, izistep; // mankrip
-static short            *pz; // mankrip
-static unsigned cw_local;  //qb: using a const is faster, based on assembly output
-
 //qbism: pointer to pbase and macroize idea from mankrip
 #define WRITEPDEST(i) { pdest[i] = *(pbase + (s >> 16) + (t >> 16) * cw_local); s+=sstep; t+=tstep;} //qb: using a const is faster
 
 void D_DrawSpans16_C (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll = big speed gain!
 {
-    sstep = 0;   // keep compiler happy
-    tstep = 0;   // ditto
     cw_local = cachewidth; //qb: static is faster, based on assembly output
     pbase = (byte *)cacheblock;
     sdivzstepu = d_sdivzstepu * 16;
@@ -700,11 +638,7 @@ void D_DrawSpans16_C (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll =
 
 void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
 {
-
-    sstep = 0;  // keep compiler happy
-    tstep = 0;  // ditto
     cw_local = cachewidth;
-
     pbase = (byte *)cacheblock;
 
     //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
@@ -979,10 +913,7 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
 
 void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
 {
-    sstep = 0;  // keep compiler happy
-    tstep = 0;  // ditto
     cw_local = cachewidth;
-
     pbase = (byte *)cacheblock;
 
     //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
@@ -1257,10 +1188,7 @@ void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
 
 void D_DrawSpans16_BlendBackwards (espan_t *pspan)
 {
-    sstep = 0;  // keep compiler happy
-    tstep = 0;  // ditto
     cw_local = cachewidth;
-
     pbase = (byte *)cacheblock;
 
     //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
