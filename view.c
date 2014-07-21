@@ -51,6 +51,10 @@ cvar_t	cl_rollangle = {"cl_rollangle", "2.0", "cl_rollangle[angle] Angle to tilt
 cvar_t	cl_bob = {"cl_bob","0.007", "cl_bob[value] Amount of view bob when moving.", false};
 cvar_t	cl_bobcycle = {"cl_bobcycle","0.6", "cl_bobcycle[value] View bob frequency.", false};
 cvar_t	cl_bobup = {"cl_bobup","0.5", "cl_bobup[0.0 - 1.0] Proportion view bob up.", false};
+cvar_t  cl_bobmodel = {"cl_bobmodel", "3", "cl_bobmodel[1-7] various types of weapon bob.", true};
+cvar_t  cl_bobmodel_speed = {"cl_bobmodel_speed", "7", "cl_bobmodel_speed[1-20] speed of weapon bob.", true};
+cvar_t  cl_bobmodel_side = {"cl_bobmodel_side", "0.3", "cl_bobmodel_side[0.0-1.0] side-to-side weapon bob speed.", true};
+cvar_t  cl_bobmodel_up = {"cl_bobmodel_up", "0.15", "cl_bobmodel_up[0.0-1.0] up-and-down weapon bob speed.", true};
 
 cvar_t	v_kicktime = {"v_kicktime", "0.5", "v_kicktime[time] Time length of view kick.", false};
 cvar_t	v_kickroll = {"v_kickroll", "0.6", "v_kickroll[angle] View roll for kick.", false};
@@ -792,10 +796,12 @@ void V_CalcRefdef (void)
     int			i;
     vec3_t		forward, right, up;
     vec3_t		angles;
-    float		bob;
+    float		bob, s, t;
     static float oldz = 0;
-    vec3_t kickangle; //qb- v_gunkick from directq
-
+    vec3_t kickangle; //qb: v_gunkick from directq
+    float  gunbobtime; //qb: engoo/sajt
+    double xyspeed;
+    float bspeed;
 
     V_DriftPitch ();
 
@@ -865,28 +871,10 @@ void V_CalcRefdef (void)
     for (i=0 ; i<3 ; i++)
     {
         view->origin[i] += forward[i]*bob*0.4;
-//		view->origin[i] += right[i]*bob*0.4;
-//		view->origin[i] += up[i]*bob*0.8;
     }
     view->origin[2] += bob;
     if (!cl_nobob.value) // Manoel Kasimier - cl_nobob
         view->origin[2] += 2; // Manoel Kasimier - cl_nobob
-
-// fudge position around to keep amount of weapon visible
-// roughly equal with different FOV
-    /*
-    #if 0
-    	if (cl.model_precache[cl.stats[STAT_WEAPON]] && Q_strcmp (cl.model_precache[cl.stats[STAT_WEAPON]]->name,  "progs/v_shot2.mdl"))
-    #endif
-    	if (scr_viewsize.value == 110)
-    		view->origin[2] += 1;
-    	else if (scr_viewsize.value == 100)
-    		view->origin[2] += 2;
-    	else if (scr_viewsize.value == 90)
-    		view->origin[2] += 1;
-    	else if (scr_viewsize.value == 80)
-    		view->origin[2] += 0.5;
-    //*/
 
     view->model = cl.model_precache[cl.stats[STAT_WEAPON]];
     view->frame = cl.stats[STAT_WEAPONFRAME];
@@ -918,6 +906,120 @@ void V_CalcRefdef (void)
 
     if (chase_active.value)
         Chase_Update ();
+
+    //qb:  simplified from engoo...
+    //	  -----------------------------------------
+    // ** SAJT'S KEGENDARY BOBMODEL CODE STARTS HERE! **
+    //    -----------------------------------------
+    if (cl_bobmodel.value)
+    {
+        // calculate for swinging gun model
+        // the gun bobs when running on the ground, but doesn't bob when you're in the air.
+        // Sajt: I tried to smooth out the transitions between bob and no bob, which works
+        // for the most part, but for some reason when you go through a message trigger or
+        // pick up an item or anything like that it will momentarily jolt the gun.
+             gunbobtime = cl.time;
+
+        s = gunbobtime * cl_bobmodel_speed.value;
+
+    /*    if (cl.onground)
+        {
+            if (gunbobtime - cl.hitgroundtime < 0.4)  //qb: was 0.2
+            {
+                // just hit the ground, speed the bob back up over time
+                t = gunbobtime - cl.hitgroundtime;
+                t = bound(0, t, 0.5);
+                t *= 3;
+            }
+            else
+                t = 1;
+        }
+        else
+        {
+            // recently left the ground, slow the bob down over time
+            t = gunbobtime - cl.lastongroundtime;
+            t = 0.4 - bound(0, t, 0.5);
+            t *= 3;
+        }
+        */
+        t=1;
+        bspeed = xyspeed * 0.01f;
+        xyspeed = sqrt(cl.velocity[0] * cl.velocity[0] + cl.velocity[1] * cl.velocity[1]);
+        bspeed = bound(0, xyspeed, 400) * 0.01f;
+
+        AngleVectors(view->angles, forward, right, up);
+
+
+        // leilei - The engine now has other hacked types of DP bobbing
+        // to capture other 'feels'.
+        if (cl_bobmodel.value == 2)
+        {
+            // Arc2  bobbing
+            bob = bspeed * cl_bobmodel_side.value * (cos(s)) * t;
+            VectorMA(view->origin, bob, right, view->origin);
+            bob = bspeed * cl_bobmodel_up.value * cos(s * 2) * t;
+            VectorMA(view->origin, bob, up, view->origin);
+        }
+        else if (cl_bobmodel.value == 3)
+        {
+            // Figure 8  bobbing
+            bob = bspeed * cl_bobmodel_side.value * sin(s) * t;
+            VectorMA(view->origin, bob, right, view->origin);
+            bob = bspeed * cl_bobmodel_up.value * sin(s * 2) * t;
+            VectorMA(view->origin, bob, up, view->origin);
+        }
+        else if (cl_bobmodel.value == 4)
+        {
+            // -ish Bobbing
+            bob = bspeed * cl_bobmodel_side.value * sin(s) * (t * 0.3);
+            VectorMA(view->origin, bob, right, view->origin);
+            bob = bspeed * cl_bobmodel_up.value * sin(s * 2) * t;
+
+            VectorMA(view->origin, bob, up, view->origin);
+
+        }
+        else if (cl_bobmodel.value == 5)
+        {
+            // A unique bob.
+            // This one pushes the weapon toward the right
+            // and down so it appears 'aiming' when no longer
+            // moving. This will tick players off for those who
+            // use the gun's center as an aiming reticle.
+            //		t = t * 0.01; // soften the time!
+            bob = bspeed * cl_bobmodel_side.value * (sin(s) + 6) * t;
+            VectorMA(view->origin, bob, right, view->origin);
+            bob = bspeed * cl_bobmodel_up.value * (cos(s * 2) - 3) * t;
+            VectorMA(view->origin, bob, up, view->origin);
+
+        }
+        else if (cl_bobmodel.value == 6)
+        {
+            // A variation, but in figure 8
+
+            bob = bspeed * cl_bobmodel_side.value * (sin(s) + 6) * t;
+            VectorMA(view->origin, bob, right, view->origin);
+
+            bob = bspeed * cl_bobmodel_up.value * (sin(s * 2) - 4) * t;
+            VectorMA(view->origin, bob, up, view->origin);
+
+        }
+        else if (cl_bobmodel.value == 7)
+        {
+
+            bob = bspeed * cl_bobmodel_side.value * cos(s) * t;
+            VectorMA(view->origin, bob, right, view->origin);
+            bob = bspeed * cl_bobmodel_up.value * cos(s * 2) * t;
+            VectorMA(view->origin, bob, up, view->origin);
+        }
+        else
+        {
+            // Default Darkplaces bobbing
+            bob = bspeed * cl_bobmodel_side.value * sin(s) * t;
+            VectorMA(view->origin, bob, right, view->origin);
+            bob = bspeed * cl_bobmodel_up.value * cos(s * 2) * t;
+            VectorMA(view->origin, bob, up, view->origin);
+        }
+    }
 }
 
 /*
@@ -1000,6 +1102,10 @@ void V_Init (void)
     Cvar_RegisterVariable (&cl_bob);
     Cvar_RegisterVariable (&cl_bobcycle);
     Cvar_RegisterVariable (&cl_bobup);
+    Cvar_RegisterVariable (&cl_bobmodel);
+    Cvar_RegisterVariable (&cl_bobmodel_speed);
+    Cvar_RegisterVariable (&cl_bobmodel_side);
+    Cvar_RegisterVariable (&cl_bobmodel_up);
 
     Cvar_RegisterVariable (&v_kicktime);
     Cvar_RegisterVariable (&v_kickroll);

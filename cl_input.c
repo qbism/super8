@@ -442,6 +442,16 @@ void CL_BaseMove (usercmd_t *cmd)
         cmd->sidemove *= cl_movespeedkey.value;
         cmd->upmove *= cl_movespeedkey.value;
     }
+
+    //qb: from engoo
+    // react to onground state changes (for gun bob)
+	if (cl.onground)
+	{
+		if (!cl.oldonground)
+			cl.hitgroundtime = cl.time;
+		cl.lastongroundtime = cl.time;
+	}
+	cl.oldonground = cl.onground;
 }
 
 
