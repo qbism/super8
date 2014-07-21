@@ -796,7 +796,7 @@ void V_CalcRefdef (void)
     int			i;
     vec3_t		forward, right, up;
     vec3_t		angles;
-    float		bob, s, t;
+    float		bob, s;
     static float oldz = 0;
     vec3_t kickangle; //qb: v_gunkick from directq
     float  gunbobtime; //qb: engoo/sajt
@@ -913,36 +913,9 @@ void V_CalcRefdef (void)
     //    -----------------------------------------
     if (cl_bobmodel.value)
     {
-        // calculate for swinging gun model
-        // the gun bobs when running on the ground, but doesn't bob when you're in the air.
-        // Sajt: I tried to smooth out the transitions between bob and no bob, which works
-        // for the most part, but for some reason when you go through a message trigger or
-        // pick up an item or anything like that it will momentarily jolt the gun.
-             gunbobtime = cl.time;
-
+       gunbobtime = cl.time;
         s = gunbobtime * cl_bobmodel_speed.value;
 
-    /*    if (cl.onground)
-        {
-            if (gunbobtime - cl.hitgroundtime < 0.4)  //qb: was 0.2
-            {
-                // just hit the ground, speed the bob back up over time
-                t = gunbobtime - cl.hitgroundtime;
-                t = bound(0, t, 0.5);
-                t *= 3;
-            }
-            else
-                t = 1;
-        }
-        else
-        {
-            // recently left the ground, slow the bob down over time
-            t = gunbobtime - cl.lastongroundtime;
-            t = 0.4 - bound(0, t, 0.5);
-            t *= 3;
-        }
-        */
-        t=1;
         bspeed = xyspeed * 0.01f;
         xyspeed = sqrt(cl.velocity[0] * cl.velocity[0] + cl.velocity[1] * cl.velocity[1]);
         bspeed = bound(0, xyspeed, 400) * 0.01f;
@@ -955,25 +928,25 @@ void V_CalcRefdef (void)
         if (cl_bobmodel.value == 2)
         {
             // Arc2  bobbing
-            bob = bspeed * cl_bobmodel_side.value * (cos(s)) * t;
+            bob = bspeed * cl_bobmodel_side.value * (cos(s));
             VectorMA(view->origin, bob, right, view->origin);
-            bob = bspeed * cl_bobmodel_up.value * cos(s * 2) * t;
+            bob = bspeed * cl_bobmodel_up.value * cos(s * 2);
             VectorMA(view->origin, bob, up, view->origin);
         }
         else if (cl_bobmodel.value == 3)
         {
             // Figure 8  bobbing
-            bob = bspeed * cl_bobmodel_side.value * sin(s) * t;
+            bob = bspeed * cl_bobmodel_side.value * sin(s);
             VectorMA(view->origin, bob, right, view->origin);
-            bob = bspeed * cl_bobmodel_up.value * sin(s * 2) * t;
+            bob = bspeed * cl_bobmodel_up.value * sin(s * 2);
             VectorMA(view->origin, bob, up, view->origin);
         }
         else if (cl_bobmodel.value == 4)
         {
             // -ish Bobbing
-            bob = bspeed * cl_bobmodel_side.value * sin(s) * (t * 0.3);
+            bob = bspeed * cl_bobmodel_side.value * sin(s) * 0.3;
             VectorMA(view->origin, bob, right, view->origin);
-            bob = bspeed * cl_bobmodel_up.value * sin(s * 2) * t;
+            bob = bspeed * cl_bobmodel_up.value * sin(s * 2);
 
             VectorMA(view->origin, bob, up, view->origin);
 
@@ -986,9 +959,9 @@ void V_CalcRefdef (void)
             // moving. This will tick players off for those who
             // use the gun's center as an aiming reticle.
             //		t = t * 0.01; // soften the time!
-            bob = bspeed * cl_bobmodel_side.value * (sin(s) + 6) * t;
+            bob = bspeed * cl_bobmodel_side.value * (sin(s) + 6);
             VectorMA(view->origin, bob, right, view->origin);
-            bob = bspeed * cl_bobmodel_up.value * (cos(s * 2) - 3) * t;
+            bob = bspeed * cl_bobmodel_up.value * (cos(s * 2) - 3);
             VectorMA(view->origin, bob, up, view->origin);
 
         }
@@ -996,27 +969,27 @@ void V_CalcRefdef (void)
         {
             // A variation, but in figure 8
 
-            bob = bspeed * cl_bobmodel_side.value * (sin(s) + 6) * t;
+            bob = bspeed * cl_bobmodel_side.value * (sin(s) + 6);
             VectorMA(view->origin, bob, right, view->origin);
 
-            bob = bspeed * cl_bobmodel_up.value * (sin(s * 2) - 4) * t;
+            bob = bspeed * cl_bobmodel_up.value * (sin(s * 2) - 4);
             VectorMA(view->origin, bob, up, view->origin);
 
         }
         else if (cl_bobmodel.value == 7)
         {
 
-            bob = bspeed * cl_bobmodel_side.value * cos(s) * t;
+            bob = bspeed * cl_bobmodel_side.value * cos(s);
             VectorMA(view->origin, bob, right, view->origin);
-            bob = bspeed * cl_bobmodel_up.value * cos(s * 2) * t;
+            bob = bspeed * cl_bobmodel_up.value * cos(s * 2);
             VectorMA(view->origin, bob, up, view->origin);
         }
         else
         {
             // Default Darkplaces bobbing
-            bob = bspeed * cl_bobmodel_side.value * sin(s) * t;
+            bob = bspeed * cl_bobmodel_side.value * sin(s);
             VectorMA(view->origin, bob, right, view->origin);
-            bob = bspeed * cl_bobmodel_up.value * cos(s * 2) * t;
+            bob = bspeed * cl_bobmodel_up.value * cos(s * 2);
             VectorMA(view->origin, bob, up, view->origin);
         }
     }
