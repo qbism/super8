@@ -60,7 +60,7 @@ int      sintable[SIN_BUFFER_SIZE];
 // COLOR Translation stuff
 // Came straight out of image.c of Quake2 tools
 
-byte    palmap[64][64][64];             // For fast 15-bit lookup
+byte    palmap[64][64][64];             // For fast 18-bit lookup
 byte    palmapnofb[64][64][64];         // No fullbrights
 byte            *r_stack_start;
 
@@ -547,20 +547,8 @@ void GrabFogmap (void) //qb: better fog blending from engoo
 void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show through
 {
     int c,p, r,g,b;
-    float rc,gc,bc, rp,gp,bp; //, brightscale;
-    float ay, ae, normalize;
+    float rc,gc,bc, rp,gp,bp, flatten;
     byte *colmap;
-
-    if(coloredlights == 1)
-    {
-        ae = 0.55;
-        ay = 0.45;
-    }
-    else
-    {
-        ae = 1.0;
-        ay = 0.0;
-    }
 
     colmap = lightcolormap;
 
@@ -569,11 +557,6 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
         rc=host_basepal[c*3];
         gc=host_basepal[c*3+1];
         bc=host_basepal[c*3+2];
-        //normalize = sqrt(rc*rc + gc*gc + bc*bc)*25.0+0.01; //plus saturation
-
-       // rc = min (rc*rc/normalize, 254.0);
-       // gc = min (gc*gc/normalize, 254.0);
-       // bc = min (bc*bc/normalize, 254.0);
 
         for (p=0 ; p<256 ; p++)
         {
@@ -584,14 +567,17 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
                 rp=host_basepal[p*3];
                 gp=host_basepal[p*3+1];
                 bp=host_basepal[p*3+2];
+                flatten = max(rc*0.6+rp*0.9, max(gc*0.6+gp*0.9, bc*0.6+bp*0.9)) - 254;
+                if (flatten < 0)
+                    flatten = 0;
 
-                r = bound(0,(rc * ay)+ rp * (ae + (rc * ae)),254);
-                g = bound(0,(gc * ay)+ gp * (ae + (gc * ae)),254);
-                b = bound(0,(bc * ay)+ bp * (ae + (bc * ae)),254);
+                r = bound(0,(rc*0.6+ rp*0.9)-flatten ,254);
+                g = bound(0,(gc*0.6+ gp*0.9)-flatten ,254);
+                b = bound(0,(bc*0.6+ bp*0.9)-flatten ,254);
 
-                 r = bound(0,rc*ay+rp*ae,254);
-                g = bound(0,gc*ay+gp*ae,254);
-                b = bound(0,bc*ay+bp*ae,254);
+                //r = bound(0,rc*ay+rp*ae,254);
+               // g = bound(0,gc*ay+gp*ae,254);
+               // b = bound(0,bc*ay+bp*ae,254);
 
                 *colmap++ = palmapnofb[r>>2][g>>2][b>>2];
             }
@@ -616,7 +602,7 @@ void GrabAdditivemap (void) //qb: based on Engoo
             r = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
             g = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
             b = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
-            *colmap++ = palmap[r>>2][g>>2][b>>2]; // High quality color tables get best color
+            *colmap++ =BestColor(r,g,b, 0, 254);
         }
     }
 }

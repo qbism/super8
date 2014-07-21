@@ -234,13 +234,16 @@ typedef struct
     int			num_entities;	// held in cl_entities array
     int			num_statics;
     entity_t	viewent;			// the gun model
-
     int			cdtrack, looptrack;	// cd audio
 
 // frag scoreboard
     scoreboard_t	*scores;		// [cl.maxclients]
-
 	vec3_t			death_location;		//qb:talk macro via FQ Mark V - used for %d formatting
+
+	// used by bob
+	qboolean oldonground;
+	double lastongroundtime;
+	double hitgroundtime;
 
 } client_state_t;
 

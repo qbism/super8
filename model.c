@@ -566,7 +566,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                         r = data[k++];
                         g = data[k++];
                         b = data[k++];
-                        normalize = sqrt(r*r + g*g + b*b)*1.0+0.01;
+                        normalize = sqrt(r*r + g*g + b*b)+0.01;
                         *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
                     }
                     Q_free(fileinfo);
