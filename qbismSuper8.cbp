@@ -163,7 +163,6 @@
 		<Unit filename="cl_tent.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="cl_webdownload.cpp" />
 		<Unit filename="client.h" />
 		<Unit filename="cmd.c">
 			<Option compilerVar="CC" />

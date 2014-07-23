@@ -43,6 +43,7 @@ cvar_t	host_timescale = {"host_timescale", "0", "host_timescale[0.0 to 10.0] sca
 void Palette_Init (void);
 void BuildGammaTable (float g);
 void GrabLightcolormap (void);
+void IN_ReadJoystickMessages (void);
 
 quakeparms_t host_parms;
 
@@ -799,6 +800,7 @@ void _Host_Frame (float time)
     Sys_SendKeyEvents ();
 
 // allow mice or other external controllers to add commands
+    IN_ReadJoystickMessages (); //qb: from directq
     IN_Commands ();
 
 // decide the simulation time
