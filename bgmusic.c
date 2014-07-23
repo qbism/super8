@@ -360,7 +360,7 @@ static void BGM_UpdateStream (void)
             S_RawSamples(fileSamples, bgmstream->info.rate,
                          bgmstream->info.width,
                          bgmstream->info.channels,
-                         raw, bgmvolume.value*8.0); //qb: scale factor.
+                         raw, bgmvolume.value*4.0); //qb: scale factor.  why do I need to do this?!
         }
         else if (res == 0)	/* EOF */
         {

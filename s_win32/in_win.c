@@ -715,7 +715,7 @@ void IN_MouseMove (usercmd_t *cmd)
     if ( m_look.value && !(in_strafe.state & 1)) // Manoel Kasimier - m_look - edited
     {
         cl.viewangles[PITCH] += m_pitch.value * mouse_y/fovscale; // Manoel Kasimier - FOV-based scaling - edited
-        cl.viewangles[PITCH] = bound(-89, cl.viewangles[PITCH], 89); //qb:
+        cl.viewangles[PITCH] = bound(-89, cl.viewangles[PITCH], 89); //qb: increase angles
     }
     else
     {
@@ -796,65 +796,64 @@ IN_StartupJoystick
 */
 void IN_StartupJoystick (void)
 {
-    int			numdevs;
-    JOYCAPS		jc;
-    MMRESULT	mmr;
+	int			numdevs;
+	JOYCAPS		jc;
+	MMRESULT	mmr = JOYERR_NOERROR;
 
-    // assume no joystick
-    joy_avail = false;
+	// assume no joystick
+	joy_avail = false;
 
-    // abort startup if user requests no joystick
-    if ( COM_CheckParm ("-nojoy") )
-        return;
+	// abort startup if user requests no joystick
+	if (COM_CheckParm ("-nojoy")) return;
 
-    // verify joystick driver is present
-    if ((numdevs = joyGetNumDevs ()) == 0)
-    {
-        Con_Printf ("\njoystick not found -- driver not present\n\n");
-        return;
-    }
+	// verify joystick driver is present
+	if ((numdevs = joyGetNumDevs ()) == 0)
+	{
+		Con_Printf ("\njoystick not found -- driver not present\n\n");
+		return;
+	}
 
-    // cycle through the joystick ids for the first valid one
-    for (joy_id=0 ; joy_id<numdevs ; joy_id++)
-    {
-        memset (&ji, 0, sizeof(ji));
-        ji.dwSize = sizeof(ji);
-        ji.dwFlags = JOY_RETURNCENTERED;
+	// cycle through the joystick ids for the first valid one
+	for (joy_id = 0; joy_id < numdevs; joy_id++)
+	{
+		memset (&ji, 0, sizeof (ji));
 
-        if ((mmr = joyGetPosEx (joy_id, &ji)) == JOYERR_NOERROR)
-            break;
-    }
+		ji.dwSize = sizeof (ji);
+		ji.dwFlags = JOY_RETURNCENTERED;
 
-    // abort startup if we didn't find a valid joystick
-    if (mmr != JOYERR_NOERROR)
-    {
-        Con_Printf ("\njoystick not found -- no valid joysticks (%x)\n\n", mmr);
-        return;
-    }
+		if ((mmr = joyGetPosEx (joy_id, &ji)) == JOYERR_NOERROR)
+			break;
+	}
 
-    // get the capabilities of the selected joystick
-    // abort startup if command fails
-    memset (&jc, 0, sizeof(jc));
-    if ((mmr = joyGetDevCaps (joy_id, &jc, sizeof(jc))) != JOYERR_NOERROR)
-    {
-        Con_Printf ("\njoystick not found -- invalid joystick capabilities (%x)\n\n", mmr);
-        return;
-    }
+	// abort startup if we didn't find a valid joystick
+	if (mmr != JOYERR_NOERROR)
+	{
+		Con_Printf ("\njoystick not found -- no valid joysticks (%x)\n\n", mmr);
+		return;
+	}
 
-    // save the joystick's number of buttons and POV status
-    joy_numbuttons = jc.wNumButtons;
-    joy_haspov = jc.wCaps & JOYCAPS_HASPOV;
+	// get the capabilities of the selected joystick
+	// abort startup if command fails
+	memset (&jc, 0, sizeof (jc));
 
-    // old button and POV states default to no buttons pressed
-    joy_oldbuttonstate = joy_oldpovstate = 0;
+	if ((mmr = joyGetDevCaps (joy_id, &jc, sizeof (jc))) != JOYERR_NOERROR)
+	{
+		Con_Printf ("\njoystick not found -- invalid joystick capabilities (%x)\n\n", mmr);
+		return;
+	}
 
-    // mark the joystick as available and advanced initialization not completed
-    // this is needed as cvars are not available during initialization
+	// save the joystick's number of buttons and POV status
+	joy_numbuttons = jc.wNumButtons;
+	joy_haspov = (jc.wCaps & JOYCAPS_HASPOV) ? true : false;
 
-    joy_avail = true;
-    joy_advancedinit = false;
+	// old button and POV states default to no buttons pressed
+	joy_oldbuttonstate = joy_oldpovstate = 0;
 
-    Con_DPrintf ("\njoystick detected\n\n"); // edited
+	// mark the joystick as available and advanced initialization not completed
+	// this is needed as cvars are not available during initialization
+	joy_avail = true;
+	joy_advancedinit = false;
+	Con_Printf ("\njoystick detected\n\n");
 }
 
 
@@ -865,23 +864,16 @@ RawValuePointer
 */
 PDWORD RawValuePointer (int axis)
 {
-    switch (axis)
-    {
-    case JOY_AXIS_X:
-        return &ji.dwXpos;
-    case JOY_AXIS_Y:
-        return &ji.dwYpos;
-    case JOY_AXIS_Z:
-        return &ji.dwZpos;
-    case JOY_AXIS_R:
-        return &ji.dwRpos;
-    case JOY_AXIS_U:
-        return &ji.dwUpos;
-    case JOY_AXIS_V:
-        return &ji.dwVpos;
-    default: // compiler warning fix
-        return NULL; // compiler warning fix
-    }
+	switch (axis)
+	{
+	case JOY_AXIS_X: return &ji.dwXpos;
+	case JOY_AXIS_Y: return &ji.dwYpos;
+	case JOY_AXIS_Z: return &ji.dwZpos;
+	case JOY_AXIS_R: return &ji.dwRpos;
+	case JOY_AXIS_U: return &ji.dwUpos;
+	case JOY_AXIS_V: return &ji.dwVpos;
+	default: return 0;
+	}
 }
 
 
@@ -892,68 +884,74 @@ Joy_AdvancedUpdate_f
 */
 void Joy_AdvancedUpdate_f (void)
 {
+	// called once by IN_ReadJoystick and by user whenever an update is needed
+	// cvars are now available
+	int	i;
+	DWORD dwTemp;
 
-    // called once by IN_ReadJoystick and by user whenever an update is needed
-    // cvars are now available
-    int	i;
-    DWORD dwTemp;
+	// initialize all the maps
+	for (i = 0; i < JOY_MAX_AXES; i++)
+	{
+		dwAxisMap[i] = AxisNada;
+		dwControlMap[i] = JOY_ABSOLUTE_AXIS;
+		pdwRawValue[i] = RawValuePointer (i);
+	}
 
-    // initialize all the maps
-    for (i = 0; i < JOY_MAX_AXES; i++)
-    {
-        dwAxisMap[i] = AxisNada;
-        dwControlMap[i] = JOY_ABSOLUTE_AXIS;
-        pdwRawValue[i] = RawValuePointer(i);
-    }
+	if (joy_advanced.value == 0.0)
+	{
+		// default joystick initialization
+		// 2 axes only with joystick control
+		dwAxisMap[JOY_AXIS_X] = AxisTurn;
+		// dwControlMap[JOY_AXIS_X] = JOY_ABSOLUTE_AXIS;
 
-    if( joy_advanced.value == 0.0)
-    {
-        // default joystick initialization
-        // 2 axes only with joystick control
-        dwAxisMap[JOY_AXIS_X] = AxisTurn;
-        // dwControlMap[JOY_AXIS_X] = JOY_ABSOLUTE_AXIS;
-        dwAxisMap[JOY_AXIS_Y] = AxisForward;
-        // dwControlMap[JOY_AXIS_Y] = JOY_ABSOLUTE_AXIS;
-    }
-    else
-    {
-        if (Q_strcmp (joy_name.string, "joystick") != 0)
-        {
-            // notify user of advanced controller
-            Con_Printf ("\n%s configured\n\n", joy_name.string);
-        }
+		dwAxisMap[JOY_AXIS_Y] = AxisForward;
+		// dwControlMap[JOY_AXIS_Y] = JOY_ABSOLUTE_AXIS;
+	}
+	else
+	{
+		if (strcmp (joy_name.string, "joystick") != 0)
+		{
+			// notify user of advanced controller
+			Con_Printf ("\n%s configured\n\n", joy_name.string);
+		}
 
-        // advanced initialization here
-        // data supplied by user via joy_axisn cvars
-        dwTemp = (DWORD) joy_advaxisx.value;
-        dwAxisMap[JOY_AXIS_X] = dwTemp & 0x0000000f;
-        dwControlMap[JOY_AXIS_X] = dwTemp & JOY_RELATIVE_AXIS;
-        dwTemp = (DWORD) joy_advaxisy.value;
-        dwAxisMap[JOY_AXIS_Y] = dwTemp & 0x0000000f;
-        dwControlMap[JOY_AXIS_Y] = dwTemp & JOY_RELATIVE_AXIS;
-        dwTemp = (DWORD) joy_advaxisz.value;
-        dwAxisMap[JOY_AXIS_Z] = dwTemp & 0x0000000f;
-        dwControlMap[JOY_AXIS_Z] = dwTemp & JOY_RELATIVE_AXIS;
-        dwTemp = (DWORD) joy_advaxisr.value;
-        dwAxisMap[JOY_AXIS_R] = dwTemp & 0x0000000f;
-        dwControlMap[JOY_AXIS_R] = dwTemp & JOY_RELATIVE_AXIS;
-        dwTemp = (DWORD) joy_advaxisu.value;
-        dwAxisMap[JOY_AXIS_U] = dwTemp & 0x0000000f;
-        dwControlMap[JOY_AXIS_U] = dwTemp & JOY_RELATIVE_AXIS;
-        dwTemp = (DWORD) joy_advaxisv.value;
-        dwAxisMap[JOY_AXIS_V] = dwTemp & 0x0000000f;
-        dwControlMap[JOY_AXIS_V] = dwTemp & JOY_RELATIVE_AXIS;
-    }
+		// advanced initialization here
+		// data supplied by user via joy_axisn cvars
+		dwTemp = (DWORD) joy_advaxisx.value;
+		dwAxisMap[JOY_AXIS_X] = dwTemp & 0x0000000f;
+		dwControlMap[JOY_AXIS_X] = dwTemp & JOY_RELATIVE_AXIS;
 
-    // compute the axes to collect from DirectInput
-    joy_flags = JOY_RETURNCENTERED | JOY_RETURNBUTTONS | JOY_RETURNPOV;
-    for (i = 0; i < JOY_MAX_AXES; i++)
-    {
-        if (dwAxisMap[i] != AxisNada)
-        {
-            joy_flags |= dwAxisFlags[i];
-        }
-    }
+		dwTemp = (DWORD) joy_advaxisy.value;
+		dwAxisMap[JOY_AXIS_Y] = dwTemp & 0x0000000f;
+		dwControlMap[JOY_AXIS_Y] = dwTemp & JOY_RELATIVE_AXIS;
+
+		dwTemp = (DWORD) joy_advaxisz.value;
+		dwAxisMap[JOY_AXIS_Z] = dwTemp & 0x0000000f;
+		dwControlMap[JOY_AXIS_Z] = dwTemp & JOY_RELATIVE_AXIS;
+
+		dwTemp = (DWORD) joy_advaxisr.value;
+		dwAxisMap[JOY_AXIS_R] = dwTemp & 0x0000000f;
+		dwControlMap[JOY_AXIS_R] = dwTemp & JOY_RELATIVE_AXIS;
+
+		dwTemp = (DWORD) joy_advaxisu.value;
+		dwAxisMap[JOY_AXIS_U] = dwTemp & 0x0000000f;
+		dwControlMap[JOY_AXIS_U] = dwTemp & JOY_RELATIVE_AXIS;
+
+		dwTemp = (DWORD) joy_advaxisv.value;
+		dwAxisMap[JOY_AXIS_V] = dwTemp & 0x0000000f;
+		dwControlMap[JOY_AXIS_V] = dwTemp & JOY_RELATIVE_AXIS;
+	}
+
+	// compute the axes to collect from DirectInput
+	joy_flags = JOY_RETURNCENTERED | JOY_RETURNBUTTONS | JOY_RETURNPOV;
+
+	for (i = 0; i < JOY_MAX_AXES; i++)
+	{
+		if (dwAxisMap[i] != AxisNada)
+		{
+			joy_flags |= dwAxisFlags[i];
+		}
+	}
 }
 
 
@@ -964,68 +962,49 @@ IN_Commands
 */
 void IN_Commands (void)
 {
-    int		i, key_index;
-    DWORD	buttonstate, povstate;
+	DWORD buttonstate, povstate;
+	int i;
 
-    if (!joy_avail)
-    {
-        return;
-    }
+	if (!joy_avail)
+		return;
 
+	// loop through the joystick buttons
+	// key a joystick event or auxillary event for higher number buttons for each state change
+	buttonstate = ji.dwButtons;
 
-    // loop through the joystick buttons
-    // key a joystick event or auxillary event for higher number buttons for each state change
-    buttonstate = ji.dwButtons;
-    for (i=0 ; i < joy_numbuttons ; i++)
-    {
-        if ( (buttonstate & (1<<i)) && !(joy_oldbuttonstate & (1<<i)) )
-        {
-            key_index = (i < 4) ? K_JOY1 : K_AUX1;
-            Key_Event (key_index + i, true);
-        }
+	for (i = 0; i < joy_numbuttons; i++)
+	{
+		if ((buttonstate & (1 << i)) && !(joy_oldbuttonstate & (1 << i))) Key_Event (K_JOY1 + i, true);
+		if (!(buttonstate & (1 << i)) && (joy_oldbuttonstate & (1 << i))) Key_Event (K_JOY1 + i, false);
+	}
 
-        if ( !(buttonstate & (1<<i)) && (joy_oldbuttonstate & (1<<i)) )
-        {
-            key_index = (i < 4) ? K_JOY1 : K_AUX1;
-            Key_Event (key_index + i, false);
-        }
-    }
-    joy_oldbuttonstate = buttonstate;
+	joy_oldbuttonstate = buttonstate;
 
-    if (joy_haspov)
-    {
-        // convert POV information into 4 bits of state information
-        // this avoids any potential problems related to moving from one
-        // direction to another without going through the center position
-        povstate = 0;
-        if(ji.dwPOV != JOY_POVCENTERED)
-        {
-            if (ji.dwPOV == JOY_POVFORWARD)
-                povstate |= 0x01;
-            if (ji.dwPOV == JOY_POVRIGHT)
-                povstate |= 0x02;
-            if (ji.dwPOV == JOY_POVBACKWARD)
-                povstate |= 0x04;
-            if (ji.dwPOV == JOY_POVLEFT)
-                povstate |= 0x08;
-        }
-        // determine which bits have changed and key an auxillary event for each change
-        for (i=0 ; i < 4 ; i++)
-        {
-            if ( (povstate & (1<<i)) && !(joy_oldpovstate & (1<<i)) )
-            {
-                Key_Event (K_AUX29 + i, true);
-            }
+	if (joy_haspov)
+	{
+		// convert POV information into 4 bits of state information
+		// this avoids any potential problems related to moving from one
+		// direction to another without going through the center position
+		povstate = 0;
 
-            if ( !(povstate & (1<<i)) && (joy_oldpovstate & (1<<i)) )
-            {
-                Key_Event (K_AUX29 + i, false);
-            }
-        }
-        joy_oldpovstate = povstate;
-    }
+		if (ji.dwPOV != JOY_POVCENTERED)
+		{
+			if (ji.dwPOV == JOY_POVFORWARD) povstate |= 0x01;
+			if (ji.dwPOV == JOY_POVRIGHT) povstate |= 0x02;
+			if (ji.dwPOV == JOY_POVBACKWARD) povstate |= 0x04;
+			if (ji.dwPOV == JOY_POVLEFT) povstate |= 0x08;
+		}
+
+		// determine which bits have changed and key an auxillary event for each change
+		for (i = 0; i < 4; i++)
+		{
+			if ((povstate & (1 << i)) && !(joy_oldpovstate & (1 << i))) Key_Event (K_POV1 + i, true);
+			if (!(povstate & (1 << i)) && (joy_oldpovstate & (1 << i))) Key_Event (K_POV1 + i, false);
+		}
+
+		joy_oldpovstate = povstate;
+	}
 }
-
 
 /*
 ===============
@@ -1034,31 +1013,30 @@ IN_ReadJoystick
 */
 qboolean IN_ReadJoystick (void)
 {
+	memset (&ji, 0, sizeof (ji));
 
-    memset (&ji, 0, sizeof(ji));
-    ji.dwSize = sizeof(ji);
-    ji.dwFlags = joy_flags;
+	ji.dwSize = sizeof (ji);
+	ji.dwFlags = joy_flags;
 
-    if (joyGetPosEx (joy_id, &ji) == JOYERR_NOERROR)
-    {
-        // this is a hack -- there is a bug in the Logitech WingMan Warrior DirectInput Driver
-        // rather than having 32768 be the zero point, they have the zero point at 32668
-        // go figure -- anyway, now we get the full resolution out of the device
-        if (joy_wwhack1.value != 0.0)
-        {
-            ji.dwUpos += 100;
-        }
-        return true;
-    }
-    else
-    {
-        // read error occurred
-        // turning off the joystick seems too harsh for 1 read error,
-        // but what should be done?
-        // Con_Printf ("IN_ReadJoystick: no response\n");
-        // joy_avail = false;
-        return false;
-    }
+	if (joyGetPosEx (joy_id, &ji) == JOYERR_NOERROR)
+	{
+		// this is a hack -- there is a bug in the Logitech WingMan Warrior DirectInput Driver
+		// rather than having 32768 be the zero point, they have the zero point at 32668
+		// go figure -- anyway, now we get the full resolution out of the device
+		if (joy_wwhack1.value != 0.0)
+			ji.dwUpos += 100;
+
+		return true;
+	}
+	else
+	{
+		// read error occurred
+		// turning off the joystick seems too harsh for 1 read error,\
+		// but what should be done?
+		// Con_Printf ("IN_ReadJoystick: no response\n");
+		// joy_avail = false;
+		return false;
+	}
 }
 
 
@@ -1067,172 +1045,152 @@ qboolean IN_ReadJoystick (void)
 IN_JoyMove
 ===========
 */
+usercmd_t in_joycommand = {0, 0, 0};
+
+
 void IN_JoyMove (usercmd_t *cmd)
 {
-    float	speed, aspeed;
-    float	fAxisValue, fTemp;
-    int		i;
+	if (ActiveApp && !Minimized)
+	{
+		// for most players these will always be zero
+		cmd->forwardmove += in_joycommand.forwardmove;
+		cmd->sidemove += in_joycommand.sidemove;
+		cmd->upmove += in_joycommand.upmove;
+	}
 
-    // complete initialization if first time in
-    // this is needed as cvars are not available at initialization time
-    if( joy_advancedinit != true )
-    {
-        Joy_AdvancedUpdate_f();
-        joy_advancedinit = true;
-    }
+	in_joycommand.forwardmove = 0;
+	in_joycommand.sidemove = 0;
+	in_joycommand.upmove = 0;
+}
 
-    // verify joystick is available and that the user wants to use it
-    if (!joy_avail || !in_joystick.value)
-    {
-        return;
-    }
 
-    // collect the joystick data, if possible
-    if (IN_ReadJoystick () != true)
-    {
-        return;
-    }
+void IN_ReadJoystickMessages (void)
+{
+	float	speed, aspeed;
+	float	fAxisValue, fTemp;
+	int		i;
 
-    if (in_speed.state & 1)
-        speed = cl_movespeedkey.value;
-    else
-        speed = 1;
-	aspeed = speed * host_frametime;
+	// complete initialization if first time in
+	// this is needed as cvars are not available at initialization time
+	if (joy_advancedinit != true)
+	{
+		Joy_AdvancedUpdate_f ();
+		joy_advancedinit = true;
+	}
 
-    // loop through the axes
-    for (i = 0; i < JOY_MAX_AXES; i++)
-    {
-        // get the floating point zero-centered, potentially-inverted data for the current axis
-        fAxisValue = (float) *pdwRawValue[i];
-        // move centerpoint to zero
-        fAxisValue -= 32768.0;
+	// verify joystick is available and that the user wants to use it
+	if (!joy_avail || !in_joystick.value)
+		return;
 
-        if (joy_wwhack2.value != 0.0)
-        {
-            if (dwAxisMap[i] == AxisTurn)
-            {
-                // this is a special formula for the Logitech WingMan Warrior
-                // y=ax^b; where a = 300 and b = 1.3
-                // also x values are in increments of 800 (so this is factored out)
-                // then bounds check result to level out excessively high spin rates
-                fTemp = 300.0 * pow(abs(fAxisValue) / 800.0, 1.3);
-                if (fTemp > 14000.0)
-                    fTemp = 14000.0;
-                // restore direction information
-                fAxisValue = (fAxisValue > 0.0) ? fTemp : -fTemp;
-            }
-        }
+	// collect the joystick data, if possible
+	if (IN_ReadJoystick () != true)
+		return;
 
-        // convert range from -32768..32767 to -1..1
-        fAxisValue /= 32768.0;
+	if (in_speed.state & 1)
+		speed = cl_movespeedkey.value;
+	else speed = 1;
 
-        switch (dwAxisMap[i])
-        {
-        case AxisForward:
-            if ((joy_advanced.value == 0.0) && m_look.value) // Manoel Kasimier - m_look - edited
-            {
-                // user wants forward control to become look control
-                if (fabs(fAxisValue) > joy_pitchthreshold.value)
-                {
-                    // if mouse invert is on, invert the joystick pitch value
-                    // only absolute control support here (joy_advanced is false)
-                    if (m_pitch.value < 0.0)
-                    {
-                        cl.viewangles[PITCH] -= (fAxisValue * joy_pitchsensitivity.value/fovscale) * aspeed * cl_pitchspeed.value; // Manoel Kasimier - FOV-based scaling - edited
-                    }
-                    else
-                    {
-                        cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity.value/fovscale) * aspeed * cl_pitchspeed.value; // Manoel Kasimier - FOV-based scaling - edited
-                    }
-                    V_StopPitchDrift();
-                }
-                else
-                {
-                    // no pitch movement
-                    // disable pitch return-to-center unless requested by user
-                    // *** this code can be removed when the lookspring bug is fixed
-                    // *** the bug always has the lookspring feature on
-                    if(lookspring.value == 0.0)
-                        V_StopPitchDrift();
-                }
-            }
-            else
-            {
-                // user wants forward control to be forward control
-                if (fabs(fAxisValue) > joy_forwardthreshold.value)
-                {
-                    cmd->forwardmove += (fAxisValue * joy_forwardsensitivity.value) * speed * cl_forwardspeed.value;
-                }
-            }
-            break;
+	aspeed = speed * (cl.time - cl.oldtime);
 
-        case AxisSide:
-            if (fabs(fAxisValue) > joy_sidethreshold.value)
-            {
-                cmd->sidemove += (fAxisValue * joy_sidesensitivity.value) * speed * cl_sidespeed.value;
-            }
-            break;
+	// loop through the axes
+	for (i = 0; i < JOY_MAX_AXES; i++)
+	{
+		// get the floating point zero-centered, potentially-inverted data for the current axis
+		fAxisValue = (float) * pdwRawValue[i];
 
-        case AxisTurn:
-            if ((in_strafe.state & 1) || (lookstrafe.value && m_look.value)) // Manoel Kasimier - m_look - edited
-            {
-                // user wants turn control to become side control
-                if (fabs(fAxisValue) > joy_sidethreshold.value)
-                {
-                    cmd->sidemove -= (fAxisValue * joy_sidesensitivity.value) * speed * cl_sidespeed.value;
-                }
-            }
-            else
-            {
-                // user wants turn control to be turn control
-                if (fabs(fAxisValue) > joy_yawthreshold.value)
-                {
-                    if(dwControlMap[i] == JOY_ABSOLUTE_AXIS)
-                    {
-                        cl.viewangles[YAW] += (fAxisValue * joy_yawsensitivity.value/fovscale) * aspeed * cl_yawspeed.value; // Manoel Kasimier - FOV-based scaling - edited
-                    }
-                    else
-                    {
-                        cl.viewangles[YAW] += (fAxisValue * joy_yawsensitivity.value/fovscale) * speed * 180.0; // Manoel Kasimier - FOV-based scaling - edited
-                    }
+		// move centerpoint to zero
+		fAxisValue -= 32768.0;
 
-                }
-            }
-            break;
+		if (joy_wwhack2.value != 0.0)
+		{
+			if (dwAxisMap[i] == AxisTurn)
+			{
+				// this is a special formula for the Logitech WingMan Warrior
+				// y=ax^b; where a = 300 and b = 1.3
+				// also x values are in increments of 800 (so this is factored out)
+				// then bounds check result to level out excessively high spin rates
+				fTemp = 300.0 * pow (abs (fAxisValue) / 800.0, 1.3);
 
-        case AxisLook:
-            if (m_look.value) // Manoel Kasimier - m_look
-            {
-                if (fabs(fAxisValue) > joy_pitchthreshold.value)
-                {
-                    // pitch movement detected and pitch movement desired by user
-                    if(dwControlMap[i] == JOY_ABSOLUTE_AXIS)
-                    {
-                        cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity.value/fovscale) * aspeed * cl_pitchspeed.value; // Manoel Kasimier - FOV-based scaling - edited
-                    }
-                    else
-                    {
-                        cl.viewangles[PITCH] += (fAxisValue * joy_pitchsensitivity.value/fovscale) * speed * 180.0; // Manoel Kasimier - FOV-based scaling - edited
-                    }
-                    V_StopPitchDrift();
-                }
-                else
-                {
-                    // no pitch movement
-                    // disable pitch return-to-center unless requested by user
-                    // *** this code can be removed when the lookspring bug is fixed
-                    // *** the bug always has the lookspring feature on
-                    if(lookspring.value == 0.0)
-                        V_StopPitchDrift();
-                }
-            }
-            break;
+				if (fTemp > 14000.0)
+					fTemp = 14000.0;
 
-        default:
-            break;
-        }
-    }
+				// restore direction information
+				fAxisValue = (fAxisValue > 0.0) ? fTemp : -fTemp;
+			}
+		}
 
-    // bounds check pitch
-    cl.viewangles[PITCH] = bound(-89, cl.viewangles[PITCH], 89); //qb:
+		// convert range from -32768..32767 to -1..1
+		fAxisValue /= 32768.0;
+
+		switch (dwAxisMap[i])
+		{
+		case AxisForward:
+			if ((joy_advanced.value == 0.0) && m_look.value)
+			{
+				// user wants forward control to become look control
+				if (fabs (fAxisValue) > joy_pitchthreshold.value)
+				{
+					// if mouse invert is on, invert the joystick pitch value
+					// only absolute control support here (joy_advanced is false)
+					if (m_pitch.value < 0.0)
+						cl.viewangles[0] -= (fAxisValue * joy_pitchsensitivity.value) * aspeed * cl_pitchspeed.value;
+					else cl.viewangles[0] += (fAxisValue * joy_pitchsensitivity.value) * aspeed * cl_pitchspeed.value;
+				}
+			}
+			else
+			{
+				// user wants forward control to be forward control
+				if (fabs (fAxisValue) > joy_forwardthreshold.value)
+					in_joycommand.forwardmove += (fAxisValue * joy_forwardsensitivity.value) * speed * cl_forwardspeed.value;
+			}
+
+			break;
+
+		case AxisSide:
+			if (fabs (fAxisValue) > joy_sidethreshold.value)
+				in_joycommand.sidemove += (fAxisValue * joy_sidesensitivity.value) * speed * cl_sidespeed.value;
+
+			break;
+
+		case AxisTurn:
+			if ((in_strafe.state & 1) || (lookstrafe.value && m_look.value))
+			{
+				// user wants turn control to become side control
+				if (fabs (fAxisValue) > joy_sidethreshold.value)
+					in_joycommand.sidemove -= (fAxisValue * joy_sidesensitivity.value) * speed * cl_sidespeed.value;
+			}
+			else
+			{
+				// user wants turn control to be turn control
+				if (fabs (fAxisValue) > joy_yawthreshold.value)
+				{
+					if (dwControlMap[i] == JOY_ABSOLUTE_AXIS)
+						cl.viewangles[1] += (fAxisValue * joy_yawsensitivity.value) * aspeed * cl_yawspeed.value;
+					else cl.viewangles[1] += (fAxisValue * joy_yawsensitivity.value) * speed * 180.0;
+				}
+			}
+
+			break;
+
+		case AxisLook:
+			if (m_look.value)
+			{
+				if (fabs (fAxisValue) > joy_pitchthreshold.value)
+				{
+					// pitch movement detected and pitch movement desired by user
+					if (dwControlMap[i] == JOY_ABSOLUTE_AXIS)
+						cl.viewangles[0] += (fAxisValue * joy_pitchsensitivity.value) * aspeed * cl_pitchspeed.value;
+					else cl.viewangles[0] += (fAxisValue * joy_pitchsensitivity.value) * speed * 180.0;
+				}
+			}
+
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	// bounds check pitch
+	cl.viewangles[PITCH] = bound(-89, cl.viewangles[PITCH], 89); //qb: increase angles
 }

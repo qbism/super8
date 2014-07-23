@@ -109,15 +109,21 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 // JACK: Intellimouse(c) Mouse Wheel Support
 
-#define K_MWHEELUP		251 //239 // Manoel Kasimier - edited
-#define K_MWHEELDOWN	252 //240 // Manoel Kasimier - edited
+#define K_MWHEELUP		239
+#define K_MWHEELDOWN	240
+
+// MH - POV hat support - keep it separate from the joy buttons
+#define K_POV1		241
+#define K_POV2		242
+#define K_POV3		243
+#define K_POV4		244
 
 /* Extra mouse buttons */
-#define K_MOUSE4		241
-#define K_MOUSE5		242
-#define K_MOUSE6		243
-#define K_MOUSE7		244
-#define K_MOUSE8		245
+#define K_MOUSE4		245
+#define K_MOUSE5		246
+#define K_MOUSE6		247
+#define K_MOUSE7		248
+#define K_MOUSE8		249
 
 // Manoel Kasimier - for testing purposes - begin
 #if 1
