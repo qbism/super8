@@ -328,9 +328,9 @@ cvar_t vid_ddraw = {"vid_ddraw", "0", "vid_ddraw[0/1] Toggle use direct draw.", 
 // compatibility
 qboolean                DDActive;
 
-#define MAX_MODE_LIST   30 //qb: this many will fit on menu, I think
-#define VID_ROW_SIZE    3
-#define VID_WINDOWED_MODES 3 //qb
+#define MAX_MODE_LIST   40 //qb: this many will fit on menu, I think
+#define VID_ROW_SIZE    4   //qb: was 3
+#define VID_WINDOWED_MODES 4 //qb: last one is a custom mode
 
 HWND WINAPI InitializeWindow (HINSTANCE hInstance, int nCmdShow);
 
@@ -353,18 +353,18 @@ static HICON    hIcon;
 viddef_t        vid;                            // global video state
 
 #define MODE_WINDOWED                   0
-#define MODE_SETTABLE_WINDOW    2
+#define MODE_SETTABLE_WINDOW    3
 #define NO_MODE                                 (MODE_WINDOWED - 1)
 #define MODE_FULLSCREEN_DEFAULT (MODE_WINDOWED + VID_WINDOWED_MODES) //qb: was 3
 
 // Note that 0 is MODE_WINDOWED
-cvar_t          vid_mode = {"vid_mode", "3", "vid_mode[value] Video mode.", true}; //qb: was false
+cvar_t          vid_mode = {"vid_mode", "4", "vid_mode[value] Video mode.", true}; //qb: was false
 cvar_t          vid_default_mode_win = {"vid_default_mode_win", "0", "vid_default_mode_win[value] Default windowed mode.", true};
 cvar_t          vid_wait = {"vid_wait", "1", "vid_wait[0/1] Toggle wait for vertical refresh.", true};
 cvar_t          vid_config_x = {"vid_config_x", "1280", "vid_config_x[value] Custom windowed mode width.", true};
 cvar_t          vid_config_y = {"vid_config_y", "720", "vid_config_y[value] Custom windowed mode height.", true};
 cvar_t          _windowed_mouse = {"_windowed_mouse", "1", "_windowed_mouse[0/1] Toggle allow mouse in windowed mode.", true};
-cvar_t          vid_fullscreen_mode = {"vid_fullscreen_mode", "3", "vid_fullscreen_mode[value]  Initial fullscreen mode.", true};
+cvar_t          vid_fullscreen_mode = {"vid_fullscreen_mode", "4", "vid_fullscreen_mode[value]  Initial fullscreen mode.", true};
 cvar_t          vid_windowed_mode = {"vid_windowed_mode", "0", "vid_windowed_mode[value]  Initial windowed mode.", true};
 cvar_t          vid_window_x = {"vid_window_x", "0", "vid_window_x[value] Window placement on screen.", false}; //qb: was true
 cvar_t          vid_window_y = {"vid_window_y", "0", "vid_window_y[value] Window placement on screen.", false};
@@ -397,7 +397,7 @@ typedef struct
     int                 height;
     int                 modenum;
     int                 fullscreen;
-    char                modedesc[13];
+    char                modedesc[20];
 } vmode_t;
 
 static vmode_t  modelist[MAX_MODE_LIST];
@@ -626,11 +626,18 @@ void VID_InitModes (HINSTANCE hInstance)
     modelist[1].fullscreen = 0;
 
     modelist[2].type = MS_WINDOWED;
-    modelist[2].width = 1280; //qb:
-    modelist[2].height = 720;
-    strcpy (modelist[2].modedesc, "custom window");
+    modelist[2].width = 1024; //qb:
+    modelist[2].height = 768;
+    strcpy (modelist[2].modedesc, "1024x768");
     modelist[2].modenum = MODE_WINDOWED + 2;
     modelist[2].fullscreen = 0;
+
+    modelist[3].type = MS_WINDOWED;
+    modelist[3].width = 1280; //qb: custom, this is just the default.
+    modelist[3].height = 720;
+    strcpy (modelist[3].modedesc, "custom");
+    modelist[3].modenum = MODE_WINDOWED + 3;
+    modelist[3].fullscreen = 0;
 
     hdc = GetDC (NULL);
 
@@ -2055,7 +2062,7 @@ typedef struct
 
 #define MAX_COLUMN_SIZE         9  //qb: was 5
 #define MODE_AREA_HEIGHT        (MAX_COLUMN_SIZE + 3)
-#define MAX_MODEDESCS           (MAX_COLUMN_SIZE*3)
+#define MAX_MODEDESCS           (MAX_COLUMN_SIZE*VID_ROW_SIZE)
 
 static modedesc_t       modedescs[MAX_MODEDESCS];
 
@@ -2075,7 +2082,7 @@ void VID_MenuDraw (void)
     p = Draw_CachePic ("gfx/vidmodes.lmp");
     M_DrawTransPic ( ( MIN_VID_WIDTH-p->width)/2, 0, p, false); //qb: from Manoel Kasimier + Dan East
 
-    for (i = 0; i < 3; i++)
+    for (i = 0; i < VID_WINDOWED_MODES; i++)
     {
         ptr = VID_GetModeDescriptionMemCheck (i);
         if (ptr == NULL) Sys_Error("VID_GetModeDescriptionMemCheck returns NULL"); //qb:
@@ -2155,8 +2162,8 @@ void VID_MenuDraw (void)
         }
     }
 
-    M_Print (7 * 8, 26, "Windowed Modes       custom:");
-    column = 16;
+    M_Print (8 * 8, 26, "Windowed Modes:           Custom:");
+    column = 6;
     row = 26 + 1 * 8;  //qb: save a row, was 1 * 8
 
     for (i = 0; i < VID_WINDOWED_MODES; i++)
@@ -2166,13 +2173,13 @@ void VID_MenuDraw (void)
         else
             M_Print (column, row, modedescs[i].desc);
 
-        column += 13 * 8;
+        column += 11 * 8;
     }
 
     if (vid_wmodes > VID_WINDOWED_MODES)
     {
-        M_Print (12 * 8, 26 + 3 * 8, "Fullscreen Modes");
-        column = 16;
+        M_Print (12 * 8, 26 + 3 * 8, "Fullscreen Modes:");
+        column = 6;
         row = 26 + 4 * 8;  //qb: was 6 * 8, save a couple rows for more modes.
 
         for (i = VID_WINDOWED_MODES; i < vid_wmodes; i++)
@@ -2182,11 +2189,11 @@ void VID_MenuDraw (void)
             else
                 M_Print (column, row, modedescs[i].desc);
 
-            column += 13 * 8;
+            column += 11 * 8;
 
             if (((i - VID_WINDOWED_MODES) % VID_ROW_SIZE) == (VID_ROW_SIZE-1))
             {
-                column = 16;
+                column = 6;
                 row += 8;
             }
         }
@@ -2226,7 +2233,7 @@ void VID_MenuDraw (void)
         M_Print (15 * 8, 26 + MODE_AREA_HEIGHT * 8 + 8 * 7,
                  "Esc to exit");
         row = 26 + 1 * 8 + (vid_line / VID_ROW_SIZE) * 8; //qb: was 36 + 2 * 8, more rows.
-        column = 8 + (vid_line % VID_ROW_SIZE) * 13 * 8;
+        column = -4 + (vid_line % VID_ROW_SIZE) * 11 * 8;
 
         if (vid_line >= VID_WINDOWED_MODES)
             row += 2 * 8;  //qb: was 3 * 8; more rows
@@ -2256,7 +2263,7 @@ void VID_MenuKey (int key)
     case K_LEFTARROW:
         S_LocalSound ("misc/menu1.wav");
         vid_line = ((vid_line / VID_ROW_SIZE) * VID_ROW_SIZE) +
-                   ((vid_line + 2) % VID_ROW_SIZE);
+                   ((vid_line + 3) % VID_ROW_SIZE);
 
         if (vid_line >= vid_wmodes)
             vid_line = vid_wmodes - 1;
@@ -2265,7 +2272,7 @@ void VID_MenuKey (int key)
     case K_RIGHTARROW:
         S_LocalSound ("misc/menu1.wav");
         vid_line = ((vid_line / VID_ROW_SIZE) * VID_ROW_SIZE) +
-                   ((vid_line + 4) % VID_ROW_SIZE);
+                   ((vid_line + 5) % VID_ROW_SIZE);
 
         if (vid_line >= vid_wmodes)
             vid_line = (vid_line / VID_ROW_SIZE) * VID_ROW_SIZE;
