@@ -830,9 +830,9 @@ void CL_RelinkEntities (void)
                 R_RocketTrail (oldorg, ent->origin, 5);
                 dl = CL_AllocDlight (i);
                 VectorCopy (ent->origin, dl->origin);
-                dl->radius = 200;
-                dl->die = cl.time + 0.01;
-                dl->color = palmapnofb[36][26][8];
+                dl->radius = 100;
+                dl->die = cl.time + 0.1;
+                dl->color = palmapnofb[24][24][8];
             }
             else if (ent->effects & EF_ROCKET)
             {

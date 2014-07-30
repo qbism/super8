@@ -67,6 +67,7 @@ typedef struct
 
 static gefv_cache	gefvCache[GEFV_CACHESIZE] = {{NULL, ""}, {NULL, ""}};
 
+
 // 2001-10-20 Extension System by LordHavoc  start
 void PR_Extension_List_f (void)
 {

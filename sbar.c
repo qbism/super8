@@ -113,7 +113,7 @@ void Sbar_Changed (void)
 
 void CheckSbarScale (void)  //qb: bound sbar_scale value
 {
-    float sbsmin = 360.0/(float)vid.width + 0.01;
+    float sbsmin = MIN_VID_WIDTH/(float)vid.width + 0.01;
     if (sbar_scale.value < sbsmin)
     {
         //Con_Printf("minvalue %f \n", sbsmin);
@@ -1253,7 +1253,7 @@ void Sbar_Draw (void)
 // mankrip - begin
 
     Sbar_SizeScreen ();
- 
+
     if ( (sb_showscores || sbar.value > 0) && sbar.value < 4)
     {
         if (sbar_show_bg.value)
@@ -1376,8 +1376,8 @@ void Sbar_DeathmatchOverlay (void)
     //qb: big and sort of lazy..
     oldsbarscale = sbar_scale.value;
     sbar_scale.value = 1.0;
-    scr_2d_scale_h = vid.width / (360.0/sbar_scale.value);
-    scr_2d_scale_v =  vid.height / (200.0/sbar_scale.value);
+    scr_2d_scale_h = vid.width / (MIN_VID_WIDTH/sbar_scale.value);
+    scr_2d_scale_v =  vid.height / (MIN_VID_HEIGHT/sbar_scale.value);
 
     scr_copyeverything = 1;
     scr_fullupdate = 0;

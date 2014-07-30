@@ -31,7 +31,9 @@ void D_DrawParticle_33_C (particle_t *pparticle) // Manoel Kasimier
     byte	*pdest;
     short	*pz;
     int		i, izi, pix, count, u, v;
-//    byte	*dottexture; // Manoel Kasimier
+    static int pcolor; //qb: save some lookups
+
+    pcolor = pparticle->color;
 
 // transform point
     VectorSubtract (pparticle->org, r_origin, local);
@@ -77,7 +79,7 @@ void D_DrawParticle_33_C (particle_t *pparticle) // Manoel Kasimier
         if (pz[0] <= izi)
         {
             pz[0] = izi;
-            pdest[0] = alphamap[(int)(pparticle->color*256 + pdest[0])];
+            pdest[0] = alphamap[(int)(pdest[0]*256 + pcolor)];
         }
     }
     else if (pix == 2)
@@ -85,13 +87,13 @@ void D_DrawParticle_33_C (particle_t *pparticle) // Manoel Kasimier
         if (pz[0] <= izi)
         {
             pz[0] = izi;
-            pdest[0] = alphamap[(int)(pparticle->color*256 + pdest[0])];
+            pdest[0] = alphamap[(int)pdest[0]*256 + pcolor];
             pz[1] = izi;
-            pdest[1] = alphamap[(int)(pparticle->color*256 + pdest[1])];
+            pdest[1] = alphamap[(int)pdest[1]*256 + pcolor];
             pz[d_zwidth] = izi;
-            pdest[screenwidth] = alphamap[(int)(pparticle->color*256 + pdest[screenwidth])];
+            pdest[screenwidth] = alphamap[(int)pdest[screenwidth]*256 + pcolor];
             pz[d_zwidth+1] = izi;
-            pdest[screenwidth+1] = alphamap[(int)(pparticle->color*256 + pdest[screenwidth+1])];
+            pdest[screenwidth+1] = alphamap[(int)pdest[screenwidth+1]*256 + pcolor];
         }
     }
     else
@@ -104,22 +106,23 @@ void D_DrawParticle_33_C (particle_t *pparticle) // Manoel Kasimier
                 for (i=0 ; i<pix ; i++)
                 {
                     pz[i] = izi;
-                    pdest[i] = alphamap[(int)(pparticle->color*256 + pdest[i])];
-
+                    pdest[i] = alphamap[(int)pdest[i]*256 + pcolor];
                 }
         }
     }
     // Manoel Kasimier - end
 }
 
-void D_DrawParticle_50_C (particle_t *pparticle) //qb
+void D_DrawParticle_50_C (particle_t *pparticle) //qb: 50%
 {
     vec3_t	local, transformed;
     float	zi;
     byte	*pdest;
     short	*pz;
     int		i, izi, pix, count, u, v;
-//    byte	*dottexture; // Manoel Kasimier
+    static int pcolor; //qb: save some lookups
+
+    pcolor = pparticle->color;
 
 // transform point
     VectorSubtract (pparticle->org, r_origin, local);
@@ -162,7 +165,7 @@ void D_DrawParticle_50_C (particle_t *pparticle) //qb
         if (pz[0] <= izi)
         {
             pz[0] = izi;
-            pdest[0] = alpha50map[(int)(pparticle->color + pdest[0]*256)];
+            pdest[0] = alpha50map[(int)pdest[0]*256 + pcolor];
         }
     }
     else if (pix == 2)
@@ -170,13 +173,13 @@ void D_DrawParticle_50_C (particle_t *pparticle) //qb
         if (pz[0] <= izi)
         {
             pz[0] = izi;
-            pdest[0] = alpha50map[(int)(pparticle->color + pdest[0]*256)];
+            pdest[0] = alpha50map[(int)pdest[0]*256 + pcolor];
             pz[1] = izi;
-            pdest[1] = alpha50map[(int)(pparticle->color + pdest[1]*256)];
+            pdest[1] = alpha50map[(int)pdest[1]*256 + pcolor];
             pz[d_zwidth] = izi;
-            pdest[screenwidth] = alpha50map[(int)(pparticle->color + pdest[screenwidth]*256)];
+            pdest[screenwidth] = alpha50map[(int)pdest[screenwidth]*256 + pcolor];
             pz[d_zwidth+1] = izi;
-            pdest[screenwidth+1] = alpha50map[(int)(pparticle->color + pdest[screenwidth+1]*256)];
+            pdest[screenwidth+1] = alpha50map[(int)pdest[screenwidth+1]*256 + pcolor];
         }
     }
     else
@@ -189,7 +192,7 @@ void D_DrawParticle_50_C (particle_t *pparticle) //qb
                 for (i=0 ; i<pix ; i++)
                 {
                     pz[i] = izi;
-                    pdest[i] = alpha50map[(int)(pdest[i] + pparticle->color*256)];
+                    pdest[i] = alpha50map[(int)pdest[i]*256 + pcolor];
 
                 }
         }
@@ -206,7 +209,9 @@ void D_DrawParticle_66_C (particle_t *pparticle) // Manoel Kasimier
     byte	*pdest;
     short	*pz;
     int		i, izi, pix, count, u, v;
-//    byte	*dottexture; // Manoel Kasimier
+    static int pcolor; //qb: save some lookups
+
+    pcolor = pparticle->color;
 
 // transform point
     VectorSubtract (pparticle->org, r_origin, local);
@@ -257,13 +262,13 @@ void D_DrawParticle_66_C (particle_t *pparticle) // Manoel Kasimier
         if (pz[0] <= izi)
         {
             pz[0] = izi;
-            pdest[0] = alphamap[(int)(pparticle->color + pdest[0]*256)];
+            pdest[0] = alphamap[(int)pdest[0] + pcolor*256];
             pz[1] = izi;
-            pdest[1] = alphamap[(int)(pparticle->color + pdest[1]*256)];
+            pdest[1] = alphamap[(int)pdest[1] + pcolor*256];
             pz[d_zwidth] = izi;
-            pdest[screenwidth] = alphamap[(int)(pparticle->color + pdest[screenwidth]*256)];
+            pdest[screenwidth] = alphamap[(int)pdest[screenwidth] + pcolor*256];
             pz[d_zwidth+1] = izi;
-            pdest[screenwidth+1] = alphamap[(int)(pparticle->color + pdest[screenwidth+1]*256)];
+            pdest[screenwidth+1] = alphamap[(int)pdest[screenwidth+1] + pcolor*256];
         }
     }
     else
@@ -276,7 +281,7 @@ void D_DrawParticle_66_C (particle_t *pparticle) // Manoel Kasimier
                 for (i=0 ; i<pix ; i++)
                 {
                     pz[i] = izi;
-                    pdest[i] = alphamap[(int)(pdest[i] + pparticle->color*256)];
+                    pdest[i] = alphamap[(int)(pdest[i] + pcolor*256)];
 
                 }
         }
