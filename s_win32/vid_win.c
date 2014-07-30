@@ -328,7 +328,7 @@ cvar_t vid_ddraw = {"vid_ddraw", "0", "vid_ddraw[0/1] Toggle use direct draw.", 
 // compatibility
 qboolean                DDActive;
 
-#define MAX_MODE_LIST   24 //qb: this many will fit on menu, I think
+#define MAX_MODE_LIST   30 //qb: this many will fit on menu, I think
 #define VID_ROW_SIZE    3
 #define VID_WINDOWED_MODES 3 //qb
 
@@ -2053,8 +2053,8 @@ typedef struct
     int         width;
 } modedesc_t;
 
-#define MAX_COLUMN_SIZE         7  //qb: was 5
-#define MODE_AREA_HEIGHT        (MAX_COLUMN_SIZE + 4)
+#define MAX_COLUMN_SIZE         9  //qb: was 5
+#define MODE_AREA_HEIGHT        (MAX_COLUMN_SIZE + 3)
 #define MAX_MODEDESCS           (MAX_COLUMN_SIZE*3)
 
 static modedesc_t       modedescs[MAX_MODEDESCS];
@@ -2073,7 +2073,7 @@ void VID_MenuDraw (void)
     vmode_t             *pv;
     modedesc_t  tmodedesc;
     p = Draw_CachePic ("gfx/vidmodes.lmp");
-    M_DrawTransPic ( ( MIN_VID_WIDTH-p->width)/2, 4, p, false); //qb: from Manoel Kasimier + Dan East
+    M_DrawTransPic ( ( MIN_VID_WIDTH-p->width)/2, 0, p, false); //qb: from Manoel Kasimier + Dan East
 
     for (i = 0; i < 3; i++)
     {
@@ -2155,9 +2155,9 @@ void VID_MenuDraw (void)
         }
     }
 
-    M_Print (7 * 8, 36, "Windowed Modes       custom:");
+    M_Print (7 * 8, 26, "Windowed Modes       custom:");
     column = 16;
-    row = 36 + 1 * 8;  //qb: save a row, was 1 * 8
+    row = 26 + 1 * 8;  //qb: save a row, was 1 * 8
 
     for (i = 0; i < VID_WINDOWED_MODES; i++)
     {
@@ -2171,9 +2171,9 @@ void VID_MenuDraw (void)
 
     if (vid_wmodes > VID_WINDOWED_MODES)
     {
-        M_Print (12 * 8, 36 + 3 * 8, "Fullscreen Modes");
+        M_Print (12 * 8, 26 + 3 * 8, "Fullscreen Modes");
         column = 16;
-        row = 36 + 4 * 8;  //qb: was 6 * 8, save a couple rows for more modes.
+        row = 26 + 4 * 8;  //qb: was 6 * 8, save a couple rows for more modes.
 
         for (i = VID_WINDOWED_MODES; i < vid_wmodes; i++)
         {
@@ -2197,22 +2197,22 @@ void VID_MenuDraw (void)
     {
         sprintf (temp, "TESTING %s",
                  modedescs[vid_line].desc);
-        M_Print (13 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 4, temp);
-        M_Print (9 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 6,
+        M_Print (13 * 8, 26 + MODE_AREA_HEIGHT * 8 + 8 * 4, temp);
+        M_Print (9 * 8, 26 + MODE_AREA_HEIGHT * 8 + 8 * 6,
                  "Please wait 5 seconds...");
     }
     else
     {
-        M_Print (9 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8,
+        M_Print (9 * 8, 26 + MODE_AREA_HEIGHT * 8 + 8,
                  "Press Enter to set mode");
-        M_Print (6 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 2,
+        M_Print (6 * 8, 26 + MODE_AREA_HEIGHT * 8 + 8 * 2,
                  "T to test mode for 5 seconds");
         ptr = VID_GetModeDescription2 (vid_modenum);
 
         if (ptr)
         {
             sprintf (temp, "D to set default: %s", ptr);
-            M_Print (2 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 4, temp);
+            M_Print (2 * 8, 26 + MODE_AREA_HEIGHT * 8 + 8 * 4, temp);
         }
 
         ptr = VID_GetModeDescription2 ((int) vid_default_mode_win.value);
@@ -2220,12 +2220,12 @@ void VID_MenuDraw (void)
         if (ptr)
         {
             sprintf (temp, "Current default: %s", ptr);
-            M_Print (3 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 5, temp);
+            M_Print (3 * 8, 26 + MODE_AREA_HEIGHT * 8 + 8 * 5, temp);
         }
 
-        M_Print (15 * 8, 36 + MODE_AREA_HEIGHT * 8 + 8 * 7,
+        M_Print (15 * 8, 26 + MODE_AREA_HEIGHT * 8 + 8 * 7,
                  "Esc to exit");
-        row = 36 + 1 * 8 + (vid_line / VID_ROW_SIZE) * 8; //qb: was 36 + 2 * 8, more rows.
+        row = 26 + 1 * 8 + (vid_line / VID_ROW_SIZE) * 8; //qb: was 36 + 2 * 8, more rows.
         column = 8 + (vid_line % VID_ROW_SIZE) * 13 * 8;
 
         if (vid_line >= VID_WINDOWED_MODES)

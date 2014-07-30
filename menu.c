@@ -1018,7 +1018,7 @@ void M_SinglePlayer_Draw (void)
 
     M_DrawTransPic (16, 0 /*4*/, Draw_CachePic("gfx/qplaque.lmp"), false);
     p = Draw_CachePic ("gfx/ttl_sgl.lmp");
-    M_DrawTransPic ((360 - p->width) >> 1, 0 /*4*/, p, false);
+    M_DrawTransPic ((MIN_VID_WIDTH - p->width) >> 1, 0 /*4*/, p, false);
     M_DrawTransPic (72, 28 /*32*/, Draw_CachePic("gfx/sp_menu.lmp"), false);
 
     f = (int)(host_time*10) % 6;
@@ -2316,7 +2316,7 @@ void M_Setup_Draw (void)
     i2 = crosshair_color.value;
     crosshair.value = setup_crosshair;
     crosshair_color.value = setup_crosshair_color;
-    Crosshair_Start((184 + (360-320)/2- (360.0 - 360.0/sbar_scale.value)/2) * scr_2d_scale_h - 6*(vid.width/MIN_VID_WIDTH),
+    Crosshair_Start((184 + (360-320)/2- (MIN_VID_WIDTH - MIN_VID_WIDTH/sbar_scale.value)/2) * scr_2d_scale_h - 6*(vid.width/MIN_VID_WIDTH),
                     (144 + (100.0/sbar_scale.value)-100) * scr_2d_scale_v - 6*(vid.width/MIN_VID_WIDTH));
     crosshair.value = i1;
     crosshair_color.value = i2;

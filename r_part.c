@@ -193,7 +193,7 @@ void R_ClearParticles (void)
 void R_ReadPointFile_f (void)
 {
     FILE	*f;
-    vec3_t	org={0,0,0};
+    vec3_t	org= {0,0,0};
     int		r;
     int		c;
     particle_t	*p;
@@ -366,7 +366,7 @@ void R_BlobExplosion (vec3_t org)
         free_particles = p->next;
         p->next = active_particles;
         active_particles = p;
-        p->die = cl.time + r_part_blob_time.value + (rand()&8)*0.05;
+        p->die = cl.time + r_part_blob_time.value + (rand()&8)*0.03;
         p->start_time = cl.time; // Manoel Kasimier
 
         if (i & 1)
@@ -661,7 +661,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
                 p->type = pt_fire;
                 p->ramp = (rand()&3);
                 p->color = ramp3[(int)p->ramp];
-                p->alpha = 0.25;
+                p->alpha = 0.66;
             }
 
             for (j=0 ; j<3 ; j++)
@@ -672,6 +672,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             p->ramp = (rand()&3) + 2;
             p->color = ramp3[(int)p->ramp];
             p->type = pt_fire;
+            p->alpha = 0.33;
             for (j=0 ; j<3 ; j++)
                 p->org[j] = start[j] + ((rand()&6)-3);
             break;
@@ -685,8 +686,10 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
 
             }
             p->type = pt_sticky;
-            p->die = cl.time + r_part_sticky_time.value; //qb: stick around
+            p->die = cl.time + r_part_sticky_time.value + (rand()%6); //qb: stick around
             p->start_time = cl.time; // Manoel Kasimier
+            p->alpha = 1.0;
+            p->alphavel = -0.05;
             break;
 
         case 3:
@@ -724,8 +727,10 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             }
             p->type = pt_sticky;
             len -= 3;
-            p->die = cl.time + 16;
-            p->start_time = cl.time; // Manoel Kasimier
+            p->die = cl.time + 32;
+            p->start_time = cl.time + r_part_sticky_time.value + (rand()%6); //qb: stick around
+            p->alpha = 1.0;
+            p->alphavel = -0.03;
             break;
 
         case 6:	// voor trail
@@ -780,7 +785,7 @@ void R_DrawParticles (void)
     particle_t		*p, *kill;
     mleaf_t         *l;
     float			grav;
-	//float grav2, percent;
+    //float grav2, percent;
     int				i;
     float			time2, time3;
     float			time1;
@@ -837,12 +842,12 @@ void R_DrawParticles (void)
             }
         // Manoel Kasimier - begin
 
-        alpha = 1.0 - ((cl.time - p->start_time) / (p->die - cl.time));
-        if (alpha <= 0.43)
+        //  alpha = 1.0 - ((cl.time - p->start_time) / (p->die - cl.time));
+        if (p->alpha <= 0.43)
             D_DrawParticle_33_C (p);
-        else if (alpha <= 0.60)
+        else if (p->alpha <= 0.60)
             D_DrawParticle_50_C (p);
-        else if (alpha <= 0.76)
+        else if (p->alpha <= 0.80)
             D_DrawParticle_66_C (p);
         else
             //D_DrawParticle(p);  //qb: disabled because no FOV scaling
@@ -927,7 +932,6 @@ void R_DrawParticles (void)
                 break;
 
             case pt_staticfade:
-                //p->alpha + frametime*p->alphavel;
                 p->alpha += frametime*p->alphavel;
 
                 if (p->alpha <= 0)
@@ -948,11 +952,18 @@ void R_DrawParticles (void)
                 // if hit solid, go to last position,
                 // no velocity, fade out.
                 l = Mod_PointInLeaf (p->org, cl.worldmodel);
-                if (l->contents != CONTENTS_EMPTY) // || in_solid == true
+                if (l->contents == CONTENTS_WATER || l->contents == CONTENTS_SLIME)
+                {
+                    p->vel[0] -= p->vel[0]*frametime*0.9;
+                    p->vel[1] -= p->vel[1]*frametime*0.9;
+                    p->vel[2] = grav; //qb: float up slowly
+                }
+                else if (l->contents != CONTENTS_EMPTY) // || in_solid == true
                 {
                     // still have small prob of snow melting on emitter
                     VectorScale(diff, 0.2, p->vel);
                     i = 6;
+
                     while (l->contents != CONTENTS_EMPTY)
                     {
                         VectorNormalize(p->vel);
@@ -969,11 +980,10 @@ void R_DrawParticles (void)
                     }
                     p->vel[0] = p->vel[1] = p->vel[2] = 0;
                     p->ramp = 0;
-                    p->type = pt_static;
+                    p->type = pt_staticfade; //qb: finally figured this out, was pt_static
                 }
                 else
                 {
-                    p->alpha = 0.5;
                     p->vel[2] -= grav * 2;
                 }
                 break;

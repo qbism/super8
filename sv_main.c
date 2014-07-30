@@ -21,8 +21,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "version.h" //qb - generated from bat
 
 int current_protocol = PROTOCOL_QBS8; //qb
-server_t                sv;
-server_static_t svs;
+server_t    sv;
+server_static_t     svs;
 
 cvar_t  sv_cullentities         = {"sv_cullentities","1", "sv_cullentities[0-3] Antiwallhack. 0=off, 1=players, 2=players and entities, 3=doors, plats, etc. ", false, true}; //qb: qrack
 cvar_t  sv_progs = {"sv_progs", "progs.dat", "sv_progs[name.dat] Specify which progs to use." }; //qb: enginex

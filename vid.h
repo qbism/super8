@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define VID_CBITS	6
 #define VID_GRADES	(1 << VID_CBITS)
 
-#define MIN_VID_WIDTH 360 //qb: change to define
+#define MIN_VID_WIDTH 360 //qb: If this changed, a bunch of menu stuff must change.
 #define MIN_VID_HEIGHT 200
 
 typedef byte pixel_t;
