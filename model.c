@@ -531,6 +531,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
     float   normalize, r, g, b;
 	//float wlout;
     byte	*out, *data;
+    //byte     *outvalue;
 	//byte *lout;
     char	litname[1024];
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
@@ -558,9 +559,10 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                 i = LittleLong(((int *)data)[1]);
                 if (i == 1)
                 {
-                    loadmodel->colordata = Hunk_AllocName (l->filelen+3, "modcolor"); //qb: need some padding
+                    loadmodel->colordata = Hunk_AllocName (l->filelen+4, "modcolor"); //qb: need some padding for dither
                     k=8;
                     out = loadmodel->colordata;
+                    //outvalue = loadmodel->lightdata;
                     while(k <= fileinfo->filelen)
                     {
                         r = data[k++];
@@ -568,11 +570,13 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                         b = data[k++];
                         normalize = sqrt(r*r + g*g + b*b)+0.01;
                         *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
+                        //*outvalue++ = (r+g+b)/3;
                     }
                     Q_free(fileinfo);
-                    *out++ = BestColor(r/9.0+r/normalize, g/2+g/normalize, g/2+g/normalize,0,254); //qb: bleed-over for dither
-                    *out++ = BestColor(r/2+r/normalize, g/2+g/normalize, g/2+g/normalize,0,254);
-                    *out++ = BestColor(r/2+r/normalize, g/2+g/normalize, g/2+g/normalize,0,254);
+                    *(out+1) = *out; //qb: bleed-over for dither
+                    *(out+2) = *out;
+                    *(out+3) = *out;
+                    *(out+4) = *out;
                     return;
                 }
                 else

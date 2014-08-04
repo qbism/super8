@@ -20,15 +20,14 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "version.h" //qb: generate from bat
 
 
-extern cvar_t	pausable;
+extern cvar_t   pausable;
 
-int	current_skill;
+int     current_skill;
 
 cvar_t sv_cheats = {"sv_cheats", "0", "sv_cheats[0/1] Toggles allow server cheats."};//qb: sv_cheats similar to DP
 qboolean allowcheats = false; //qb: sv_cheat similar to DP
 
 void Mod_Print (void);
-void Host_WriteDiagnostics (void); //qb: write out the help strings
 
 /*
 ==================
@@ -79,12 +78,12 @@ Host_Status_f
 */
 void Host_Status_f (void)
 {
-    client_t	*client;
-    int			seconds;
-    int			minutes;
-    int			hours = 0;
-    int			j;
-    void		(*print) (char *fmt, ...);
+    client_t    *client;
+    int                 seconds;
+    int                 minutes;
+    int                 hours = 0;
+    int                 j;
+    void                (*print) (char *fmt, ...);
 
     if (cmd_source == src_command)
     {
@@ -286,9 +285,9 @@ Host_Ping_f
 */
 void Host_Ping_f (void)
 {
-    int		i, j;
-    float	total;
-    client_t	*client;
+    int         i, j;
+    float       total;
+    client_t    *client;
 
     if (cmd_source == src_command)
     {
@@ -329,8 +328,8 @@ command from the console.  Active clients are kicked off.
 */
 void Host_Map_f (void)
 {
-    int		i;
-    char	name[MAX_QPATH];
+    int         i;
+    char        name[MAX_QPATH];
 
     if (cmd_source != src_command)
         return;
@@ -339,7 +338,7 @@ void Host_Map_f (void)
     CL_Disconnect ();
     Host_ShutdownServer(false);
 
-    key_dest = key_game;			// remove console or menu
+    key_dest = key_game;                        // remove console or menu
     SCR_BeginLoadingPlaque ();
 
     cls.mapstring[0] = 0;
@@ -350,7 +349,7 @@ void Host_Map_f (void)
     }
     Q_strcat (cls.mapstring, "\n");
 
-    svs.serverflags = 0;			// haven't completed an episode yet
+    svs.serverflags = 0;                        // haven't completed an episode yet
     allowcheats = sv_cheats.value;
 
     Q_strcpy (name, Cmd_Argv(1));
@@ -384,10 +383,10 @@ Goes to a new map, taking all clients along
 void Host_Changelevel_f (void)
 {
 
-    char	level[MAX_QPATH];
-    char	str[MAX_QPATH*3];
-    int		i, r;
-    FILE	*f;
+    char        level[MAX_QPATH];
+    char        str[MAX_QPATH*3];
+    int         i, r;
+    FILE        *f;
 
     if (Cmd_Argc() != 2)
     {
@@ -466,14 +465,14 @@ Restarts the current server for a dead player
 */
 void Host_Restart_f (void)
 {
-    char	mapname[MAX_QPATH];
+    char        mapname[MAX_QPATH];
 
     if (cls.demoplayback || !sv.active)
         return;
 
     if (cmd_source != src_command)
         return;
-    Q_strcpy (mapname, sv.name);	// must copy out, because it gets cleared
+    Q_strcpy (mapname, sv.name);        // must copy out, because it gets cleared
     // in sv_spawnserver
     allowcheats = sv_cheats.value;
     SV_SpawnServer (mapname);
@@ -490,7 +489,7 @@ This is sent just before a server changes levels
 void Host_Reconnect_f (void)
 {
     SCR_BeginLoadingPlaque ();
-    cls.signon = 0;		// need new connection messages
+    cls.signon = 0;             // need new connection messages
 }
 
 /*
@@ -502,9 +501,9 @@ User command to connect to server
 */
 void Host_Connect_f (void)
 {
-    char	name[MAX_QPATH];
+    char        name[MAX_QPATH];
 
-    cls.demonum = -1;		// stop demo loop in case this fails
+    cls.demonum = -1;           // stop demo loop in case this fails
     if (cls.demoplayback)
     {
         CL_StopPlayback ();
@@ -524,7 +523,7 @@ LOAD / SAVE GAME
 ===============================================================================
 */
 
-#define	SAVEGAME_VERSION	5
+#define SAVEGAME_VERSION        5
 
 /*
 ===============
@@ -535,8 +534,8 @@ Writes a SAVEGAME_COMMENT_LENGTH character comment describing the current
 */
 void Host_SavegameComment (char *text)
 {
-    int		i;
-    char	kills[20];
+    int         i;
+    char        kills[20];
 
     for (i=0 ; i<SAVEGAME_COMMENT_LENGTH ; i++)
         text[i] = ' ';
@@ -596,10 +595,10 @@ Host_SmallSavegame_f
 */
 void Host_SmallSavegame_f (void)
 {
-    char	name[256];
-    FILE	*f;
-    int		i;
-    char	comment[SAVEGAME_COMMENT_LENGTH+1];
+    char        name[256];
+    FILE        *f;
+    int         i;
+    char        comment[SAVEGAME_COMMENT_LENGTH+1];
 
     if (cmd_source != src_command)
         return;
@@ -675,19 +674,19 @@ void Host_SmallSavegame_f (void)
 Host_SmallLoadgame_f
 ====================
 */
-float	smallsave_parms[NUM_SPAWN_PARMS];
+float   smallsave_parms[NUM_SPAWN_PARMS];
 void Host_SmallLoadgame_f (void)
 {
-    int		i;
-    char	name[MAX_QPATH];
-    FILE	*f;
-    char	str[32768];
-    int		version;
+    int         i;
+    char        name[MAX_QPATH];
+    FILE        *f;
+    char        str[32768];
+    int         version;
 
     if (cmd_source != src_command)
         return;
 
-    cls.demonum = -1;		// stop demo loop in case this fails
+    cls.demonum = -1;           // stop demo loop in case this fails
 
     sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
     COM_DefaultExtension (name, ".GAM");
@@ -746,10 +745,10 @@ Host_Savegame_f
 
 void Host_Savegame_f (void)
 {
-    char	name[256];
-    FILE	*f;
-    int		i;
-    char	comment[SAVEGAME_COMMENT_LENGTH+1];
+    char        name[256];
+    FILE        *f;
+    int         i;
+    char        comment[SAVEGAME_COMMENT_LENGTH+1];
 
     if (cmd_source != src_command)
         return;
@@ -843,17 +842,17 @@ Host_Loadgame_f
 */
 void Host_Loadgame_f (void)
 {
-    char	name[MAX_OSPATH];
-    FILE	*f;
-    char	mapname[MAX_QPATH];
-    float	time, tfloat;
-    char	str[32768], *start;
-    int		i;//, r; // Manoel Kasimier - removed
-    char	r;		// Manoel Kasimier - VMU saves
-    edict_t	*ent;
-    int		entnum;
-    int		version;
-    float			spawn_parms[NUM_SPAWN_PARMS];
+    char        name[MAX_OSPATH];
+    FILE        *f;
+    char        mapname[MAX_QPATH];
+    float       time, tfloat;
+    char        str[32768], *start;
+    int         i;//, r; // Manoel Kasimier - removed
+    char        r;              // Manoel Kasimier - VMU saves
+    edict_t     *ent;
+    int         entnum;
+    int         version;
+    float                       spawn_parms[NUM_SPAWN_PARMS];
 
     if (cmd_source != src_command)
         return;
@@ -864,13 +863,13 @@ void Host_Loadgame_f (void)
         return;
     }
 
-    cls.demonum = -1;		// stop demo loop in case this fails
+    cls.demonum = -1;           // stop demo loop in case this fails
 
     sprintf (name, "%s/%s", com_gamedir, Cmd_Argv(1));
     COM_DefaultExtension (name, ".sav");
     // we can't call SCR_BeginLoadingPlaque, because too much stack space has
     // been used.  The menu calls it before stuffing loadgame command
-    //	SCR_BeginLoadingPlaque ();
+    //  SCR_BeginLoadingPlaque ();
 
     Con_Printf ("Loading game from %s...\n", name);
     f = fopen (name, "r");
@@ -881,7 +880,7 @@ void Host_Loadgame_f (void)
     }
 
     version = DC_ScanInt(f); // BlackAura - Replacing fscanf
-    //	fscanf (f, "%i\n", &version);
+    //  fscanf (f, "%i\n", &version);
     if (version != SAVEGAME_VERSION)
     {
         fclose (f);
@@ -889,14 +888,14 @@ void Host_Loadgame_f (void)
         return;
     }
     DC_ScanString(f, str); // BlackAura - Replacing fscanf
-    //	fscanf (f, "%s\n", str);
+    //  fscanf (f, "%s\n", str);
     for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
         spawn_parms[i] = DC_ScanFloat(f); // BlackAura - Replacing fscanf
-    //	fscanf (f, "%f\n", &spawn_parms[i]);
+    //  fscanf (f, "%f\n", &spawn_parms[i]);
 
     // this silliness is so we can load 1.06 save files, which have float skill values
     tfloat = DC_ScanFloat(f); // BlackAura (08-12-2002) - Replacing fscanf
-    //	fscanf (f, "%f\n", &tfloat);
+    //  fscanf (f, "%f\n", &tfloat);
     current_skill = (int)(tfloat + 0.1);
     Cvar_SetValue ("skill", (float)current_skill);
 
@@ -905,7 +904,7 @@ void Host_Loadgame_f (void)
     Cvar_SetValue ("teamplay", 0);
 
     DC_ScanString(f, mapname); // BlackAura (08-12-2002) - Replacing fscanf
-    //	fscanf (f, "%s\n",mapname);
+    //  fscanf (f, "%s\n",mapname);
     time = DC_ScanFloat(f); // BlackAura (08-12-2002) - Replacing fscanf
     svs.serverflags = DC_ScanInt(f); // Replacing fscanf
     CL_Disconnect_f ();
@@ -916,7 +915,7 @@ void Host_Loadgame_f (void)
         Con_Printf ("Couldn't load map\n");
         return;
     }
-    sv.paused = true;		// pause until all clients connect
+    sv.paused = true;           // pause until all clients connect
     sv.loadgame = true;
 
     // load the light styles
@@ -924,13 +923,13 @@ void Host_Loadgame_f (void)
     for (i=0 ; i<MAX_LIGHTSTYLES ; i++)
     {
         DC_ScanString(f, str); // BlackAura (08-12-2002) - Replacing fscanf
-        //	fscanf (f, "%s\n", str);
+        //      fscanf (f, "%s\n", str);
         sv.lightstyles[i] = Hunk_Alloc (Q_strlen(str)+1);
         Q_strcpy (sv.lightstyles[i], str);
     }
 
     // load the edicts out of the savegame file
-    entnum = -1;		// -1 is the globals
+    entnum = -1;                // -1 is the globals
     while (!feof(f))
     {
         for (i=0 ; i<sizeof(str)-1 ; i++)
@@ -951,7 +950,7 @@ void Host_Loadgame_f (void)
         start = str;
         start = COM_Parse(str);
         if (!com_token[0])
-            break;		// end of file
+            break;              // end of file
         if (Q_strcmp(com_token,"{"))
         {
             Host_Error ("First token isn't a brace"); // Manoel Kasimier - edited
@@ -1007,8 +1006,8 @@ Host_Name_f
 */
 void Host_Name_f (void)
 {
-    char	*newName;
-    unsigned int		i;	// 2001-09-09 Names with carriage return fix by Charles "Psykotik" Pence
+    char        *newName;
+    unsigned int                i;      // 2001-09-09 Names with carriage return fix by Charles "Psykotik" Pence
 
     if (Cmd_Argc () == 1)
     {
@@ -1068,8 +1067,8 @@ void Host_Version_f (void)
 //qb: TTS?
 void SV_ClientSayf (char *fmt, ...)
 {
-    va_list		argptr;
-    char		string[1024];
+    va_list             argptr;
+    char                string[1024];
 
     va_start (argptr,fmt);
     vsprintf (string, fmt,argptr);
@@ -1084,10 +1083,10 @@ void Host_Say(qboolean teamonly)
 {
     client_t *client;
     client_t *save;
-    int		j;
-    char	*p;
-    char	text[64];
-    qboolean	fromServer = false;
+    int         j;
+    char        *p;
+    char        text[64];
+    qboolean    fromServer = false;
 
     if (cmd_source == src_command)
     {
@@ -1159,17 +1158,17 @@ void Host_Say_Team_f(void)
 void Host_Tell_f(void)
 {
     // 2001-09-09 Tell command accepts player number by Maddes  start
-    char		*who;
-    char		*message = NULL;
-    qboolean	byNumber = false;
+    char                *who;
+    char                *message = NULL;
+    qboolean    byNumber = false;
     // 2001-09-09 Tell command accepts player number by Maddes  end
     client_t *client;
     client_t *save;
-    int		j;
+    int         j;
     // 2001-09-09 Tell command accepts player number by Maddes  start
     /*
-    char	*p;
-    char	text[64];
+    char        *p;
+    char        text[64];
     */
     // 2001-09-09 Tell command accepts player number by Maddes  end
 
@@ -1186,7 +1185,7 @@ void Host_Tell_f(void)
         return;
     }
 
-    if (Q_strcmp(Cmd_Argv(1), "#") == 0)	// user stated a player number
+    if (Q_strcmp(Cmd_Argv(1), "#") == 0)        // user stated a player number
     {
         if (Cmd_Argc() < 4)
         {
@@ -1263,10 +1262,10 @@ void Host_Tell_f(void)
     message = COM_Parse(Cmd_Args());
     if (byNumber)
     {
-        message++;							// skip the #
-        while (*message == ' ')				// skip white space
+        message++;                                                      // skip the #
+        while (*message == ' ')                         // skip white space
             message++;
-        message += Q_strlen(Cmd_Argv(2));	// skip the number
+        message += Q_strlen(Cmd_Argv(2));       // skip the number
     }
     while (*message && *message == ' ')
         message++;
@@ -1287,8 +1286,8 @@ Host_Color_f
 */
 void Host_Color_f(void)
 {
-    int		top, bottom;
-    int		playercolor;
+    int         top, bottom;
+    int         playercolor;
 
     if (Cmd_Argc() == 1)
     {
@@ -1346,7 +1345,7 @@ void Host_Kill_f (void)
     }
 
     // 2001-09-09 Kill command does not work for zombie players fix by Maddes  start
-    //	if (sv_player->v.health <= 0)
+    //  if (sv_player->v.health <= 0)
     if ((sv_player->v.health <= 0) && (sv_player->v.deadflag != DEAD_NO))
         // 2001-09-09 Kill command does not work for zombie players fix by Maddes  end
     {
@@ -1374,7 +1373,7 @@ void Host_Pause_f (void)
 {
 //PAUSE_DEMO - qb: Baker change
     if (cls.demonum == -1) // Don't allow startdemos to be paused
-        cl.paused ^= 2;		// to handle demo-pause
+        cl.paused ^= 2;         // to handle demo-pause
 
     if (cmd_source == src_command)
     {
@@ -1442,9 +1441,9 @@ Host_Spawn_f
 */
 void Host_Spawn_f (void)
 {
-    int		i;
-    client_t	*client;
-    edict_t	*ent;
+    int         i;
+    client_t    *client;
+    edict_t     *ent;
     float *sendangle;
 
     if (cmd_source == src_command)
@@ -1597,11 +1596,11 @@ Kicks a user off of the server
 */
 void Host_Kick_f (void)
 {
-    char		*who;
-    char		*message = NULL;
-    client_t	*save;
-    int			i;
-    qboolean	byNumber = false;
+    char                *who;
+    char                *message = NULL;
+    client_t    *save;
+    int                 i;
+    qboolean    byNumber = false;
 
     if (cmd_source == src_command)
     {
@@ -1646,7 +1645,7 @@ void Host_Kick_f (void)
                 who = "Console";
             else
                 who = cl_name.string;
-        }	// 1999-12-24 explicit brackets by Maddes
+        }       // 1999-12-24 explicit brackets by Maddes
         else
             who = save->name;
 
@@ -1659,10 +1658,10 @@ void Host_Kick_f (void)
             message = COM_Parse(Cmd_Args());
             if (byNumber)
             {
-                message++;							// skip the #
-                while (*message == ' ')				// skip white space
+                message++;                                                      // skip the #
+                while (*message == ' ')                         // skip white space
                     message++;
-                message += Q_strlen(Cmd_Argv(2));	// skip the number
+                message += Q_strlen(Cmd_Argv(2));       // skip the number
             }
             while (*message && *message == ' ')
                 message++;
@@ -1692,9 +1691,9 @@ Host_Give_f
 */
 void Host_Give_f (void)
 {
-    char	*t;
-    int		v;
-    eval_t	*val;
+    char        *t;
+    int         v;
+    eval_t      *val;
 
     if (cmd_source == src_command)
     {
@@ -1860,10 +1859,10 @@ void Host_Give_f (void)
     }
 }
 
-edict_t	*FindViewthing (void)
+edict_t *FindViewthing (void)
 {
-    int		i;
-    edict_t	*e;
+    int         i;
+    edict_t     *e;
 
     for (i=0 ; i<sv.num_edicts ; i++)
     {
@@ -1882,8 +1881,8 @@ Host_Viewmodel_f
 */
 void Host_Viewmodel_f (void)
 {
-    edict_t	*e;
-    model_t	*m;
+    edict_t     *e;
+    model_t     *m;
 
     e = FindViewthing ();
     if (!e)
@@ -1907,9 +1906,9 @@ Host_Viewframe_f
 */
 void Host_Viewframe_f (void)
 {
-    edict_t	*e;
-    int		f;
-    model_t	*m;
+    edict_t     *e;
+    int         f;
+    model_t     *m;
 
     e = FindViewthing ();
     if (!e)
@@ -1926,8 +1925,8 @@ void Host_Viewframe_f (void)
 
 void PrintFrameName (model_t *m, int frame)
 {
-    aliashdr_t 			*hdr;
-    maliasframedesc_t	*pframedesc;
+    aliashdr_t                  *hdr;
+    maliasframedesc_t   *pframedesc;
 
     hdr = (aliashdr_t *)Mod_Extradata (m);
     if (!hdr)
@@ -1944,8 +1943,8 @@ Host_Viewnext_f
 */
 void Host_Viewnext_f (void)
 {
-    edict_t	*e;
-    model_t	*m;
+    edict_t     *e;
+    model_t     *m;
 
     e = FindViewthing ();
     if (!e)
@@ -1966,8 +1965,8 @@ Host_Viewprev_f
 */
 void Host_Viewprev_f (void)
 {
-    edict_t	*e;
-    model_t	*m;
+    edict_t     *e;
+    model_t     *m;
 
     e = FindViewthing ();
     if (!e)
@@ -1998,12 +1997,12 @@ Host_Startdemos_f
 */
 void Host_Startdemos_f (void)
 {
-    int		i, c;
+    int         i, c;
     // Manoel Kasimier - begin
-    int		i2=0;
+    int         i2=0;
     static int democount;
-    FILE	*f;
-    char	name[256];
+    FILE        *f;
+    char        name[256];
     // Manoel Kasimier - end
 
     if (cls.state == ca_dedicated)
@@ -2032,7 +2031,7 @@ void Host_Startdemos_f (void)
     }
     // clear demo list
     for (i=0 ; i<democount ; i++)
-        //	Z_Free (cls.demos[i]);
+        //      Z_Free (cls.demos[i]);
         cls.demos[i][0] = 0;
     // don't add invalid demos to the list
     for (i=1 ; i<c+1 ; i++)
@@ -2053,8 +2052,8 @@ void Host_Startdemos_f (void)
     democount = c-i2;
     // Manoel Kasimier - end
 
-    //	for (i=1 ; i<c+1 ; i++) // Manoel Kasimier - removed
-    //		Q_strncpy (cls.demos[i-1], Cmd_Argv(i), sizeof(cls.demos[0])-1); // Manoel Kasimier - removed
+    //  for (i=1 ; i<c+1 ; i++) // Manoel Kasimier - removed
+    //          Q_strncpy (cls.demos[i-1], Cmd_Argv(i), sizeof(cls.demos[0])-1); // Manoel Kasimier - removed
 
     if (!sv.active && cls.demonum != -1 && !cls.demoplayback)
     {
@@ -2151,7 +2150,5 @@ void Host_InitCommands (void)
 
     Cmd_AddCommand ("mcache", Mod_Print);
     Cmd_AddCommand ("qcexec", Host_QC_Exec); // FrikaC - qcexec function
-
-    Cmd_AddCommand ("writehelp", Host_WriteDiagnostics);
 
 }

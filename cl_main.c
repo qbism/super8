@@ -787,7 +787,7 @@ void CL_RelinkEntities (void)
                 dl->origin[2] += 16;
                 dl->radius = 400 + (rand()&31);
                 dl->die = cl.time + 0.001;
-                dl->color = palmapnofb[35][28][18]; //qb: dyncol
+                dl->color = palmapnofb[25][22][18]; //qb: dyncol
             }
             if (ent->effects & EF_DIMLIGHT)
             {
@@ -795,7 +795,7 @@ void CL_RelinkEntities (void)
                 VectorCopy (ent->origin,  dl->origin);
                 dl->radius = 200 + (rand()&31);
                 dl->die = cl.time + 0.001;
-                dl->color = palmapnofb[18][16][8]; //qb: dyncol
+                dl->color = palmapnofb[14][12][8]; //qb: dyncol
             }
 
         } // Manoel Kasimier
@@ -820,9 +820,9 @@ void CL_RelinkEntities (void)
                 dl = CL_AllocDlight (i); //qb: add monster muzzleflash ala directQ
                 VectorCopy (ent->origin,  dl->origin);
                 dl->origin[2] += 16;
-                dl->radius = 300 + (rand()&31);
-                dl->die = cl.time + 0.1;
-                dl->color = palmapnofb[4][36][6]; //qb: dyncol
+                dl->radius = 100 + (rand()&31);
+                dl->die = cl.time + 0.05;
+                dl->color = palmapnofb[4][26][6]; //qb: dyncol
                 R_RocketTrail (oldorg, ent->origin, 3);
             }
             else if (ent->effects & EF_TRACER2)
@@ -831,17 +831,17 @@ void CL_RelinkEntities (void)
                 dl = CL_AllocDlight (i);
                 VectorCopy (ent->origin, dl->origin);
                 dl->radius = 100;
-                dl->die = cl.time + 0.1;
-                dl->color = palmapnofb[24][24][8];
+                dl->die = cl.time + 0.05;
+                dl->color = palmapnofb[20][14][4];
             }
             else if (ent->effects & EF_ROCKET)
             {
                 R_RocketTrail (oldorg, ent->origin, 0);
                 dl = CL_AllocDlight (i);
                 VectorCopy (ent->origin, dl->origin);
-                dl->radius = 200;
+                dl->radius = 150;
                 dl->die = cl.time + 0.01;
-                dl->color = palmapnofb[30][28][16];
+                dl->color = palmapnofb[28][12][2];
             }
             else if (ent->effects & EF_GRENADE)
                 R_RocketTrail (oldorg, ent->origin, 1);
@@ -850,9 +850,9 @@ void CL_RelinkEntities (void)
                 R_RocketTrail (oldorg, ent->origin, 6);
                 dl = CL_AllocDlight (i);
                 VectorCopy (ent->origin, dl->origin);
-                dl->radius = 200;
+                dl->radius = 150;
                 dl->die = cl.time + 0.01;
-                dl->color = palmapnofb[30][6][30];
+                dl->color = palmapnofb[28][6][6];
             }
         } // Manoel Kasimier
         // Tomaz - QC Glow
