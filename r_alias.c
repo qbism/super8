@@ -974,7 +974,8 @@ void R_AliasSetupLighting (/*alight_t *plighting*/) // Manoel Kasimier - edited
     int			shadelight;
 
     VectorCopy(currententity->origin, t);
-    r_ambientlight = R_LightPoint (t);
+    r_ambientlight = R_LightPoint (t, currententity->lightpoint);
+    currententity->lightpoint = r_ambientlight;
     if (currententity == &cl.viewent)
         if (r_ambientlight < 24)
             r_ambientlight = 24;		// always give some light on gun
@@ -1041,10 +1042,11 @@ void R_AliasSetupLighting_new () //qb: a hybrid of MK's version.
     lightvec[2] = r_light_vec_z.value;
 
     VectorCopy(currententity->origin, t);
-    r_ambientlight = R_LightPoint (t) >>1;
-    if (currententity == &cl.viewent)
-        if (r_ambientlight < 12)
-            r_ambientlight = 12;		// always give some light on gun
+    r_ambientlight = R_LightPoint (t, currententity->lightpoint) * 0.7 + 8;
+    currententity->lightpoint = r_ambientlight;
+ //   if (currententity == &cl.viewent)
+ //       if (r_ambientlight < 12)
+//            r_ambientlight = 12;		// always give some light on gun
     shadelight = r_ambientlight;
 
     // add dynamic lights

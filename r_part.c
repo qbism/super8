@@ -18,20 +18,20 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "quakedef.h"
 #include "r_local.h"
 
-#define MAX_PARTICLES 8192	//qb: 16383 per qsb, was 2048	// default max # of particles at one time
-#define ABSOLUTE_MIN_PARTICLES	1024 //qb: per qsb - was 512	//no fewer no matter the command line
+#define MAX_PARTICLES 8192      //qb: 16383 per qsb, was 2048   // default max # of particles at one time
+#define ABSOLUTE_MIN_PARTICLES  1024 //qb: per qsb - was 512    //no fewer no matter the command line
 
-extern  cvar_t	sv_gravity;
+extern  cvar_t  sv_gravity;
 
-int		ramp1[8] = {0x6f, 0x6d, 0x6b, 0x69, 0x67, 0x65, 0x63, 0x61};
-int		ramp2[8] = {0x6f, 0x6e, 0x6d, 0x6c, 0x6b, 0x6a, 0x68, 0x66};
-int		ramp3[8] = {0x6d, 0x6b, 6, 5, 4, 3};
+int             ramp1[8] = {0x6f, 0x6d, 0x6b, 0x69, 0x67, 0x65, 0x63, 0x61};
+int             ramp2[8] = {0x6f, 0x6e, 0x6d, 0x6c, 0x6b, 0x6a, 0x68, 0x66};
+int             ramp3[8] = {0x6d, 0x6b, 6, 5, 4, 3};
 
-particle_t	*active_particles, *free_particles;
-particle_t	*particles;
-int			r_numparticles;
+particle_t      *active_particles, *free_particles;
+particle_t      *particles;
+int                     r_numparticles;
 
-vec3_t			r_pright, r_pup, r_ppn;
+vec3_t                  r_pright, r_pup, r_ppn;
 
 
 /*
@@ -41,7 +41,7 @@ R_InitParticles
 */
 void R_InitParticles (void)
 {
-    int		i;
+    int         i;
 
     i = COM_CheckParm ("-particles");
 
@@ -63,11 +63,11 @@ void R_InitParticles (void)
 
 void R_DarkFieldParticles (entity_t *ent)
 {
-    int			i, j, k;
-    particle_t	*p;
-    float		vel;
-    vec3_t		dir;
-    vec3_t		org;
+    int                 i, j, k;
+    particle_t  *p;
+    float               vel;
+    vec3_t              dir;
+    vec3_t              org;
 
     org[0] = ent->origin[0];
     org[1] = ent->origin[1];
@@ -109,23 +109,23 @@ R_EntityParticles
 ===============
 */
 
-#define NUMVERTEXNORMALS	162
-extern	float	r_avertexnormals[NUMVERTEXNORMALS][3];
-vec3_t	avelocities[NUMVERTEXNORMALS];
-float	beamlength = 16;
-vec3_t	avelocity = {23, 7, 3};
-float	partstep = 0.01;
-float	timescale = 0.01;
+#define NUMVERTEXNORMALS        162
+extern  float   r_avertexnormals[NUMVERTEXNORMALS][3];
+vec3_t  avelocities[NUMVERTEXNORMALS];
+float   beamlength = 16;
+vec3_t  avelocity = {23, 7, 3};
+float   partstep = 0.01;
+float   timescale = 0.01;
 
 void R_EntityParticles (entity_t *ent)
 {
-    int			count;
-    int			i;
-    particle_t	*p;
-    float		angle;
-    float		sr, sp, sy, cr, cp, cy;
-    vec3_t		forward;
-    float		dist;
+    int                 count;
+    int                 i;
+    particle_t  *p;
+    float               angle;
+    float               sr, sp, sy, cr, cp, cy;
+    vec3_t              forward;
+    float               dist;
 
     dist = 64;
     count = 50;
@@ -179,7 +179,7 @@ R_ClearParticles
 */
 void R_ClearParticles (void)
 {
-    int		i;
+    int         i;
 
     free_particles = &particles[0];
     active_particles = NULL;
@@ -192,16 +192,16 @@ void R_ClearParticles (void)
 
 void R_ReadPointFile_f (void)
 {
-    FILE	*f;
-    vec3_t	org= {0,0,0};
-    int		r;
-    int		c;
-    particle_t	*p;
-    char	name[MAX_OSPATH];
+    FILE        *f;
+    vec3_t      org= {0,0,0};
+    int         r;
+    int         c;
+    particle_t  *p;
+    char        name[MAX_OSPATH];
 
     sprintf (name,"maps/%s.pts", sv.name);
 
-    COM_FOpenFile (name, &f, NULL);	// 2001-09-12 Returning from which searchpath a file was loaded by Maddes
+    COM_FOpenFile (name, &f, NULL);     // 2001-09-12 Returning from which searchpath a file was loaded by Maddes
     if (!f)
     {
         Con_Printf ("couldn't open %s\n", name);
@@ -248,8 +248,8 @@ Parse an effect out of the server message
 */
 void R_ParseParticleEffect (void)
 {
-    vec3_t		org, dir;
-    int			i, count, msgcount, color;
+    vec3_t              org, dir;
+    int                 i, count, msgcount, color;
 
     for (i=0 ; i<3 ; i++)
         org[i] = MSG_ReadCoord ();
@@ -275,8 +275,8 @@ R_ParticleExplosion
 */
 void R_ParticleExplosion (vec3_t org)
 {
-    int			i, j;
-    particle_t	*p;
+    int                 i, j;
+    particle_t  *p;
 
     for (i=0 ; i<r_part_explo1_count.value ; i++)
     {
@@ -320,9 +320,9 @@ R_ParticleExplosion2
 */
 void R_ParticleExplosion2 (vec3_t org, int colorStart, int colorLength)
 {
-    int			i, j;
-    particle_t	*p;
-    int			colorMod = 0;
+    int                 i, j;
+    particle_t  *p;
+    int                 colorMod = 0;
 
     for (i=0; i<r_part_explo2_count.value; i++)
     {
@@ -355,8 +355,8 @@ R_BlobExplosion
 */
 void R_BlobExplosion (vec3_t org)
 {
-    int			i, j;
-    particle_t	*p;
+    int                 i, j;
+    particle_t  *p;
 
     for (i=0 ; i<r_part_blob_count.value ; i++)
     {
@@ -420,8 +420,8 @@ R_RunParticleEffect
 //
 void R_RunParticleEffect (vec3_t org, vec3_t dir, int color, int count)
 {
-    int			i, j;
-    particle_t	*p;
+    int                 i, j;
+    particle_t  *p;
 
     for (i=0 ; i<count ; i++)
     {
@@ -508,8 +508,8 @@ void R_RunParticleEffect (vec3_t org, vec3_t dir, int color, int count)
                 for (j=0 ; j<3 ; j++)
                 {
                     p->org[j] = org[j];
-                    //	p->vel[j] = dir[j]*15 + (rand()%300)-150;
-                    //		p->vel[j] = dir[j]*15 + (rand()%150)-75;
+                    //  p->vel[j] = dir[j]*15 + (rand()%300)-150;
+                    //          p->vel[j] = dir[j]*15 + (rand()%150)-75;
                     p->vel[j] = dir[j]*((rand()%22)) + (rand()%50)-25;
                 }
             }
@@ -527,10 +527,10 @@ R_LavaSplash
 void R_LavaSplash (vec3_t org)
 {
     // more like gib splash!
-    int			i, j, k;
-    particle_t	*p;
-    float		vel;
-    vec3_t		dir;
+    int                 i, j, k;
+    particle_t  *p;
+    float               vel;
+    vec3_t              dir;
 
     for (k=0 ; k<2 ; k++)
         for (i=-12 ; i<12 ; i++)
@@ -573,10 +573,10 @@ R_TeleportSplash
 */
 void R_TeleportSplash (vec3_t org)
 {
-    int			i, j, k;
-    particle_t	*p;
-    float		vel;
-    vec3_t		dir;
+    int                 i, j, k;
+    particle_t  *p;
+    float               vel;
+    vec3_t              dir;
 
     for (i=-16 ; i<16 ; i+=4)
         for (j=-16 ; j<16 ; j+=4)
@@ -610,18 +610,18 @@ void R_TeleportSplash (vec3_t org)
 
 void R_RocketTrail (vec3_t start, vec3_t end, int type)
 {
-    vec3_t		vec;
-    float		len;
-    int			j;
-    particle_t	*p;
-    int			dec;
-    static int	tracercount;
+    vec3_t              vec;
+    float               len;
+    int                 j;
+    particle_t  *p;
+    int                 dec;
+    static int  tracercount;
 
     VectorSubtract (end, start, vec);
     len = VectorNormalize (vec);
     if (type < 128)
         dec = 3;
-    else 	if (type == 7)
+    else        if (type == 7)
         dec = 1;
     else
     {
@@ -646,7 +646,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
         p->start_time = cl.time; // Manoel Kasimier
         switch (type)
         {
-        case 0:	// rocket trail
+        case 0: // rocket trail
 
             if ((rand()&35) < 1)  //qb:added occasional falling ash
             {
@@ -668,7 +668,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
                 p->org[j] = start[j] + ((rand()&6)-3);
             break;
 
-        case 1:	// smoke smoke
+        case 1: // smoke smoke
             p->ramp = (rand()&3) + 2;
             p->color = ramp3[(int)p->ramp];
             p->type = pt_fire;
@@ -677,7 +677,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
                 p->org[j] = start[j] + ((rand()&6)-3);
             break;
 
-        case 2:	// GIB
+        case 2: // GIB
             p->color = 67 + (rand()&3);
             for (j=0 ; j<3 ; j++)
             {
@@ -693,7 +693,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             break;
 
         case 3:
-        case 5:	// tracer
+        case 5: // tracer
             p->die = cl.time + 0.5;
             p->start_time = cl.time; // Manoel Kasimier
             p->type = pt_static;
@@ -717,7 +717,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             }
             break;
 
-        case 4:	// slight blood
+        case 4: // slight blood
             //p->type = pt_grav;
             p->color = 67 + (rand()&3);
             for (j=0 ; j<3 ; j++)
@@ -733,7 +733,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             p->alphavel = -0.03;
             break;
 
-        case 6:	// voor trail
+        case 6: // voor trail
             p->color = 9*16 + 8 + (rand()&3);
             p->type = pt_static;
             p->die = cl.time + 0.3;
@@ -741,7 +741,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             for (j=0 ; j<3 ; j++)
                 p->org[j] = start[j] + ((rand()&15)-8);
             break;
-        case 7:	// rail trail smoke
+        case 7: // rail trail smoke
             p->ramp = (rand()&3) + 2;
             p->color = ramp3[(int)p->ramp];
             p->alpha = 1;
@@ -760,7 +760,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
 
 void MakeNormalVectors (vec3_t forward, vec3_t right, vec3_t up)
 {
-    float		d;
+    float               d;
 
     // this rotate and negat guarantees a vector
     // not colinear with the original
@@ -782,19 +782,18 @@ R_DrawParticles
 */
 void R_DrawParticles (void)
 {
-    particle_t		*p, *kill;
+    particle_t          *p, *kill;
     mleaf_t         *l;
-    float			grav;
+    float                       grav;
     //float grav2, percent;
-    int				i;
-    float			time2, time3;
-    float			time1;
-    float			alpha, dvel;
-    float			frametime;
+    int                         i;
+    float                       time1, time2, time3;
+    float                       dvel;
+    float                       frametime;
 
 // hexen 2
-    vec3_t		diff;
-//    qboolean	in_solid;
+    vec3_t              diff;
+//    qboolean  in_solid;
 
     VectorScale (vright, xscaleshrink, r_pright);
     VectorScale (vup, yscaleshrink, r_pup);
@@ -874,7 +873,7 @@ void R_DrawParticles (void)
 
             case pt_explode:
                 p->ramp += time2;
-//			p->splatter = 0;
+//                      p->splatter = 0;
                 if (p->ramp >=8)
                     p->die = -1;
                 else
@@ -886,7 +885,7 @@ void R_DrawParticles (void)
 
             case pt_explode2:
                 p->ramp += time3;
-//			p->splatter = 0;
+//                      p->splatter = 0;
                 if (p->ramp >=8)
                     p->die = -1;
                 else
@@ -973,7 +972,7 @@ void R_DrawParticles (void)
                         i--; //no infinite loops
                         if (!i)
                         {
-                            p->die = -1;	//should never happen now!
+                            p->die = -1;        //should never happen now!
                             break;
                         }
                         l = Mod_PointInLeaf (p->org, cl.worldmodel);
@@ -1002,9 +1001,9 @@ used by TE_TEI_PLASMAHIT
 */
 void R_PlasmaExplosion (vec3_t org, int colorStart, int colorLength, int count)
 {
-    int			i, j;
-    particle_t	*p;
-    int			colorMod = 0;
+    int                 i, j;
+    particle_t  *p;
+    int                 colorMod = 0;
 
     for (i=0; i<count; i++)
     {
@@ -1035,8 +1034,8 @@ void R_PlasmaExplosion (vec3_t org, int colorStart, int colorLength, int count)
 
 void R_Smoke (vec3_t org, vec3_t dir, int color, int count)
 {
-    int			i, j;
-    particle_t	*p;
+    int                 i, j;
+    particle_t  *p;
 
     for (i=0 ; i<count ; i++)
     {
@@ -1094,8 +1093,8 @@ void R_Smoke (vec3_t org, vec3_t dir, int color, int count)
 
 void R_Splash (vec3_t org, vec3_t dir, int color, int count, int power)
 {
-    int			i, j;
-    particle_t	*p;
+    int                 i, j;
+    particle_t  *p;
 
     for (i=0 ; i<count ; i++)
     {
@@ -1150,14 +1149,14 @@ void R_Splash (vec3_t org, vec3_t dir, int color, int count, int power)
 // (TODO: Quake2 polygon beam)
 void R_ParticleBeam (vec3_t start, vec3_t end, int thecol)
 {
-    vec3_t		vec;
-    float		len;
-    int			j;
-    particle_t	*p;
-    int			dec;
-//    static int	tracercount;
-    int	wat;
-    //int	thecol;
+    vec3_t              vec;
+    float               len;
+    int                 j;
+    particle_t  *p;
+    int                 dec;
+//    static int        tracercount;
+    int wat;
+    //int       thecol;
 
 
 
@@ -1183,7 +1182,7 @@ void R_ParticleBeam (vec3_t start, vec3_t end, int thecol)
 
         wat = rand()&2;
         {
-            if (wat == 2) 	// Outer Glow
+            if (wat == 2)       // Outer Glow
             {
                 p->color = thecol;
                 p->type = pt_staticfadeadd;
@@ -1223,17 +1222,17 @@ i'm a quake2 function short and stout
 
 void R_RailTrail (vec3_t start, vec3_t end)
 {
-    vec3_t		move;
-    vec3_t		vec;
-    float		len;
-    int			j;
-    particle_t	*p;
-    float		dec;
-    vec3_t		right, up;
-    int			i;
-    float		d, c, s;
-    vec3_t		dir;
-    byte		clr = 40;
+    vec3_t              move;
+    vec3_t              vec;
+    float               len;
+    int                 j;
+    particle_t  *p;
+    float               dec;
+    vec3_t              right, up;
+    int                 i;
+    float               d, c, s;
+    vec3_t              dir;
+    byte                clr = 40;
 
     VectorCopy (start, move);
     VectorSubtract (end, start, vec);
@@ -1263,7 +1262,7 @@ void R_RailTrail (vec3_t start, vec3_t end)
         VectorMA (dir, s, up, dir);
         p->type = pt_staticfadeadd;
         p->alpha = 1.0;
-        //	p->alphavel = -1.0 / (1+frand()*0.2);
+        //      p->alphavel = -1.0 / (1+frand()*0.2);
         p->alphavel = -1.0;
 
         p->color = clr + (rand()&7);

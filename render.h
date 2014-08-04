@@ -111,6 +111,7 @@ typedef struct entity_s
 	byte		glow_blue;
 	// Tomaz - QC Alpha Scale Glow End
 	float distance; //qb: from reckless, depth sorting
+	int lightpoint; //qb: remember lightpoint for blending
 } entity_t;
 
 // !!! if this is changed, it must be changed in asm_draw.h too !!!

@@ -340,7 +340,7 @@ void R_PrintAliasStats (void);
 void R_PrintTimes (void);
 void R_PrintDSpeeds (void);
 void R_AnimateLight (void);
-int R_LightPoint (vec3_t p);
+int R_LightPoint (vec3_t p, int lightpoint);
 void R_SetupFrame (void); //qb: things to do once for fisheye
 void R_EmitEdge (mvertex_t *pv0, mvertex_t *pv1);
 void R_ClipEdge (mvertex_t *pv0, mvertex_t *pv1, clipplane_t *clip);

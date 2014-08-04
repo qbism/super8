@@ -335,6 +335,8 @@ void M_Video_f (void); //qb: from Manoel Kasimier - edited
 void M_Print (int cx, int cy, char *str);
 void M_PrintWhite (int cx, int cy, char *str);
 void M_DrawCharacter (int cx, int line, int num, qboolean sscale);
+void Host_WriteDiagnostics (char *status); //qb: write out the help strings
+
 
 extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output
 //  an fullscreen DIB focus gain/loss

@@ -575,11 +575,7 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
                 g = bound(0,(gc*0.6+ gp*0.9)-flatten ,254);
                 b = bound(0,(bc*0.6+ bp*0.9)-flatten ,254);
 
-                //r = bound(0,rc*ay+rp*ae,254);
-               // g = bound(0,gc*ay+gp*ae,254);
-               // b = bound(0,bc*ay+bp*ae,254);
-
-                *colmap++ = palmapnofb[r>>2][g>>2][b>>2];
+                *colmap++ = BestColor(r,g,b, 0, 223);
             }
         }
     }
@@ -1514,7 +1510,7 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
 
     //qb: originally based on Makaqu fog.  added global fog, dithering, optimizing
     static int                  i, xref, yref;
-    static byte         *colmap, *pbuf; //, *vidfog;
+    static byte             *pbuf;
     static short               *pz;
     static unsigned int          level;
     static float previous_fog_density;
