@@ -132,7 +132,7 @@ void D_WarpScreen (void)
     static byte    *dest, *src;
     static int   *turb_x, *turb_y;
     static int i;
-    const float    timeoffset = (float) ( (int) (cl.time * SPEED) & (CYCLE - 1)); // turbulence phase offset
+    const float    timeoffset = (float) ( (int) (cl.time * SPEED * 2) & (CYCLE - 1)); // turbulence phase offset  //qb: double speed
 
     static byte  *tempdest;
     static int  *row, *col, *turb_x_temp;
