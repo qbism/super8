@@ -442,6 +442,26 @@ void Host_WriteDiagnostics (char *status)
 }
 
 
+//qb: hack for debugging
+void Host_WriteStatus (char *status)
+{
+    FILE	*f;
+
+    if (host_initialized && !isDedicated)
+    {
+        f = fopen (va("%s/S8status.txt",com_gamedir), "wb"); // Manoel Kasimier - config.cfg replacement - edited
+        if (!f)
+        {
+            Con_Printf ("Couldn't write S8status.txt.\n"); // Manoel Kasimier - config.cfg replacement - edited
+            return;
+        }
+        fprintf (f, ">>>>>>>>>>> SUPER8 BUILD %s DEBUG STATUS <<<<<<<<<<<<\n", BUILDVERSION);
+       fprintf (f, "Status: %s\n\n", status);
+        fclose (f);
+    }
+}
+
+
 
 /*
 =================
@@ -1048,7 +1068,7 @@ void Host_Init (quakeparms_t *parms)
     host_initialized = true;
 
     Sys_Printf ("========Quake Initialized=========\n");
-}
+ }
 
 
 /*

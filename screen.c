@@ -1154,7 +1154,6 @@ void SCR_UpdateScreen (void)
 
     SCR_SetUpToDrawConsole ();
     SCR_EraseCenterString ();
-
     V_RenderView ();
 
     //qb: dump this here

@@ -545,46 +545,42 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
     memcpy (loadmodel->lightdata, mod_base + l->fileofs, l->filelen);
     if (cls.state != ca_dedicated)
     {
-        strcpy(litname, loadmodel->name);
-        COM_StripExtension(loadmodel->name, litname);
+	strcpy(litname, loadmodel->name);
+    COM_StripExtension(loadmodel->name, litname);
         COM_DefaultExtension(litname, ".lit");    //qb: indexed colored
         fileinfo = COM_LoadFile(litname,0); //qb: don't load into hunk
         if (fileinfo && ((l->filelen*3 +8) == fileinfo->filelen))
-        {
+    {
             Con_DPrintf("%s loaded from %s\n", litname, fileinfo->path->pack ? fileinfo->path->pack->filename : fileinfo->path->filename);
 
             data = fileinfo->data;
-            if (data[0] == 'Q' && data[1] == 'L' && data[2] == 'I' && data[3] == 'T')
+        if (data[0] == 'Q' && data[1] == 'L' && data[2] == 'I' && data[3] == 'T')
+        {
+           i = LittleLong(((int *)data)[1]);
+            if (i == 1)
             {
-                i = LittleLong(((int *)data)[1]);
-                if (i == 1)
-                {
                     loadmodel->colordata = Hunk_AllocName (l->filelen+4, "modcolor"); //qb: need some padding for dither
-                    k=8;
-                    out = loadmodel->colordata;
+                k=8;
+                out = loadmodel->colordata;
                     //outvalue = loadmodel->lightdata;
                     while(k <= fileinfo->filelen)
-                    {
-                        r = data[k++];
-                        g = data[k++];
-                        b = data[k++];
-                        normalize = sqrt(r*r + g*g + b*b)+0.01;
-                        *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
+                {
+                    r = data[k++];
+                    g = data[k++];
+                    b = data[k++];
+                    normalize = sqrt(r*r + g*g + b*b)+0.01;
+                    *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
                         //*outvalue++ = (r+g+b)/3;
-                    }
-                    Q_free(fileinfo);
-                    *(out+1) = *out; //qb: bleed-over for dither
-                    *(out+2) = *out;
-                    *(out+3) = *out;
-                    *(out+4) = *out;
-                    return;
                 }
-                else
-                    Con_Printf("Unknown .LIT file version (%d)\n", i);
+                  //  Q_free(fileinfo);
+                return;
             }
             else
-                Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
+                Con_Printf("Unknown .LIT file version (%d)\n", i);
         }
+        else
+            Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
+    }
         //qb: no lit.  Still need something for colored dynamic lights.
         loadmodel->colordata = Hunk_AllocName (l->filelen+3, "modcolor"); //qb: need some padding
         memset (loadmodel->colordata, 1, l->filelen+3);  //qb: fill w/ color index
@@ -1425,7 +1421,7 @@ int Mod_FindExternalVIS (loadedfile_t *brush_fileinfo)
 
     fhandle = -1;
 
-     if (external_vis.value)
+    if (external_vis.value)
     {
         // check for a .VIS file
         Q_strcpy(visfilename, loadmodel->name);

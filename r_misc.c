@@ -57,7 +57,6 @@ void R_TimeRefresh_f (void)
     for (i=0 ; i<128 ; i++)
     {
         r_refdef.viewangles[1] = i/128.0*360.0;
-
         R_RenderView ();
 
         vr.x = r_refdef.vrect.x;
