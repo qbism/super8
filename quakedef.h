@@ -336,7 +336,7 @@ void M_Print (int cx, int cy, char *str);
 void M_PrintWhite (int cx, int cy, char *str);
 void M_DrawCharacter (int cx, int line, int num, qboolean sscale);
 void Host_WriteDiagnostics (char *status); //qb: write out the help strings
-
+void Host_WriteStatus (char *status); //qb: write out a message for debugging
 
 extern qboolean		msg_suppress_1;		// suppresses resolution and cache size console output
 //  an fullscreen DIB focus gain/loss

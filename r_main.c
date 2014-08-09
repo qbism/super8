@@ -1517,21 +1517,18 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     static int dither;
     static float normalize;
     static int fogcolmap[32]; //qb: precompute level
-
     delta = (byte *)&dummy - r_stack_start;
     if (delta < -0x10000 || delta > 0x10000) //qb: was 10000. D_SQ_calloc is 0x10000.  Does it matter?
         Sys_Error ("R_RenderView: called without enough stack");
 
     if ( Hunk_LowMark() & 3 )
         Sys_Error ("Hunk is missaligned");
-
     if ( (long)(&dummy) & 3 )
         Sys_Error ("Stack is missaligned");
-
     if (r_timegraph.value || r_speeds.value || r_dspeeds.value)
         r_time1 = Sys_DoubleTime ();
-
     R_SetupFrame ();
+
     currententity = &cl_entities[0];
     R_PushDlights (cl.worldmodel->nodes);  //qb: moved here from view.c
 
@@ -1556,7 +1553,6 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
 
     r_foundwater = r_drawwater = false; // Manoel Kasimier - translucent water
     R_EdgeDrawing ();
-
     if (!r_dspeeds.value)
     {
         S_ExtraUpdate ();       // don't let sound get messed up if going slow

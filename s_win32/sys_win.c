@@ -26,8 +26,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #endif
 #include "conproc.h"
 
-#define MINIMUM_WIN_MEMORY		0x0880000
-#define MAXIMUM_WIN_MEMORY		0x4000000  // qb: was 0x1000000 (16MB)
+#define MINIMUM_WIN_MEMORY		0x4000000 // qb: was 0x0880000 (8MB)
+#define MAXIMUM_WIN_MEMORY		0x8000000  // qb: was 0x1000000 (16MB)
 
 #define CONSOLE_ERROR_TIMEOUT	60.0	// # of seconds to wait on Sys_Error running
 										//  dedicated before exiting
@@ -791,7 +791,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	}
 
 // take the greater of all the available memory or half the total memory,
-// but at least 8 Mb and no more than 16 Mb, unless they explicitly
+// but at least MINIMUM_WIN_MEMORY and no more than MAXIMUM_WIN_MEMORY, unless they explicitly
 // request otherwise
 	parms.memsize = lpBuffer.dwAvailPhys;
 

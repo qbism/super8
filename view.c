@@ -130,10 +130,16 @@ V_CalcBob
 float V_CalcBob (void)
 {
     float	bob;
-    float	cycle;
+    double	cycle; //qb: was float
+
+    if (cl_bobcycle.value <= 0)
+        cl_bobcycle.value = 0.01; //qb: don't divide by zero.
+    if (cl_bobup.value <= 0)
+        cl_bobup.value = 0.01; //qb: don't divide by zero.
 
     cycle = cl.ctime - (int)(cl.ctime/cl_bobcycle.value)*cl_bobcycle.value;//DEMO_REWIND - qb - Baker change
-    cycle /= cl_bobcycle.value;
+    cycle = cycle/cl_bobcycle.value;
+
     if (cycle < cl_bobup.value)
         cycle = M_PI * cycle / cl_bobup.value;
     else
@@ -803,7 +809,7 @@ void V_CalcRefdef (void)
     double xyspeed;
     float bspeed;
 
-    V_DriftPitch ();
+     V_DriftPitch ();
 
 // ent is the player model (visible when out of body)
     ent = &cl_entities[cl.viewentity];
@@ -817,7 +823,6 @@ void V_CalcRefdef (void)
     // the view dir
     ent->angles[PITCH] = -cl.viewangles[PITCH];	// the model should face
     // the view dir
-
 
     if (!cl_nobob.value) // Manoel Kasimier - cl_nobob
         bob = V_CalcBob ();
@@ -1005,10 +1010,10 @@ the entity origin, so any view position inside that will be valid
 */
 void V_RenderView (void)
 {
-    if (con_forcedup)
+     if (con_forcedup)
         return;
 
-    if (!sv_freezephysics.value || !sv_cheats.value) //qb
+    if (!sv_freezephysics.value)// || !sv_cheats.value) //qb
         R_LessenStains();  //qb ftestain
 
     if (cl.intermission)
@@ -1021,7 +1026,6 @@ void V_RenderView (void)
         if (!cl.paused /* && (sv.maxclients > 1 || key_dest == key_game) */ )
             V_CalcRefdef ();
     }
-
     if (r_fisheye.value)
     {
         fisheye_accel += r_fishaccel.value;
@@ -1031,7 +1035,7 @@ void V_RenderView (void)
     }
     else
     {
-        R_RenderView ();
+               R_RenderView ();
     }
 }
 

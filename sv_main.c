@@ -1611,8 +1611,10 @@ void SV_SpawnServer (char *server)
 
     sv.time = 1.0;
     if (cls.state != ca_dedicated)
+    {
         if( !R_LoadPalette(r_palette.string)) //qb- load custom palette if it exists.
             R_LoadPalette("palette"); //qb- default to standard palette.
+   }
     Q_strcpy (sv.name, server);
     sprintf (sv.modelname,"maps/%s.bsp", server);
     sv.worldmodel = Mod_ForName (sv.modelname, false);
