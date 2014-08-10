@@ -41,7 +41,7 @@ int  vibration_update[2];
 
 cvar_t	scr_ofsx = {"scr_ofsx","0", "scr_ofsx[value] video screen x offset", false};
 cvar_t	scr_ofsy = {"scr_ofsy","0", "scr_ofsy[value] video screen y offset", true}; // Manoel Kasimier - saved in the config file - edited
-cvar_t	scr_ofsz = {"scr_ofsz","0", "scr_ofsz[value] video screen x offset", false};
+cvar_t	scr_ofsz = {"scr_ofsz","0", "scr_ofsz[value] video screen x offset", true};
 
 cvar_t	v_fragtilt = {"v_fragtilt", "1", "v_fragtilt[0/1] Toggle tilt view when fragged."}; // Manoel Kasimier
 cvar_t	v_fragtiltangle = {"v_fragtiltangle", "80", "v_fragtiltangle[angle] view angle when fragged."}; // Manoel Kasimier
@@ -880,6 +880,9 @@ void V_CalcRefdef (void)
     view->origin[2] += bob;
     if (!cl_nobob.value) // Manoel Kasimier - cl_nobob
         view->origin[2] += 2; // Manoel Kasimier - cl_nobob
+
+    view->origin[1] += (pow(scr_fov.value, 2)-scr_fov.value*70)/2000; //qb: compensate view model position
+    view->origin[2] += (pow(scr_fov.value, 2)-scr_fov.value*70)/2000 -1;//qb: compensate view model position
 
     view->model = cl.model_precache[cl.stats[STAT_WEAPON]];
     view->frame = cl.stats[STAT_WEAPONFRAME];

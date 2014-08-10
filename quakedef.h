@@ -302,6 +302,8 @@ extern	int	key_linepos;
 
 extern	unsigned int	con_linewidth;
 
+void D_PolysetDraw_C(void);
+
 void Host_ClearMemory (void);
 void Host_ServerFrame (void);
 void Host_InitCommands (void);
@@ -335,6 +337,7 @@ void M_Video_f (void); //qb: from Manoel Kasimier - edited
 void M_Print (int cx, int cy, char *str);
 void M_PrintWhite (int cx, int cy, char *str);
 void M_DrawCharacter (int cx, int line, int num, qboolean sscale);
+void M_DrawTransPicMirror (int x, int y, qpic_t *pic, qboolean sscale);
 void Host_WriteDiagnostics (char *status); //qb: write out the help strings
 void Host_WriteStatus (char *status); //qb: write out a message for debugging
 
