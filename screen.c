@@ -344,8 +344,6 @@ void SCR_AdjustFOV (void)
         Cvar_Set ("fov","30");
     if (scr_fov.value > 140)
         Cvar_Set ("fov","140");
-    scr_ofsx.value = (pow(scr_fov.value, 2)-scr_fov.value*70)/2000 -3; //qb: compensate view model position
-    scr_ofsz.value = (pow(scr_fov.value, 2)-scr_fov.value*70)/2000 -1;//qb: compensate view model position
     if (oldfov != scr_fov.value)
     {
         oldfov = scr_fov.value;

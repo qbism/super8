@@ -117,7 +117,6 @@ extern  cvar_t  samelevel;
 
 extern  cvar_t  sv_aim_h;
 extern  cvar_t  sv_aim;
-extern  cvar_t  scr_ofsy;
 extern  cvar_t  crosshair;
 extern  cvar_t  crosshair_color;
 extern  cvar_t  r_drawviewmodel;
@@ -3042,7 +3041,7 @@ void M_Mouse_Key (int k)
 }
 //=============================================================================
 /* GAMEPLAY OPTIONS MENU */
-#define GAMEPLAY_ITEMS  12
+#define GAMEPLAY_ITEMS  13
 
 void M_Gameplay_f (void)
 {
@@ -3063,13 +3062,20 @@ void M_Gameplay_Draw (void)
         M_Print (220, y, "vertical");
     else
         M_Print (220, y, "off");
-    M_Print (16, y+=8, "       Weapon Position");
+    M_Print (16, y+=8, "   Weapon Position Side");
     if (scr_ofsy.value > 0)
         M_Print (220, y, "Left");
     else if (scr_ofsy.value < 0)
         M_Print (220, y, "Right");
     else
         M_Print (220, y, "Center");
+            M_Print (16, y+=8, " Weapon Position Height");
+    if (scr_ofsz.value < 0)
+        M_Print (220, y, "High");
+    else if (scr_ofsz.value > 0)
+        M_Print (220, y, "Low");
+    else
+        M_Print (220, y, "Middle");
     M_Print (16, y+=8, "    View Player Weapon");
     M_DrawCheckbox (220, y, r_drawviewmodel.value);
     M_Print (16, y+=8, "               Bobbing");
@@ -3129,6 +3135,7 @@ void M_Gameplay_Change (int dir)
         }
     }
     if (c == i++) ChangeCVar("scr_ofsy", scr_ofsy.value, dir * -7, -7, 7, false);
+   if (c == i++) ChangeCVar("scr_ofsz", scr_ofsz.value, dir * -3, -3, 3, false);
     if (c == i++) Cvar_SetValue ("r_drawviewmodel", !r_drawviewmodel.value);
     if (c == i++) Cvar_SetValue ("cl_nobob", !cl_nobob.value);
     if (c == i++) Cvar_SetValue ("sv_idealpitchscale", !sv_idealpitchscale.value * 0.8);

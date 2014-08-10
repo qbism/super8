@@ -28,11 +28,12 @@
 
 #include "quakedef.h"
 
-#if defined(USE_CODEC_MP3)
+#ifdef USE_CODEC_MP3
 #include "snd_codec.h"
 #include "snd_codeci.h"
 #include "snd_mp3.h"
 #include <mad.h>
+#include <stddef.h>
 
 #define ID3_TAG_FLAG_FOOTERPRESENT 0x10
 

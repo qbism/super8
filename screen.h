@@ -51,12 +51,13 @@ extern qboolean		block_drawing;
 
 void SCR_UpdateWholeScreen (void);
 
-extern cvar_t   scr_ofsx; //qb
-extern cvar_t   scr_ofsz; //qb
+extern cvar_t   scr_ofsx; //qb: moved here
+extern  cvar_t  scr_ofsy;  //qb:
+extern cvar_t   scr_ofsz; //qb:
 extern cvar_t	scr_viewsize;
 extern cvar_t	con_alpha; // Manoel Kasimier - transparent console
-extern cvar_t   sbar; //qb
+extern cvar_t   sbar; //qb:
 extern cvar_t	crosshair;
 extern cvar_t	cl_crossx;
 extern cvar_t	cl_crossy;
-extern cvar_t	scr_fadecolor; //qb
+extern cvar_t	scr_fadecolor; //qb:

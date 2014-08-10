@@ -18,6 +18,7 @@
 				<Option parameters=" -heapsize 64000 -map start" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-DASM386" />
 					<Add option="-DR_THREADED" />
 					<Add option="-DWIN32" />
 					<Add option="-D_WINDOWS" />
@@ -47,12 +48,11 @@
 					<Add option="-march=i686" />
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O3" />
-					<Add option="-w" />
+					<Add option="-DASM386" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_WIN32" />
-					<Add option="-DCURL_STATICLIB" />
 					<Add option="-DUSE_CODEC_MP3" />
 					<Add option="-DUSE_CODEC_VORBIS" />
 					<Add option="-DUSE_CODEC_WAVE" />
@@ -76,56 +76,63 @@
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O3" />
 					<Add option="-w" />
+					<Add option="-DASM386" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_WIN32" />
-					<Add option="-DCURL_STATICLIB" />
 					<Add directory="." />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 				</Linker>
 			</Target>
-			<Target title="icore Win32">
-				<Option output="../../quake/qbismS8_icore" prefix_auto="1" extension_auto="1" />
-				<Option working_dir="../../quake" />
-				<Option object_output="s_win32/Release_icore" />
+			<Target title="Release Watcom">
+				<Option output="../../quake/qbismS8_watcom" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="../../quake/" />
+				<Option object_output="s_win32/Release_watcom" />
 				<Option type="0" />
-				<Option compiler="gcc" />
+				<Option compiler="ow" />
+				<Option projectLibDirsRelation="1" />
 				<Compiler>
-					<Add option="-march=core2" />
-					<Add option="-fomit-frame-pointer" />
-					<Add option="-O3" />
-					<Add option="-w" />
-					<Add option="-DR_THREADED" />
-					<Add option="-DWIN32" />
-					<Add option="-DNDEBUG" />
-					<Add option="-D_WINDOWS" />
-					<Add option="-D_WIN32" />
-					<Add option="-DCURL_STATICLIB" />
-					<Add option="-DUSE_CODEC_MP3" />
-					<Add option="-DUSE_CODEC_VORBIS" />
-					<Add option="-DUSE_CODEC_WAVE" />
-					<Add directory="." />
+					<Add option="-fm" />
+					<Add option="-bw" />
+					<Add option="-bm" />
+					<Add option="-ox" />
+					<Add option="-hw" />
+					<Add option="-d0" />
+					<Add option="-mf" />
+					<Add option="-zw" />
+					<Add option="-zp1" />
+					<Add option="-j" />
+					<Add option="-ei" />
+					<Add option="-bcl=nt" />
+					<Add option="-6r" />
+					<Add option="-dWINVER=0x0501" />
+					<Add option="-d_OPENWATCOM_" />
+					<Add option="-dWIN32" />
+					<Add option="-dNDEBUG" />
+					<Add option="-d_WINDOWS" />
+					<Add option="-d_WIN32" />
+					<Add directory="C:/WATCOM/h/nt" />
 				</Compiler>
 				<Linker>
-					<Add option="-s" />
-					<Add library="vorbisfile" />
-					<Add library="vorbis" />
-					<Add library="ogg" />
-					<Add library="mad" />
-					<Add directory="s_win32/codecs/x86" />
+					<Add library="dxguid" />
+					<Add library="dinput" />
+					<Add library="kernel32" />
+					<Add library="user32" />
+					<Add library="winmm" />
+					<Add library="ddraw" />
+					<Add library="wininet" />
+					<Add library="wsock32" />
+					<Add library="gdi32" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-m32" />
-			<Add option="-DASM386" />
 			<Add directory="s_win32/codecs/include" />
 		</Compiler>
 		<Linker>
-			<Add option="-m32" />
 			<Add library="winmm" />
 			<Add library="wsock32" />
 			<Add library="dinput" />
@@ -137,8 +144,16 @@
 		</ExtraCommands>
 		<Unit filename="adivtab.h" />
 		<Unit filename="anorms.h" />
-		<Unit filename="asm_draw.h" />
-		<Unit filename="asm_i386.h" />
+		<Unit filename="asm_draw.h">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release Win32 no music" />
+		</Unit>
+		<Unit filename="asm_i386.h">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release Win32 no music" />
+		</Unit>
 		<Unit filename="bgmusic.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -183,8 +198,16 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="cvar.h" />
-		<Unit filename="d_draw.S" />
-		<Unit filename="d_draw16.S" />
+		<Unit filename="d_draw.S">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release Win32 no music" />
+		</Unit>
+		<Unit filename="d_draw16.S">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release Win32 no music" />
+		</Unit>
 		<Unit filename="d_edge.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -199,7 +222,11 @@
 		<Unit filename="d_part.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="d_parta.S" />
+		<Unit filename="d_parta.S">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release Win32 no music" />
+		</Unit>
 		<Unit filename="d_polyse.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -209,7 +236,11 @@
 		<Unit filename="d_sky.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="d_spr8.S" />
+		<Unit filename="d_spr8.S">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release Win32 no music" />
+		</Unit>
 		<Unit filename="d_sprite.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -219,7 +250,11 @@
 		<Unit filename="d_vars.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="d_varsa.S" />
+		<Unit filename="d_varsa.S">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release Win32 no music" />
+		</Unit>
 		<Unit filename="d_zpoint.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -277,7 +312,11 @@
 		<Unit filename="progdefs.q1" />
 		<Unit filename="progs.h" />
 		<Unit filename="protocol.h" />
-		<Unit filename="quakeasm.h" />
+		<Unit filename="quakeasm.h">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release Win32 no music" />
+		</Unit>
 		<Unit filename="quakedef.h" />
 		<Unit filename="r_aclip.c">
 			<Option compilerVar="CC" />
@@ -323,7 +362,11 @@
 		<Unit filename="r_vars.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="r_varsa.S" />
+		<Unit filename="r_varsa.S">
+			<Option target="Debug Win32" />
+			<Option target="Release Win32" />
+			<Option target="Release Win32 no music" />
+		</Unit>
 		<Unit filename="render.h" />
 		<Unit filename="s_win32/cd_win.c">
 			<Option compilerVar="CC" />
