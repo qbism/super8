@@ -169,7 +169,7 @@ void BGM_Shutdown (void)
 }
 
 static void BGM_Play_noext (const char *filename, unsigned int allowed_types)
-{
+ {
     char tmp[MAX_QPATH];
     music_handler_t *handler;
 

@@ -176,6 +176,7 @@ extern  cvar_t  sbar_show_bg;
 extern  cvar_t  sbar;
 
 extern cvar_t   scr_fov; //qb:
+extern cvar_t   sv_imp12hack; //qb: impulse 12 from reQuiem
 
 void Crosshair_Start (int x, int y);
 void Host_WriteConfiguration (void);
