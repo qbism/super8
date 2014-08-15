@@ -24,14 +24,12 @@ int current_protocol = PROTOCOL_QBS8; //qb
 server_t    sv;
 server_static_t     svs;
 
-cvar_t  sv_cullentities         = {"sv_cullentities","1", "sv_cullentities[0-3] Antiwallhack. 0=off, 1=players, 2=players and entities, 3=doors, plats, etc. ", false, true}; //qb: qrack
-cvar_t  sv_progs = {"sv_progs", "progs.dat", "sv_progs[name.dat] Specify which progs to use." }; //qb: enginex
+cvar_t  sv_cullentities = {"sv_cullentities","1", "sv_cullentities[0-3] Antiwallhack. 0=off, 1=players, 2=players and entities, 3=doors, plats, etc. ", false, true}; //qb: qrack
+cvar_t  sv_progs        = {"sv_progs", "progs.dat", "sv_progs[name.dat] Specify which progs to use." }; //qb: enginex
+cvar_t	sv_imp12hack    = {"sv_imp12hack", "0", "sv_imp12hack[0-1] toggle. Force previous weapon cycle to impulse 12 with no compatibility check.  Works for a few old mods.", true, true}; //qb: CycleWeaponReverse
+cvar_t  sv_qcexec       = {"sv_qcexec","0", "sv_qcexec[0/1] Toggle to allow qc commands to be executed from the console.", false, true}; // Manoel Kasimier - qcexec
+
 char    localmodels[MAX_MODELS][6];                     // inline model names for precache //qb: was 5
-
-//============================================================================
-
-
-cvar_t sv_qcexec = {"sv_qcexec","0", "sv_qcexec[0/1] Toggle to allow qc commands to be executed from the console.", false, true}; // Manoel Kasimier - qcexec
 
 
 /*
@@ -166,7 +164,7 @@ void SV_Init (void)
     int         i;
     Cvar_RegisterVariable (&sv_progs); //qb:  fitzquake
     Cvar_RegisterVariable (&sv_cullentities); //qb: from qrack
-    Cvar_RegisterVariable (&sv_cheats); //qb
+    Cvar_RegisterVariable (&sv_cheats); //qb: allow cheats
     Cvar_RegisterVariable (&sv_maxvelocity);
     Cvar_RegisterVariable (&sv_gravity);
     Cvar_RegisterVariable (&sv_friction);
@@ -177,11 +175,12 @@ void SV_Init (void)
     Cvar_RegisterVariable (&sv_idealpitchscale);
     Cvar_RegisterVariable (&sv_aim_h); // Manoel Kasimier - horizontal autoaim
     Cvar_RegisterVariable (&sv_aim);
-    Cvar_RegisterVariable (&sv_novis); //qb - from FQ
+    Cvar_RegisterVariable (&sv_novis); //qb: - from FQ
     Cvar_RegisterVariable (&sv_nostep);
-    Cvar_RegisterVariable (&sv_freezephysics); //qb
+    Cvar_RegisterVariable (&sv_freezephysics); //qb:
     Cvar_RegisterVariable (&sv_enable_use_button); // Manoel Kasimier - +USE fix
     Cvar_RegisterVariable (&sv_qcexec); // Manoel Kasimier - qcexec
+    Cvar_RegisterVariable (&sv_imp12hack); //qb: impulse 12 from reQuiem
 
     Cmd_AddCommand ("sv_protocol", &SV_Protocol_f); //qb: johnfitz
 

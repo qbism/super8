@@ -1287,7 +1287,7 @@ void PR_LoadProgs (void)
     if ((f = ED_FindFunction ("EndFrame")) != NULL)
         EndFrame = (func_t)(f - pr_functions);
     // FrikaC - EndFrame function - end
-}
+ }
 
 // 2001-09-14 Enhanced BuiltIn Function System (EBFS) by Maddes  start
 /*
