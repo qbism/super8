@@ -32,17 +32,16 @@ void			*prowdestbase;
 byte	        *pbasesource;
 static int		surfrowbytes;	// used by ASM files
 unsigned		*r_lightptr;
-unsigned		*r_colorptr; //qb:
+unsigned		*r_colorptr; //qb: color
 static int		r_stepback;
 static int		r_lightwidth;
 int		r_numhblocks, r_numvblocks;
 byte	*r_source, *r_sourcemax;
-byte    *vidcolmap; //qb
+byte    *vidcolmap; //qb: color
 unsigned		blocklights[18*18];
-unsigned		blockcolors[18*18]; //qb:
+unsigned		blockcolors[18*18]; //qb: color
 
-
-const byte dithercolor[] =  //qb
+const byte dithercolor[] =  //qb: fast randomish dither
 { 0, 2, 1, 3, 2, 3, 1, 0, 3, 0, 2, 1, 1, 2, 0, 3, 0, 3, 1, 2, 1, 2, 3, 0, 0, 1, 3, 2, 3, 2, 0, 1, 3, 2, 0, 1, 0, 3, 1, 2, 0};
 
 void R_DrawSurfaceBlockColor8_mip0 (void);
@@ -564,10 +563,11 @@ Combine and scale multiple lightmaps into the 8.8 format in blocklights
 void R_BuildLightMap (void)
 {
     int			smax, tmax;
-    int			t;
-    int			i, surfsize;
+    int			t, i, surfsize;
     byte		*lightmap;
     byte		*colormap;  //qb: indexed colored
+    float			r,g,b;
+    float       coladd, colbase;
     unsigned	scale;
     int			maps;
     msurface_t	*surf;
@@ -601,9 +601,16 @@ void R_BuildLightMap (void)
             scale = r_drawsurf.lightadj[maps];	// 8.8 fraction
             for (i=0 ; i<surfsize ; i++)
             {
-                blocklights[i] += lightmap[i] * scale;
                 if (coloredlights == 1)
-                    blockcolors[i] = colormap[i]; //qb:
+                {
+                    colbase = blocklights[i]/(blocklights[i] + lightmap[i] * scale + 1.0);
+                    coladd = 1.0-colbase;
+                    r = host_basepal[blockcolors[i]*3]*colbase + host_basepal[colormap[i]*3] * coladd;
+                    g = host_basepal[blockcolors[i]*3+1]*colbase + host_basepal[colormap[i]*3+1] * coladd;
+                    b = host_basepal[blockcolors[i]*3+2]*colbase + host_basepal[colormap[i]*3+2] * coladd;
+                    blockcolors[i] = BestColor(r, g, b, 0, 254); //qb: need to blend somehow
+                }
+                blocklights[i] += lightmap[i] * scale;
             }
             lightmap += surfsize;	// skip to next lightmap
             if (coloredlights == 1)

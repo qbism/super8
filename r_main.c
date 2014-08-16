@@ -972,7 +972,7 @@ void R_MarkLeaves (void)
     mnode_t     *node;
     int         i;
 
-    if (r_oldviewleaf == r_viewleaf)
+    if (!sv_novis.value && r_oldviewleaf == r_viewleaf)
         return;
 
     r_visframecount++;

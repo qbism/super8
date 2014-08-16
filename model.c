@@ -568,7 +568,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                     r = data[k++];
                     g = data[k++];
                     b = data[k++];
-                    normalize = sqrt(r*r + g*g + b*b)+0.01;
+                    normalize = sqrt(r*r + g*g + b*b)*1.2+0.01;
                     *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
                         //*outvalue++ = (r+g+b)/3;
                 }
@@ -1483,11 +1483,11 @@ int Mod_FindExternalVIS (loadedfile_t *brush_fileinfo)
                     visfilename[i] = 0;
                     break;
                 }
-            if (Q_strcasecmp(vispathname, visfilename)) // different game directories
-            {
-                COM_CloseFile(fhandle);
-                return -1;
-            }
+         //   if (Q_strcasecmp(vispathname, visfilename)) // different game directories  //qb: that's fine, maybe.
+          //  {
+          //      COM_CloseFile(fhandle);
+          //      return -1;
+          //  }
         }
         // Manoel Kasimier - end
 

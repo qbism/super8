@@ -80,7 +80,7 @@ extern cvar_t	r_coloredlights; //qb: at last!
 extern cvar_t	r_clcolorweight;
 
 extern cvar_t   r_fog; //qb: fog!  not TOO bad...
-extern int      r_fviews; //qb: for model interpolation
+extern int      r_fviews; //qb: number of fisheye views
 
 #define XCENTERING	(1.0 / 2.0)
 #define YCENTERING	(1.0 / 2.0)
@@ -121,9 +121,6 @@ extern	float	verticalFieldOfView;
 extern	float	xOrigin, yOrigin;
 
 extern	int		r_visframecount;
-extern  float   calc_nativeaspect; //qb: calculated from max vid mode
-extern  float   nativeaspect; //qb: calculate if cvar isn't set
-extern  cvar_t  vid_nativeaspect; //qb: set in config
 
 //=============================================================================
 

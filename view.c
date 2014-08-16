@@ -1489,9 +1489,9 @@ void R_RenderView_Fisheye()
     static B *scrbufs = NULL;
     static B **offs = NULL;
 
-    if (fov < 86) r_fviews = 1;
-    else if (fov < 139) r_fviews = 3;
-    else if (fov < 229) r_fviews = 5;
+    if (fov < nativeaspect * 60 ) r_fviews = 1; //86
+    else if (fov < nativeaspect * 90) r_fviews = 3; //139
+    else if (fov <  nativeaspect * 180) r_fviews = 5; //229
     else r_fviews = 6;
 
     if(fov<1) fov = 1;
