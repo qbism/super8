@@ -294,9 +294,9 @@ extern	char	key_lines[CMDLINES][MAXCMDLINE];
 extern	int	edit_line;
 extern	int	key_linepos;
 
-//extern	char	compl_common[MAX_FILELENGTH];
-//extern	int	compl_len;
-//extern	int	compl_clen;
+extern  float   calc_nativeaspect; //qb: calculated from max vid mode
+extern  float   nativeaspect; //qb: calculate if cvar isn't set
+extern  cvar_t  vid_nativeaspect; //qb: set in config
 
 //qb: qrack complete command end
 
