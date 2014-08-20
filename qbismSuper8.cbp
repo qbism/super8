@@ -99,19 +99,11 @@
 				<Option compiler="ow" />
 				<Option projectLibDirsRelation="1" />
 				<Compiler>
-					<Add option="-fm" />
 					<Add option="-bw" />
-					<Add option="-bm" />
 					<Add option="-ox" />
-					<Add option="-hw" />
 					<Add option="-d0" />
-					<Add option="-mf" />
-					<Add option="-zw" />
-					<Add option="-zp1" />
-					<Add option="-j" />
 					<Add option="-ei" />
 					<Add option="-bcl=nt" />
-					<Add option="-6r" />
 					<Add option="-dWINVER=0x0501" />
 					<Add option="-d_OPENWATCOM_" />
 					<Add option="-dWIN32" />

@@ -566,7 +566,7 @@ void R_BuildLightMap (void)
     int			t, i, surfsize;
     byte		*lightmap;
     byte		*colormap;  //qb: indexed colored
-    float			r,g,b;
+    int			r,g,b;
     float       coladd, colbase;
     unsigned	scale;
     int			maps;
@@ -603,12 +603,12 @@ void R_BuildLightMap (void)
             {
                 if (coloredlights == 1)
                 {
-                    colbase = blocklights[i]/(blocklights[i] + lightmap[i] * scale + 1.0);
+                    colbase = blocklights[i]/(blocklights[i] + lightmap[i] * scale + 0.1);
                     coladd = 1.0-colbase;
-                    r = host_basepal[blockcolors[i]*3]*colbase + host_basepal[colormap[i]*3] * coladd;
-                    g = host_basepal[blockcolors[i]*3+1]*colbase + host_basepal[colormap[i]*3+1] * coladd;
-                    b = host_basepal[blockcolors[i]*3+2]*colbase + host_basepal[colormap[i]*3+2] * coladd;
-                    blockcolors[i] = BestColor(r, g, b, 0, 254); //qb: need to blend somehow
+                    r = host_basepal[blockcolors[i]*3]*colbase + host_basepal[colormap[i]*3] * coladd * 0.85;
+                    g = host_basepal[blockcolors[i]*3+1]*colbase + host_basepal[colormap[i]*3+1] * coladd *0.75;
+                    b = host_basepal[blockcolors[i]*3+2]*colbase + host_basepal[colormap[i]*3+2] * coladd * 0.65;
+                    blockcolors[i] = palmap[r>>2][g>>2][b>>2]; //qb: need to blend somehow
                 }
                 blocklights[i] += lightmap[i] * scale;
             }
