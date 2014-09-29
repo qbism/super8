@@ -31,7 +31,7 @@ when crossing a water boudnary.
 
 //qb - Aardappel fisheye begin
 void R_RenderView_Fisheye();
-cvar_t  ffov = {"ffov", "129", "ffov[value] fisheye ffov.", true};
+cvar_t  ffov = {"ffov", "123", "ffov[value] fisheye ffov.", true};
 cvar_t  r_fisheye = {"r_fisheye", "0", "r_fisheye[0/1] Toggle fisheye view.", true}; //qb added
 cvar_t  r_fishaccel = {"r_fishaccel", "0", "r_fishaccel[value] Accelleration of fisheye fov change.  Bind keys to positive and negative values for zoom effects.", false}; //qb:  for cheeezy zoom effect
 int r_fviews;
@@ -1489,9 +1489,9 @@ void R_RenderView_Fisheye()
     static B *scrbufs = NULL;
     static B **offs = NULL;
 
-    if (fov < nativeaspect * 60 ) r_fviews = 1; //86
-    else if (fov < nativeaspect * 90) r_fviews = 3; //139
-    else if (fov <  nativeaspect * 180) r_fviews = 5; //229
+    if (fov < nativeaspect * 45 ) r_fviews = 1; //83 //qb: trial and error.
+    else if (fov < nativeaspect * 58) r_fviews = 3; //124
+    else if (fov <  nativeaspect * 117) r_fviews = 5; //222
     else r_fviews = 6;
 
     if(fov<1) fov = 1;

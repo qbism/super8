@@ -614,7 +614,7 @@ void R_BuildLightMap (void)
             }
             lightmap += surfsize;	// skip to next lightmap
             if (coloredlights == 1)
-                colormap += surfsize;	//qb: skip to next colormap
+                colormap += surfsize;  //qb: skip to next colormap
         }
 
 // add all the dynamic lights
