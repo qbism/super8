@@ -1483,11 +1483,11 @@ int Mod_FindExternalVIS (loadedfile_t *brush_fileinfo)
                     visfilename[i] = 0;
                     break;
                 }
-         //   if (Q_strcasecmp(vispathname, visfilename)) // different game directories  //qb: that's fine, maybe.
-          //  {
-          //      COM_CloseFile(fhandle);
-          //      return -1;
-          //  }
+            if (Q_strcasecmp(vispathname, visfilename)) // different game directories
+            {
+                COM_CloseFile(fhandle);
+                return -1;
+            }
         }
         // Manoel Kasimier - end
 

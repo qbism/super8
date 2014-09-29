@@ -549,37 +549,6 @@ void Host_SavegameComment (char *text)
     text[SAVEGAME_COMMENT_LENGTH] = '\0';
 }
 
-// -------------------------------------------------
-// BlackAura (08-12-2002) - Replacing fscanf (start)
-// -------------------------------------------------
-/*static*/ void DC_ScanString(FILE *file, char *string)
-{
-    char newchar;
-    fread(&newchar, 1, 1, file);
-    while(newchar != '\n')
-    {
-        *string++ = newchar;
-        fread(&newchar, 1, 1, file);
-    }
-    *string++ = '\0';
-}
-
-/*static*/ int DC_ScanInt(FILE *file)
-{
-    char sbuf[32768];
-    DC_ScanString(file, sbuf);
-    return Q_atoi(sbuf);
-}
-
-/*static*/ float DC_ScanFloat(FILE *file)
-{
-    char sbuf[32768];
-    DC_ScanString(file, sbuf);
-    return Q_atof(sbuf);
-}
-// -------------------------------------------------
-//  BlackAura (08-12-2002) - Replacing fscanf (end)
-// -------------------------------------------------
 
 //======================================
 //
@@ -700,7 +669,7 @@ void Host_SmallLoadgame_f (void)
     CL_Disconnect ();
     Host_ShutdownServer(false);
 
-    version = DC_ScanInt(f); // Replacing fscanf
+    fscanf (f, "%i\n", &version);
     if (version != SAVEGAME_VERSION)
     {
         fclose (f);
@@ -711,14 +680,14 @@ void Host_SmallLoadgame_f (void)
     Cvar_SetValue ("coop", 0);
     Cvar_SetValue ("teamplay", 0);
 
-    DC_ScanString(f, str); // Replacing fscanf
+    fscanf (f, "%s\n", &str);
     for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
-        smallsave_parms[i] = DC_ScanFloat(f); // Replacing fscanf
-    current_skill = DC_ScanInt(f); // fscanf (f, "%i\n", &current_skill); // Replacing fscanf
+        fscanf (f, "%f\n", &smallsave_parms[i]);
+    fscanf (f, "%i\n", &current_skill);
     Cvar_SetValue ("skill", current_skill);
 
-    DC_ScanString(f, name); // Replacing fscanf
-    svs.serverflags = DC_ScanInt(f); // fscanf (f, "%i\n", &svs.serverflags); // Replacing fscanf
+    fscanf (f, "%s\n", &name);
+    fscanf (f, "%i\n", &svs.serverflags);
     fclose (f);
     allowcheats = sv_cheats.value;
     SV_SpawnServer (name);
@@ -879,23 +848,19 @@ void Host_Loadgame_f (void)
         return;
     }
 
-    version = DC_ScanInt(f); // BlackAura - Replacing fscanf
-    //  fscanf (f, "%i\n", &version);
+    fscanf (f, "%i\n", &version);
     if (version != SAVEGAME_VERSION)
     {
         fclose (f);
         Con_Printf ("Savegame is version %i, not %i\n", version, SAVEGAME_VERSION);
         return;
     }
-    DC_ScanString(f, str); // BlackAura - Replacing fscanf
-    //  fscanf (f, "%s\n", str);
+    fscanf (f, "%s\n", str);
     for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
-        spawn_parms[i] = DC_ScanFloat(f); // BlackAura - Replacing fscanf
-    //  fscanf (f, "%f\n", &spawn_parms[i]);
+         fscanf (f, "%f\n", &spawn_parms[i]);
 
     // this silliness is so we can load 1.06 save files, which have float skill values
-    tfloat = DC_ScanFloat(f); // BlackAura (08-12-2002) - Replacing fscanf
-    //  fscanf (f, "%f\n", &tfloat);
+    fscanf (f, "%f\n", &tfloat);
     current_skill = (int)(tfloat + 0.1);
     Cvar_SetValue ("skill", (float)current_skill);
 
@@ -903,10 +868,9 @@ void Host_Loadgame_f (void)
     Cvar_SetValue ("coop", 0);
     Cvar_SetValue ("teamplay", 0);
 
-    DC_ScanString(f, mapname); // BlackAura (08-12-2002) - Replacing fscanf
-    //  fscanf (f, "%s\n",mapname);
-    time = DC_ScanFloat(f); // BlackAura (08-12-2002) - Replacing fscanf
-    svs.serverflags = DC_ScanInt(f); // Replacing fscanf
+    fscanf (f, "%s\n",mapname);
+    fscanf (f, "%f\n", &time);
+    fscanf (f, "%i\n", &svs.serverflags);
     CL_Disconnect_f ();
     allowcheats = sv_cheats.value;
     SV_SpawnServer (mapname);
@@ -922,8 +886,7 @@ void Host_Loadgame_f (void)
 
     for (i=0 ; i<MAX_LIGHTSTYLES ; i++)
     {
-        DC_ScanString(f, str); // BlackAura (08-12-2002) - Replacing fscanf
-        //      fscanf (f, "%s\n", str);
+        fscanf (f, "%s\n", str);
         sv.lightstyles[i] = Hunk_Alloc (Q_strlen(str)+1);
         Q_strcpy (sv.lightstyles[i], str);
     }

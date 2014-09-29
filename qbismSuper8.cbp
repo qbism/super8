@@ -124,6 +124,9 @@
 				</Linker>
 			</Target>
 		</Build>
+		<Compiler>
+			<Add option="-march=i686" />
+		</Compiler>
 		<Linker>
 			<Add library="winmm" />
 			<Add library="wsock32" />
