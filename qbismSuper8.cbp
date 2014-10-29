@@ -44,9 +44,9 @@
 				<Option type="0" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-march=i686" />
+					<Add option="-march=pentium4" />
 					<Add option="-fomit-frame-pointer" />
-					<Add option="-O3" />
+					<Add option="-O2" />
 					<Add option="-m32" />
 					<Add option="-DASM386" />
 					<Add option="-DWIN32" />
@@ -124,9 +124,6 @@
 				</Linker>
 			</Target>
 		</Build>
-		<Compiler>
-			<Add option="-march=i686" />
-		</Compiler>
 		<Linker>
 			<Add library="winmm" />
 			<Add library="wsock32" />
