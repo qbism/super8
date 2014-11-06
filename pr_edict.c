@@ -940,7 +940,7 @@ char *ED_ParseEdict (char *data, edict_t *ent)
         if (!key)
         {
             //qb:  johnfitz -- HACK -- suppress error becuase fog/sky/alpha fields might not be mentioned in defs.qc
-            if (strncmp(keyname, "sky", 3) && strcmp(keyname, "fog") && strcmp(keyname, "alpha"))
+            if (strncmp(keyname, "sky", 3) && strcmp(keyname, "fog")  && strcmp(keyname, "skyfog") && strcmp(keyname, "alpha"))
                 Con_DPrintf ("\"%s\" is not a field\n", keyname);
             continue;
         }

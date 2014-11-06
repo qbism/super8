@@ -170,6 +170,7 @@ cvar_t  r_light_vec_y = {"r_light_vec_y", "0", "r_light_vec_y[value] Y vector wh
 cvar_t  r_light_vec_z = {"r_light_vec_z", "-1", "r_light_vec_z[value] Z vector when r_light_style is active."};
 cvar_t  r_light_style = {"r_light_style", "1", "r_light_style[0/1] Toggle dramatic lighting of models.", true};
 // Manoel Kasimier - changed alias models lighting - end
+cvar_t  r_skyfog = {"r_skyfog","0.30", "r_skyfog[0.0 - 1.0] Fog density for sky.", true}; // qb:  Maybe later.  Just make the sky brighter?
 cvar_t  r_wateralpha = {"r_wateralpha","0.50", "r_wateralpha[0.0 - 1.0] Alpha of water surfaces.", true}; // Manoel Kasimier - translucent water
 cvar_t  r_glassalpha = {"r_glassalpha","0.33", "r_glassalpha[0.0 - 1.0] Alpha of glass surfaces.", true}; //qb: *glass
 cvar_t  r_shadowhack = {"r_shadowhack", "0", "r_shadowhack[0/1] Toggle use of darklights to fake entity shadows.", false};
@@ -266,6 +267,7 @@ void R_Init (void)
     Cmd_AddCommand ("gl_texturemode", Placebo_f);  //qb: ignore common commands with no equivalent, stuffed by mod
     Cmd_AddCommand ("gl_clear", Placebo_f);
     Cmd_AddCommand ("gl_overbright", Placebo_f);
+    Cmd_AddCommand ("skyfog", Placebo_f);
 
     //set up global fog defaults
     fog_density = 0.0;
@@ -307,6 +309,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_interpolation); // Manoel Kasimier - model interpolation
     Cvar_RegisterVariable (&r_wateralpha); // Manoel Kasimier - translucent water
     Cvar_RegisterVariable (&r_glassalpha); //qb: *glass
+    Cvar_RegisterVariable (&r_skyfog); //qb: skyfog
 //    Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
 //    Cvar_RegisterVariable (&r_sprite_addblend); // Manoel Kasimier
     Cvar_RegisterVariable (&r_shadowhack); //qb: engoo shadowhack
@@ -1512,11 +1515,11 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     static int                  i, xref, yref;
     static byte             *pbuf;
     static short               *pz;
-    static unsigned int          level;
+    static unsigned int         level;
     static float previous_fog_density;
     static int dither;
     static float normalize;
-    static int fogcolmap[32]; //qb: precompute level
+    static int fogcolmap[31]; //qb: precompute level
     delta = (byte *)&dummy - r_stack_start;
     if (delta < -0x10000 || delta > 0x10000) //qb: was 10000. D_SQ_calloc is 0x10000.  Does it matter?
         Sys_Error ("R_RenderView: called without enough stack");
@@ -1604,6 +1607,8 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
         fogindex = 32*256 + palmapnofb[(int)(min(fog_red*normalize, 255))/4][(int)(min(fog_green*normalize,255))/4][(int)(min(fog_blue*normalize,255))/4];
         for (i=0; i<31; i++)
             fogcolmap[i] = (int)vid.colormap[fogindex+i*256]*256;
+        //qb: here it is, skyfog-
+        fogcolmap[31]= (int)vid.colormap[fogindex+(int)((1.0 - r_skyfog.value) * 30.0)*256]*256;
 
         dither = 0;
         for (yref=r_refdef.vrect.y ; yref<(r_refdef.vrect.height+r_refdef.vrect.y); yref++)
@@ -1613,8 +1618,74 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
             for (xref=r_refdef.vrect.x; xref<(r_refdef.vrect.width+r_refdef.vrect.x); xref++)
             {
                 level = (unsigned int)(*(pz++)/4 + *(ditherfog + (dither++ % DITHER_NUMRANDS)));
-                if (level < 31)
-                    *pbuf = *(fogmap + *pbuf + *(fogcolmap+level));
+                    switch (level)
+                    {
+                    case 0:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+0));
+                    case 1:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+1));
+                    case 2:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+2));
+                    case 3:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+3));
+                    case 4:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+4));
+                    case 5:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+5));
+                    case 6:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+6));
+                    case 7:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+7));
+                    case 8:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+8));
+                    case 9:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+9));
+                    case 10:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+10));
+                    case 11:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+11));
+                    case 12:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+12));
+                    case 13:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+13));
+                    case 14:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+14));
+                    case 15:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+15));
+                    case 16:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+16));
+                    case 17:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+17));
+                    case 18:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+18));
+                    case 19:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+19));
+                    case 20:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+20));
+                    case 21:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+21));
+                    case 22:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+22));
+                    case 23:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+23));
+                    case 24:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+24));
+                    case 25:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+25));
+                    case 26:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+26));
+                    case 27:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+27));
+                    case 28:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+28));
+                    case 29:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+29));
+                    case 30:
+                        *pbuf = *(fogmap + *pbuf + *(fogcolmap+30));
+                    default:
+                        if(level > 1000000)
+                            *pbuf = *(fogmap + *pbuf + *(fogcolmap+31)); //this is skyfog
+                    }
                 pbuf++;
             }
         }

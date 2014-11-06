@@ -30,7 +30,7 @@ float		skytime;
 
 byte	*skyunderlay, *skyoverlay; // Manoel Kasimier - smooth sky
 cvar_t	r_skyname = { "r_skyname", "", "r_skyname[name] Name of current skybox."}; // Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic
-
+extern cvar_t  r_skyfog;
 /*
 =============
 R_InitSky
@@ -397,6 +397,12 @@ void ParseWorldspawn (void)
         {
             sscanf(value, "%f %f %f %f", &fog_density, &fog_red, &fog_green, &fog_blue);
         }
+
+        if (!strcmp("skyfog", key))  //qb:  who knows if anyone else will support this
+        {
+            sscanf(value, "%f", &r_skyfog.value);
+        }
+
         /*
         if (!strcmp("skyboxsomething", key)) //qb: add more keys?  Most maps using stuffcmd anyway.
         {
