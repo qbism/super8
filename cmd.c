@@ -184,7 +184,7 @@ void Cbuf_Execute (void)
         {
             i++;
             cmd_text.cursize -= i;
-            memcpy (text, text+i, cmd_text.cursize);
+            memmove (text, text + i, cmd_text.cursize);
         }
 
         // execute the command line
