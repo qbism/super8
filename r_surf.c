@@ -77,11 +77,12 @@ extern cvar_t r_stainfadeamount;
 
 #define	LMBLOCK_WIDTH		128
 #define	LMBLOCK_HEIGHT		128
-#define MAX_STAINMAPS		2000 //qb: was 64
+#define MAX_LIGHTMAPS		512 //qb: was 64
 
 typedef byte stmap;
-stmap stainmaps[MAX_STAINMAPS*LMBLOCK_WIDTH*LMBLOCK_HEIGHT];	//added to lightmap for added (hopefully) speed.
-int			allocated[MAX_STAINMAPS][LMBLOCK_WIDTH];
+stmap stainmaps[MAX_LIGHTMAPS*LMBLOCK_WIDTH*LMBLOCK_HEIGHT];	//added to lightmap for added (hopefully) speed.
+int			allocated[MAX_LIGHTMAPS][LMBLOCK_WIDTH];
+int			last_lightmap_allocated; //qb: from QS- ericw -- optimization: remember the index of the last lightmap AllocBlock stored a surf in
 
 //radius, x y z, a
 void R_StainSurf (msurface_t *surf, float *parms)
@@ -299,52 +300,55 @@ void R_LessenStains(void)
 }
 
 
-
 // returns a texture number and the position inside it
 int SWAllocBlock (int w, int h, int *x, int *y)
 {
-    int		i, j;
-    int		best, best2;
-    int		texnum;
+	int		i, j;
+	int		best, best2;
+	int		texnum;
 
-    if (!w || !h)
-        Sys_Error ("AllocBlock: bad size");
+    //qb: from QS
+	// ericw -- rather than searching starting at lightmap 0 every time,
+	// start at the last lightmap we allocated a surface in.
+	// This makes AllocBlock much faster on large levels (can shave off 3+ seconds
+	// of load time on a level with 180 lightmaps), at a cost of not quite packing
+	// lightmaps as tightly vs. not doing this (uses ~5% more lightmaps)
+	for (texnum=last_lightmap_allocated ; texnum<MAX_LIGHTMAPS ; texnum++, last_lightmap_allocated++)
+	{
+		best = LMBLOCK_HEIGHT;
 
-    for (texnum=0 ; texnum<MAX_STAINMAPS ; texnum++)
-    {
-        best = LMBLOCK_HEIGHT;
+		for (i=0 ; i<LMBLOCK_WIDTH-w ; i++)
+		{
+			best2 = 0;
 
-        for (i=0 ; i<LMBLOCK_WIDTH-w ; i++)
-        {
-            best2 = 0;
+			for (j=0 ; j<w ; j++)
+			{
+				if (allocated[texnum][i+j] >= best)
+					break;
+				if (allocated[texnum][i+j] > best2)
+					best2 = allocated[texnum][i+j];
+			}
+			if (j == w)
+			{	// this is a valid spot
+				*x = i;
+				*y = best = best2;
+			}
+		}
 
-            for (j=0 ; j<w ; j++)
-            {
-                if (allocated[texnum][i+j] >= best)
-                    break;
-                if (allocated[texnum][i+j] > best2)
-                    best2 = allocated[texnum][i+j];
-            }
-            if (j == w)
-            {
-                // this is a valid spot
-                *x = i;
-                *y = best = best2;
-            }
-        }
+		if (best + h > LMBLOCK_HEIGHT)
+			continue;
 
-        if (best + h > LMBLOCK_HEIGHT)
-            continue;
+		for (i=0 ; i<w ; i++)
+			allocated[texnum][*x + i] = best + h;
 
-        for (i=0 ; i<w ; i++)
-            allocated[texnum][*x + i] = best + h;
+		return texnum;
+	}
 
-        return texnum;
-    }
-
-    Sys_Error ("AllocBlock: full");
-    return 0;
+	/*Sys_Error qb: do we care? Con_DPrintf */ Sys_Error("AllocBlock: full at %i %i x %i", last_lightmap_allocated, w, h);
+	return 0; //johnfitz -- shut up compiler
 }
+
+
 
 void R_CreateSurfaceLightmap (msurface_t *surf)
 {
@@ -358,7 +362,8 @@ void R_CreateSurfaceLightmap (msurface_t *surf)
     smax = (surf->extents[0]>>4)+1;
     tmax = (surf->extents[1]>>4)+1;
 
-    surf->lightmaptexturenum = SWAllocBlock (smax, tmax, &surf->light_s, &surf->light_t);
+    if (smax > 0 && tmax > 0) //qb: fixme: ? bsp2 hack
+        surf->lightmaptexturenum = SWAllocBlock (smax, tmax, &surf->light_s, &surf->light_t);
 }
 
 void R_BuildLightmaps(void)

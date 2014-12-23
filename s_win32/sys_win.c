@@ -815,7 +815,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	parms.membase = Q_malloc (parms.memsize, "parms.membase");
 
 	if (!parms.membase)
-		Sys_Error ("WinMain(): Not enough memory free; check disk space\n");
+		Sys_Error ("WinMain(): Not enough memory free.\n");
 
 	//one of several tweaks/fixes/type corrections from Levent
 	// it is not enough anyway

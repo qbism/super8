@@ -83,7 +83,9 @@ typedef struct
 #define	MAX_EFRAGS		2048//qb: was 640
 #define	MAX_TEMP_ENTITIES	512 //qb: 1024 per qsb - was 64			// lightning bolts, etc
 #define	MAX_STATIC_ENTITIES	512 //qb: 1024 per qsb - was 128	// torches, etc
-#define	MAX_VISEDICTS	2048  //qb: 1024 per Fitzquake, was 256
+
+//qb: bsp2 via QS
+#define	MAX_VISEDICTS		4096	// larger, now we support BSP2
 
 
 typedef struct
