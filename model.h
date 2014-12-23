@@ -94,7 +94,7 @@ typedef struct texture_s
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
 typedef struct
 {
-	unsigned short	v[2];
+	unsigned int	v[2]; //qb: upped for bsp2
 	unsigned int	cachededgeoffset;
 } medge_t;
 
@@ -155,8 +155,8 @@ typedef struct mnode_s
 	mplane_t	*plane;
 	struct mnode_s	*children[2];
 
-	unsigned short		firstsurface;
-	unsigned short		numsurfaces;
+	unsigned int		firstsurface;
+	unsigned int		numsurfaces;
 } mnode_t;
 
 
@@ -330,7 +330,7 @@ typedef struct model_s
 	int			flags;
 
 //
-// volume occupied by the model
+// volume occupied by the model graphics
 //
 	vec3_t		mins, maxs;
     float radius;
@@ -403,15 +403,6 @@ mleaf_t *Mod_PointInLeaf (float *p, model_t *model);
 byte	*Mod_LeafPVS (mleaf_t *leaf, model_t *model);
 
 extern	cvar_t	external_ent;	// 2001-09-12 .ENT support by Maddes
-extern	cvar_t	external_vis;	// 2001-12-28 .VIS support by Maddes
 
-// 2001-12-28 .VIS support by Maddes  start
-#define VISPATCH_MAPNAME_LENGTH	32
-
-typedef struct vispatch_s {
-	char	mapname[VISPATCH_MAPNAME_LENGTH];	// map for which these data are for, always use strncpy and strncmp for this field
-	int		filelen;		// length of data after VisPatch header (VIS+Leafs)
-} vispatch_t;
-// 2001-12-28 .VIS support by Maddes  end
 
 #endif	// __MODEL__

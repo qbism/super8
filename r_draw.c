@@ -144,10 +144,10 @@ void R_InitSkyBox (void)
 	loadmodel->numedges += 12;
 	r_skysurfedges = loadmodel->surfedges + loadmodel->numsurfedges;
 	loadmodel->numsurfedges += 24;
-	if (loadmodel->numsurfaces > MAX_MAP_FACES
+	/*if (loadmodel->numsurfaces > MAX_MAP_FACES
 		|| loadmodel->numvertexes > MAX_MAP_VERTS
 		|| loadmodel->numedges > MAX_MAP_EDGES)
-			Host_EndGame ("InitSkyBox: map overflow");
+			Host_EndGame ("InitSkyBox: map overflow");*/
 
 	memset (r_skyfaces, 0, 6*sizeof(*r_skyfaces));
 	for (i=0 ; i<6 ; i++)
@@ -588,8 +588,8 @@ void R_RenderFace (msurface_t *fa, int clipflags)
 	{
 		if (fa->flags & SURF_DRAWTRANSLUCENT)
 		{
-			if (!r_wateralpha.value)
-				return;
+//qb: could be glass?			if (!r_wateralpha.value)
+//				return;
 			if (!r_drawwater)
 			{
 				r_foundwater = true;

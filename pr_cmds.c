@@ -412,7 +412,7 @@ void PF_setmodel (void)
     mod = sv.models[ (int)e->v.modelindex];  // Mod_ForName (m, true);
 
     if (mod)
-        SetMinMaxSize (e, mod->mins, mod->maxs, true);
+			SetMinMaxSize (e, mod->mins, mod->maxs, true);
     else
         SetMinMaxSize (e, vec3_origin, vec3_origin, true);
 }

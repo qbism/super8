@@ -31,7 +31,6 @@ void Mod_LoadBrushModel (model_t *mod, void *buffer, loadedfile_t *fileinfo);	//
 //void Mod_LoadBrushModel (model_t *mod, void *buffer);
 void Mod_LoadAliasModel (model_t *mod, void *buffer);
 model_t *Mod_LoadModel (model_t *mod, qboolean crash);
-void Mod_ProcessLeafs (dleaf_t *in, int filelen);
 loadedfile_t *COM_LoadFile (char *path, int usehunk);
 
 byte	mod_novis[MAX_MAP_LEAFS/8];
@@ -46,7 +45,6 @@ int		mod_numknown;
 #define NL_UNREFERENCED	2
 
 cvar_t	external_ent = {"external_ent","1", "external_ent[0/1] Toggles use of external entity files."};	// 2001-09-12 .ENT support by Maddes
-cvar_t	external_vis = {"external_vis","1", "external_vis[0/1] Toggles use of external visibility files."};	// 2001-12-28 .VIS support by Maddes
 
 /*
 ===============
@@ -57,7 +55,6 @@ void Mod_Init (void)
 {
     memset (mod_novis, 0xff, sizeof(mod_novis));
     Cvar_RegisterVariable (&external_ent);	// 2001-09-12 .ENT support by Maddes
-    Cvar_RegisterVariable (&external_vis);	// 2001-12-28 .VIS support by Maddes
 }
 
 /*
@@ -199,7 +196,7 @@ model_t *Mod_FindName (char *name)
     model_t	*avail = NULL;
 
     if (!name[0])
-        Sys_Error ("Mod_ForName: NULL name");
+        Sys_Error ("Mod_FindName: NULL name"); //johnfitz -- was "Mod_ForName"
 
 //
 // search the currently loaded models
@@ -601,11 +598,8 @@ void Mod_LoadVisibility (lump_t *l)
         loadmodel->visdata = NULL;
         return;
     }
-// 2001-12-28 .VIS support by Maddes  start
-//	loadmodel->visdata = Hunk_AllocName ( l->filelen, loadname);
-    loadmodel->visdata = Hunk_AllocName ( l->filelen, "INT_VIS");
-// 2001-12-28 .VIS support by Maddes  end
-    memcpy (loadmodel->visdata, mod_base + l->fileofs, l->filelen);
+    loadmodel->visdata = Hunk_AllocName ( l->filelen, "loadvis");
+     memcpy (loadmodel->visdata, mod_base + l->fileofs, l->filelen);
 }
 
 
@@ -733,16 +727,38 @@ void Mod_LoadVertexes (lump_t *l)
 Mod_LoadEdges
 =================
 */
-void Mod_LoadEdges (lump_t *l)
+void Mod_LoadEdges (lump_t *l, int bsp2)
 {
     medge_t *out;
     int 	i, count;
-    dedge_t *in = (void *)(mod_base + l->fileofs);
+ 
+    if (bsp2)
+    {
+        dledge_t *in = (dledge_t *)(mod_base + l->fileofs);
+
+        if (l->filelen % sizeof(*in))
+            Sys_Error ("Mod_LoadEdges: funny lump size in %s",loadmodel->name);
+
+        count = l->filelen / sizeof(*in);
+        out = Hunk_AllocName ( (count + 13) * sizeof(*out), "loadedgebsp2"); // Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic
+
+        loadmodel->edges = out;
+        loadmodel->numedges = count;
+
+        for (i=0 ; i<count ; i++, in++, out++)
+        {
+            out->v[0] = LittleLong(in->v[0]);
+            out->v[1] = LittleLong(in->v[1]);
+        }
+    }
+    else
+    {
+        dsedge_t *in = (dsedge_t *)(mod_base + l->fileofs);
 
     if (l->filelen % sizeof(*in))
         Sys_Error ("Mod_LoadEdges: funny lump size in %s",loadmodel->name);
     count = l->filelen / sizeof(*in);
-    out = Hunk_AllocName ( (count + 13) * sizeof(*out), "modedges"); // Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
+        out = Hunk_AllocName ( (count + 13) * sizeof(*out), "loadedge");// Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic
 
     loadmodel->edges = out;
     loadmodel->numedges = count;
@@ -752,6 +768,7 @@ void Mod_LoadEdges (lump_t *l)
         out->v[0] = (unsigned short)LittleShort(in->v[0]);
         out->v[1] = (unsigned short)LittleShort(in->v[1]);
     }
+}
 }
 
 /*
@@ -914,42 +931,75 @@ void Mod_FlagFaces ( msurface_t *out)
 Mod_LoadFaces
 =================
 */
-void Mod_LoadFaces (lump_t *l)
+void Mod_LoadFaces (lump_t *l, int bsp2)
 {
-    dface_t		*in;
+    dsface_t	*ins;
+    dlface_t	*inl;
     msurface_t 	*out;
-    int			i, count, surfnum;
-    int			planenum, side;
+    int			i, count, surfnum, lofs;
+    int			planenum, side, texinfon;
 
-    in = (void *)(mod_base + l->fileofs);
-    if (l->filelen % sizeof(*in))
+    if (bsp2)
+    {
+        ins = NULL;
+        inl = (void *)(mod_base + l->fileofs);
+        if (l->filelen % sizeof(*inl))
+            Sys_Error ("Mod_LoadFaces: funny lump size in %s",loadmodel->name);
+        count = l->filelen / sizeof(*inl);
+    }
+    else
+    {
+    ins = (void *)(mod_base + l->fileofs);
+        inl = NULL;
+    if (l->filelen % sizeof(*ins))
         Sys_Error ("Mod_LoadFaces: funny lump size in %s",loadmodel->name);
-    count = l->filelen / sizeof(*in);
+    count = l->filelen / sizeof(*ins);
+    }
+    out = Hunk_AllocName ( (count+6)*sizeof(*out), "loadfaces");// Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic
 
-    out = Hunk_AllocName ( (count+6)*sizeof(*out), "modface"); // Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
     loadmodel->surfaces = out;
     loadmodel->numsurfaces = count;
 
-    for ( surfnum=0 ; surfnum<count ; surfnum++, in++, out++)
+    for (surfnum=0 ; surfnum<count ; surfnum++, out++)
     {
-        out->firstedge = LittleLong(in->firstedge);
-        out->numedges = LittleShort(in->numedges);
+        if (bsp2)
+        {
+            out->firstedge = LittleLong(inl->firstedge);
+            out->numedges = LittleLong(inl->numedges);
+            planenum = LittleLong(inl->planenum);
+            side = LittleLong(inl->side);
+            texinfon = LittleLong (inl->texinfo);
+            for (i=0 ; i<MAXLIGHTMAPS ; i++)
+                out->styles[i] = inl->styles[i];
+            lofs = LittleLong(inl->lightofs);
+            inl++;
+        }
+        else
+    {
+        out->firstedge = LittleLong(ins->firstedge);
+        out->numedges = LittleShort(ins->numedges);
+        planenum = LittleShort(ins->planenum);
+        side = LittleShort(ins->side);
+            texinfon = LittleShort (ins->texinfo);
+            for (i=0 ; i<MAXLIGHTMAPS ; i++)
+                out->styles[i] = ins->styles[i];
+            lofs = LittleLong(ins->lightofs);
+            ins++;
+        }
+
         out->flags = 0;
-        planenum = LittleShort(in->planenum);
-        side = LittleShort(in->side);
+
         if (side)
             out->flags |= SURF_PLANEBACK;
 
         out->plane = loadmodel->planes + planenum;
-        out->texinfo = loadmodel->texinfo + LittleShort(in->texinfo);
+
+        out->texinfo = loadmodel->texinfo + texinfon;
+
         CalcSurfaceExtents (out);
 
         // lighting info
-
-        for (i=0 ; i<MAXLIGHTMAPS ; i++)
-            out->styles[i] = in->styles[i];
-        i = LittleLong(in->lightofs);
-        if (i == -1)
+        if (lofs == -1)
         {
             out->samples = NULL;
             out->colorsamples = NULL;
@@ -957,8 +1007,8 @@ void Mod_LoadFaces (lump_t *l)
 
         else
         {
-            out->samples = loadmodel->lightdata + i;
-            out->colorsamples = loadmodel->colordata + i; //qb:
+            out->samples = loadmodel->lightdata + lofs;
+            out->colorsamples = loadmodel->colordata + lofs; //qb: colored lights
 
         }
         Mod_FlagFaces(out);
@@ -985,10 +1035,10 @@ void Mod_SetParent (mnode_t *node, mnode_t *parent)
 Mod_LoadNodes
 =================
 */
-void Mod_LoadNodes (lump_t *l)
+void Mod_LoadNodes_S (lump_t *l)
 {
     unsigned int			i, j, count, p;
-    dnode_t		*in;
+    dsnode_t	*in;
     mnode_t 	*out;
 
     in = (void *)(mod_base + l->fileofs);
@@ -1013,12 +1063,12 @@ void Mod_LoadNodes (lump_t *l)
         p = LittleLong(in->planenum);
         out->plane = loadmodel->planes + p;
 
-        out->firstsurface = (unsigned short)LittleShort (in->firstface); //qb:  from johnfitz -- explicit cast as unsigned short
-        out->numsurfaces = (unsigned short)LittleShort (in->numfaces); //qb:  johnfitz -- explicit cast as unsigned short
+        out->firstsurface = (unsigned short)LittleShort (in->firstface); //johnfitz -- explicit cast as unsigned short
+        out->numsurfaces = (unsigned short)LittleShort (in->numfaces); //johnfitz -- explicit cast as unsigned short
 
         for (j=0 ; j<2 ; j++)
         {
-            //qb:  johnfitz begin -- hack to handle nodes > 32k, adapted from darkplaces
+            //johnfitz -- hack to handle nodes > 32k, adapted from darkplaces
             p = (unsigned short)LittleShort(in->children[j]);
             if (p < count)
                 out->children[j] = loadmodel->nodes + p;
@@ -1033,9 +1083,124 @@ void Mod_LoadNodes (lump_t *l)
                     out->children[j] = (mnode_t *)(loadmodel->leafs); //map it to the solid leaf
                 }
             }
-            //qb:  johnfitz end
+            //johnfitz
+        }
         }
     }
+
+void Mod_LoadNodes_L1 (lump_t *l)
+{
+    unsigned int			i, j, count, p;
+    dl1node_t	*in;
+    mnode_t		*out;
+
+    in = (dl1node_t *)(mod_base + l->fileofs);
+    if (l->filelen % sizeof(*in))
+        Sys_Error ("Mod_LoadNodes: funny lump size in %s",loadmodel->name);
+
+    count = l->filelen / sizeof(*in);
+    out = Hunk_AllocName ( count*sizeof(*out), "loadnodes_L1");
+
+    loadmodel->nodes = out;
+    loadmodel->numnodes = count;
+
+    for (i=0 ; i<count ; i++, in++, out++)
+    {
+        for (j=0 ; j<3 ; j++)
+        {
+            out->minmaxs[j] = LittleShort (in->mins[j]);
+            out->minmaxs[3+j] = LittleShort (in->maxs[j]);
+        }
+
+        p = LittleLong(in->planenum);
+        out->plane = loadmodel->planes + p;
+
+        out->firstsurface = LittleLong (in->firstface); //johnfitz -- explicit cast as unsigned short
+        out->numsurfaces = LittleLong (in->numfaces); //johnfitz -- explicit cast as unsigned short
+
+        for (j=0 ; j<2 ; j++)
+        {
+            //johnfitz -- hack to handle nodes > 32k, adapted from darkplaces
+            p = LittleLong(in->children[j]);
+            if (p >= 0 && p < count)
+                out->children[j] = loadmodel->nodes + p;
+            else
+            {
+                p = 0xffffffff - p; //note this uses 65535 intentionally, -1 is leaf 0
+                if (p >= 0 && p < loadmodel->numleafs)
+                    out->children[j] = (mnode_t *)(loadmodel->leafs + p);
+                else
+                {
+                    Con_Printf("Mod_LoadNodes: invalid leaf index %i (file has only %i leafs)\n", p, loadmodel->numleafs);
+                    out->children[j] = (mnode_t *)(loadmodel->leafs); //map it to the solid leaf
+                }
+            }
+            //johnfitz
+        }
+    }
+}
+
+void Mod_LoadNodes_L2 (lump_t *l)
+{
+    unsigned int			i, j, count, p;
+    dl2node_t	*in;
+    mnode_t		*out;
+
+    in = (dl2node_t *)(mod_base + l->fileofs);
+    if (l->filelen % sizeof(*in))
+        Sys_Error ("Mod_LoadNodes: funny lump size in %s",loadmodel->name);
+
+    count = l->filelen / sizeof(*in);
+    out = Hunk_AllocName ( count*sizeof(*out), "loadnodes_L2");
+
+    loadmodel->nodes = out;
+    loadmodel->numnodes = count;
+
+    for (i=0 ; i<count ; i++, in++, out++)
+    {
+        for (j=0 ; j<3 ; j++)
+        {
+            out->minmaxs[j] = LittleFloat (in->mins[j]);
+            out->minmaxs[3+j] = LittleFloat (in->maxs[j]);
+        }
+
+        p = LittleLong(in->planenum);
+        out->plane = loadmodel->planes + p;
+
+        out->firstsurface = LittleLong (in->firstface); //johnfitz -- explicit cast as unsigned short
+        out->numsurfaces = LittleLong (in->numfaces); //johnfitz -- explicit cast as unsigned short
+
+        for (j=0 ; j<2 ; j++)
+        {
+            //johnfitz -- hack to handle nodes > 32k, adapted from darkplaces
+            p = LittleLong(in->children[j]);
+            if (p > 0 && p < count)
+                out->children[j] = loadmodel->nodes + p;
+            else
+            {
+                p = 0xffffffff - p; //note this uses 65535 intentionally, -1 is leaf 0
+                if (p >= 0 && p < loadmodel->numleafs)
+                    out->children[j] = (mnode_t *)(loadmodel->leafs + p);
+                else
+                {
+                    Con_Printf("Mod_LoadNodes: invalid leaf index %i (file has only %i leafs)\n", p, loadmodel->numleafs);
+                    out->children[j] = (mnode_t *)(loadmodel->leafs); //map it to the solid leaf
+                }
+            }
+            //johnfitz
+        }
+    }
+}
+
+void Mod_LoadNodes (lump_t *l, int bsp2)
+{
+    if (bsp2 == 2)
+        Mod_LoadNodes_L2(l);
+    else if (bsp2)
+        Mod_LoadNodes_L1(l);
+    else
+        Mod_LoadNodes_S(l);
+
     Mod_SetParent (loadmodel->nodes, NULL);	// sets nodes and leafs
 }
 
@@ -1045,25 +1210,21 @@ void Mod_LoadNodes (lump_t *l)
 Mod_LoadLeafs
 =================
 */
-void Mod_LoadLeafs (lump_t *l)
-{
-    dleaf_t *in;
-    in = (void *)(mod_base + l->fileofs);
-    Mod_ProcessLeafs (in, l->filelen);
-}
 
-void Mod_ProcessLeafs (dleaf_t *in, int filelen)
+void Mod_ProcessLeafs_S (dsleaf_t *in, int filelen)
 {
     mleaf_t *out;
     int	i, j, count, p;
     if (filelen % sizeof(*in))
         Sys_Error ("Mod_ProcessLeafs: funny lump size in %s", loadmodel->name);
     count = filelen / sizeof(*in);
-    out = Hunk_AllocName ( count*sizeof(*out), "USE_LEAF");
-// 2001-12-28 .VIS support by Maddes end
-//qb: check leafs limit from johnfitz
+    out = Hunk_AllocName ( count*sizeof(*out), "processleafs_S");
+
+    //johnfitz
     if (count > 32767)
         Host_Error ("Mod_LoadLeafs: %i leafs exceeds limit of 32767.\n", count);
+    //johnfitz
+
     loadmodel->leafs = out;
     loadmodel->numleafs = count;
     for ( i=0 ; i<count ; i++, in++, out++)
@@ -1075,9 +1236,10 @@ void Mod_ProcessLeafs (dleaf_t *in, int filelen)
         }
         p = LittleLong(in->contents);
         out->contents = p;
-        out->firstmarksurface = loadmodel->marksurfaces +
-                                (unsigned short)LittleShort(in->firstmarksurface); //qb: johnfitz -- unsigned short
-        out->nummarksurfaces = (unsigned short)LittleShort(in->nummarksurfaces); //qb: johnfitz -- unsigned short
+
+        out->firstmarksurface = loadmodel->marksurfaces + (unsigned short)LittleShort(in->firstmarksurface); //johnfitz -- unsigned short
+        out->nummarksurfaces = (unsigned short)LittleShort(in->nummarksurfaces); //johnfitz -- unsigned short
+
         p = LittleLong(in->visofs);
         if (p == -1)
             out->compressed_vis = NULL;
@@ -1089,25 +1251,141 @@ void Mod_ProcessLeafs (dleaf_t *in, int filelen)
     }
 }
 
+void Mod_ProcessLeafs_L1 (dl1leaf_t *in, int filelen)
+{
+    mleaf_t		*out;
+    int			i, j, count, p;
+
+    if (filelen % sizeof(*in))
+        Sys_Error ("Mod_ProcessLeafs: funny lump size in %s", loadmodel->name);
+
+    count = filelen / sizeof(*in);
+
+    out = Hunk_AllocName (count * sizeof(*out), "processleafs_L1");
+
+    if (count > MAX_MAP_LEAFS)
+        Host_Error ("Mod_LoadLeafs: %i leafs exceeds limit of %i.\n", count, MAX_MAP_LEAFS);
+
+    loadmodel->leafs = out;
+    loadmodel->numleafs = count;
+
+    for (i=0 ; i<count ; i++, in++, out++)
+    {
+        for (j=0 ; j<3 ; j++)
+        {
+            out->minmaxs[j] = LittleShort (in->mins[j]);
+            out->minmaxs[3+j] = LittleShort (in->maxs[j]);
+        }
+
+        p = LittleLong(in->contents);
+        out->contents = p;
+
+        out->firstmarksurface = loadmodel->marksurfaces + LittleLong(in->firstmarksurface); //johnfitz -- unsigned short
+        out->nummarksurfaces = LittleLong(in->nummarksurfaces); //johnfitz -- unsigned short
+
+        p = LittleLong(in->visofs);
+        if (p == -1)
+            out->compressed_vis = NULL;
+        else
+            out->compressed_vis = loadmodel->visdata + p;
+        out->efrags = NULL;
+
+        for (j=0 ; j<4 ; j++)
+            out->ambient_sound_level[j] = in->ambient_level[j];
+    }
+}
+
+void Mod_ProcessLeafs_L2 (dl2leaf_t *in, int filelen)
+{
+    mleaf_t		*out;
+    int			i, j, count, p;
+
+    if (filelen % sizeof(*in))
+        Sys_Error ("Mod_ProcessLeafs: funny lump size in %s", loadmodel->name);
+
+    count = filelen / sizeof(*in);
+
+    out = Hunk_AllocName (count * sizeof(*out), "processleafs_L2");
+
+    if (count > MAX_MAP_LEAFS)
+        Host_Error ("Mod_LoadLeafs: %i leafs exceeds limit of %i.\n", count, MAX_MAP_LEAFS);
+
+    loadmodel->leafs = out;
+    loadmodel->numleafs = count;
+
+    for (i=0 ; i<count ; i++, in++, out++)
+    {
+        for (j=0 ; j<3 ; j++)
+        {
+            out->minmaxs[j] = LittleFloat (in->mins[j]);
+            out->minmaxs[3+j] = LittleFloat (in->maxs[j]);
+        }
+
+        p = LittleLong(in->contents);
+        out->contents = p;
+
+        out->firstmarksurface = loadmodel->marksurfaces + LittleLong(in->firstmarksurface); //johnfitz -- unsigned short
+        out->nummarksurfaces = LittleLong(in->nummarksurfaces); //johnfitz -- unsigned short
+
+        p = LittleLong(in->visofs);
+        if (p == -1)
+            out->compressed_vis = NULL;
+        else
+            out->compressed_vis = loadmodel->visdata + p;
+        out->efrags = NULL;
+
+        for (j=0 ; j<4 ; j++)
+            out->ambient_sound_level[j] = in->ambient_level[j];
+    }
+}
+
+void Mod_LoadLeafs (lump_t *l, int bsp2)
+{
+    void *in = (void *)(mod_base + l->fileofs);
+
+    if (bsp2 == 2)
+        Mod_ProcessLeafs_L2 ((dl2leaf_t *)in, l->filelen);
+    else if (bsp2)
+        Mod_ProcessLeafs_L1 ((dl1leaf_t *)in, l->filelen);
+    else
+        Mod_ProcessLeafs_S  ((dsleaf_t *) in, l->filelen);
+}
+
+
+
 
 /*
 =================
 Mod_LoadClipnodes
 =================
 */
-void Mod_LoadClipnodes (lump_t *l)
+void Mod_LoadClipnodes (lump_t *l, int bsp2)
 {
-    dclipnode_t *in;
-    mclipnode_t *out; //qb:  johnfitz -- was dclipnode_t
+    dsclipnode_t *ins;
+    dlclipnode_t *inl;
+
+    mclipnode_t *out; //johnfitz -- was dclipnode_t
     int			i, count;
     hull_t		*hull;
 
-    in = (void *)(mod_base + l->fileofs);
-    if (l->filelen % sizeof(*in))
-        Sys_Error ("Mod_LoadClipnodes: funny lump size in %s",loadmodel->name);
-    count = l->filelen / sizeof(*in);
-    out = Hunk_AllocName ( count*sizeof(*out), "modcnode");
+    if (bsp2)
+    {
+        ins = NULL;
+        inl = (dlclipnode_t *)(mod_base + l->fileofs);
+        if (l->filelen % sizeof(*inl))
+            Sys_Error ("Mod_LoadClipnodes: funny lump size in %s",loadmodel->name);
 
+        count = l->filelen / sizeof(*inl);
+    }
+    else
+    {
+        ins = (dsclipnode_t *)(mod_base + l->fileofs);
+        inl = NULL;
+    if (l->filelen % sizeof(*ins))
+        Sys_Error ("Mod_LoadClipnodes: funny lump size in %s",loadmodel->name);
+    count = l->filelen / sizeof(*ins);
+    }
+    out = Hunk_AllocName ( count*sizeof(*out), "loadclipnodes");
     loadmodel->clipnodes = out;
     loadmodel->numclipnodes = count;
 
@@ -1135,22 +1413,42 @@ void Mod_LoadClipnodes (lump_t *l)
     hull->clip_maxs[1] = 32;
     hull->clip_maxs[2] = 64;
 
-    for (i=0 ; i<count ; i++, out++, in++)
+    if (bsp2)
     {
-        out->planenum = LittleLong(in->planenum);
+        for (i=0 ; i<count ; i++, out++, inl++)
+        {
+            out->planenum = LittleLong(inl->planenum);
 
-        //qb:  johnfitz -- bounds check
+            //johnfitz -- bounds check
+            if (out->planenum < 0 || out->planenum >= loadmodel->numplanes)
+                Host_Error ("Mod_LoadClipnodes: planenum out of bounds");
+            //johnfitz
+
+            out->children[0] = LittleLong(inl->children[0]);
+            out->children[1] = LittleLong(inl->children[1]);
+            //Spike: FIXME: bounds check
+        }
+    }
+    else
+    {
+    for (i=0 ; i<count ; i++, out++, ins++)
+    {
+        out->planenum = LittleLong(ins->planenum);
+
+            //johnfitz -- bounds check
         if (out->planenum < 0 || out->planenum >= loadmodel->numplanes)
             Host_Error ("Mod_LoadClipnodes: planenum out of bounds");
+            //johnfitz
 
-        //qb:  johnfitz begin -- support clipnodes > 32k
-        out->children[0] = (unsigned short)LittleShort(in->children[0]);
-        out->children[1] = (unsigned short)LittleShort(in->children[1]);
+            //johnfitz -- support clipnodes > 32k
+        out->children[0] = (unsigned short)LittleShort(ins->children[0]);
+        out->children[1] = (unsigned short)LittleShort(ins->children[1]);
         if (out->children[0] >= count)
             out->children[0] -= 65536;
         if (out->children[1] >= count)
             out->children[1] -= 65536;
-        //qb:  johnfitz end
+            //johnfitz
+        }
     }
 }
 
@@ -1199,28 +1497,52 @@ void Mod_MakeHull0 (void)
 Mod_LoadMarksurfaces
 =================
 */
-void Mod_LoadMarksurfaces (lump_t *l)
+void Mod_LoadMarksurfaces (lump_t *l, int bsp2)
 {
     int		i, j, count;
-    short		*in;
     msurface_t **out;
+    if (bsp2)
+    {
+        unsigned int *in = (unsigned int *)(mod_base + l->fileofs);
 
-    in = (void *)(mod_base + l->fileofs);
+        if (l->filelen % sizeof(*in))
+            Host_Error ("Mod_LoadMarksurfaces: funny lump size in %s",loadmodel->name);
+
+        count = l->filelen / sizeof(*in);
+        out = Hunk_AllocName ( count*sizeof(*out), "marksurfacesbsp2");
+
+        loadmodel->marksurfaces = out;
+        loadmodel->nummarksurfaces = count;
+
+        for (i=0 ; i<count ; i++)
+        {
+            j = LittleLong(in[i]);
+            if (j >= loadmodel->numsurfaces)
+                Host_Error ("Mod_LoadMarksurfaces: bad surface number");
+            out[i] = loadmodel->surfaces + j;
+        }
+    }
+    else
+    {
+        short *in = (short *)(mod_base + l->fileofs);
+
     if (l->filelen % sizeof(*in))
-        Sys_Error ("Mod_LoadMarksurfaces: funny lump size in %s",loadmodel->name);
+            Host_Error ("Mod_LoadMarksurfaces: funny lump size in %s",loadmodel->name);
+
     count = l->filelen / sizeof(*in);
-    out = Hunk_AllocName ( count*sizeof(*out), "modmsurf");
+        out = Hunk_AllocName ( count*sizeof(*out), "marksurfaces");
 
     loadmodel->marksurfaces = out;
     loadmodel->nummarksurfaces = count;
 
     for ( i=0 ; i<count ; i++)
     {
-        j = (unsigned short)LittleShort(in[i]); //qb:  johnfitz -- explicit cast as unsigned short
+            j = (unsigned short)LittleShort(in[i]); //johnfitz -- explicit cast as unsigned short
         if (j >= loadmodel->numsurfaces)
-            Sys_Error ("Mod_ParseMarksurfaces: bad surface number");
+                Sys_Error ("Mod_LoadMarksurfaces: bad surface number");
         out[i] = loadmodel->surfaces + j;
     }
+}
 }
 
 /*
@@ -1304,33 +1626,6 @@ float RadiusFromBounds (vec3_t mins, vec3_t maxs)
     return Length (corner);
 }
 
-// 2001-12-28 .VIS support by Maddes  start
-/*
-=================
-Mod_LoadExternalVisibility
-=================
-*/
-void Mod_LoadExternalVisibility (int fhandle)
-{
-    long	filelen;
-
-    // get visibility data length
-    filelen = 0;
-    Sys_FileRead (fhandle, &filelen, 4);
-    filelen = LittleLong(filelen);
-
-    Con_DPrintf("...%i bytes visibility data\n", filelen);
-
-    // load visibility data
-    if (!filelen)
-    {
-        loadmodel->visdata = NULL;
-        return;
-    }
-    loadmodel->visdata = Hunk_AllocName ( filelen, "EXT_VIS");
-    Sys_FileRead (fhandle, loadmodel->visdata, filelen);
-}
-
 /*
 =================
 Mod_LoadSubmodels
@@ -1378,169 +1673,7 @@ void Mod_LoadSubmodels (lump_t *l)
     //johnfitz
 }
 
-
-/*
-=================
-Mod_LoadExternalLeafs
-=================
-*/
-void Mod_LoadExternalLeafs (int fhandle)
-{
-    dleaf_t 	*in;
-    long	filelen;
-
-    // get leaf data length
-    filelen = 0;
-    Sys_FileRead (fhandle, &filelen, 4);
-    filelen = LittleLong(filelen);
-
-    Con_DPrintf("...%i bytes leaf data\n", filelen);
-
-    // load leaf data
-    if (!filelen)
-    {
-        loadmodel->leafs = NULL;
-        loadmodel->numleafs = 0;
-        return;
-    }
-    in = Hunk_AllocName (filelen, "EXT_LEAF");
-    Sys_FileRead (fhandle, in, filelen);
-
-    Mod_ProcessLeafs (in, filelen);
-}
-
-int Mod_FindExternalVIS (loadedfile_t *brush_fileinfo)
-{
-    char	visfilename[1024];
-    char	vispathname[MAX_OSPATH]; // Manoel Kasimier
-    int		fhandle;
-    int		len, i, pos;
-    searchpath_t	*s_vis;
-    vispatch_t	header;
-    char	mapname[VISPATCH_MAPNAME_LENGTH+5];	// + ".vis" + EoS
-
-    fhandle = -1;
-
-    if (external_vis.value)
-    {
-        // check for a .VIS file
-        Q_strcpy(visfilename, loadmodel->name);
-        COM_StripExtension(visfilename, visfilename);
-        Q_strcat(visfilename, ".vis");
-
-        len = COM_OpenFile (visfilename, &fhandle, &s_vis);
-        if (fhandle == -1)	// check for a .VIS file with map's directory name (e.g. ID1.VIS)
-        {
-            //	Q_strcpy(visfilename, "maps/"); // Manoel Kasimier - removed
-            //	Q_strcat(visfilename, COM_SkipPath(brush_fileinfo->path->filename)); // Manoel Kasimier - removed
-
-            // Manoel Kasimier - begin
-            // wrong: quake\gamedir\maps\gamedir.vis - don't load from the "maps" directory, to prevent mistakes if there's a map named "gamedir.bsp"
-            // right: quake\gamedir\gamedir.vis - we'll look for the VIS packs directly into the game directory
-            if (brush_fileinfo->path->pack)
-            {
-                Q_strcpy(visfilename, brush_fileinfo->path->pack->filename);
-                // remove the packfile from the path
-                for (i=Q_strlen(visfilename); i > 0 ; i--)
-                    if (visfilename[i] == '/' || visfilename[i] == '\\')
-                    {
-                        visfilename[i] = 0;
-                        break;
-                    }
-                //	Q_strcpy(vispathname, visfilename);
-                Q_strcpy(visfilename, COM_SkipPath(visfilename));
-            }
-            else
-            {
-                //	Q_strcpy(vispathname, brush_fileinfo->path->filename);
-                Q_strcpy(visfilename, COM_SkipPath(brush_fileinfo->path->filename));
-            }
-            /*	// make sure it is in lowercase
-            	for (i=Q_strlen(visfilename); i > 0 ; i--)
-            		if (visfilename[i] >= 'A' && visfilename[i] <= 'Z')
-            			visfilename[i] += ('a' - 'A');
-            */	// Manoel Kasimier - end
-
-            Q_strcat(visfilename, ".vis");
-            len = COM_OpenFile (visfilename, &fhandle, &s_vis);
-        }
-        // Manoel Kasimier - begin
-        else if (fhandle >= 0)
-        {
-            Q_strcpy(vispathname, brush_fileinfo->path->pack ? brush_fileinfo->path->pack->filename : brush_fileinfo->path->filename);
-            // get the full path to the game dir where the .bsp file is
-            for (i=Q_strlen(vispathname); i > 0 ; i--)
-                if (vispathname[i] == '/' || vispathname[i] == '\\')
-                {
-                    vispathname[i] = 0;
-                    break;
-                }
-            Q_strcpy(visfilename, s_vis->pack ? s_vis->pack->filename : s_vis->filename);
-            // get the full path to the game dir where the .vis file is
-            for (i=Q_strlen(visfilename); i > 0 ; i--)
-                if (visfilename[i] == '/' || visfilename[i] == '\\')
-                {
-                    visfilename[i] = 0;
-                    break;
-                }
-            if (Q_strcasecmp(vispathname, visfilename)) // different game directories
-            {
-                COM_CloseFile(fhandle);
-                return -1;
-            }
-        }
-        // Manoel Kasimier - end
-
-        if (fhandle >= 0)
-        {
-            // check file for size
-            if (len <= 0)
-            {
-                COM_CloseFile(fhandle);
-                fhandle = -1;
-            }
-        }
-
-        if (fhandle >= 0)
-        {
-            // search map in visfile
-            Q_strncpy(mapname, loadname, VISPATCH_MAPNAME_LENGTH);
-            mapname[VISPATCH_MAPNAME_LENGTH] = 0;
-            Q_strcat(mapname, ".bsp");
-
-            pos = 0;
-            while ((i = Sys_FileRead (fhandle, &header, sizeof(struct vispatch_s))) == sizeof(struct vispatch_s))
-            {
-                header.filelen = LittleLong(header.filelen);
-
-                pos += i;
-
-                if (!Q_strncasecmp (header.mapname, mapname, VISPATCH_MAPNAME_LENGTH))	// found
-                {
-                    break;
-                }
-
-                pos += header.filelen;
-
-                Sys_FileSeek(fhandle, pos);
-            }
-
-            if (i != sizeof(struct vispatch_s))
-            {
-                COM_CloseFile(fhandle);
-                fhandle = -1;
-            }
-        }
-
-        if (fhandle >= 0)
-        {
-            Con_DPrintf("Loaded %s for %s from %s\n", visfilename, mapname, s_vis->pack ? s_vis->pack->filename : s_vis->filename);
-        }
-    }
-
-    return fhandle;
-}
-// 2001-12-28 .VIS support by Maddes  end
+//qb: remove external vis
 
 /*
 =================
@@ -1550,75 +1683,53 @@ Mod_LoadBrushModel
 void Mod_LoadBrushModel (model_t *mod, void *buffer, loadedfile_t *brush_fileinfo)	// 2001-09-12 .ENT support by Maddes
 {
     int			i, j;
+    int			bsp2;
     dheader_t	*header;
     dmodel_t 	*bm;
-    int			fhandle;	// 2001-12-28 .VIS support by Maddes
 
     loadmodel->type = mod_brush;
     header = (dheader_t *)buffer;
 
     i = LittleLong (header->version);
 
-    if ( i != BSPVERSION)
-//		Sys_Error ("Mod_LoadBrushModel: %s has wrong version number (%i should be %i)", mod->name, i, BSPVERSION);
-        // MrG - incorrect BSP version is no longer fatal - begin
+    switch(i)
     {
-        Con_Printf("Mod_LoadBrushModel: %s has wrong version number (%i, should be %i)\n", mod->name, i, BSPVERSION);
-        mod->numvertexes=-1;	// HACK
-        return;
+	case BSPVERSION:
+        bsp2 = 0;
+        break;
+    case BSP2VERSION_2PSB:
+        bsp2 = 1;	//first iteration
+        break;
+    case BSP2VERSION_BSP2:
+        bsp2 = 2;	//sanitised revision
+        break;
+    default:
+        Sys_Error ("Mod_LoadBrushModel: %s has wrong version number (%i should be %i)", mod->name, i, BSPVERSION);
+        break;
     }
-    // MrG - incorrect BSP version is no longer fatal - end
+
 
 // swap all the lumps
     mod_base = (byte *)header;
 
-    for (i=0 ; i<sizeof(dheader_t)/4 ; i++)
+    for (i = 0; i < (int) sizeof(dheader_t) / 4; i++)
         ((int *)header)[i] = LittleLong ( ((int *)header)[i]);
 
 // load into heap
 
     Mod_LoadVertexes (&header->lumps[LUMP_VERTEXES]);
-    Mod_LoadEdges (&header->lumps[LUMP_EDGES]);
+    Mod_LoadEdges (&header->lumps[LUMP_EDGES], bsp2);
     Mod_LoadSurfedges (&header->lumps[LUMP_SURFEDGES]);
     Mod_LoadTextures (&header->lumps[LUMP_TEXTURES]);
     Mod_LoadLighting (&header->lumps[LUMP_LIGHTING]);
     Mod_LoadPlanes (&header->lumps[LUMP_PLANES]);
     Mod_LoadTexinfo (&header->lumps[LUMP_TEXINFO]);
-    Mod_LoadFaces (&header->lumps[LUMP_FACES]);
-    Mod_LoadMarksurfaces (&header->lumps[LUMP_MARKSURFACES]);
-// 2001-12-28 .VIS support by Maddes  start
-    loadmodel->visdata = NULL;
-    loadmodel->leafs = NULL;
-    loadmodel->numleafs = 0;
-
-    fhandle = Mod_FindExternalVIS (brush_fileinfo);
-    if (fhandle >= 0)
-    {
-        Mod_LoadExternalVisibility (fhandle);
-        Mod_LoadExternalLeafs (fhandle);
-    }
-
-    if ((loadmodel->visdata == NULL)
-            || (loadmodel->leafs == NULL)
-            || (loadmodel->numleafs == 0))
-    {
-        if (fhandle >= 0)
-        {
-            Con_Printf("External VIS data are invalid!!!\n");
-        }
-// 2001-12-28 .VIS support by Maddes  end
-        Mod_LoadVisibility (&header->lumps[LUMP_VISIBILITY]);
-        Mod_LoadLeafs (&header->lumps[LUMP_LEAFS]);
-// 2001-12-28 .VIS support by Maddes  start
-    }
-
-    if (fhandle >= 0)
-    {
-        COM_CloseFile(fhandle);
-    }
-// 2001-12-28 .VIS support by Maddes  end
-    Mod_LoadNodes (&header->lumps[LUMP_NODES]);
-    Mod_LoadClipnodes (&header->lumps[LUMP_CLIPNODES]);
+    Mod_LoadFaces (&header->lumps[LUMP_FACES], bsp2);
+    Mod_LoadMarksurfaces (&header->lumps[LUMP_MARKSURFACES], bsp2);
+    Mod_LoadVisibility (&header->lumps[LUMP_VISIBILITY]);
+    Mod_LoadLeafs (&header->lumps[LUMP_LEAFS], bsp2);
+    Mod_LoadNodes (&header->lumps[LUMP_NODES], bsp2);
+    Mod_LoadClipnodes (&header->lumps[LUMP_CLIPNODES], bsp2);
     Mod_LoadEntities (&header->lumps[LUMP_ENTITIES], brush_fileinfo);	// 2001-09-12 .ENT support by Maddes
     Mod_LoadSubmodels (&header->lumps[LUMP_MODELS]);
 
