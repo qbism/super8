@@ -633,12 +633,16 @@ void D_DrawSpans16_C (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll =
     while ( (pspan = pspan->pnext) != NULL);
 }
 
-//qb: fence textures
-
+//qb: fence textures  //fencemap[fencepix*256 + pdest[i]];
+#define WRITEFENCE(i) {    fencepix = *(pbase + (s >> 16) + (t >> 16) * cw_local);     \
+            if (pz[i] <= (izi >> 16) && fencepix != 255){ pdest[i] = fencepix; pz[i] = (izi >> 16);}  \
+            izi += izistep;  s += sstep;  t += tstep;    }
 void D_DrawSpans16_Fence (espan_t *pspan)
 {
+    static byte fencepix;
     cw_local = cachewidth;
     pbase = (byte *)cacheblock;
+
 
     //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
     sdivzstepu = d_sdivzstepu * 16;
@@ -712,72 +716,24 @@ void D_DrawSpans16_Fence (espan_t *pspan)
             tstep = (tnext - t) >> 4;
             //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
-            // mankrip - begin
             pdest += 16;
             pz += 16;
-            if (pz[-16] <= (izi >> 16)) pdest[-16] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-16]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-15] <= (izi >> 16)) pdest[-15] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-15]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-14] <= (izi >> 16)) pdest[-14] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-14]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-13] <= (izi >> 16)) pdest[-13] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-13]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-12] <= (izi >> 16)) pdest[-12] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-12]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-11] <= (izi >> 16)) pdest[-11] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-11]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-10] <= (izi >> 16)) pdest[-10] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-10]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -9] <= (izi >> 16)) pdest[ -9] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -9]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -8] <= (izi >> 16)) pdest[ -8] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -8]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -7] <= (izi >> 16)) pdest[ -7] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -7]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -6] <= (izi >> 16)) pdest[ -6] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -6]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -5] <= (izi >> 16)) pdest[ -5] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -5]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -4] <= (izi >> 16)) pdest[ -4] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -4]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -3] <= (izi >> 16)) pdest[ -3] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -3]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -2] <= (izi >> 16)) pdest[ -2] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -2]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -1] <= (izi >> 16)) pdest[ -1] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -1]];
-            izi += izistep;
-            // mankrip - end
+            WRITEFENCE(-16);
+            WRITEFENCE(-15);
+            WRITEFENCE(-14);
+            WRITEFENCE(-13);
+            WRITEFENCE(-12);
+            WRITEFENCE(-11);
+            WRITEFENCE(-10);
+            WRITEFENCE(-9);
+            WRITEFENCE(-8);
+            WRITEFENCE(-7);
+            WRITEFENCE(-6);
+            WRITEFENCE(-5);
+            WRITEFENCE(-4);
+            WRITEFENCE(-3);
+            WRITEFENCE(-2);
+            WRITEFENCE(-1);
 
             s = snext;
             t = tnext;
@@ -824,84 +780,23 @@ void D_DrawSpans16_Fence (espan_t *pspan)
             pz += spancount;
             switch (spancount)
             {
-            case 16:
-                if (pz[-16] <= (izi >> 16)) pdest[-16] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-16]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case 15:
-                if (pz[-15] <= (izi >> 16)) pdest[-15] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-15]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case 14:
-                if (pz[-14] <= (izi >> 16)) pdest[-14] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-14]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case 13:
-                if (pz[-13] <= (izi >> 16)) pdest[-13] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-13]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case 12:
-                if (pz[-12] <= (izi >> 16)) pdest[-12] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-12]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case 11:
-                if (pz[-11] <= (izi >> 16)) pdest[-11] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-11]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case 10:
-                if (pz[-10] <= (izi >> 16)) pdest[-10] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[-10]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case  9:
-                if (pz[ -9] <= (izi >> 16)) pdest[ -9] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -9]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case  8:
-                if (pz[ -8] <= (izi >> 16)) pdest[ -8] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -8]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case  7:
-                if (pz[ -7] <= (izi >> 16)) pdest[ -7] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -7]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case  6:
-                if (pz[ -6] <= (izi >> 16)) pdest[ -6] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -6]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case  5:
-                if (pz[ -5] <= (izi >> 16)) pdest[ -5] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -5]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case  4:
-                if (pz[ -4] <= (izi >> 16)) pdest[ -4] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -4]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case  3:
-                if (pz[ -3] <= (izi >> 16)) pdest[ -3] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -3]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case  2:
-                if (pz[ -2] <= (izi >> 16)) pdest[ -2] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -2]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
-            case  1:
-                if (pz[ -1] <= (izi >> 16)) pdest[ -1] = fencemap[*(pbase + (s >> 16) + (t >> 16) * cw_local)*256 + pdest[ -1]];
-                break;
+            case 16: WRITEFENCE0(-16);
+            case 15: WRITEFENCE(-15);
+            case 14: WRITEFENCE(-14);
+            case 13: WRITEFENCE(-13);
+            case 12: WRITEFENCE(-12);
+            case 11: WRITEFENCE(-11);
+            case 10: WRITEFENCE(-10);
+            case  9: WRITEFENCE(-9);
+            case  8: WRITEFENCE(-8);
+            case  7: WRITEFENCE(-7);
+            case  6: WRITEFENCE(-6);
+            case  5: WRITEFENCE(-5);
+            case  4: WRITEFENCE(-4);
+            case  3: WRITEFENCE(-3);
+            case  2: WRITEFENCE(-2);
+            case  1: WRITEFENCE(-1);
+            break;
             }
         }
         // mankrip - end
