@@ -213,11 +213,6 @@ void D_DrawSurfaces (void)
             {
                 pface = s->data;
                 miplevel = 0;
-                cacheblock = (pixel_t *)
-                             ((byte *)pface->texinfo->texture +
-                              pface->texinfo->texture->offsets[0]);
-                cachewidth = 64;
-
                 if (s->insubmodel)
                 {
                     // FIXME: we don't want to do all this for every polygon!
@@ -235,20 +230,26 @@ void D_DrawSurfaces (void)
                 D_CalcGradients (pface);
                 if (s->flags & SURF_DRAWFENCE) //qb: fence textures
                 {
-                    // FIXME: make this passed in to D_CacheSurface
                     pcurrentcache = D_CacheSurface (pface, miplevel);
                     cacheblock = (pixel_t *)pcurrentcache->data;
                     cachewidth = pcurrentcache->width;
                     D_DrawSpans16_Fence(s->spans);
                 }
-                else if (s->flags & SURF_DRAWTURB) //qb: add non-turbulent for glass
-                    Turbulent8 (s->spans);
-                else if(r_glassalpha.value <= .43)
-                    D_DrawSpans16_Blend(s->spans);
-                else if(r_glassalpha.value <= .60)
-                    D_DrawSpans16_Blend50(s->spans);
                 else
-                    D_DrawSpans16_BlendBackwards(s->spans);
+                {
+                    cacheblock = (pixel_t *)
+                                 ((byte *)pface->texinfo->texture +
+                                  pface->texinfo->texture->offsets[0]);
+                    cachewidth = 64;
+                    if (s->flags & SURF_DRAWTURB) //qb: add non-turbulent for glass
+                        Turbulent8 (s->spans);
+                    else if(r_glassalpha.value <= .43)
+                        D_DrawSpans16_Blend(s->spans);
+                    else if(r_glassalpha.value <= .60)
+                        D_DrawSpans16_Blend50(s->spans);
+                    else
+                        D_DrawSpans16_BlendBackwards(s->spans);
+                }
 
                 if (!r_drawwater) // Manoel Kasimier - translucent water
                     D_DrawZSpans (s->spans);
@@ -297,7 +298,7 @@ void D_DrawSurfaces (void)
                 D_DrawZSpans (s->spans);
             }
             // Manoel Kasimier - skyboxes - end
-            else
+            else if (!(s->flags & SURF_DRAWTRANSLUCENT))
             {
                 if (s->insubmodel)
                 {
