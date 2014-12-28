@@ -184,10 +184,8 @@ void D_DrawSurfaces (void)
 
             r_drawnpolycount++;
 
-            // Manoel Kasimier - translucent water - begin
-            if (r_drawwater && (!(s->flags & SURF_DRAWTRANSLUCENT)))
+            if (r_drawwater && !(s->flags & SURF_DRAWTRANSLUCENT)) // Manoel Kasimier - translucent water
                 continue;
-            // Manoel Kasimier - translucent water - end
 
             d_zistepu = s->d_zistepu;
             d_zistepv = s->d_zistepv;
@@ -235,18 +233,22 @@ void D_DrawSurfaces (void)
                 }
 
                 D_CalcGradients (pface);
-                if (s->flags & SURF_DRAWTURB) //qb: add non-turbulent for glass
-                    Turbulent8 (s->spans);
-                else
+                if (s->flags & SURF_DRAWFENCE) //qb: fence textures
                 {
-                    if(r_glassalpha.value <= .43)
-                        D_DrawSpans16_Blend(s->spans);
-                    else if(r_glassalpha.value <= .60)
-                        D_DrawSpans16_Blend50(s->spans);
-                    else
-                        D_DrawSpans16_BlendBackwards(s->spans);
+                    // FIXME: make this passed in to D_CacheSurface
+                    pcurrentcache = D_CacheSurface (pface, miplevel);
+                    cacheblock = (pixel_t *)pcurrentcache->data;
+                    cachewidth = pcurrentcache->width;
+                    D_DrawSpans16_Fence(s->spans);
                 }
-
+                else if (s->flags & SURF_DRAWTURB) //qb: add non-turbulent for glass
+                    Turbulent8 (s->spans);
+                else if(r_glassalpha.value <= .43)
+                    D_DrawSpans16_Blend(s->spans);
+                else if(r_glassalpha.value <= .60)
+                    D_DrawSpans16_Blend50(s->spans);
+                else
+                    D_DrawSpans16_BlendBackwards(s->spans);
 
                 if (!r_drawwater) // Manoel Kasimier - translucent water
                     D_DrawZSpans (s->spans);
@@ -311,8 +313,7 @@ void D_DrawSurfaces (void)
                 }
 
                 pface = s->data;
-                miplevel = D_MipLevelForScale (s->nearzi * scale_for_mip
-                                               * pface->texinfo->mipadjust);
+                miplevel = D_MipLevelForScale (s->nearzi * scale_for_mip * pface->texinfo->mipadjust);
 
                 // FIXME: make this passed in to D_CacheSurface
                 pcurrentcache = D_CacheSurface (pface, miplevel);
@@ -323,7 +324,6 @@ void D_DrawSurfaces (void)
                 D_CalcGradients (pface);
 
                 (*d_drawspans) (s->spans);
-
                 D_DrawZSpans (s->spans);
 
                 if (s->insubmodel)

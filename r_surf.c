@@ -80,7 +80,7 @@ extern cvar_t r_stainfadeamount;
 #define MAX_LIGHTMAPS		512 //qb: was 64
 
 typedef byte stmap;
-stmap stainmaps[MAX_LIGHTMAPS*LMBLOCK_WIDTH*LMBLOCK_HEIGHT];	//added to lightmap for added (hopefully) speed.
+stmap stainmaps[MAX_LIGHTMAPS*LMBLOCK_WIDTH*LMBLOCK_HEIGHT];	//added to lightmap for speed.
 int			allocated[MAX_LIGHTMAPS][LMBLOCK_WIDTH];
 int			last_lightmap_allocated; //qb: from QS- ericw -- optimization: remember the index of the last lightmap AllocBlock stored a surf in
 
@@ -344,7 +344,8 @@ int SWAllocBlock (int w, int h, int *x, int *y)
 		return texnum;
 	}
 
-	/*Sys_Error qb: do we care? Con_DPrintf */ Sys_Error("AllocBlock: full at %i %i x %i", last_lightmap_allocated, w, h);
+    //qb: unusual "fixes" to get bsp2 on the screen = bsp2hack
+	//Sys_Error("AllocBlock: full at %i %i x %i", last_lightmap_allocated, w, h); //qb: remove for bsp2hack
 	return 0; //johnfitz -- shut up compiler
 }
 
@@ -354,7 +355,7 @@ void R_CreateSurfaceLightmap (msurface_t *surf)
 {
     int		smax, tmax;
 
-    if (surf->flags & (SURF_DRAWSKY|SURF_DRAWTURB))
+    if (surf->flags & (SURF_DRAWSKY|SURF_DRAWTURB|SURF_DRAWTRANSLUCENT))
         return;
     if (surf->texinfo->flags & (TEX_SPECIAL))
         return;
@@ -362,8 +363,7 @@ void R_CreateSurfaceLightmap (msurface_t *surf)
     smax = (surf->extents[0]>>4)+1;
     tmax = (surf->extents[1]>>4)+1;
 
-    if (smax > 0 && tmax > 0) //qb: fixme: ? bsp2 hack
-        surf->lightmaptexturenum = SWAllocBlock (smax, tmax, &surf->light_s, &surf->light_t);
+    surf->lightmaptexturenum = SWAllocBlock (smax, tmax, &surf->light_s, &surf->light_t);
 }
 
 void R_BuildLightmaps(void)

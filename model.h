@@ -85,11 +85,13 @@ typedef struct texture_s
 #define	SURF_PLANEBACK		2
 #define	SURF_DRAWSKY		4
 #define SURF_DRAWSPRITE		8
-#define SURF_DRAWTURB		0x10
-#define SURF_DRAWTILED		0x20
-#define SURF_DRAWBACKGROUND	0x40
-#define SURF_DRAWSKYBOX		0x80		// Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
-#define SURF_DRAWTRANSLUCENT	0x100		// Manoel Kasimier - translucent water
+#define SURF_DRAWTURB		16
+#define SURF_DRAWTILED		32
+#define SURF_DRAWBACKGROUND	64
+#define SURF_DRAWSKYBOX		128		// Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
+#define SURF_DRAWTRANSLUCENT	256		// Manoel Kasimier - translucent water
+#define SURF_DRAWFENCE		512   //qb: textures with holes
+
 
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
 typedef struct
