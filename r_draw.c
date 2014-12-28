@@ -144,7 +144,7 @@ void R_InitSkyBox (void)
 	loadmodel->numedges += 12;
 	r_skysurfedges = loadmodel->surfedges + loadmodel->numsurfedges;
 	loadmodel->numsurfedges += 24;
-	/*if (loadmodel->numsurfaces > MAX_MAP_FACES
+	/*qb: remove for bsp2hack  if (loadmodel->numsurfaces > MAX_MAP_FACES
 		|| loadmodel->numvertexes > MAX_MAP_VERTS
 		|| loadmodel->numedges > MAX_MAP_EDGES)
 			Host_EndGame ("InitSkyBox: map overflow");*/

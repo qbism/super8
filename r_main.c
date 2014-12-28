@@ -500,13 +500,47 @@ void GrabAlphamap (void) //qb: based on Engoo
     {
         for (c=0 ; c<256 ; c++)
         {
-            r = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
-            g = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
-            b = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
+            if (l == 255 || c == 255)
+                *colmap++ = 255;
+            else
+            {
+                r = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
+                g = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
+                b = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
+                *colmap++ =BestColor(r,g,b, 0, 254); // High quality color tables get best color
+            }
+        }
+    }
+}
+
+void GrabFencemap (void) //qb: fence textures
+{
+    int c,l, r,g,b;
+    byte *colmap;
+
+    colmap = fencemap;
+
+    for (l=0; l<256; l++)
+    {
+        for (c=0 ; c<256 ; c++)
+        {
+            if (l == 255)
+            {
+                r= host_basepal[c*3];
+                g= host_basepal[c*3+1];
+                b= host_basepal[c*3+2];
+            }
+            else
+            {
+                r= host_basepal[l*3];
+                g= host_basepal[l*3+1];
+                b= host_basepal[l*3+2];
+            }
             *colmap++ =BestColor(r,g,b, 0, 254); // High quality color tables get best color
         }
     }
 }
+
 
 void GrabAlpha50map (void) //qb: 50% / 50% alpha
 {
@@ -519,10 +553,15 @@ void GrabAlpha50map (void) //qb: 50% / 50% alpha
     {
         for (c=0 ; c<256 ; c++)
         {
-            r = (int)(((float)host_basepal[c*3]*0.5)  + ((float)host_basepal[l*3] *0.5));
-            g = (int)(((float)host_basepal[c*3+1]*0.5) + ((float)host_basepal[l*3+1] *0.5));
-            b = (int)(((float)host_basepal[c*3+2]*0.5)  + ((float)host_basepal[l*3+2] *0.5));
-            *colmap++ =BestColor(r,g,b, 0, 254); // High quality color tables get best color
+            if (l == 255 || c == 255)
+                *colmap++ = 255;
+            else
+            {
+                r = (int)(((float)host_basepal[c*3]*0.5)  + ((float)host_basepal[l*3] *0.5));
+                g = (int)(((float)host_basepal[c*3+1]*0.5) + ((float)host_basepal[l*3+1] *0.5));
+                b = (int)(((float)host_basepal[c*3+2]*0.5)  + ((float)host_basepal[l*3+2] *0.5));
+                *colmap++ =BestColor(r,g,b, 0, 254); // High quality color tables get best color
+            }
         }
     }
 }
@@ -536,13 +575,18 @@ void GrabFogmap (void) //qb: better fog blending from engoo
     {
         for (c=0 ; c<256 ; c++)
         {
-            r = host_basepal[c*3] + host_basepal[l*3];
-            g = host_basepal[c*3+1] + host_basepal[l*3+1];
-            b = host_basepal[c*3+2] + host_basepal[l*3+2];
-            r = bound(0,r,254);
-            g = bound(0,g,254);
-            b = bound(0,b,254);
-            *colmap++ = palmap[r>>2][g>>2][b>>2]; //qb: from engoo.  looks better for fog
+            if (l == 255 || c == 255)
+                *colmap++ = 255;
+            else
+            {
+                r = host_basepal[c*3] + host_basepal[l*3];
+                g = host_basepal[c*3+1] + host_basepal[l*3+1];
+                b = host_basepal[c*3+2] + host_basepal[l*3+2];
+                r = bound(0,r,254);
+                g = bound(0,g,254);
+                b = bound(0,b,254);
+                *colmap++ = palmap[r>>2][g>>2][b>>2]; //qb: from engoo.  looks better for fog
+            }
         }
     }
 }
@@ -598,10 +642,16 @@ void GrabAdditivemap (void) //qb: based on Engoo
     {
         for (c=0 ; c<256 ; c++)
         {
-            r = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
-            g = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
-            b = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
-            *colmap++ =BestColor(r,g,b, 0, 254);
+
+            if (l == 255 || c == 255)
+                *colmap++ = 255;
+            else
+            {
+                r = (int)(((float)host_basepal[c*3]*ae)  + ((float)host_basepal[l*3] *ay));
+                g = (int)(((float)host_basepal[c*3+1]*ae) + ((float)host_basepal[l*3+1] *ay));
+                b = (int)(((float)host_basepal[c*3+2]*ae)  + ((float)host_basepal[l*3+2] *ay));
+                *colmap++ =BestColor(r,g,b, 0, 254);
+            }
         }
     }
 }
@@ -652,11 +702,16 @@ void GrabColormap (void)  //qb: fixed, was a little screwy
         }
         for ( ; c<256 ; c++)
         {
-            red = (int)host_basepal[c*3];
-            green = (int)host_basepal[c*3+1];
-            blue = (int)host_basepal[c*3+2];
+            if (c == 255 || c == 255)
+                *colmap++ = 255;
+            else
+            {
+                red = (int)host_basepal[c*3];
+                green = (int)host_basepal[c*3+1];
+                blue = (int)host_basepal[c*3+2];
 
-            *colmap++ = BestColor(red,green,blue, 0, 254);
+                *colmap++ = BestColor(red,green,blue, 0, 254);
+            }
         }
     }
 }

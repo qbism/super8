@@ -523,13 +523,13 @@ Mod_LoadLighting
 */
 void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
 {
-	//int j;
+    //int j;
     int		i, k;
     float   normalize, r, g, b;
-	//float wlout;
+    //float wlout;
     byte	*out, *data;
     //byte     *outvalue;
-	//byte *lout;
+    //byte *lout;
     char	litname[1024];
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
 
@@ -542,42 +542,42 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
     memcpy (loadmodel->lightdata, mod_base + l->fileofs, l->filelen);
     if (cls.state != ca_dedicated)
     {
-	strcpy(litname, loadmodel->name);
-    COM_StripExtension(loadmodel->name, litname);
+        strcpy(litname, loadmodel->name);
+        COM_StripExtension(loadmodel->name, litname);
         COM_DefaultExtension(litname, ".lit");    //qb: indexed colored
         fileinfo = COM_LoadFile(litname,0); //qb: don't load into hunk
         if (fileinfo && ((l->filelen*3 +8) == fileinfo->filelen))
-    {
+        {
             Con_DPrintf("%s loaded from %s\n", litname, fileinfo->path->pack ? fileinfo->path->pack->filename : fileinfo->path->filename);
 
             data = fileinfo->data;
-        if (data[0] == 'Q' && data[1] == 'L' && data[2] == 'I' && data[3] == 'T')
-        {
-           i = LittleLong(((int *)data)[1]);
-            if (i == 1)
+            if (data[0] == 'Q' && data[1] == 'L' && data[2] == 'I' && data[3] == 'T')
             {
+                i = LittleLong(((int *)data)[1]);
+                if (i == 1)
+                {
                     loadmodel->colordata = Hunk_AllocName (l->filelen+4, "modcolor"); //qb: need some padding for dither
-                k=8;
-                out = loadmodel->colordata;
+                    k=8;
+                    out = loadmodel->colordata;
                     //outvalue = loadmodel->lightdata;
                     while(k <= fileinfo->filelen)
-                {
-                    r = data[k++];
-                    g = data[k++];
-                    b = data[k++];
-                    normalize = sqrt(r*r + g*g + b*b)+1.0;
-                    *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
+                    {
+                        r = data[k++];
+                        g = data[k++];
+                        b = data[k++];
+                        normalize = sqrt(r*r + g*g + b*b)+1.0;
+                        *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
                         //*outvalue++ = (r+g+b)/3;
+                    }
+                    //  Q_free(fileinfo);
+                    return;
                 }
-                  //  Q_free(fileinfo);
-                return;
+                else
+                    Con_Printf("Unknown .LIT file version (%d)\n", i);
             }
             else
-                Con_Printf("Unknown .LIT file version (%d)\n", i);
+                Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
         }
-        else
-            Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
-    }
         //qb: no lit.  Still need something for colored dynamic lights.
         loadmodel->colordata = Hunk_AllocName (l->filelen+3, "modcolor"); //qb: need some padding
         memset (loadmodel->colordata, 1, l->filelen+3);  //qb: fill w/ color index
@@ -599,7 +599,7 @@ void Mod_LoadVisibility (lump_t *l)
         return;
     }
     loadmodel->visdata = Hunk_AllocName ( l->filelen, "loadvis");
-     memcpy (loadmodel->visdata, mod_base + l->fileofs, l->filelen);
+    memcpy (loadmodel->visdata, mod_base + l->fileofs, l->filelen);
 }
 
 
@@ -731,7 +731,7 @@ void Mod_LoadEdges (lump_t *l, int bsp2)
 {
     medge_t *out;
     int 	i, count;
- 
+
     if (bsp2)
     {
         dledge_t *in = (dledge_t *)(mod_base + l->fileofs);
@@ -755,20 +755,20 @@ void Mod_LoadEdges (lump_t *l, int bsp2)
     {
         dsedge_t *in = (dsedge_t *)(mod_base + l->fileofs);
 
-    if (l->filelen % sizeof(*in))
-        Sys_Error ("Mod_LoadEdges: funny lump size in %s",loadmodel->name);
-    count = l->filelen / sizeof(*in);
+        if (l->filelen % sizeof(*in))
+            Sys_Error ("Mod_LoadEdges: funny lump size in %s",loadmodel->name);
+        count = l->filelen / sizeof(*in);
         out = Hunk_AllocName ( (count + 13) * sizeof(*out), "loadedge");// Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic
 
-    loadmodel->edges = out;
-    loadmodel->numedges = count;
+        loadmodel->edges = out;
+        loadmodel->numedges = count;
 
-    for ( i=0 ; i<count ; i++, in++, out++)
-    {
-        out->v[0] = (unsigned short)LittleShort(in->v[0]);
-        out->v[1] = (unsigned short)LittleShort(in->v[1]);
+        for ( i=0 ; i<count ; i++, in++, out++)
+        {
+            out->v[0] = (unsigned short)LittleShort(in->v[0]);
+            out->v[1] = (unsigned short)LittleShort(in->v[1]);
+        }
     }
-}
 }
 
 /*
@@ -901,7 +901,17 @@ void Mod_FlagFaces ( msurface_t *out)
         return;
     }
 
-    if (!Q_strncmp(out->texinfo->texture->name,"*",1))		// turbulent
+    if (out->texinfo->texture->name[0] == '{')	// fence
+    {
+        out->flags |= (SURF_DRAWFENCE | SURF_DRAWTRANSLUCENT);
+        r_foundwater = true; //qb: in case r_wateralpha = 1, still want to draw fence.
+
+        //editorial: since the q1 map format lacks surface flags (sigh...) alpha could be encoded per-surface in the texture name.
+        //really thinking about hard-coding "water" 0.50,  "slime" 0.66, and "glass" 0.33 or something like that.
+        return;
+    }
+
+    if (out->texinfo->texture->name[0] == '*')		// turbulent
     {
         if (!Q_strncmp(out->texinfo->texture->name, "*glass",6))  //qb:  glass is not turbulent
         {
@@ -949,11 +959,11 @@ void Mod_LoadFaces (lump_t *l, int bsp2)
     }
     else
     {
-    ins = (void *)(mod_base + l->fileofs);
+        ins = (void *)(mod_base + l->fileofs);
         inl = NULL;
-    if (l->filelen % sizeof(*ins))
-        Sys_Error ("Mod_LoadFaces: funny lump size in %s",loadmodel->name);
-    count = l->filelen / sizeof(*ins);
+        if (l->filelen % sizeof(*ins))
+            Sys_Error ("Mod_LoadFaces: funny lump size in %s",loadmodel->name);
+        count = l->filelen / sizeof(*ins);
     }
     out = Hunk_AllocName ( (count+6)*sizeof(*out), "loadfaces");// Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic
 
@@ -975,11 +985,11 @@ void Mod_LoadFaces (lump_t *l, int bsp2)
             inl++;
         }
         else
-    {
-        out->firstedge = LittleLong(ins->firstedge);
-        out->numedges = LittleShort(ins->numedges);
-        planenum = LittleShort(ins->planenum);
-        side = LittleShort(ins->side);
+        {
+            out->firstedge = LittleLong(ins->firstedge);
+            out->numedges = LittleShort(ins->numedges);
+            planenum = LittleShort(ins->planenum);
+            side = LittleShort(ins->side);
             texinfon = LittleShort (ins->texinfo);
             for (i=0 ; i<MAXLIGHTMAPS ; i++)
                 out->styles[i] = ins->styles[i];
@@ -1085,8 +1095,8 @@ void Mod_LoadNodes_S (lump_t *l)
             }
             //johnfitz
         }
-        }
     }
+}
 
 void Mod_LoadNodes_L1 (lump_t *l)
 {
@@ -1381,9 +1391,9 @@ void Mod_LoadClipnodes (lump_t *l, int bsp2)
     {
         ins = (dsclipnode_t *)(mod_base + l->fileofs);
         inl = NULL;
-    if (l->filelen % sizeof(*ins))
-        Sys_Error ("Mod_LoadClipnodes: funny lump size in %s",loadmodel->name);
-    count = l->filelen / sizeof(*ins);
+        if (l->filelen % sizeof(*ins))
+            Sys_Error ("Mod_LoadClipnodes: funny lump size in %s",loadmodel->name);
+        count = l->filelen / sizeof(*ins);
     }
     out = Hunk_AllocName ( count*sizeof(*out), "loadclipnodes");
     loadmodel->clipnodes = out;
@@ -1431,22 +1441,22 @@ void Mod_LoadClipnodes (lump_t *l, int bsp2)
     }
     else
     {
-    for (i=0 ; i<count ; i++, out++, ins++)
-    {
-        out->planenum = LittleLong(ins->planenum);
+        for (i=0 ; i<count ; i++, out++, ins++)
+        {
+            out->planenum = LittleLong(ins->planenum);
 
             //johnfitz -- bounds check
-        if (out->planenum < 0 || out->planenum >= loadmodel->numplanes)
-            Host_Error ("Mod_LoadClipnodes: planenum out of bounds");
+            if (out->planenum < 0 || out->planenum >= loadmodel->numplanes)
+                Host_Error ("Mod_LoadClipnodes: planenum out of bounds");
             //johnfitz
 
             //johnfitz -- support clipnodes > 32k
-        out->children[0] = (unsigned short)LittleShort(ins->children[0]);
-        out->children[1] = (unsigned short)LittleShort(ins->children[1]);
-        if (out->children[0] >= count)
-            out->children[0] -= 65536;
-        if (out->children[1] >= count)
-            out->children[1] -= 65536;
+            out->children[0] = (unsigned short)LittleShort(ins->children[0]);
+            out->children[1] = (unsigned short)LittleShort(ins->children[1]);
+            if (out->children[0] >= count)
+                out->children[0] -= 65536;
+            if (out->children[1] >= count)
+                out->children[1] -= 65536;
             //johnfitz
         }
     }
@@ -1526,23 +1536,23 @@ void Mod_LoadMarksurfaces (lump_t *l, int bsp2)
     {
         short *in = (short *)(mod_base + l->fileofs);
 
-    if (l->filelen % sizeof(*in))
+        if (l->filelen % sizeof(*in))
             Host_Error ("Mod_LoadMarksurfaces: funny lump size in %s",loadmodel->name);
 
-    count = l->filelen / sizeof(*in);
+        count = l->filelen / sizeof(*in);
         out = Hunk_AllocName ( count*sizeof(*out), "marksurfaces");
 
-    loadmodel->marksurfaces = out;
-    loadmodel->nummarksurfaces = count;
+        loadmodel->marksurfaces = out;
+        loadmodel->nummarksurfaces = count;
 
-    for ( i=0 ; i<count ; i++)
-    {
+        for ( i=0 ; i<count ; i++)
+        {
             j = (unsigned short)LittleShort(in[i]); //johnfitz -- explicit cast as unsigned short
-        if (j >= loadmodel->numsurfaces)
+            if (j >= loadmodel->numsurfaces)
                 Sys_Error ("Mod_LoadMarksurfaces: bad surface number");
-        out[i] = loadmodel->surfaces + j;
+            out[i] = loadmodel->surfaces + j;
+        }
     }
-}
 }
 
 /*
@@ -1694,7 +1704,7 @@ void Mod_LoadBrushModel (model_t *mod, void *buffer, loadedfile_t *brush_fileinf
 
     switch(i)
     {
-	case BSPVERSION:
+    case BSPVERSION:
         bsp2 = 0;
         break;
     case BSP2VERSION_2PSB:

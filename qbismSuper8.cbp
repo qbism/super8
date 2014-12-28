@@ -48,7 +48,7 @@
 					<Add option="-fomit-frame-pointer" />
 					<Add option="-O2" />
 					<Add option="-m32" />
-					<Add option="-DzzzzzASM386" />
+					<Add option="-DASM386" />
 					<Add option="-DWIN32" />
 					<Add option="-DNDEBUG" />
 					<Add option="-D_WINDOWS" />

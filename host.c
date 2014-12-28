@@ -64,7 +64,7 @@ jmp_buf 	host_abortserver;
 
 byte		*host_basepal;
 byte		*host_colormap;//qb:
-byte        *alphamap, *alpha50map, *additivemap, *fogmap; //qb: moved here
+byte        *alphamap, *alpha50map, *additivemap, *fogmap, *fencemap; //qb: moved here
 byte        *lightcolormap; //qb:
 
 cvar_t	r_skyalpha = {"r_skyalpha","0.1", "r_skyalpha[0.0 to 1.0] Sky layer transparency."}; //0.6 Manoel Kasimier - translucent sky
@@ -966,6 +966,8 @@ void Palette_Init (void) //qb: idea from Engoo
     }
     alphamap = Q_malloc(256*256, "alphamap");
     GrabAlphamap();
+    fencemap = Q_malloc(256*256, "fencemap");
+    GrabFencemap();
     alpha50map = Q_malloc(256*256, "alpha50map");
     GrabAlpha50map();
     fogmap = Q_malloc(256*256, "fogmap");
