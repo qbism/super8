@@ -355,7 +355,7 @@ void R_CreateSurfaceLightmap (msurface_t *surf)
 {
     int		smax, tmax;
 
-    if (surf->flags & (SURF_DRAWSKY|SURF_DRAWTURB|SURF_DRAWTRANSLUCENT))
+    if (surf->flags & (SURF_DRAWSKY|SURF_DRAWTURB))
         return;
     if (surf->texinfo->flags & (TEX_SPECIAL))
         return;

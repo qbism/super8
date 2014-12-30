@@ -91,6 +91,9 @@ typedef struct texture_s
 #define SURF_DRAWSKYBOX		128		// Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 #define SURF_DRAWTRANSLUCENT	256		// Manoel Kasimier - translucent water
 #define SURF_DRAWFENCE		512   //qb: textures with holes
+#define SURF_DRAWGLASS33	1024   //qb: glass (non-turbulent transparent)
+#define SURF_DRAWGLASS50	2048   //qb: glass (non-turbulent transparent)
+#define SURF_DRAWGLASS66	4096   //qb: glass (non-turbulent transparent)
 
 
 // !!! if this is changed, it must be changed in asm_draw.h too !!!

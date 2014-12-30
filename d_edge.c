@@ -150,6 +150,7 @@ D_DrawSurfaces
 void D_DrawSurfaces (void)
 {
     surf_t			*s;
+    espan_t			*pspans;
     msurface_t		*pface;
     surfcache_t		*pcurrentcache;
     vec3_t			world_transformed_modelorg;
@@ -164,28 +165,32 @@ void D_DrawSurfaces (void)
     {
         for (s = &surfaces[1] ; s<surface_p ; s++)
         {
-            if (!s->spans)
+            if (! (pspans = s->spans))
                 continue;
+            // mankrip - begin
+            if (r_overdraw && (s->flags & SURF_DRAWBACKGROUND)) // shouldn't overdraw
+                continue;
+            // mankrip - end
 
             d_zistepu = s->d_zistepu;
             d_zistepv = s->d_zistepv;
             d_ziorigin = s->d_ziorigin;
 
             D_DrawSolidSurface (s, (int)s->data & 0xFF);
-            D_DrawZSpans (s->spans);
+            D_DrawZSpans (pspans); // mankrip - edited
         }
     }
     else
     {
         for (s = &surfaces[1] ; s<surface_p ; s++)
         {
-            if (!s->spans)
+            if (! (pspans = s->spans))
+                continue;
+
+            if (r_overdraw && !(s->flags & SURF_DRAWTRANSLUCENT))
                 continue;
 
             r_drawnpolycount++;
-
-            if (r_drawwater && !(s->flags & SURF_DRAWTRANSLUCENT)) // Manoel Kasimier - translucent water
-                continue;
 
             d_zistepu = s->d_zistepu;
             d_zistepv = s->d_zistepv;
@@ -193,9 +198,8 @@ void D_DrawSurfaces (void)
 
             if (s->flags & SURF_DRAWSKY)
             {
-                D_DrawSkyScans8 (s->spans);
-                //	} // Manoel Kasimier - skyboxes
-                D_DrawZSpans (s->spans);
+                D_DrawSkyScans8 (pspans); // mankrip
+                D_DrawZSpans (pspans); // mankrip - edited
             }
 
             else if (s->flags & SURF_DRAWBACKGROUND)
@@ -207,9 +211,9 @@ void D_DrawSurfaces (void)
                 d_ziorigin = -0.9;
 
                 D_DrawSolidSurface (s, (int)r_clearcolor.value & 0xFF);
-                D_DrawZSpans (s->spans);
+                D_DrawZSpans (pspans); // mankrip - edited
             }
-            else if ((s->flags & SURF_DRAWTURB) || (s->flags & SURF_DRAWTRANSLUCENT))  //qb: do glass
+            else if (s->flags & (SURF_DRAWTURB|SURF_DRAWTRANSLUCENT))
             {
                 pface = s->data;
                 miplevel = 0;
@@ -217,41 +221,37 @@ void D_DrawSurfaces (void)
                 {
                     // FIXME: we don't want to do all this for every polygon!
                     // TODO: store once at start of frame
-                    currententity = s->entity;	//FIXME: make this passed in to
-                    // R_Rots->spansateBmodel ()
-                    VectorSubtract (r_origin, currententity->origin,
-                                    local_modelorg);
+                    currententity = s->entity;	//FIXME: make this passed in to R_RotateBmodel ()
+                    VectorSubtract (r_origin, currententity->origin, local_modelorg);
                     TransformVector (local_modelorg, transformed_modelorg);
 
-                    R_RotateBmodel ();	// FIXME: don't mess with the frustum,
-                    // make entity passed in
+                    R_RotateBmodel ();	// FIXME: don't mess with the frustum, make entity passed in
                 }
-
                 D_CalcGradients (pface);
-                if (s->flags & SURF_DRAWFENCE) //qb: fence textures
+
+                if (s->flags & SURF_DRAWTURB)
+                {
+                    cacheblock = (pixel_t *) ((byte *)pface->texinfo->texture + pface->texinfo->texture->offsets[0]);
+                    cachewidth = 64;
+                    Turbulent8 (pspans);
+                }
+                else
                 {
                     pcurrentcache = D_CacheSurface (pface, miplevel);
                     cacheblock = (pixel_t *)pcurrentcache->data;
                     cachewidth = pcurrentcache->width;
-                    D_DrawSpans16_Fence(s->spans);
-                }
-                else
-                {
-                    cacheblock = (pixel_t *)
-                                 ((byte *)pface->texinfo->texture +
-                                  pface->texinfo->texture->offsets[0]);
-                    cachewidth = 64;
-                    if (s->flags & SURF_DRAWTURB) //qb: add non-turbulent for glass
-                        Turbulent8 (s->spans);
-                    else if(r_glassalpha.value <= .43)
-                        D_DrawSpans16_Blend(s->spans);
-                    else if(r_glassalpha.value <= .60)
-                        D_DrawSpans16_Blend50(s->spans);
-                    else
-                        D_DrawSpans16_BlendBackwards(s->spans);
-                }
 
-                if (!r_drawwater) // Manoel Kasimier - translucent water
+                    if (s->flags & SURF_DRAWFENCE)
+                        D_DrawSpans16_Fence(pspans);
+                    else if (s->flags & SURF_DRAWGLASS33)
+                        D_DrawSpans16_Blend(pspans);
+                    else if (s->flags & SURF_DRAWGLASS50)
+                        D_DrawSpans16_Blend50(pspans);
+                    else if (s->flags & SURF_DRAWGLASS66)
+                        D_DrawSpans16_BlendBackwards(pspans);
+                    else D_DrawSpans16_Blend(pspans); //qb: catchall
+                }
+                if(!r_overdraw)
                     D_DrawZSpans (s->spans);
 
                 if (s->insubmodel)
@@ -266,11 +266,11 @@ void D_DrawSurfaces (void)
                     VectorCopy (base_vpn, vpn);
                     VectorCopy (base_vup, vup);
                     VectorCopy (base_vright, vright);
-                    VectorCopy (base_modelorg, modelorg);
+                    // VectorCopy (base_modelorg, modelorg);
                     R_TransformFrustum ();
                 }
             }
-            // Manoel Kasimier - skyboxes - begin
+            // mankrip - skyboxes - begin
             // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
             else if (s->flags & SURF_DRAWSKYBOX)
             {
@@ -279,7 +279,7 @@ void D_DrawSurfaces (void)
                 pface = s->data;
                 miplevel = 0;
                 cacheblock = (byte *)(r_skypixels[pface->texinfo->texture->offsets[0]]);
-                cachewidth = pface->texinfo->texture->width; // Manoel Kasimier - hi-res skyboxes - edited
+                cachewidth = pface->texinfo->texture->width; // mankrip - hi-res skyboxes - edited
 
                 d_zistepu = s->d_zistepu;
                 d_zistepv = s->d_zistepv;
@@ -295,7 +295,7 @@ void D_DrawSurfaces (void)
                 d_zistepv = 0;
                 d_ziorigin = -0.9;
 
-                D_DrawZSpans (s->spans);
+                D_DrawZSpans (pspans); // mankrip - edited
             }
             // Manoel Kasimier - skyboxes - end
             else if (!(s->flags & SURF_DRAWTRANSLUCENT))
@@ -324,8 +324,8 @@ void D_DrawSurfaces (void)
 
                 D_CalcGradients (pface);
 
-                (*d_drawspans) (s->spans);
-                D_DrawZSpans (s->spans);
+                (*d_drawspans) (pspans);
+                D_DrawZSpans (pspans);
 
                 if (s->insubmodel)
                 {

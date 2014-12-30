@@ -411,7 +411,7 @@ void Turbulent8 (espan_t *pspan)
             r_turb_t = r_turb_t & ((CYCLE<<16)-1);
 
             // Manoel Kasimier - translucent water - begin
-            if (r_drawwater)
+            if (r_overdraw)
             {
   if (r_wateralpha.value <= 0.41) // 33%
                 {
@@ -780,7 +780,7 @@ void D_DrawSpans16_Fence (espan_t *pspan)
             pz += spancount;
             switch (spancount)
             {
-            case 16: WRITEFENCE0(-16);
+            case 16: WRITEFENCE(-16);
             case 15: WRITEFENCE(-15);
             case 14: WRITEFENCE(-14);
             case 13: WRITEFENCE(-13);

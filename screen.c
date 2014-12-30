@@ -927,16 +927,18 @@ void SCR_ScreenShot_f (void)
     int i;
     char	pcxname[80];
     char	checkname[MAX_OSPATH];
+
 //
 // find a file name to save it to
 //
-    Q_strcpy(pcxname,"qbs8_000.pcx"); //qb: screenshots dir
+    Q_strcpy(pcxname,"screenshots/qbs8_000.pcx"); //qb: screenshots dir
     for (i=0 ; i<=999 ; i++)
     {
-        pcxname[5] = i/100 + '0';
-        pcxname[6] = (i/10)%10 + '0';
-        pcxname[7] = i%10 + '0';
+        pcxname[17] = i/100 + '0';
+        pcxname[18] = (i/10)%10 + '0';
+        pcxname[19] = i%10 + '0';
         sprintf (checkname, "%s/%s", com_gamedir, pcxname);
+        COM_CreatePath (checkname);
         if (Sys_FileTime(checkname) == -1)
             break;	// file doesn't exist
     }

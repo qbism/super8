@@ -27,7 +27,7 @@ void R_LoadPalette_f (void); //qb: load an alternate palette
 
 extern short           *d_pzbuffer;
 extern unsigned int     d_zwidth;
-extern int                      d_scantable[MAXHEIGHT];
+extern int              d_scantable[MAXHEIGHT];
 
 void            *colormap;
 //vec3_t                viewlightvec; // Manoel Kasimier - changed alias models lighting - removed
@@ -172,7 +172,6 @@ cvar_t  r_light_style = {"r_light_style", "1", "r_light_style[0/1] Toggle dramat
 // Manoel Kasimier - changed alias models lighting - end
 cvar_t  r_skyfog = {"r_skyfog","0.20", "r_skyfog[0.0 - 1.0] Fog density for sky.", true}; // qb:  Maybe later.  Just make the sky brighter?
 cvar_t  r_wateralpha = {"r_wateralpha","0.50", "r_wateralpha[0.0 - 1.0] Alpha of water surfaces.", true}; // Manoel Kasimier - translucent water
-cvar_t  r_glassalpha = {"r_glassalpha","0.33", "r_glassalpha[0.0 - 1.0] Alpha of glass surfaces.", true}; //qb: *glass
 cvar_t  r_shadowhack = {"r_shadowhack", "0", "r_shadowhack[0/1] Toggle use of darklights to fake entity shadows.", false};
 cvar_t  r_shadowhacksize = {"r_shadowhacksize", "2.7", "r_shadowhacksize[value] Radius factor of fake entity shadows.", true};
 
@@ -308,7 +307,6 @@ void R_Init (void)
     // Manoel Kasimier - changed alias models lighting - end
     Cvar_RegisterVariable (&r_interpolation); // Manoel Kasimier - model interpolation
     Cvar_RegisterVariable (&r_wateralpha); // Manoel Kasimier - translucent water
-    Cvar_RegisterVariable (&r_glassalpha); //qb: *glass
     Cvar_RegisterVariable (&r_skyfog); //qb: skyfog
 //    Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
 //    Cvar_RegisterVariable (&r_sprite_addblend); // Manoel Kasimier
@@ -1055,54 +1053,51 @@ void R_MarkLeaves (void)
     }
 }
 
-
 /*
 =============
 R_DrawEntitiesOnList
 =============
 */
-void R_DrawEntity (int i) // Manoel Kasimier
+void R_DrawASEntity (int i) // Manoel Kasimier
 {
-    if (i != -666) // Manoel Kasimier
         currententity = cl_visedicts[i];
     if (currententity == &cl_entities[cl.viewentity])
         // 2000-01-09 ChaseCam fix by FrikaC  start
-    {
-        if (!chase_active.value)
         {
+        if (!chase_active.value)
+            {
             // 2000-01-09 ChaseCam fix by FrikaC  end
             return;     // don't draw the player
             // 2000-01-09 ChaseCam fix by FrikaC  start
-        }
-        else
-        {
+            }
+            else
+            {
 //                              currententity->angles[0] *= 0.3;
             currententity->angles[0] = 0;
             currententity->angles[2] = 0;
+            }
         }
-    }
     // 2000-01-09 ChaseCam fix by FrikaC  end
 
-    switch (currententity->model->type)
-    {
-    case mod_sprite:
-        VectorCopy (currententity->origin, r_entorigin);
-        VectorSubtract (r_origin, r_entorigin, modelorg);
-        R_DrawSprite ();
-        break;
+        switch (currententity->model->type)
+        {
+        case mod_sprite:
+            VectorCopy (currententity->origin, r_entorigin);
+            VectorSubtract (r_origin, r_entorigin, modelorg);
+            R_DrawSprite ();
+            break;
 
-    case mod_alias:
-        VectorCopy (currententity->origin, r_entorigin);
-        VectorSubtract (r_origin, r_entorigin, modelorg);
-        R_AliasDrawModel (/* &lighting */); // Manoel Kasimier - changed alias models lighting - edited
+        case mod_alias:
+            VectorCopy (currententity->origin, r_entorigin);
+            VectorSubtract (r_origin, r_entorigin, modelorg);
+            R_AliasDrawModel (/* &lighting */); // Manoel Kasimier - changed alias models lighting - edited
+            break;
 
-        break;
-
-    default:
-        break;
+        default:
+            break;
+        }
     }
-}
-void R_DrawEntitiesOnList (void)
+void R_DrawASEntitiesOnList (void)
 {
     int                 i; // Manoel Kasimier
 
@@ -1116,7 +1111,7 @@ void R_DrawEntitiesOnList (void)
         if (cl_visedicts[i]->alpha != ENTALPHA_DEFAULT                  // Manoel Kasimier - QC Alpha
                 || cl_visedicts[i]->effects & (EF_ADDITIVE|EF_SHADOW|EF_CELSHADING))    // Manoel Kasimier
             continue; // skip translucent objects
-        R_DrawEntity (i);
+        R_DrawASEntity (i);
         // Manoel Kasimier - end
     }
     // Manoel Kasimier - EF_CELSHADING - begin
@@ -1142,7 +1137,7 @@ void R_DrawEntitiesOnList (void)
             r_drawoutlines = false;
 #endif
 
-        R_DrawEntity (i);
+        R_DrawASEntity (i);
     }
     r_drawoutlines = false;
     // Manoel Kasimier - EF_CELSHADING - end
@@ -1154,7 +1149,7 @@ void R_DrawEntitiesOnList (void)
         {
             if (!(cl_visedicts[i]->effects & EF_SHADOW))
                 continue;
-            R_DrawEntity (i);
+            R_DrawASEntity (i);
         }
     // Manoel Kasimier - EF_SHADOW - end
     // Manoel Kasimier - QC Alpha - begin
@@ -1165,7 +1160,7 @@ void R_DrawEntitiesOnList (void)
             continue;
         if (cl_visedicts[i]->effects & EF_SHADOW)
             continue;
-        R_DrawEntity (i);
+        R_DrawASEntity (i);
     }
     // Manoel Kasimier - QC Alpha - end
 }
@@ -1452,16 +1447,15 @@ void R_DrawBEntitiesOnList (void)
                     {
                         // not a leaf; has to be clipped to the world BSP
                         r_clipflags = clipflags;
-                        R_DrawSolidClippedSubmodelPolygons (clmodel);
+                        R_DrawSolidClippedSubmodelPolygons (clmodel,currententity->alpha);
                     }
                     else
                     {
                         // falls entirely in one leaf, so we just put all the
                         // edges in the edge list and let 1/z sorting handle
                         // drawing order
-                        R_DrawSubmodelPolygons (clmodel, clipflags);
+                        R_DrawSubmodelPolygons (clmodel, clipflags,currententity->alpha);
                     }
-
                     currententity->topnode = NULL;
                 }
 
@@ -1471,11 +1465,10 @@ void R_DrawBEntitiesOnList (void)
                 VectorCopy (base_vpn, vpn);
                 VectorCopy (base_vup, vup);
                 VectorCopy (base_vright, vright);
-                VectorCopy (base_modelorg, modelorg);
+                //VectorCopy (base_modelorg, modelorg);
                 VectorCopy (oldorigin, modelorg);
                 R_TransformFrustum ();
             }
-
             break;
 
         default:
@@ -1608,8 +1601,9 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     {
         S_ExtraUpdate ();       // don't let sound get messed up if going slow
     }
+	R_SortAliasEntities(); //qb: from reckless
 
-    r_foundwater = r_drawwater = false; // Manoel Kasimier - translucent water
+    r_foundtranslucency = r_overdraw = false; // Manoel Kasimier - translucent water
     R_EdgeDrawing ();
     if (!r_dspeeds.value)
     {
@@ -1627,8 +1621,7 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
         de_time1 = Sys_DoubleTime (); // Manoel Kasimier - draw entities time
     CL_UpdateTEnts (); // Manoel Kasimier
 
-    R_SortAliasEntities(); //qb: from reckless
-    R_DrawEntitiesOnList ();
+   R_DrawASEntitiesOnList ();
 
     if (r_dspeeds.value)
     {
@@ -1642,11 +1635,11 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
         dp_time2 = Sys_DoubleTime (); // draw particles time
 
     // Manoel Kasimier - translucent water - begin
-    if (r_foundwater)
-    {
-        r_drawwater = true;
+// qb: debug, or remove-   if (r_foundtranslucency)
+//    {
+        r_overdraw = true;
         R_EdgeDrawing ();
-    }
+ //   }
     // Manoel Kasimier - translucent water - end
 
     R_DrawViewModel (true); //qb: draw after particles.  it's worth the overdraw.
