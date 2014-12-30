@@ -904,7 +904,7 @@ void Mod_FlagFaces ( msurface_t *out)
     if (out->texinfo->texture->name[0] == '{')	// fence
     {
         out->flags |= (SURF_DRAWFENCE | SURF_DRAWTRANSLUCENT);
-        r_foundwater = true; //qb: in case r_wateralpha = 1, still want to draw fence.
+        r_foundtranslucency = true; //qb: in case r_wateralpha = 1, still want to draw fence.
 
         //editorial: since the q1 map format lacks surface flags (sigh...) alpha could be encoded per-surface in the texture name.
         //really thinking about hard-coding "water" 0.50,  "slime" 0.66, and "glass" 0.33 or something like that.
@@ -913,12 +913,6 @@ void Mod_FlagFaces ( msurface_t *out)
 
     if (out->texinfo->texture->name[0] == '*')		// turbulent
     {
-        if (!Q_strncmp(out->texinfo->texture->name, "*glass",6))  //qb:  glass is not turbulent
-        {
-            out->flags |= (SURF_DRAWTRANSLUCENT| SURF_DRAWTILED);
-        }
-        else
-        {
             // Manoel Kasimier - translucent water - begin
             if (Q_strncmp(out->texinfo->texture->name,"*lava",5)) // lava should be opaque
                 //	if (Q_strncmp(out->texinfo->texture->name,"*teleport",9)) // teleport should be opaque
@@ -930,9 +924,6 @@ void Mod_FlagFaces ( msurface_t *out)
                 out->extents[i] = 16384;
                 out->texturemins[i] = -8192;
             }
-            return;
-
-        }
     }
 }
 

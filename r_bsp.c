@@ -323,9 +323,9 @@ void R_RecursiveClipBPoly (bedge_t *pedges, mnode_t *pnode, msurface_t *psurf)
 R_DrawSolidClippedSubmodelPolygons
 ================
 */
-void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel)
+void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel, byte alpha)
 {
-	int			i, j, lindex;
+	int			i, j, lindex, alphamask;
 	vec_t		dot;
 	msurface_t	*psurf;
 	int			numsurfaces;
@@ -340,6 +340,14 @@ void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel)
 	numsurfaces = pmodel->nummodelsurfaces;
 	pedges = pmodel->edges;
 
+			if(alpha == ENTALPHA_DEFAULT)
+            alphamask = 0;
+        else if (alpha < 111) //0.43
+            alphamask = SURF_DRAWGLASS33;
+        else if (alpha < 154) //0.60
+            alphamask = SURF_DRAWGLASS50;
+        else alphamask = SURF_DRAWGLASS66; // < 1.0
+
 	for (i=0 ; i<numsurfaces ; i++, psurf++)
 	{
 	// find which side of the node we are on
@@ -351,6 +359,9 @@ void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel)
 		if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
 			(!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
 		{
+
+        if (alphamask)
+           psurf->flags|= (alphamask | SURF_DRAWTRANSLUCENT );
 		// FIXME: use bounding-box-based frustum clipping info?
 
 		// copy the edges to bedges, flipping if necessary so always
@@ -405,18 +416,27 @@ void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel)
 R_DrawSubmodelPolygons
 ================
 */
-void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags)
+void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags, byte alpha)
 {
 	int			i;
 	vec_t		dot;
 	msurface_t	*psurf;
 	int			numsurfaces;
 	mplane_t	*pplane;
+	int         alphamask;
 
 // FIXME: use bounding-box-based frustum clipping info?
 
 	psurf = &pmodel->surfaces[pmodel->firstmodelsurface];
 	numsurfaces = pmodel->nummodelsurfaces;
+
+		if(alpha == ENTALPHA_DEFAULT)
+            alphamask = 0;
+        else if (alpha < 111) //0.43
+            alphamask = SURF_DRAWGLASS33;
+        else if (alpha < 154) //0.60
+            alphamask = SURF_DRAWGLASS50;
+        else alphamask = SURF_DRAWGLASS66; // < 1.0
 
 	for (i=0 ; i<numsurfaces ; i++, psurf++)
 	{
@@ -424,7 +444,8 @@ void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags)
 		pplane = psurf->plane;
 
 		dot = DotProduct (modelorg, pplane->normal) - pplane->dist;
-
+        if (alphamask)
+           psurf->flags|= (alphamask | SURF_DRAWTRANSLUCENT);
 	// draw the polygon
 		if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
 			(!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
@@ -435,76 +456,6 @@ void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags)
 			R_RenderFace (psurf, clipflags);
 		}
 	}
-}
-//qb: R_DepthSortBrushEntities R_SortBrushEntities from Reckless tute on inside3d
-/*
-=============
-R_DepthSortBrushEntities
-=============
-*/
-int R_DepthSortBrushEntities (const void *a, const void *b)
-{
-   static int   offset;
-   entity_t   *enta = *((entity_t **) a);
-   entity_t   *entb = *((entity_t **) b);
-
-   // sort back to front
-   if (enta->distance > entb->distance)
-   {
-      offset = 1;
-   }
-   else if (enta->distance < entb->distance)
-   {
-      offset = -1;
-   }
-   else
-   {
-      offset = 0;
-   }
-   return offset;
-}
-
-/*
-=============
-R_SortBrushEntities
-=============
-*/
-void R_SortBrushEntities (void)
-{
-   int      i;
-
-   // if there's only one then the list is already sorted!
-   if (cl_numvisedicts > 1)
-   {
-      // evaluate distances
-      for (i = 0; i < cl_numvisedicts; i++)
-      {
-         entity_t *ent = cl_visedicts[i];
-
-         // set distance from viewer - no need to sqrt them as the order will be the same
-         ent->distance = (ent->origin[0] - r_origin[0]) * (ent->origin[0] - r_origin[0]) +
-                     (ent->origin[1] - r_origin[1]) * (ent->origin[1] - r_origin[1]) +
-                     (ent->origin[2] - r_origin[2]) * (ent->origin[2] - r_origin[2]);
-      }
-
-      if (cl_numvisedicts == 2)
-      {
-         // trivial case - 2 entities
-         if (cl_visedicts[0]->distance < cl_visedicts[1]->distance)
-         {
-            entity_t *tmpent = cl_visedicts[1];
-
-            // reorder correctly
-            cl_visedicts[1] = cl_visedicts[0];
-            cl_visedicts[0] = tmpent;
-         }
-      }
-      else
-      {
-         // general case - depth sort the transedicts from back to front
-         qsort ((void *) cl_visedicts, cl_numvisedicts, sizeof (entity_t *), R_DepthSortBrushEntities);
-      }
-   }
 }
 
 
@@ -639,9 +590,7 @@ void R_RecursiveWorldNode (mnode_t *node, int clipflags)
 					if ((surf->flags & SURF_PLANEBACK) &&
 						(surf->visframe == r_framecount))
 					{
-
 							R_RenderFace (surf, clipflags);
-
 					}
 
 					surf++;
@@ -690,7 +639,6 @@ void R_RenderWorld (void)
 	clmodel = currententity->model;
 	r_pcurrentvertbase = clmodel->vertexes;
 
-	R_SortBrushEntities();  //qb: from reckless
 	R_RecursiveWorldNode (clmodel->nodes, 15);
 	if (r_drawskybox) // Manoel Kasimier - skyboxes
 		R_EmitSkyBox (); // Manoel Kasimier - skyboxes

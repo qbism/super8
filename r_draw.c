@@ -34,7 +34,7 @@ int			c_faceclip;					// number of faces clipped
 zpointdesc_t	r_zpointdesc;
 polydesc_t		r_polydesc;
 
-byte r_foundwater, r_drawwater;
+byte r_foundtranslucency, r_overdraw;
 
 
 clipplane_t	*entity_clipplanes;
@@ -302,7 +302,7 @@ void R_EmitEdge (mvertex_t *pv0, mvertex_t *pv1)
 		v0 = (ycenter - scale*transformed[1]);
 		if (v0 < r_refdef.fvrecty_adj)
 			v0 = r_refdef.fvrecty_adj;
-		if (v0 > r_refdef.fvrectbottom_adj)
+		else if (v0 > r_refdef.fvrectbottom_adj)
 			v0 = r_refdef.fvrectbottom_adj;
 
 		ceilv0 = (int) ceil(v0);
@@ -330,7 +330,7 @@ void R_EmitEdge (mvertex_t *pv0, mvertex_t *pv1)
 	r_v1 = (ycenter - scale*transformed[1]);
 	if (r_v1 < r_refdef.fvrecty_adj)
 		r_v1 = r_refdef.fvrecty_adj;
-	if (r_v1 > r_refdef.fvrectbottom_adj)
+	else if (r_v1 > r_refdef.fvrectbottom_adj)
 		r_v1 = r_refdef.fvrectbottom_adj;
 
 	if (r_lzi1 > lzi0)
@@ -584,21 +584,21 @@ void R_RenderFace (msurface_t *fa, int clipflags)
 	// Manoel Kasimier - skyboxes - end
 
 	// Manoel Kasimier - translucent water - begin
-	if (r_wateralpha.value < 1)
-	{
+//qb: could be glass		if (r_wateralpha.value < 1)
+//	{
 		if (fa->flags & SURF_DRAWTRANSLUCENT)
 		{
-//qb: could be glass?			if (!r_wateralpha.value)
+//qb: could be glass			if (!r_wateralpha.value)
 //				return;
-			if (!r_drawwater)
+			if (!r_overdraw)
 			{
-				r_foundwater = true;
+				r_foundtranslucency = true;
 				return;
 			}
 		}
-		else if (r_drawwater)
+		else if (r_overdraw)
 			return;
-	}
+//	}
 	// Manoel Kasimier - translucent water - end
 
 // skip out if no more surfs
@@ -799,6 +799,28 @@ void R_RenderBmodelFace (bedge_t *pedges, msurface_t *psurf)
 	medge_t		tedge;
 	clipplane_t	*pclip;
 
+	// mankrip - begin
+	if (currententity != &cl_entities[0])
+	{
+		if (r_overdraw)
+		{
+			if (currententity->alpha == ENTALPHA_ZERO)
+				return;
+
+			if ((currententity->effects & EF_ADDITIVE) || (currententity->alpha |= ENTALPHA_DEFAULT))
+			{
+				r_foundtranslucency = true;
+				return;
+			}
+			if (psurf->flags & SURF_DRAWSPRITE)
+			{
+				r_foundtranslucency = true;
+				return;
+			}
+		}
+	}
+	// mankrip - end
+
 // skip out if no more surfs
 	if (surface_p >= surf_max)
 	{
@@ -897,5 +919,3 @@ void R_RenderBmodelFace (bedge_t *pedges, msurface_t *psurf)
 //JDC	VectorCopy (r_worldmodelorg, surface_p->modelorg);
 	surface_p++;
 }
-
-

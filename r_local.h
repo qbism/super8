@@ -149,8 +149,8 @@ texture_t *R_TextureAnimation (texture_t *base);
 
 void R_GenSkyTile (void *pdest);
 void R_GenSkyTile16 (void *pdest);
-void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags);
-void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel);
+void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags, byte alpha);
+void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel, byte alpha);
 
 void R_AddPolygonEdges (emitpoint_t *pverts, int numverts, int miplevel);
 surf_t *R_GetSurf (void);

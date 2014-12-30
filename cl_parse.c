@@ -193,7 +193,7 @@ void CL_ParseLocalSoundPacket(void)
 
     field_mask = MSG_ReadByte();
 
-     if (field_mask & SND_LARGESOUND)
+    if (field_mask & SND_LARGESOUND)
         sound_num = MSG_ReadShort();
     else sound_num = MSG_ReadByte();
 
@@ -924,11 +924,11 @@ void CL_ParseStatic (void)
 
         if (bits & U_GLOW_SIZE)
             ent->glow_size = MSG_ReadShort ();
-         if (bits & U_GLOW_RED)
+        if (bits & U_GLOW_RED)
             ent->glow_red = MSG_ReadByte ();
-         if (bits & U_GLOW_GREEN)
+        if (bits & U_GLOW_GREEN)
             ent->glow_green = MSG_ReadByte ();
-         if (bits & U_GLOW_BLUE)
+        if (bits & U_GLOW_BLUE)
             ent->glow_blue = MSG_ReadByte ();
         ent->effects = MSG_ReadShort();
 
@@ -968,15 +968,15 @@ void CL_ParseStaticSound (int cmd)
 
     for (i=0 ; i<3 ; i++)
         org[i] = MSG_ReadCoord ();
-   if (cmd == svc_spawnstaticsound_large)
+    if (cmd == svc_spawnstaticsound_large)
         sound_num = MSG_ReadShort ();
     else
-    sound_num = MSG_ReadByte ();
+        sound_num = MSG_ReadByte ();
     vol = MSG_ReadByte ();
     atten = MSG_ReadByte ();
 
-	if (sound_num >= MAX_SOUNDS)
-		Host_Error ("CL_ParseStaticSound: invalid sound (%d, max = %d", sound_num, MAX_SOUNDS);
+    if (sound_num >= MAX_SOUNDS)
+        Host_Error ("CL_ParseStaticSound: invalid sound (%d, max = %d", sound_num, MAX_SOUNDS);
 
     S_StaticSound (cl.sound_precache[sound_num], org, vol, atten);
 }
@@ -1023,13 +1023,13 @@ void CL_ParseServerMessage (void)
 
     while (1)
     {
-		if (msg_badread)
-		{
-			char Str[512];
+        if (msg_badread)
+        {
+            char Str[512];
 
-			sprintf (Str, "CL_ParseServerMessage: insufficient data in service '%s', size %d", Svc_Name(cmd), msg_readcount - lastpos);
-			Host_Error (Str);
-		}
+            sprintf (Str, "CL_ParseServerMessage: insufficient data in service '%s', size %d", Svc_Name(cmd), msg_readcount - lastpos);
+            Host_Error (Str);
+        }
 
         lastpos = msg_readcount;  //qb: from bjpquake
 
@@ -1187,7 +1187,7 @@ void CL_ParseServerMessage (void)
             if (cl.paused)
             {
                 CDAudio_Pause ();
-				BGM_Pause ();
+                BGM_Pause ();
                 VID_HandlePause (true);
 
                 Vibration_Stop (0); // Manoel Kasimier
@@ -1249,9 +1249,9 @@ void CL_ParseServerMessage (void)
             cl.cdtrack = MSG_ReadByte ();
             cl.looptrack = MSG_ReadByte ();
             if ( (cls.demoplayback || cls.demorecording) && (cls.forcetrack != -1) )
-				BGM_PlayCDtrack ((byte)cls.forcetrack, true);
-			else
-				BGM_PlayCDtrack ((byte)cl.cdtrack, true);
+                BGM_PlayCDtrack ((byte)cls.forcetrack, true);
+            else
+                BGM_PlayCDtrack ((byte)cl.cdtrack, true);
             break;
 
         case svc_intermission:
@@ -1292,7 +1292,7 @@ void CL_ParseServerMessage (void)
             Cmd_ExecuteString ("help", src_command);
             break;
 
-            //qb: not sure why it took me so long to add these... johnfitz -- new svc types
+        //qb: not sure why it took me so long to add these... johnfitz -- new svc types
         case svc_skybox:
             R_LoadSky (MSG_ReadString());
             break;
@@ -1305,7 +1305,7 @@ void CL_ParseServerMessage (void)
             Fog_ParseServerMessage ();
             break;
 
-            // Manoel Kasimier - svc_letterbox - begin
+        // Manoel Kasimier - svc_letterbox - begin
         case svc_letterbox:
             cl.letterbox = (float)(MSG_ReadByte ())/100.0;
             if (cl.letterbox < 0) cl.letterbox = 0;
@@ -1316,12 +1316,12 @@ void CL_ParseServerMessage (void)
             break;
             // Manoel Kasimier - svc_letterbox - end
 
-            // Manoel Kasimier - begin
+        // Manoel Kasimier - begin
         case svc_vibrate:
         {
             byte s, e1, e2, d;
             int player;
-                //qb:  someday may use this vibrate info...
+            //qb:  someday may use this vibrate info...
             s = MSG_ReadByte ();
             e1 = MSG_ReadByte ();
             e2 = MSG_ReadByte ();
@@ -1333,7 +1333,7 @@ void CL_ParseServerMessage (void)
             vibration_update[player] = true;
         }
         break;
-        // Manoel Kasimier - end
+            // Manoel Kasimier - end
         }
         lastcmd = cmd;
     }

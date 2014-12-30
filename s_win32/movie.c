@@ -73,13 +73,13 @@ void Movie_Start_f (void)
 
     if (Cmd_Argc() != 2) //qb: autogenerate file name if none is given.
     {
-        Q_strcpy(name,"qbs8_000.avi"); //qb: screenshots dir
+        Q_strcpy(name,"screenshots/qbs8_000.avi"); //qb: screenshots dir
 
         for (i=0 ; i<=999 ; i++)
         {
-            name[5] = i/100 + '0';
-            name[6] = (i/10)%10 + '0';
-            name[7] = i%10 + '0';
+            name[17] = i/100 + '0';
+            name[18] = (i/10)%10 + '0';
+            name[19] = i%10 + '0';
             sprintf (path, "%s/%s", com_gamedir, name);
             if (Sys_FileTime(path) == -1)
                 break;	// file doesn't exist
@@ -119,6 +119,7 @@ void Movie_Stop (void)
     movie_is_capturing = false;
     Capture_Close ();
     fclose (moviefile);
+    Con_Printf ("Stopped capturing video.\n");
 }
 
 void Movie_Stop_f (void)
@@ -133,8 +134,6 @@ void Movie_Stop_f (void)
         cls.capturedemo = false;
 
     Movie_Stop ();
-
-    Con_Printf ("Stopped capturing\n");
 }
 
 void Movie_CaptureDemo_f (void)  //qb: with additional enhancement from FQ Mark V

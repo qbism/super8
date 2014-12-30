@@ -1366,7 +1366,7 @@ void D_DrawSprite (void)
     ymin = ceil (ymin);
     ymax = ceil (ymax);
 
-    if (ymin >= ymax)
+    if ((ymin >= ymax) || (ymin < 0)) //qb: (ymin < 0)from uhexen.  sprites rendered very close to the camera origin crash.
         return;		// doesn't cross any scans at all
 
     cachewidth = r_spritedesc.pspriteframe->width;
