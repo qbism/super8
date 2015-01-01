@@ -1060,43 +1060,43 @@ R_DrawEntitiesOnList
 */
 void R_DrawASEntity (int i) // Manoel Kasimier
 {
-        currententity = cl_visedicts[i];
+    currententity = cl_visedicts[i];
     if (currententity == &cl_entities[cl.viewentity])
         // 2000-01-09 ChaseCam fix by FrikaC  start
-        {
+    {
         if (!chase_active.value)
-            {
+        {
             // 2000-01-09 ChaseCam fix by FrikaC  end
             return;     // don't draw the player
             // 2000-01-09 ChaseCam fix by FrikaC  start
-            }
-            else
-            {
+        }
+        else
+        {
 //                              currententity->angles[0] *= 0.3;
             currententity->angles[0] = 0;
             currententity->angles[2] = 0;
-            }
-        }
-    // 2000-01-09 ChaseCam fix by FrikaC  end
-
-        switch (currententity->model->type)
-        {
-        case mod_sprite:
-            VectorCopy (currententity->origin, r_entorigin);
-            VectorSubtract (r_origin, r_entorigin, modelorg);
-            R_DrawSprite ();
-            break;
-
-        case mod_alias:
-            VectorCopy (currententity->origin, r_entorigin);
-            VectorSubtract (r_origin, r_entorigin, modelorg);
-            R_AliasDrawModel (/* &lighting */); // Manoel Kasimier - changed alias models lighting - edited
-            break;
-
-        default:
-            break;
         }
     }
+    // 2000-01-09 ChaseCam fix by FrikaC  end
+
+    switch (currententity->model->type)
+    {
+    case mod_sprite:
+        VectorCopy (currententity->origin, r_entorigin);
+        VectorSubtract (r_origin, r_entorigin, modelorg);
+        R_DrawSprite ();
+        break;
+
+    case mod_alias:
+        VectorCopy (currententity->origin, r_entorigin);
+        VectorSubtract (r_origin, r_entorigin, modelorg);
+        R_AliasDrawModel (/* &lighting */); // Manoel Kasimier - changed alias models lighting - edited
+        break;
+
+    default:
+        break;
+    }
+}
 void R_DrawASEntitiesOnList (void)
 {
     int                 i; // Manoel Kasimier
@@ -1383,6 +1383,7 @@ void R_DrawBEntitiesOnList (void)
     vec3_t              oldorigin;
     model_t             *clmodel;
     float               minmaxs[6];
+    int        alphamask;
 
     if (!r_drawentities.value)
         return;
@@ -1443,18 +1444,27 @@ void R_DrawBEntitiesOnList (void)
                 {
                     currententity->topnode = r_pefragtopnode;
 
+                    //qbism- alpha mask surf flags of alpha entities.
+                    if (currententity->alpha == ENTALPHA_DEFAULT)
+                         alphamask = 0;
+                    else if (ENTALPHA_DECODE(currententity->alpha) < 0.43)
+                        alphamask = SURF_DRAWGLASS33;
+                    else if (ENTALPHA_DECODE(currententity->alpha) < 0.60)
+                        alphamask = SURF_DRAWGLASS50;
+                    else alphamask = SURF_DRAWGLASS66;
+
                     if (r_pefragtopnode->contents >= 0)
                     {
                         // not a leaf; has to be clipped to the world BSP
                         r_clipflags = clipflags;
-                        R_DrawSolidClippedSubmodelPolygons (clmodel,currententity->alpha);
+                        R_DrawSolidClippedSubmodelPolygons (clmodel,alphamask);
                     }
                     else
                     {
                         // falls entirely in one leaf, so we just put all the
                         // edges in the edge list and let 1/z sorting handle
                         // drawing order
-                        R_DrawSubmodelPolygons (clmodel, clipflags,currententity->alpha);
+                        R_DrawSubmodelPolygons (clmodel, clipflags,alphamask);
                     }
                     currententity->topnode = NULL;
                 }
@@ -1601,7 +1611,6 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     {
         S_ExtraUpdate ();       // don't let sound get messed up if going slow
     }
-	R_SortAliasEntities(); //qb: from reckless
 
     r_foundtranslucency = r_overdraw = false; // Manoel Kasimier - translucent water
     R_EdgeDrawing ();
@@ -1621,7 +1630,8 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
         de_time1 = Sys_DoubleTime (); // Manoel Kasimier - draw entities time
     CL_UpdateTEnts (); // Manoel Kasimier
 
-   R_DrawASEntitiesOnList ();
+    R_SortAliasEntities(); //qb: from reckless
+    R_DrawASEntitiesOnList ();
 
     if (r_dspeeds.value)
     {
@@ -1637,9 +1647,9 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     // Manoel Kasimier - translucent water - begin
 // qb: debug, or remove-   if (r_foundtranslucency)
 //    {
-        r_overdraw = true;
-        R_EdgeDrawing ();
- //   }
+    r_overdraw = true;
+    R_EdgeDrawing ();
+//   }
     // Manoel Kasimier - translucent water - end
 
     R_DrawViewModel (true); //qb: draw after particles.  it's worth the overdraw.

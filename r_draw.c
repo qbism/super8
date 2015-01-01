@@ -807,7 +807,7 @@ void R_RenderBmodelFace (bedge_t *pedges, msurface_t *psurf)
 			if (currententity->alpha == ENTALPHA_ZERO)
 				return;
 
-			if ((currententity->effects & EF_ADDITIVE) || (currententity->alpha |= ENTALPHA_DEFAULT))
+			if ((currententity->effects & EF_ADDITIVE) || (currententity->alpha != ENTALPHA_DEFAULT))
 			{
 				r_foundtranslucency = true;
 				return;
