@@ -63,18 +63,18 @@ D_DrawSolidSurface
 */
 
 // FIXME: clean this up
-void D_DrawSolidSurface (surf_t *surf, int color)
+
+void D_DrawSolidSurface (espan_t *pspan, int color)
 {
-    espan_t	*span;
     byte	*pdest;
     int		u, u2, pix;
 
     pix = (color<<24) | (color<<16) | (color<<8) | color;
-    for (span=surf->spans ; span ; span=span->pnext)
+    do
     {
-        pdest = (byte *)d_viewbuffer + screenwidth*span->v;
-        u = span->u;
-        u2 = span->u + span->count - 1;
+        pdest = (byte *)d_viewbuffer + screenwidth*pspan->v;
+        u = pspan->u;
+        u2 = pspan->u + pspan->count - 1;
         ((byte *)pdest)[u] = pix;
 
         if (u2 - u < 8)
@@ -95,6 +95,7 @@ void D_DrawSolidSurface (surf_t *surf, int color)
                 ((byte *)pdest)[u] = pix;
         }
     }
+    while ((pspan = pspan->pnext) != NULL);
 }
 
 
@@ -187,9 +188,8 @@ void D_DrawSurfaces (void)
             if (! (pspans = s->spans))
                 continue;
 
-            if (r_overdraw && !(s->flags & SURF_DRAWTRANSLUCENT))
+            if (r_overdraw && (!(s->flags & SURF_DRAWTRANSLUCENT)))
                 continue;
-
             r_drawnpolycount++;
 
             d_zistepu = s->d_zistepu;
@@ -204,13 +204,18 @@ void D_DrawSurfaces (void)
 
             else if (s->flags & SURF_DRAWBACKGROUND)
             {
+                // mankrip - translucent water - begin
+                if (r_overdraw)
+                    continue;
+                // mankrip - translucent water - end
+
                 // set up a gradient for the background surface that places it
                 // effectively at infinity distance from the viewpoint
                 d_zistepu = 0;
                 d_zistepv = 0;
                 d_ziorigin = -0.9;
 
-                D_DrawSolidSurface (s, (int)r_clearcolor.value & 0xFF);
+                D_DrawSolidSurface (pspans, (int)r_clearcolor.value & 0xFF);
                 D_DrawZSpans (pspans); // mankrip - edited
             }
             else if (s->flags & (SURF_DRAWTURB|SURF_DRAWTRANSLUCENT))
@@ -251,8 +256,9 @@ void D_DrawSurfaces (void)
                         D_DrawSpans16_BlendBackwards(pspans);
                     else D_DrawSpans16_Blend(pspans); //qb: catchall
                 }
-                if(!r_overdraw)
-                    D_DrawZSpans (s->spans);
+
+                if (!r_overdraw) // mankrip - translucent water
+                    D_DrawZSpans (pspans); // mankrip - edited
 
                 if (s->insubmodel)
                 {
@@ -266,7 +272,7 @@ void D_DrawSurfaces (void)
                     VectorCopy (base_vpn, vpn);
                     VectorCopy (base_vup, vup);
                     VectorCopy (base_vright, vright);
-                    // VectorCopy (base_modelorg, modelorg);
+                    VectorCopy (base_modelorg, modelorg);
                     R_TransformFrustum ();
                 }
             }
@@ -298,7 +304,7 @@ void D_DrawSurfaces (void)
                 D_DrawZSpans (pspans); // mankrip - edited
             }
             // Manoel Kasimier - skyboxes - end
-            else if (!(s->flags & SURF_DRAWTRANSLUCENT))
+            else
             {
                 if (s->insubmodel)
                 {

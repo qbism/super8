@@ -906,8 +906,6 @@ void Mod_FlagFaces ( msurface_t *out)
         out->flags |= (SURF_DRAWFENCE | SURF_DRAWTRANSLUCENT);
         r_foundtranslucency = true; //qb: in case r_wateralpha = 1, still want to draw fence.
 
-        //editorial: since the q1 map format lacks surface flags (sigh...) alpha could be encoded per-surface in the texture name.
-        //really thinking about hard-coding "water" 0.50,  "slime" 0.66, and "glass" 0.33 or something like that.
         return;
     }
 
