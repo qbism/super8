@@ -39,11 +39,6 @@ byte	mod_novis[MAX_MAP_LEAFS/8];
 model_t	mod_known[MAX_MOD_KNOWN];
 int		mod_numknown;
 
-// values for model_t's needload
-#define NL_PRESENT		0
-#define NL_NEEDS_LOADED	1
-#define NL_UNREFERENCED	2
-
 cvar_t	external_ent = {"external_ent","1", "external_ent[0/1] Toggles use of external entity files."};	// 2001-09-12 .ENT support by Maddes
 
 /*
@@ -176,11 +171,12 @@ void Mod_ClearAll (void)
 
 
     for (i=0 , mod=mod_known ; i<mod_numknown ; i++, mod++)
-    {
-        mod->needload = NL_UNREFERENCED;
+        if (mod->type != mod_alias)
+        {
+            mod->needload = true;
 //FIX FOR CACHE_ALLOC ERRORS:
-        if (mod->type == mod_sprite) mod->cache.data = NULL;
-    }
+//qb: testing removal: not sure about this fix.       if (mod->type == mod_sprite) mod->cache.data = NULL;
+        }
 }
 
 /*
@@ -193,7 +189,6 @@ model_t *Mod_FindName (char *name)
 {
     int		i;
     model_t	*mod;
-    model_t	*avail = NULL;
 
     if (!name[0])
         Sys_Error ("Mod_FindName: NULL name"); //johnfitz -- was "Mod_ForName"
@@ -202,32 +197,16 @@ model_t *Mod_FindName (char *name)
 // search the currently loaded models
 //
     for (i=0 , mod=mod_known ; i<mod_numknown ; i++, mod++)
-    {
-        if (!Q_strcmp (mod->name, name) )
+        if (!strcmp (mod->name, name) )
             break;
-        if (mod->needload == NL_UNREFERENCED)
-            if (!avail || mod->type != mod_alias)
-                avail = mod;
-    }
 
     if (i == mod_numknown)
     {
         if (mod_numknown == MAX_MOD_KNOWN)
-        {
-            if (avail)
-            {
-                mod = avail;
-                if (mod->type == mod_alias)
-                    if (Cache_Check (&mod->cache))
-                        Cache_Free (&mod->cache);
-            }
-            else
-                Sys_Error ("mod_numknown == MAX_MOD_KNOWN");
-        }
-        else
-            mod_numknown++;
+            Sys_Error ("mod_numknown == MAX_MOD_KNOWN");
         Q_strcpy (mod->name, name);
-        mod->needload = NL_NEEDS_LOADED;
+        mod->needload = true;
+        mod_numknown++;
     }
 
     return mod;
@@ -245,7 +224,7 @@ void Mod_TouchModel (char *name)
 
     mod = Mod_FindName (name);
 
-    if (mod->needload == NL_PRESENT)
+    if (!mod->needload)
     {
         if (mod->type == mod_alias)
             Cache_Check (&mod->cache);
@@ -261,24 +240,21 @@ Loads a model into the cache
 */
 model_t *Mod_LoadModel (model_t *mod, qboolean crash)
 {
-    unsigned *buf;
+    byte	*buf;
     byte	stackbuf[1024];		// avoid dirtying the cache heap
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
+    int	mod_type;
 
-    if (mod->type == mod_alias)
+    if (!mod->needload)
     {
-        if (Cache_Check (&mod->cache))
+        if (mod->type == mod_alias)
         {
-            mod->needload = NL_PRESENT;
-            return mod;
+            if (Cache_Check (&mod->cache))
+                return mod;
         }
+        else
+            return mod;		// not cached at all
     }
-    else
-    {
-        if (mod->needload == NL_PRESENT)
-            return mod;
-    }
-    Con_DPrintf ("Loading %s\n",mod->name); // Manoel Kasimier
 
 //
 // because the world is so huge, load it one piece at a time
@@ -316,9 +292,10 @@ model_t *Mod_LoadModel (model_t *mod, qboolean crash)
 //
 
 // call the apropriate loader
-    mod->needload = NL_PRESENT;
+    mod->needload = false;
 
-    switch (LittleLong(*(unsigned *)buf))
+    mod_type = (buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24));
+    switch (mod_type)
     {
     case IDPOLYHEADER:
         Mod_LoadAliasModel (mod, buf);
@@ -371,7 +348,7 @@ Mod_LoadTextures
 */
 void Mod_LoadTextures (lump_t *l)
 {
-    int		i, j, pixels, num, max, altmax;
+    int		i, j, pixels, num, maxanim, altmax, nummiptex;
     miptex_t	*mt;
     texture_t	*tx, *tx2;
     texture_t	*anims[10];
@@ -380,17 +357,23 @@ void Mod_LoadTextures (lump_t *l)
 
     if (!l->filelen)
     {
-        loadmodel->textures = NULL;
-        return;
+        Con_Printf ("Mod_LoadTextures: no textures in bsp file\n");
+        nummiptex = 0;
+        m = NULL; // avoid bogus compiler warning
     }
-    m = (dmiptexlump_t *)(mod_base + l->fileofs);
+    else
+    {
+        m = (dmiptexlump_t *)(mod_base + l->fileofs);
 
-    m->nummiptex = LittleLong (m->nummiptex);
+        m->nummiptex = LittleLong (m->nummiptex);
+        nummiptex = m->nummiptex;
+    }
+    //johnfitz
 
-    loadmodel->numtextures = m->nummiptex;
-    loadmodel->textures = Hunk_AllocName (m->nummiptex * sizeof(*loadmodel->textures) , "modtex1"); //qb: per bjp, was loadname
+    loadmodel->numtextures = nummiptex + 2; //johnfitz -- need 2 dummy texture chains for missing textures
+    loadmodel->textures = (texture_t **) Hunk_AllocName (loadmodel->numtextures * sizeof(*loadmodel->textures) , loadname);
 
-    for (i=0 ; i<m->nummiptex ; i++)
+    for (i=0 ; i<nummiptex ; i++)
     {
         m->dataofs[i] = LittleLong(m->dataofs[i]);
         if (m->dataofs[i] == -1)
@@ -419,10 +402,14 @@ void Mod_LoadTextures (lump_t *l)
             R_InitSky (tx);
     }
 
+    //johnfitz -- last 2 slots in array should be filled with dummy textures
+    loadmodel->textures[loadmodel->numtextures-2] = r_notexture_mip; //for lightmapped surfs
+    loadmodel->textures[loadmodel->numtextures-1] = r_notexture_mip; //for SURF_DRAWTILED surfs
+
 //
 // sequence the animations
 //
-    for (i=0 ; i<m->nummiptex ; i++)
+    for (i=0 ; i<nummiptex ; i++)
     {
         tx = loadmodel->textures[i];
         if (!tx || tx->name[0] != '+')
@@ -434,28 +421,28 @@ void Mod_LoadTextures (lump_t *l)
         memset (anims, 0, sizeof(anims));
         memset (altanims, 0, sizeof(altanims));
 
-        max = tx->name[1];
+        maxanim = tx->name[1];
         altmax = 0;
-        if (max >= 'a' && max <= 'z')
-            max -= 'a' - 'A';
-        if (max >= '0' && max <= '9')
+        if (maxanim >= 'a' && maxanim <= 'z')
+            maxanim -= 'a' - 'A';
+        if (maxanim >= '0' && maxanim <= '9')
         {
-            max -= '0';
+            maxanim -= '0';
             altmax = 0;
-            anims[max] = tx;
-            max++;
+            anims[maxanim] = tx;
+            maxanim++;
         }
-        else if (max >= 'A' && max <= 'J')
+        else if (maxanim >= 'A' && maxanim <= 'J')
         {
-            altmax = max - 'A';
-            max = 0;
+            altmax = maxanim - 'A';
+            maxanim = 0;
             altanims[altmax] = tx;
             altmax++;
         }
         else
             Sys_Error ("Bad animating texture %s", tx->name);
 
-        for (j=i+1 ; j<m->nummiptex ; j++)
+        for (j=i+1 ; j<nummiptex ; j++)
         {
             tx2 = loadmodel->textures[j];
             if (!tx2 || tx2->name[0] != '+')
@@ -470,8 +457,8 @@ void Mod_LoadTextures (lump_t *l)
             {
                 num -= '0';
                 anims[num] = tx2;
-                if (num+1 > max)
-                    max = num + 1;
+                if (num+1 > maxanim)
+                    maxanim = num + 1;
             }
             else if (num >= 'A' && num <= 'J')
             {
@@ -486,15 +473,15 @@ void Mod_LoadTextures (lump_t *l)
 
 #define	ANIM_CYCLE	2
         // link them all together
-        for (j=0 ; j<max ; j++)
+        for (j=0 ; j<maxanim ; j++)
         {
             tx2 = anims[j];
             if (!tx2)
                 Sys_Error ("Missing frame %i of %s",j, tx->name);
-            tx2->anim_total = max * ANIM_CYCLE;
+            tx2->anim_total = maxanim * ANIM_CYCLE;
             tx2->anim_min = j * ANIM_CYCLE;
             tx2->anim_max = (j+1) * ANIM_CYCLE;
-            tx2->anim_next = anims[ (j+1)%max ];
+            tx2->anim_next = anims[ (j+1)%maxanim ];
             if (altmax)
                 tx2->alternate_anims = altanims[0];
         }
@@ -507,7 +494,7 @@ void Mod_LoadTextures (lump_t *l)
             tx2->anim_min = j * ANIM_CYCLE;
             tx2->anim_max = (j+1) * ANIM_CYCLE;
             tx2->anim_next = altanims[ (j+1)%altmax ];
-            if (max)
+            if (maxanim)
                 tx2->alternate_anims = anims[0];
         }
     }
@@ -524,7 +511,7 @@ Mod_LoadLighting
 void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
 {
     //int j;
-    int		i, k;
+    int		i, k, mark;
     float   normalize, r, g, b;
     //float wlout;
     byte	*out, *data;
@@ -549,7 +536,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
         if (fileinfo && ((l->filelen*3 +8) == fileinfo->filelen))
         {
             Con_DPrintf("%s loaded from %s\n", litname, fileinfo->path->pack ? fileinfo->path->pack->filename : fileinfo->path->filename);
-
+            mark = Hunk_LowMark();
             data = fileinfo->data;
             if (data[0] == 'Q' && data[1] == 'L' && data[2] == 'I' && data[3] == 'T')
             {
@@ -573,7 +560,10 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                     return;
                 }
                 else
+                {
+                    Hunk_FreeToLowMark(mark);
                     Con_Printf("Unknown .LIT file version (%d)\n", i);
+                }
             }
             else
                 Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
@@ -788,15 +778,17 @@ void Mod_LoadTexinfo (lump_t *l)
     if (l->filelen % sizeof(*in))
         Sys_Error ("Mod_LoadTexinfo: funny lump size in %s",loadmodel->name);
     count = l->filelen / sizeof(*in);
-//	out = Hunk_AllocName ( count*sizeof(*out), loadname);
     out = Hunk_AllocName ( (count+6)*sizeof(*out), "modtxinf"); // Manoel Kasimier - skyboxes - extra for skybox // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
     loadmodel->texinfo = out;
     loadmodel->numtexinfo = count;
 
     for ( i=0 ; i<count ; i++, in++, out++)
     {
-        for (j=0 ; j<8 ; j++)
+        for (j=0 ; j<4 ; j++)
+        {
             out->vecs[0][j] = LittleFloat (in->vecs[0][j]);
+            out->vecs[1][j] = LittleFloat (in->vecs[1][j]);
+        }
         len1 = Length (out->vecs[0]);
         len2 = Length (out->vecs[1]);
         len1 = (len1 + len2)/2;
@@ -852,8 +844,8 @@ void CalcSurfaceExtents (msurface_t *s)
     mtexinfo_t	*tex;
     int		bmins[2], bmaxs[2];
 
-    mins[0] = mins[1] = 99999.0;
-    maxs[0] = maxs[1] = -99999.0;
+    mins[0] = mins[1] = 999999;
+    maxs[0] = maxs[1] = -99999;
 
     tex = s->texinfo;
 
@@ -867,10 +859,27 @@ void CalcSurfaceExtents (msurface_t *s)
 
         for (j=0 ; j<2 ; j++)
         {
-            val = v->position[0] * tex->vecs[j][0] +
-                  v->position[1] * tex->vecs[j][1] +
-                  v->position[2] * tex->vecs[j][2] +
-                  tex->vecs[j][3];
+            //qb: from QS-
+            /* The following calculation is sensitive to floating-point
+             * precision.  It needs to produce the same result that the
+             * light compiler does, because R_BuildLightMap uses surf->
+             * extents to know the width/height of a surface's lightmap,
+             * and incorrect rounding here manifests itself as patches
+             * of "corrupted" looking lightmaps.
+             * Most light compilers are win32 executables, so they use
+             * x87 floating point.  This means the multiplies and adds
+             * are done at 80-bit precision, and the result is rounded
+             * down to 32-bits and stored in val.
+             * Adding the casts to double seems to be good enough to fix
+             * lighting glitches when Quakespasm is compiled as x86_64
+             * and using SSE2 floating-point.  A potential trouble spot
+             * is the hallway at the beginning of mfxsp17.  -- ericw
+             */
+            val =	((double)v->position[0] * (double)tex->vecs[j][0]) +
+                    ((double)v->position[1] * (double)tex->vecs[j][1]) +
+                    ((double)v->position[2] * (double)tex->vecs[j][2]) +
+                    (double)tex->vecs[j][3];
+
             if (val < mins[j])
                 mins[j] = val;
             if (val > maxs[j])
@@ -885,7 +894,7 @@ void CalcSurfaceExtents (msurface_t *s)
 
         s->texturemins[i] = bmins[i] * 16;
         s->extents[i] = (bmaxs[i] - bmins[i]) * 16;
-        if ( !(tex->flags & TEX_SPECIAL) && s->extents[i] > 256)
+        if ( !(tex->flags & TEX_SPECIAL) && s->extents[i] > 256)  //qb: note from FQ - 2000 //johnfitz -- was 512 in glquake, 256 in winquake
             Sys_Error ("Bad surface extents: %i", s->extents[i]);
     }
 }
@@ -911,17 +920,17 @@ void Mod_FlagFaces ( msurface_t *out)
 
     if (out->texinfo->texture->name[0] == '*')		// turbulent
     {
-            // Manoel Kasimier - translucent water - begin
-            if (Q_strncmp(out->texinfo->texture->name,"*lava",5)) // lava should be opaque
-                //	if (Q_strncmp(out->texinfo->texture->name,"*teleport",9)) // teleport should be opaque
-                out->flags |= SURF_DRAWTRANSLUCENT;
-            // Manoel Kasimier - translucent water - end
-            out->flags |= (SURF_DRAWTURB | SURF_DRAWTILED);
-            for (i=0 ; i<2 ; i++)
-            {
-                out->extents[i] = 16384;
-                out->texturemins[i] = -8192;
-            }
+        // Manoel Kasimier - translucent water - begin
+        if (Q_strncmp(out->texinfo->texture->name,"*lava",5)) // lava should be opaque
+            //	if (Q_strncmp(out->texinfo->texture->name,"*teleport",9)) // teleport should be opaque
+            out->flags |= SURF_DRAWTRANSLUCENT;
+        // Manoel Kasimier - translucent water - end
+        out->flags |= (SURF_DRAWTURB | SURF_DRAWTILED);
+        for (i=0 ; i<2 ; i++)
+        {
+            out->extents[i] = 16384;
+            out->texturemins[i] = -8192;
+        }
     }
 }
 
@@ -941,7 +950,7 @@ void Mod_LoadFaces (lump_t *l, int bsp2)
     if (bsp2)
     {
         ins = NULL;
-        inl = (void *)(mod_base + l->fileofs);
+        inl = (dlface_t *)(mod_base + l->fileofs);
         if (l->filelen % sizeof(*inl))
             Sys_Error ("Mod_LoadFaces: funny lump size in %s",loadmodel->name);
         count = l->filelen / sizeof(*inl);
@@ -2461,11 +2470,7 @@ void Mod_Print (void)
     Con_Printf ("Cached models:\n");
     for (i=0, mod=mod_known ; i < mod_numknown ; i++, mod++)
     {
-        Con_Printf ("%8p : %s",mod->cache.data, mod->name);
-        if (mod->needload & NL_UNREFERENCED)
-            Con_Printf (" (!R)");
-        if (mod->needload & NL_NEEDS_LOADED)
-            Con_Printf (" (!P)");
-        Con_Printf ("\n");
+		Con_Printf ("%8p : %s\n", mod->cache.data, mod->name); //johnfitz -- safeprint instead of print
     }
+	Con_Printf ("%i models\n",mod_numknown); //johnfitz -- print the total too
 }
