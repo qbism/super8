@@ -18,6 +18,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 #include "r_local.h"
+#include "d_local.h"
 
 #define DITHER_NUMRANDS 3947 //qb: number of random floats for fog dithering
 
@@ -1384,6 +1385,7 @@ void R_DrawBEntitiesOnList (void)
     model_t             *clmodel;
     float               minmaxs[6];
     int        alphamask;
+    msurface_t	*psurf;
 
     if (!r_drawentities.value)
         return;
@@ -1399,7 +1401,12 @@ void R_DrawBEntitiesOnList (void)
         {
         case mod_brush:
 
+            alphaspans = currententity->alphaspans; //qb: if r_overdraw or not
             clmodel = currententity->model;
+            psurf = &clmodel->surfaces[clmodel->firstmodelsurface];
+            if ((r_overdraw || !alphaspans) || (psurf->flags & SURF_DRAWFENCE))
+            {
+            d_drawspans = currententity->D_DrawSpans;
 
             // see if the bounding box lets us trivially reject, also sets
             // trivial accept status
@@ -1485,7 +1492,7 @@ void R_DrawBEntitiesOnList (void)
             break;
         }
     }
-
+    }
     insubmodel = false;
 }
 
@@ -1539,6 +1546,8 @@ void R_EdgeDrawing (void)
 
     R_DrawBEntitiesOnList ();
 
+    if (!r_overdraw) // mankrip
+    {
     if (r_dspeeds.value)
     {
         db_time2 = Sys_DoubleTime ();
@@ -1548,6 +1557,7 @@ void R_EdgeDrawing (void)
     if (!r_dspeeds.value)
     {
         S_ExtraUpdate ();       // don't let sound get messed up if going slow
+    }
     }
 
     R_ScanEdges ();
@@ -1612,7 +1622,7 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
         S_ExtraUpdate ();       // don't let sound get messed up if going slow
     }
 
-    r_foundtranslucency = r_overdraw = false; // Manoel Kasimier - translucent water
+    r_overdraw = false; // Manoel Kasimier - translucent water
     R_EdgeDrawing ();
     if (!r_dspeeds.value)
     {
@@ -1645,11 +1655,8 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
         dp_time2 = Sys_DoubleTime (); // draw particles time
 
     // Manoel Kasimier - translucent water - begin
-// qb: debug, or remove-   if (r_foundtranslucency)
-//    {
     r_overdraw = true;
     R_EdgeDrawing ();
-//   }
     // Manoel Kasimier - translucent water - end
 
     R_DrawViewModel (true); //qb: draw after particles.  it's worth the overdraw.

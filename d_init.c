@@ -33,6 +33,7 @@ float			d_scalemip[NUM_MIPS-1];
 static float	basemip[NUM_MIPS-1] = {1.0, 0.5*0.8, 0.25*0.8};
 
 void (*d_drawspans) (espan_t *pspan);
+qboolean alphaspans;
 
 /*
 ===============

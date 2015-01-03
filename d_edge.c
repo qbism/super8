@@ -177,7 +177,7 @@ void D_DrawSurfaces (void)
             d_zistepv = s->d_zistepv;
             d_ziorigin = s->d_ziorigin;
 
-            D_DrawSolidSurface (s, (int)s->data & 0xFF);
+            D_DrawSolidSurface (pspans, (int)s->data & 0xFF);
             D_DrawZSpans (pspans); // mankrip - edited
         }
     }
@@ -188,8 +188,9 @@ void D_DrawSurfaces (void)
             if (! (pspans = s->spans))
                 continue;
 
-            if (r_overdraw && (!(s->flags & SURF_DRAWTRANSLUCENT)))
-                continue;
+             if (r_overdraw && (!(s->flags & SURF_DRAWTRANSLUCENT)))
+                 continue;
+
             r_drawnpolycount++;
 
             d_zistepu = s->d_zistepu;
@@ -242,7 +243,7 @@ void D_DrawSurfaces (void)
                 }
                 else
                 {
-                    pcurrentcache = D_CacheSurface (pface, miplevel);
+					pcurrentcache = D_CacheSurface (pface, miplevel);
                     cacheblock = (pixel_t *)pcurrentcache->data;
                     cachewidth = pcurrentcache->width;
 
@@ -254,7 +255,7 @@ void D_DrawSurfaces (void)
                         D_DrawSpans16_Blend50(pspans);
                     else if (s->flags & SURF_DRAWGLASS66)
                         D_DrawSpans16_BlendBackwards(pspans);
-                    else D_DrawSpans16_Blend(pspans); //qb: catchall
+                   // else D_DrawSpans16_Blend(pspans); //qb: catchall
                 }
 
                 if (!r_overdraw) // mankrip - translucent water
@@ -293,7 +294,12 @@ void D_DrawSurfaces (void)
 
                 D_CalcGradients (pface);
 
-                (*d_drawspans) (s->spans);
+                //	(*d_drawspans) (pspans);  //mankrip
+#if id386
+                D_DrawSpans16 (pspans);
+#else
+                D_DrawSpans16_C (pspans);
+#endif
 
                 // set up a gradient for the background surface that places it
                 // effectively at infinity distance from the viewpoint
@@ -304,7 +310,7 @@ void D_DrawSurfaces (void)
                 D_DrawZSpans (pspans); // mankrip - edited
             }
             // Manoel Kasimier - skyboxes - end
-            else
+            else if (!r_overdraw)
             {
                 if (s->insubmodel)
                 {
@@ -330,7 +336,12 @@ void D_DrawSurfaces (void)
 
                 D_CalcGradients (pface);
 
-                (*d_drawspans) (pspans);
+               // if (r_overdraw)
+               //     D_DrawSpans16_Blend (pspans); // mankrip //qb: catchall
+
+				//else
+				(*d_drawspans) (pspans);
+
                 D_DrawZSpans (pspans);
 
                 if (s->insubmodel)

@@ -72,11 +72,16 @@ extern	entity_t		*currententity;
 #define MINSURFACES			NUMSTACKSURFACES
 #define	MAXSPANS			8192 //qb: was 3000.
 
+// !!! if this is changed, it must be changed in asm_draw.h too !!!
+#ifndef ESPAN // mankrip
+#define ESPAN // mankrip
 typedef struct espan_s
 {
 	int				u, v, count;
 	struct espan_s	*pnext;
 } espan_t;
+#endif // mankrip
+// mankrip - end
 
 // FIXME: compress, make a union if that will help
 // insubmodel is only 1, flags is fewer than 32, spanstate could be a byte

@@ -44,9 +44,21 @@ extern cvar_t	scr_fov;
 
 extern cvar_t r_interpolation; // Manoel Kasimier - model interpolation
 extern cvar_t r_wateralpha; // Manoel Kasimier - translucent water
-extern byte r_foundtranslucency, r_overdraw; // Manoel Kasimier - translucent water
+extern qboolean      r_overdraw; // Manoel Kasimier - translucent water
 extern byte       *alphamap, *alpha50map, *additivemap, *fogmap, *fencemap; // Manoel Kasimier - transparencies
 extern byte       *lightcolormap;  //qb: light colors
+
+
+// !!! if this is changed, it must be changed in asm_draw.h too !!!
+#ifndef ESPAN // mankrip
+#define ESPAN // mankrip
+typedef struct espan_s
+{
+	int				u, v, count;
+	struct espan_s	*pnext;
+} espan_t;
+#endif // mankrip
+// mankrip - end
 
 typedef struct entity_s
 {
@@ -111,6 +123,8 @@ typedef struct entity_s
 	// Tomaz - QC Alpha Scale Glow End
 	float distance; //qb: from reckless, depth sorting
 	int lightpoint; //qb: remember lightpoint for blending
+	void (* D_DrawSpans) (espan_t *pspan); //qb: from MQ 1.6
+	qboolean alphaspans; //qb: if the span is transparent
 } entity_t;
 
 // !!! if this is changed, it must be changed in asm_draw.h too !!!

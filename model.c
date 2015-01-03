@@ -813,7 +813,7 @@ void Mod_LoadTexinfo (lump_t *l)
         if (!loadmodel->textures)
         {
             out->texture = r_notexture_mip;	// checkerboard texture
-            out->flags = 0;
+            out->flags |= SURF_NOTEXTURE; //qb: from FQ
         }
         else
         {
@@ -823,7 +823,7 @@ void Mod_LoadTexinfo (lump_t *l)
             if (!out->texture)
             {
                 out->texture = r_notexture_mip; // texture not found
-                out->flags = 0;
+                out->flags |= SURF_NOTEXTURE; //qb: from FQ
             }
         }
     }
@@ -913,8 +913,6 @@ void Mod_FlagFaces ( msurface_t *out)
     if (out->texinfo->texture->name[0] == '{')	// fence
     {
         out->flags |= (SURF_DRAWFENCE | SURF_DRAWTRANSLUCENT);
-        r_foundtranslucency = true; //qb: in case r_wateralpha = 1, still want to draw fence.
-
         return;
     }
 
@@ -931,6 +929,7 @@ void Mod_FlagFaces ( msurface_t *out)
             out->extents[i] = 16384;
             out->texturemins[i] = -8192;
         }
+        return;
     }
 }
 
