@@ -85,15 +85,16 @@ typedef struct texture_s
 #define	SURF_PLANEBACK		2
 #define	SURF_DRAWSKY		4
 #define SURF_DRAWSPRITE		8
-#define SURF_DRAWTURB		16
-#define SURF_DRAWTILED		32
-#define SURF_DRAWBACKGROUND	64
-#define SURF_DRAWSKYBOX		128		// Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
-#define SURF_DRAWTRANSLUCENT	256		// Manoel Kasimier - translucent water
-#define SURF_DRAWFENCE		512   //qb: textures with holes
-#define SURF_DRAWGLASS33	1024   //qb: glass (non-turbulent transparent)
-#define SURF_DRAWGLASS50	2048   //qb: glass (non-turbulent transparent)
-#define SURF_DRAWGLASS66	4096   //qb: glass (non-turbulent transparent)
+#define SURF_DRAWTURB		0x10
+#define SURF_DRAWTILED		0x20
+#define SURF_DRAWBACKGROUND	0x40
+#define SURF_DRAWSKYBOX		0x80		// Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
+#define SURF_DRAWTRANSLUCENT	0x100	// Manoel Kasimier - translucent water
+#define SURF_DRAWFENCE		0x200   //qb: textures with holes
+#define SURF_DRAWGLASS33	0x400   //qb: glass (non-turbulent transparent)
+#define SURF_DRAWGLASS50	0x800   //qb: glass (non-turbulent transparent)
+#define SURF_DRAWGLASS66	0x1000   //qb: glass (non-turbulent transparent)
+#define SURF_NOTEXTURE  	0x2000   //qb: from FQ
 
 
 // !!! if this is changed, it must be changed in asm_draw.h too !!!

@@ -610,7 +610,8 @@ void SV_AddToFatPVS (vec3_t org, mnode_t *node, model_t *worldmodel) //johnfitz 
                 else if (d < -8)
                         node = node->children[1];
                 else
-                {       // go down both
+        {
+            // go down both
                         SV_AddToFatPVS (org, node->children[0], worldmodel); //johnfitz -- worldmodel as a parameter
                         node = node->children[1];
                 }
@@ -723,8 +724,7 @@ SV_WriteEntitiesToClient
 */
 void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
 {
-    unsigned int        i;  //qb
-    int         e;
+    int         e,i;
     int         bits;
     byte        *pvs;
     vec3_t      org;
@@ -758,12 +758,14 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
             if (ent->v.effects == EF_NODRAW)
                 continue;
 
-// ignore if not touching a PV leaf
-            if (ent != clent)   // clent is ALWAYS sent
-            {
 // ignore ents without visible models
                 if (!ent->v.modelindex || !pr_strings[ent->v.model])
                     continue;
+
+			//johnfitz -- don't send model>255 entities if protocol is 15
+			if (current_protocol == PROTOCOL_NETQUAKE && (int)ent->v.modelindex & 0xFF00)
+				continue;
+
                 //qb based on Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT Start
                 if ((val = GetEdictFieldValue(ent, "drawonlytoclient")) && val->edict && val->edict != clentnum)
                     continue;
@@ -796,7 +798,7 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
                 Con_Printf ("Packet overflow!\n");
             }
             //johnfitz
-        }
+
 
 // send an update
         bits = 0;

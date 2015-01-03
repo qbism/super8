@@ -34,7 +34,7 @@ int			c_faceclip;					// number of faces clipped
 zpointdesc_t	r_zpointdesc;
 polydesc_t		r_polydesc;
 
-byte r_foundtranslucency, r_overdraw;
+qboolean r_overdraw;
 
 
 clipplane_t	*entity_clipplanes;
@@ -596,11 +596,8 @@ void R_RenderFace (msurface_t *fa, int clipflags)
 //qb: could be glass			if (!r_wateralpha.value)
 //				return;
 			if (!r_overdraw)
-        {
-				r_foundtranslucency = true;
          		return;
         }
-    }
 
 
     else if (r_overdraw)
@@ -807,7 +804,7 @@ void R_RenderBmodelFace (bedge_t *pedges, msurface_t *psurf)
     clipplane_t	*pclip;
 
     // mankrip - begin
-    if (currententity != &cl_entities[0])
+ /*   if (currententity != &cl_entities[0])
     {
         if (r_overdraw)
         {
@@ -816,16 +813,14 @@ void R_RenderBmodelFace (bedge_t *pedges, msurface_t *psurf)
 
             if ((currententity->effects & EF_ADDITIVE) || (currententity->alpha != ENTALPHA_DEFAULT))
             {
-                r_foundtranslucency = true;
                 return;
             }
             if (psurf->flags & SURF_DRAWSPRITE)
             {
-                r_foundtranslucency = true;
                 return;
             }
         }
-    }
+    } */
     // mankrip - end
 
 // skip out if no more surfs

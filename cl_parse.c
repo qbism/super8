@@ -18,7 +18,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 #include "bgmusic.h"
-
+#include "d_local.h"
 
 char *svc_strings[] =
 {
@@ -595,6 +595,32 @@ void CL_ParseUpdate (int bits)
         ent->alpha = MSG_ReadByte(); //qb: converted to byte
     else
         ent->alpha = ent->baseline.alpha; //qb: was ent->alpha = 1.0f;
+    //qbism- alpha mask surf flags of alpha entities.
+
+    if (ent->alpha == ENTALPHA_DEFAULT)
+    {
+        ent->alphaspans = false;
+#if id386
+        ent->D_DrawSpans = D_DrawSpans16;
+#else
+        ent->D_DrawSpans = D_DrawSpans16_C;
+#endif
+    }
+    else if (ENTALPHA_DECODE(ent->alpha) < 0.43)
+    {
+        ent->alphaspans = true;
+        ent->D_DrawSpans = D_DrawSpans16_Blend;
+    }
+    else if (ENTALPHA_DECODE(ent->alpha) < 0.60)
+    {
+        ent->alphaspans = true;
+        ent->D_DrawSpans = D_DrawSpans16_Blend50;
+    }
+    else
+    {
+        ent->alphaspans = true;
+        ent->D_DrawSpans = D_DrawSpans16_BlendBackwards;
+    }
 
     if (bits & U_SCALE)
         ent->scale2 = MSG_ReadFloat();
@@ -896,6 +922,32 @@ void CL_ParseStatic (void)
     CL_ParseBaseline (ent);
 
 // copy it to the current state
+    ent->alpha = ent->baseline.alpha;
+
+    if (ent->alpha == ENTALPHA_DEFAULT)
+    {
+        ent->alphaspans = false;
+#if id386
+        ent->D_DrawSpans = D_DrawSpans16;
+#else
+        ent->D_DrawSpans = D_DrawSpans16_C;
+#endif
+    }
+    else if (ENTALPHA_DECODE(ent->alpha) < 0.43)
+    {
+        ent->alphaspans = true;
+        ent->D_DrawSpans = D_DrawSpans16_Blend;
+    }
+    else if (ENTALPHA_DECODE(ent->alpha) < 0.60)
+    {
+        ent->alphaspans = true;
+        ent->D_DrawSpans = D_DrawSpans16_Blend50;
+    }
+    else
+    {
+        ent->alphaspans = true;
+        ent->D_DrawSpans = D_DrawSpans16_BlendBackwards;
+    }
     ent->model = cl.model_precache[ent->baseline.modelindex];
     ent->frame = ent->baseline.frame;
     ent->colormap = vid.colormap;
@@ -912,7 +964,6 @@ void CL_ParseStatic (void)
     {
         int		bits;
 
-        ent->alpha = ent->baseline.alpha; //qb: finally figured this out.
         bits = MSG_ReadLong();
 
         if (bits & U_SCALE)

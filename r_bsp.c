@@ -18,6 +18,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 #include "r_local.h"
+#include "d_local.h"
 
 //
 // current entity info
@@ -337,6 +338,8 @@ void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel, int alphamask)
 // FIXME: use bounding-box-based frustum clipping info?
 
     psurf = &pmodel->surfaces[pmodel->firstmodelsurface];
+ //   if ((r_overdraw != alphaspans) && !(psurf->flags & SURF_DRAWFENCE))
+ //       return;
     numsurfaces = pmodel->nummodelsurfaces;
     pedges = pmodel->edges;
 
@@ -422,6 +425,8 @@ void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags, int alphamask)
 // FIXME: use bounding-box-based frustum clipping info?
 
     psurf = &pmodel->surfaces[pmodel->firstmodelsurface];
+      //          if ((r_overdraw != alphaspans) && !(psurf->flags & SURF_DRAWFENCE))
+  //      return;
     numsurfaces = pmodel->nummodelsurfaces;
 
     for (i=0 ; i<numsurfaces ; i++, psurf++)
