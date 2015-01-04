@@ -1404,7 +1404,7 @@ void R_DrawBEntitiesOnList (void)
             alphaspans = currententity->alphaspans; //qb: if r_overdraw or not
             clmodel = currententity->model;
             psurf = &clmodel->surfaces[clmodel->firstmodelsurface];
-            if ((r_overdraw || !alphaspans) || (psurf->flags & SURF_DRAWFENCE))
+            if ((r_overdraw || !alphaspans))
             {
             d_drawspans = currententity->D_DrawSpans;
 
