@@ -338,19 +338,22 @@ void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel, int alphamask)
 // FIXME: use bounding-box-based frustum clipping info?
 
     psurf = &pmodel->surfaces[pmodel->firstmodelsurface];
- //   if ((r_overdraw != alphaspans) && !(psurf->flags & SURF_DRAWFENCE))
- //       return;
+
     numsurfaces = pmodel->nummodelsurfaces;
     pedges = pmodel->edges;
 
     for (i=0 ; i<numsurfaces ; i++, psurf++)
     {
+        if (!r_overdraw && (psurf->flags & SURF_DRAWFENCE))
+            continue; //qb: kick out fence surfaces in this case
+
         // find which side of the node we are on
         pplane = psurf->plane;
 
         dot = DotProduct (modelorg, pplane->normal) - pplane->dist;
 
         // draw the polygon
+
         if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
                 (!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
         {
@@ -425,16 +428,18 @@ void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags, int alphamask)
 // FIXME: use bounding-box-based frustum clipping info?
 
     psurf = &pmodel->surfaces[pmodel->firstmodelsurface];
-      //          if ((r_overdraw != alphaspans) && !(psurf->flags & SURF_DRAWFENCE))
-  //      return;
     numsurfaces = pmodel->nummodelsurfaces;
 
     for (i=0 ; i<numsurfaces ; i++, psurf++)
     {
+         if (!r_overdraw && (psurf->flags & SURF_DRAWFENCE))
+            continue; //qb: kick out fence surfaces in this case
+
         // find which side of the node we are on
         pplane = psurf->plane;
 
         dot = DotProduct (modelorg, pplane->normal) - pplane->dist;
+
         if (alphamask)
             psurf->flags|= (alphamask | SURF_DRAWTRANSLUCENT);
         // draw the polygon
