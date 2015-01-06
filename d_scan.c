@@ -283,7 +283,7 @@ static float        sdivz, tdivz, zi, z, du, dv, spancountminus1;
 static float        sdivzstepu, tdivzstepu, zistepu;
 static int          izi, izistep; // mankrip
 static short        *pz; // mankrip
-static unsigned cw_local;  //qb: using a const is faster, based on assembly output
+static int cw_local;  //qb: using a static is faster, based on assembly output
 
 
 /*
@@ -413,7 +413,7 @@ void Turbulent8 (espan_t *pspan)
             // Manoel Kasimier - translucent water - begin
             if (r_overdraw)
             {
-  if (r_wateralpha.value <= 0.41) // 33%
+                if (r_wateralpha.value <= 0.41) // 33%
                 {
                     do
                     {
@@ -592,6 +592,7 @@ void D_DrawSpans16_C (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll =
             }
 
             pdest += spancount;
+
             switch (spancount)
             {
             case 16:
@@ -796,7 +797,7 @@ void D_DrawSpans16_Fence (espan_t *pspan)
             case  3: WRITEFENCE(-3);
             case  2: WRITEFENCE(-2);
             case  1: WRITEFENCE(-1);
-            break;
+                break;
             }
         }
         // mankrip - end

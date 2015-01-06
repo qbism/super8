@@ -37,90 +37,90 @@ char    localmodels[MAX_MODELS][6];                     // inline model names fo
 SV_InvisibleToClient  //qb:  r00k
 ===============
 */
-    qboolean SV_InvisibleToClient(edict_t *viewer, edict_t *seen)
+qboolean SV_InvisibleToClient(edict_t *viewer, edict_t *seen)
+{
+    int i;
+    trace_t   tr;
+    vec3_t   start;
+    vec3_t   end;
+    extern trace_t SV_ClipMoveToEntity (edict_t *ent, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end);
+    extern qboolean CL_Clip_Test(vec3_t org);
+    int it;
+    int vi;
+
+    vi = (int)viewer->v.colormap - 1;
+
+    if (seen->tracetimer[vi] > sv.time)
+        return false;
+
+    it = (int)(seen->v.items);
+
+    //R00k: DM players want to see the Quad/Pent glow. Dont cull them at the moment...(fixme)
+    if ((strcmp(pr_strings + seen->v.classname, "player") == 0) && ((it & IT_QUAD) || (it & IT_INVULNERABILITY)))
     {
-       int i;
-       trace_t   tr;
-        vec3_t   start;
-        vec3_t   end;
-       extern trace_t SV_ClipMoveToEntity (edict_t *ent, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end);
-       extern qboolean CL_Clip_Test(vec3_t org);
-       int it;
-       int vi;
+        return false;
+    }
 
-       vi = (int)viewer->v.colormap - 1;
-
-       if (seen->tracetimer[vi] > sv.time)
-          return false;
-
-       it = (int)(seen->v.items);
-
-       //R00k: DM players want to see the Quad/Pent glow. Dont cull them at the moment...(fixme)
-          if ((strcmp(pr_strings + seen->v.classname, "player") == 0) && ((it & IT_QUAD) || (it & IT_INVULNERABILITY)))
-       {
-          return false;
-       }
-
-       if (sv_cullentities.value == 1)    //1 only check player models, 2 = check all ents
-       {
-          if (strcmp(pr_strings + seen->v.classname, "player"))
-             return false;
-       }
-
-       if (seen->v.movetype == MOVETYPE_PUSH )
-        {
-          if (sv_cullentities.value == 3)
-          {
-              if (CL_Clip_Test(seen->v.origin)== false)
-                return false;
-          }
-          else
-             return false;
-        }
-
-        memset (&tr, 0, sizeof(tr));
-        tr.fraction = 1;
-
-        start[0] = viewer->v.origin[0];
-        start[1] = viewer->v.origin[1];
-        start[2] = viewer->v.origin[2] + viewer->v.view_ofs[2];
-
-        //aim straight at the center of "seen" from our eyes
-        end[0] = 0.5 * (seen->v.mins[0] + seen->v.maxs[0]);
-        end[1] = 0.5 * (seen->v.mins[1] + seen->v.maxs[1]);
-        end[2] = 0.5 * (seen->v.mins[2] + seen->v.maxs[2]);
-
-        tr = SV_ClipMoveToEntity (sv.edicts, start, vec3_origin, vec3_origin, end);
-
-       if (tr.fraction == 1)// line hit the ent
-       {
-          seen->tracetimer[vi] = sv.time + 0.2;
+    if (sv_cullentities.value == 1)    //1 only check player models, 2 = check all ents
+    {
+        if (strcmp(pr_strings + seen->v.classname, "player"))
             return false;
-       }
+    }
 
-        memset (&tr, 0, sizeof(tr));
-        tr.fraction = 1;
-
-       //last attempt to eliminate any flaws...
-        if ((!strcmp(pr_strings + seen->v.classname, "player")) || (sv_cullentities.value > 1))
+    if (seen->v.movetype == MOVETYPE_PUSH )
+    {
+        if (sv_cullentities.value == 3)
         {
-            for (i = 0; i < 8; i++)
-            {
-                end[0] = seen->v.origin[0] + offsetrandom(seen->v.mins[0], seen->v.maxs[0]);
-                end[1] = seen->v.origin[1] + offsetrandom(seen->v.mins[1], seen->v.maxs[1]);
-                end[2] = seen->v.origin[2] + offsetrandom(seen->v.mins[2], seen->v.maxs[2]);
+            if (CL_Clip_Test(seen->v.origin)== false)
+                return false;
+        }
+        else
+            return false;
+    }
 
-                tr = SV_ClipMoveToEntity (sv.edicts, start, vec3_origin, vec3_origin, end);
-                if (tr.fraction == 1)// line hit the ent
-             {
-                 //Con_DPrintf (va("found ent in %i hits\n", i));
+    memset (&tr, 0, sizeof(tr));
+    tr.fraction = 1;
+
+    start[0] = viewer->v.origin[0];
+    start[1] = viewer->v.origin[1];
+    start[2] = viewer->v.origin[2] + viewer->v.view_ofs[2];
+
+    //aim straight at the center of "seen" from our eyes
+    end[0] = 0.5 * (seen->v.mins[0] + seen->v.maxs[0]);
+    end[1] = 0.5 * (seen->v.mins[1] + seen->v.maxs[1]);
+    end[2] = 0.5 * (seen->v.mins[2] + seen->v.maxs[2]);
+
+    tr = SV_ClipMoveToEntity (sv.edicts, start, vec3_origin, vec3_origin, end);
+
+    if (tr.fraction == 1)// line hit the ent
+    {
+        seen->tracetimer[vi] = sv.time + 0.2;
+        return false;
+    }
+
+    memset (&tr, 0, sizeof(tr));
+    tr.fraction = 1;
+
+    //last attempt to eliminate any flaws...
+    if ((!strcmp(pr_strings + seen->v.classname, "player")) || (sv_cullentities.value > 1))
+    {
+        for (i = 0; i < 8; i++)
+        {
+            end[0] = seen->v.origin[0] + offsetrandom(seen->v.mins[0], seen->v.maxs[0]);
+            end[1] = seen->v.origin[1] + offsetrandom(seen->v.mins[1], seen->v.maxs[1]);
+            end[2] = seen->v.origin[2] + offsetrandom(seen->v.mins[2], seen->v.maxs[2]);
+
+            tr = SV_ClipMoveToEntity (sv.edicts, start, vec3_origin, vec3_origin, end);
+            if (tr.fraction == 1)// line hit the ent
+            {
+                //Con_DPrintf (va("found ent in %i hits\n", i));
                 seen->tracetimer[vi] = sv.time + 0.2;
                 return false;
-             }
             }
         }
-        return true;
     }
+    return true;
+}
 
 
 /*
@@ -419,17 +419,17 @@ void SV_SendServerinfo (client_t *client)
 
     MSG_WriteString (&client->message,message);
 
-        //qb: from johnfitz -- only send the first 256 model and sound precaches if protocol is 15
-        for (i=0,s = sv.model_precache+1 ; *s; s++,i++)
-                if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
-                        MSG_WriteString (&client->message, *s);
-        MSG_WriteByte (&client->message, 0);
+    //qb: from johnfitz -- only send the first 256 model and sound precaches if protocol is 15
+    for (i=0,s = sv.model_precache+1 ; *s; s++,i++)
+        if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
+            MSG_WriteString (&client->message, *s);
+    MSG_WriteByte (&client->message, 0);
 
-        for (i=0,s = sv.sound_precache+1 ; *s ; s++,i++)
-                if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
-                        MSG_WriteString (&client->message, *s);
-        MSG_WriteByte (&client->message, 0);
-        //johnfitz
+    for (i=0,s = sv.sound_precache+1 ; *s ; s++,i++)
+        if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
+            MSG_WriteString (&client->message, *s);
+    MSG_WriteByte (&client->message, 0);
+    //johnfitz
 
 // send music
     MSG_WriteByte (&client->message, svc_cdtrack);
@@ -584,38 +584,38 @@ byte    fatpvs[MAX_MAP_LEAFS/8];
 //qb:  from FQ
 void SV_AddToFatPVS (vec3_t org, mnode_t *node, model_t *worldmodel) //johnfitz -- added worldmodel as a parameter
 {
-        int             i;
-        byte    *pvs;
-        mplane_t        *plane;
-        float   d;
+    int             i;
+    byte    *pvs;
+    mplane_t        *plane;
+    float   d;
 
-        while (1)
-        {
+    while (1)
+    {
         // if this is a leaf, accumulate the pvs bits
-                if (node->contents < 0)
-                {
-                        if (node->contents != CONTENTS_SOLID)
-                        {
-                                pvs = Mod_LeafPVS ( (mleaf_t *)node, worldmodel); //johnfitz -- worldmodel as a parameter
-                                for (i=0 ; i<fatbytes ; i++)
-                                        fatpvs[i] |= pvs[i];
-                        }
-                        return;
-                }
+        if (node->contents < 0)
+        {
+            if (node->contents != CONTENTS_SOLID)
+            {
+                pvs = Mod_LeafPVS ( (mleaf_t *)node, worldmodel); //johnfitz -- worldmodel as a parameter
+                for (i=0 ; i<fatbytes ; i++)
+                    fatpvs[i] |= pvs[i];
+            }
+            return;
+        }
 
-                plane = node->plane;
-                d = DotProduct (org, plane->normal) - plane->dist;
-                if (d > 8)
-                        node = node->children[0];
-                else if (d < -8)
-                        node = node->children[1];
-                else
+        plane = node->plane;
+        d = DotProduct (org, plane->normal) - plane->dist;
+        if (d > 8)
+            node = node->children[0];
+        else if (d < -8)
+            node = node->children[1];
+        else
         {
             // go down both
-                        SV_AddToFatPVS (org, node->children[0], worldmodel); //johnfitz -- worldmodel as a parameter
-                        node = node->children[1];
-                }
+            SV_AddToFatPVS (org, node->children[0], worldmodel); //johnfitz -- worldmodel as a parameter
+            node = node->children[1];
         }
+    }
 }
 
 /*
@@ -628,10 +628,10 @@ given point.
 */
 byte *SV_FatPVS (vec3_t org, model_t *worldmodel) //johnfitz -- added worldmodel as a parameter
 {
-        fatbytes = (worldmodel->numleafs+31)>>3;
-        memset (fatpvs, 0, fatbytes);
-        SV_AddToFatPVS (org, worldmodel->nodes, worldmodel); //johnfitz -- worldmodel as a parameter
-        return fatpvs;
+    fatbytes = (worldmodel->numleafs+31)>>3;
+    memset (fatpvs, 0, fatbytes);
+    SV_AddToFatPVS (org, worldmodel->nodes, worldmodel); //johnfitz -- worldmodel as a parameter
+    return fatpvs;
 }
 
 //=============================================================================
@@ -759,45 +759,45 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
                 continue;
 
 // ignore ents without visible models
-                if (!ent->v.modelindex || !pr_strings[ent->v.model])
-                    continue;
+            if (!ent->v.modelindex || !pr_strings[ent->v.model])
+                continue;
 
-			//johnfitz -- don't send model>255 entities if protocol is 15
-			if (current_protocol == PROTOCOL_NETQUAKE && (int)ent->v.modelindex & 0xFF00)
-				continue;
+            //johnfitz -- don't send model>255 entities if protocol is 15
+            if (current_protocol == PROTOCOL_NETQUAKE && (int)ent->v.modelindex & 0xFF00)
+                continue;
 
-                //qb based on Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT Start
-                if ((val = GetEdictFieldValue(ent, "drawonlytoclient")) && val->edict && val->edict != clentnum)
-                    continue;
+            //qb based on Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT Start
+            if ((val = GetEdictFieldValue(ent, "drawonlytoclient")) && val->edict && val->edict != clentnum)
+                continue;
 
-                if ((val = GetEdictFieldValue(ent, "nodrawtoclient")) && val->edict == clentnum)
-                    continue;
-                //Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT End
+            if ((val = GetEdictFieldValue(ent, "nodrawtoclient")) && val->edict == clentnum)
+                continue;
+            //Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT End
 
-                if ((!chase_active.value && (val = GetEdictFieldValue(ent, "exteriormodeltoclient"))) && val->edict == clentnum)
-                    continue;
+            if ((!chase_active.value && (val = GetEdictFieldValue(ent, "exteriormodeltoclient"))) && val->edict == clentnum)
+                continue;
 
-                //qb- 'Fix - Large Brushmodel Flickering/Not Visible' by MH elaborated by Reckless, from inside3d
-                // link to PVS leafs - deferred to here so that we can compare leafs that are touched to the PVS.
-                // this is less optimal on one hand as it now needs to be done separately for each client, rather than once
-                // only (covering all clients), but more optimal on the other as it only needs to hit one leaf and will
-                // start dropping out of the recursion as soon as it does so.  on balance it should be more optimal overall.
-                ent->touchleaf = false;
+            //qb- 'Fix - Large Brushmodel Flickering/Not Visible' by MH elaborated by Reckless, from inside3d
+            // link to PVS leafs - deferred to here so that we can compare leafs that are touched to the PVS.
+            // this is less optimal on one hand as it now needs to be done separately for each client, rather than once
+            // only (covering all clients), but more optimal on the other as it only needs to hit one leaf and will
+            // start dropping out of the recursion as soon as it does so.  on balance it should be more optimal overall.
+            ent->touchleaf = false;
 
-                SV_FindTouchedLeafs (ent, sv.worldmodel->nodes, pvs);
+            SV_FindTouchedLeafs (ent, sv.worldmodel->nodes, pvs);
 
-                // if the entity didn't touch any leafs in the pvs don't send it to the client
-                if (!ent->touchleaf && !sv_novis.value) continue;//qb - novis from FQ
-            }
+            // if the entity didn't touch any leafs in the pvs don't send it to the client
+            if (!ent->touchleaf && !sv_novis.value) continue;//qb - novis from FQ
+        }
 
 
-            //johnfitz -- max size for protocol 15 is 18 bytes, not 16 as originally
-            //assumed here.  And, for protocol 85 the max size is actually 24 bytes.
-            if (msg->cursize + 24 > msg->maxsize)
-            {
-                Con_Printf ("Packet overflow!\n");
-            }
-            //johnfitz
+        //johnfitz -- max size for protocol 15 is 18 bytes, not 16 as originally
+        //assumed here.  And, for protocol 85 the max size is actually 24 bytes.
+        if (msg->cursize + 24 > msg->maxsize)
+        {
+            Con_Printf ("Packet overflow!\n");
+        }
+        //johnfitz
 
 
 // send an update
@@ -889,7 +889,7 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
             {
                 glow_size = (short)val->_float;
                 bound(-250, glow_size, 250);
-                 bits |= U_GLOW_SIZE;
+                bits |= U_GLOW_SIZE;
             }
             if (val = GetEdictFieldValue(ent, "glow_red"))
             {
@@ -1429,6 +1429,8 @@ void SV_CreateBaseline (void)
             continue;
         if (entnum > svs.maxclients && !svent->v.modelindex)
             continue;
+        if (svent->alpha == ENTALPHA_ZERO)
+            continue;
 
         //
         // create entity baseline
@@ -1453,18 +1455,43 @@ void SV_CreateBaseline (void)
         //
         // add to the message
         //
-        MSG_WriteByte (&sv.signon,svc_spawnbaseline);
-        MSG_WriteShort (&sv.signon,entnum);
 
         if (current_protocol == PROTOCOL_QBS8)
         {
+            if (svent->alpha >0 && svent->alpha<16 && entnum > svs.maxclients)
+                svent->alpha = 16;  //qb: minimum alpha due to bitshift compression
             svent->baseline.alpha = svent->alpha;  //qb
-            MSG_WriteShort (&sv.signon, svent->baseline.modelindex);
-            MSG_WriteByte (&sv.signon, svent->baseline.alpha); //qb
+
+            if((svent->baseline.modelindex < 256) && (svent->alpha == ENTALPHA_DEFAULT))
+            {
+                if(entnum <256)
+                {
+                    MSG_WriteByte (&sv.signon,svc_spawnbaseline3);
+                    MSG_WriteByte (&sv.signon,entnum);
+                    MSG_WriteByte (&sv.signon, svent->baseline.modelindex);
+                }
+                else
+                {
+                    MSG_WriteByte (&sv.signon,svc_spawnbaseline);
+                    MSG_WriteShort (&sv.signon,entnum);
+                    MSG_WriteByte (&sv.signon, svent->baseline.modelindex);
+                }
+
+            }
+            else
+            {
+                    MSG_WriteByte (&sv.signon,svc_spawnbaseline2);
+                    MSG_WriteShort (&sv.signon,entnum);
+                    MSG_WriteShort (&sv.signon, ((unsigned short)(svent->baseline.modelindex) << 4) + (svent->baseline.alpha >>4));
+            }
+
+
         }
 
         else
         {
+            MSG_WriteByte (&sv.signon,svc_spawnbaseline);
+            MSG_WriteShort (&sv.signon,entnum);
             svent->baseline.alpha = ENTALPHA_DEFAULT; //qb
             MSG_WriteByte (&sv.signon, svent->baseline.modelindex);
         }
@@ -1615,7 +1642,7 @@ void SV_SpawnServer (char *server)
     {
         if( !R_LoadPalette(r_palette.string)) //qb- load custom palette if it exists.
             R_LoadPalette("palette"); //qb- default to standard palette.
-   }
+    }
     Q_strcpy (sv.name, server);
     sprintf (sv.modelname,"maps/%s.bsp", server);
     sv.worldmodel = Mod_ForName (sv.modelname, false);
@@ -1676,6 +1703,8 @@ void SV_SpawnServer (char *server)
 
 // create a baseline for more efficient communications
     SV_CreateBaseline ();
+
+    Con_Printf("signon buffer size: %i\n", sv.signon.cursize);
 
 // send serverinfo to all connected clients
     for (i=0,host_client = svs.clients ; i<svs.maxclients ; i++, host_client++)

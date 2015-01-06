@@ -412,7 +412,7 @@ void PF_setmodel (void)
     mod = sv.models[ (int)e->v.modelindex];  // Mod_ForName (m, true);
 
     if (mod)
-			SetMinMaxSize (e, mod->mins, mod->maxs, true);
+        SetMinMaxSize (e, mod->mins, mod->maxs, true);
     else
         SetMinMaxSize (e, vec3_origin, vec3_origin, true);
 }
@@ -688,8 +688,8 @@ void PF_ambientsound (void)
         Con_Printf ("ambient sound:  no precache: %s\n", samp);
         return;
     }
- // qb: soundnum as byte for compatibility (Marcher) Ambients should be low number, anyway.
-   if (current_protocol != PROTOCOL_NETQUAKE)
+// qb: soundnum as byte for compatibility (Marcher) Ambients should be low number, anyway.
+    if (current_protocol != PROTOCOL_NETQUAKE)
     {
         if (soundnum >MAX_SOUNDS)
         {
@@ -707,17 +707,17 @@ void PF_ambientsound (void)
 // add an svc_spawnambient command to the level signon packet
 
 
-if (current_protocol == PROTOCOL_NETQUAKE || (soundnum < 256))
-    MSG_WriteByte (&sv.signon,svc_spawnstaticsound);
-else
-    MSG_WriteByte (&sv.signon,svc_spawnstaticsound_large); //qb: for mods that stuffcmd byte (Marcher, grrr...)
+    if (current_protocol == PROTOCOL_NETQUAKE || (soundnum < 256))
+        MSG_WriteByte (&sv.signon,svc_spawnstaticsound);
+    else
+        MSG_WriteByte (&sv.signon,svc_spawnstaticsound_large); //qb: for mods that stuffcmd byte (Marcher, grrr...)
     for (i=0 ; i<3 ; i++)
         MSG_WriteCoord(&sv.signon, pos[i]);
 
     if (current_protocol != PROTOCOL_NETQUAKE && (soundnum > 255))
         MSG_WriteShort (&sv.signon, soundnum); //qb: more ambient sounds, breaks some mods
     else
-    MSG_WriteByte (&sv.signon, soundnum);
+        MSG_WriteByte (&sv.signon, soundnum);
     MSG_WriteByte (&sv.signon, vol*255);
     MSG_WriteByte (&sv.signon, attenuation*64);
 }
@@ -1786,17 +1786,11 @@ int SV_ModelIndex (char *name);
 void PF_makestatic (void)
 {
     edict_t	*ent;
-    int		i;
-    float	scale=1;
-    vec3_t	scalev= {0,0,0};
-    short	glow_size=0;
-    byte    glow_red,glow_green,glow_blue;
-    int		bits=0;
+    int		i, mindex;
     eval_t *val;
 
     ent = G_EDICT(OFS_PARM0);
-
-    MSG_WriteByte (&sv.signon,svc_spawnstatic);
+    mindex = SV_ModelIndex(pr_strings + ent->v.model);
 
     if (current_protocol == PROTOCOL_QBS8)
     {
@@ -1806,11 +1800,27 @@ void PF_makestatic (void)
             //qb:  fitzquake  don't send invisible entities unless they have effects
             if (ent->alpha == ENTALPHA_ZERO && !ent->v.effects)
                 return;
+            if (ent->alpha >0 && ent->alpha<16)
+                ent->alpha = 16;  //qb: minimum alpha due to bitshift compression
         }
-        MSG_WriteShort (&sv.signon, SV_ModelIndex(pr_strings + ent->v.model));
-        MSG_WriteByte (&sv.signon, ent->alpha); //qb:
+        else ent->alpha = ENTALPHA_DEFAULT;
+
+        if((ent->baseline.modelindex < 256) && (ent->alpha == ENTALPHA_DEFAULT))
+        {
+            MSG_WriteByte (&sv.signon,svc_spawnstatic);
+            MSG_WriteByte (&sv.signon, mindex);
+        }
+        else
+        {
+            MSG_WriteByte (&sv.signon,svc_spawnstatic2);
+            MSG_WriteShort (&sv.signon, ((unsigned short)(mindex) << 4) + (ent->alpha >>4));
+        }
     }
-    else MSG_WriteByte (&sv.signon, SV_ModelIndex(pr_strings + ent->v.model));
+    else
+    {
+        MSG_WriteByte (&sv.signon,svc_spawnstatic);
+        MSG_WriteByte (&sv.signon, mindex);
+    }
 
     MSG_WriteByte (&sv.signon, ent->v.frame);
     MSG_WriteByte (&sv.signon, ent->v.colormap);
@@ -1821,58 +1831,6 @@ void PF_makestatic (void)
         MSG_WriteCoord(&sv.signon, ent->v.origin[i]);
         MSG_WriteAngle(&sv.signon, ent->v.angles[i]);
     }
-    // Manoel Kasimier - QC Alpha Scale Glow - begin
-    if (current_protocol == PROTOCOL_QBS8)
-    {
-        if ((val = GetEdictFieldValue(ent, "scale")))
-        {
-            scale = val->_float;
-            bits |= U_SCALE;
-        }
-        if ((val = GetEdictFieldValue(ent, "scalev")))
-        {
-            for (i=0 ; i<3 ; i++)
-                scalev[i] = val->vector[i];
-            bits |= U_SCALEV;
-        }
-        if ((val = GetEdictFieldValue(ent, "glow_size")))
-        {
-            glow_size = val->_float;
-            bits |= U_GLOW_SIZE;
-        }
-        if ((val = GetEdictFieldValue(ent, "glow_red")))
-        {
-            glow_red = (byte)(val->_float);
-            bits |= U_GLOW_RED;
-        }
-        if ((val = GetEdictFieldValue(ent, "glow_green")))
-        {
-            glow_green = (byte)(val->_float);
-            bits |= U_GLOW_GREEN;
-        }
-        if ((val = GetEdictFieldValue(ent, "glow_blue")))
-        {
-            glow_blue = (byte)(val->_float);
-            bits |= U_GLOW_BLUE;
-        }
-        // write the message
-        MSG_WriteLong(&sv.signon, bits);
-        if (bits & U_SCALE)
-            MSG_WriteFloat (&sv.signon, scale);
-        if (bits & U_SCALEV)
-            for (i=0 ; i<3 ; i++)
-                MSG_WriteFloat (&sv.signon, scalev[i]);
-        if (bits & U_GLOW_SIZE)
-            MSG_WriteShort (&sv.signon, glow_size);
-        if (bits & U_GLOW_RED)
-            MSG_WriteByte (&sv.signon, glow_red);
-        if (bits & U_GLOW_GREEN)
-            MSG_WriteByte (&sv.signon, glow_green);
-        if (bits & U_GLOW_BLUE)
-            MSG_WriteByte (&sv.signon, glow_blue);
-        MSG_WriteShort(&sv.signon, ent->v.effects);
-    }
-    // Manoel Kasimier - QC Alpha Scale Glow - end
 
 // throw the entity away now
     ED_Free (ent);
