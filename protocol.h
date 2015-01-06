@@ -193,9 +193,15 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define svc_fog					41	// [byte] density [byte] red [byte] green [byte] blue [float] time
 //johnfitz
 
-#define svc_localsound      48  //qb: play sound to a single client, S_LocalSound
+#define svc_localsound          48  //qb: play sound to a single client, S_LocalSound
 #define	svc_spawnstaticsound_large	49	//qb: [coord3] [short] samp [byte] vol [byte] aten
-#define	svc_say				50	//qb: TTS [string] null terminated string
+#define	svc_say				    50	//qb: TTS [string] null terminated string
+#define	svc_spawnbaseline2      51
+
+#define	svc_spawnbaseline3      55
+#define	svc_spawnstatic2        56
+
+#define	svc_spawnstatic3        58
 
 #define svc_letterbox		60	// Manoel Kasimier - svc_letterbox
 #define svc_vibrate			61	// Manoel Kasimier

@@ -641,12 +641,13 @@ void MSG_WriteCoord (sizebuf_t *sb, float f)
 
 void MSG_WriteAngle (sizebuf_t *sb, float f)
 {
-    // Manoel Kasimier - 16-bit angles - begin
-    if (current_protocol != PROTOCOL_NETQUAKE)  //qb: modified for multiple protocols
-        MSG_WriteShort (sb, (int)(f*65536.0/360.0) & 65535);// MSG_WriteFloat(sb, f);
-    else
-        // Manoel Kasimier - 16-bit angles - end
-        MSG_WriteByte (sb, (int)(f*256.0/360.0) & 255); // Manoel Kasimier - improved 8-bit angles - edited
+	MSG_WriteByte (sb, Q_rint(f * 256.0 / 360.0) & 255); //johnfitz -- use Q_rint instead of (int)
+}
+
+//johnfitz -- for PROTOCOL_FITZQUAKE
+void MSG_WriteAngle16 (sizebuf_t *sb, float f)
+{
+	MSG_WriteShort (sb, Q_rint(f * 65536.0 / 360.0) & 65535);
 }
 
 //
@@ -786,12 +787,13 @@ float MSG_ReadCoord (void)
 
 float MSG_ReadAngle (void)
 {
-    // Manoel Kasimier - 16-bit angles - begin
-    if (current_protocol != PROTOCOL_NETQUAKE)
-        return MSG_ReadShort () * (360.0/65536.0);//MSG_ReadFloat();
-    else
-        // Manoel Kasimier - 16-bit angles - end
-        return MSG_ReadChar() * (360.0/256.0);
+	return MSG_ReadChar() * (360.0/256);
+}
+
+//johnfitz -- for PROTOCOL_FITZQUAKE
+float MSG_ReadAngle16 (void)
+{
+	return MSG_ReadShort() * (360.0 / 65536);
 }
 
 

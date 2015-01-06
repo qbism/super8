@@ -122,7 +122,7 @@ void SNDDMA_Shutdown(void);
 // User-setable variables
 // ====================================================================
 
-#define	MAX_CHANNELS			512 //qb: 512 per qsb was 128
+#define	MAX_CHANNELS			1024 //qb: for 'telefragged' map.  512 per qsb was 128
 #define	MAX_DYNAMIC_CHANNELS	128 //qb: 128 per qsb was 8
 
 

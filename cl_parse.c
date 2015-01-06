@@ -78,19 +78,19 @@ char *svc_strings[] =
     "", // 46
     "", // 47
     "svc_localsound", // 48  //play a localsound
-    "svc_say", // 49
-    // DarkPlaces - begin
-    "",//svc_cgame", //				50		// [short] length [bytes] data
-    "",//svc_unusedlh1", //			51		// unused
+    "svc_spawnstaticsound_large", // 49     //qb: [coord3] [short] samp [byte] vol [byte] aten
+
+    "svc_say",              //		50		//qb: text-to-speech [string] null terminated string.  Not implemented yet.
+    "svc_spawnbaseline2", //	    51		//qb: byte short short (compressed modelindex and alpha)
     "",//svc_effect", //			52		// [vector] org [byte] modelindex [byte] startframe [byte] framecount [byte] framerate
     "",//svc_effect2", //			53		// [vector] org [short] modelindex [short] startframe [byte] framecount [byte] framerate
     "",//svc_sound2", //			54		// short soundindex instead of byte
-    "",//svc_spawnbaseline2", //	55		// short modelindex instead of byte
-    "",//svc_spawnstatic2", //		56		// short modelindex instead of byte
-    "",//svc_entities", //			57		// [int] deltaframe [int] thisframe [float vector] eye [variable length] entitydata
-    "",//svc_unusedlh3", //			58
+    "svc_spawnbaseline3",        //	55		//qb:  byte entnum and modelindex instead of short.  Hey, 256 bytes is 256 bytes.
+    "svc_spawnstatic2",  //	        56		 // short modelindex instead of byte
+    "",                 //			57
+    "", //		                	58
     "",//svc_spawnstaticsound2", //	59		// [coord3] [short] samp [byte] vol [byte] aten
-    // DarkPlaces - end
+
     /*60*/"svc_letterbox",
     /*61*/"svc_vibrate",
 };
@@ -683,19 +683,10 @@ CL_ParseBaseline
 */
 void CL_ParseBaseline (entity_t *ent)
 {
-    int			i;
+    int i;
 
-    if (current_protocol == PROTOCOL_QBS8)
-    {
-        ent->baseline.modelindex = MSG_ReadShort ();
-        ent->baseline.alpha = MSG_ReadByte(); //qb: johnfitz -- PROTOCOL_FITZQUAKE
-    }
-    else
-    {
-        ent->baseline.modelindex = MSG_ReadByte ();
-        ent->baseline.alpha = ENTALPHA_DEFAULT;
-    }
-
+    ent->baseline.modelindex = MSG_ReadByte ();
+    ent->baseline.alpha = ENTALPHA_DEFAULT;
 
     ent->baseline.frame = MSG_ReadByte ();
     ent->baseline.colormap = MSG_ReadByte();
@@ -706,6 +697,25 @@ void CL_ParseBaseline (entity_t *ent)
         ent->baseline.angles[i] = MSG_ReadAngle ();
     }
 
+}
+
+void CL_ParseBaseline2 (entity_t *ent)
+{
+    unsigned short			e;
+    int i;
+
+    e = (unsigned short)MSG_ReadShort ();
+    ent->baseline.modelindex = e  >> 4;
+    ent->baseline.alpha = (byte)((e & 0x000f) << 4);
+
+    ent->baseline.frame = MSG_ReadByte ();
+    ent->baseline.colormap = MSG_ReadByte();
+    ent->baseline.skin = MSG_ReadByte();
+    for (i=0 ; i<3 ; i++)
+    {
+        ent->baseline.origin[i] = MSG_ReadCoord ();
+        ent->baseline.angles[i] = MSG_ReadAngle ();
+    }
 }
 
 
@@ -909,7 +919,7 @@ void CL_NewTranslation (int slot)
 CL_ParseStatic
 =====================
 */
-void CL_ParseStatic (void)
+void CL_ParseStatic (int stattype)
 {
     entity_t *ent;
     int		i;
@@ -919,7 +929,9 @@ void CL_ParseStatic (void)
         Host_Error ("Too many static entities");
     ent = &cl_static_entities[i];
     cl.num_statics++;
-    CL_ParseBaseline (ent);
+    if (stattype == 2)
+        CL_ParseBaseline2 (ent);
+    else CL_ParseBaseline (ent);
 
 // copy it to the current state
     ent->alpha = ent->baseline.alpha;
@@ -959,47 +971,9 @@ void CL_ParseStatic (void)
     ent->translate_start_time = 0;
     ent->rotate_start_time = 0;
     // Manoel Kasimier - model interpolation - end
-    // Manoel Kasimier - QC Alpha Scale - begin
-    if (current_protocol == PROTOCOL_QBS8)
-    {
-        int		bits;
-
-        bits = MSG_ReadLong();
-
-        if (bits & U_SCALE)
-            ent->scale2 = MSG_ReadFloat ();
-
-        if (bits & U_SCALEV)
-            for (i=0 ; i<3 ; i++)
-                ent->scalev[i] = MSG_ReadFloat ();
-
-        if (bits & U_GLOW_SIZE)
-            ent->glow_size = MSG_ReadShort ();
-        if (bits & U_GLOW_RED)
-            ent->glow_red = MSG_ReadByte ();
-        if (bits & U_GLOW_GREEN)
-            ent->glow_green = MSG_ReadByte ();
-        if (bits & U_GLOW_BLUE)
-            ent->glow_blue = MSG_ReadByte ();
-        ent->effects = MSG_ReadShort();
-
-        if (ent->scale2 <= 0)
-            ent->scale2 = 1.0f;
-        if (!ent->scalev[0] && !ent->scalev[1] && !ent->scalev[2])
-            ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
-
-        if (ent->glow_size > 250)
-            ent->glow_size = 250;
-        else if (ent->glow_size < -250)
-            ent->glow_size = -250;
-    }
-    else
-    {
-        ent->glow_size = 0;
-        ent->scale2 = 1.0f;
-        ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
-    }
-    // Manoel Kasimier - QC Alpha Scale - end
+    ent->glow_size = 0;
+    ent->scale2 = 1.0f;
+    ent->scalev[0] = ent->scalev[1] = ent->scalev[2] = 1.0f;
 
     VectorCopy (ent->baseline.origin, ent->origin);
     VectorCopy (ent->baseline.angles, ent->angles);
@@ -1224,8 +1198,20 @@ void CL_ParseServerMessage (void)
             // must use CL_EntityNum() to force cl.num_entities up
             CL_ParseBaseline (CL_EntityNum(i));
             break;
+        case svc_spawnbaseline2:
+            i = MSG_ReadShort ();
+            CL_ParseBaseline2 (CL_EntityNum(i));
+            break;
+        case svc_spawnbaseline3:
+            i = MSG_ReadByte ();
+            CL_ParseBaseline (CL_EntityNum(i));
+            break;
+
         case svc_spawnstatic:
-            CL_ParseStatic ();
+            CL_ParseStatic (1);
+            break;
+        case svc_spawnstatic2:
+            CL_ParseStatic (2);
             break;
         case svc_temp_entity:
             CL_ParseTEnt ();
