@@ -258,7 +258,7 @@ void D_DrawSurfaces (void)
                    // else D_DrawSpans16_Blend(pspans); //qb: catchall
                 }
 
-                if (!r_overdraw) // mankrip - translucent water
+                if (!r_overdraw && !(s->flags & SURF_DRAWFENCE)) // mankrip - translucent water
                     D_DrawZSpans (pspans); // mankrip - edited
 
                 if (s->insubmodel)

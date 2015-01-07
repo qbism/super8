@@ -471,7 +471,7 @@ void CL_SendMove (usercmd_t *cmd)
 
     MSG_WriteFloat (&buf, cl.mtime[0]);	// so server can get ping times
 
-    if (current_protocol == PROTOCOL_QBS8)
+    if (cl.protocol == PROTOCOL_QBS8)
     {
         for (i=0 ; i<3 ; i++)
         MSG_WriteAngle16 (&buf, cl.viewangles[i]);

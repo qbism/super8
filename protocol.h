@@ -198,9 +198,10 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define	svc_say				    50	//qb: TTS [string] null terminated string
 #define	svc_spawnbaseline2      51
 
-#define	svc_spawnbaseline3      55
-#define	svc_spawnstatic2        56
+#define	svc_spawnbaseline3      54
+#define	svc_spawnbaseline4      55
 
+#define	svc_spawnstatic2        57
 #define	svc_spawnstatic3        58
 
 #define svc_letterbox		60	// Manoel Kasimier - svc_letterbox

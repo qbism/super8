@@ -20,7 +20,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "quakedef.h"
 #include "version.h" //qb - generated from bat
 
-int current_protocol = PROTOCOL_QBS8; //qb
+int sv_protocol = PROTOCOL_QBS8; //qb
 server_t    sv;
 server_static_t     svs;
 
@@ -31,6 +31,15 @@ cvar_t  sv_qcexec       = {"sv_qcexec","0", "sv_qcexec[0/1] Toggle to allow qc c
 
 char    localmodels[MAX_MODELS][6];                     // inline model names for precache //qb: was 5
 
+
+//qb: moved here because client doesn't need it, plus maintain PROTOCOL_NETQUAKE support
+void MSG_WriteCoord (sizebuf_t *sb, float f)
+{
+    if (sv.protocol != PROTOCOL_NETQUAKE) //qb: extended coordinates by JTR
+        MSG_WriteLong (sb, (int)(f*8));
+    else
+        MSG_WriteShort (sb, (int)(f*8));
+}
 
 /*
 ===============
@@ -135,7 +144,7 @@ void SV_Protocol_f (void)
     switch (Cmd_Argc())
     {
     case 1:
-        Con_Printf ("\"sv_protocol\" is \"%i\"\n", current_protocol);
+        Con_Printf ("\"sv_protocol\" is \"%i\"\n", sv_protocol);
         break;
     case 2:
         i = atoi(Cmd_Argv(1));
@@ -143,7 +152,7 @@ void SV_Protocol_f (void)
             Con_Printf ("sv_protocol must be %i or %i\n", PROTOCOL_NETQUAKE, PROTOCOL_QBS8);
         else
         {
-            current_protocol = i;
+            sv_protocol = i;
             if (sv.active)
                 Con_Printf ("changes will not take effect until the next level load.\n");
         }
@@ -285,14 +294,14 @@ void SV_StartSound (edict_t *entity, int channel, char *sample, byte volume, flo
     //qb:  johnfitz begin
     if (ent >= 8192)
     {
-        if (current_protocol == PROTOCOL_NETQUAKE)
+        if (sv.protocol  == PROTOCOL_NETQUAKE)
             return; //don't send any info protocol can't support
         else
             field_mask |= SND_LARGEENTITY;
     }
     if (sound_num >= 256 || channel >= 8)  //qb channel >7 is sys_error above
     {
-        if (current_protocol == PROTOCOL_NETQUAKE)
+        if (sv.protocol  == PROTOCOL_NETQUAKE)
             return; //don't send any info protocol can't support
         else
             field_mask |= SND_LARGESOUND;
@@ -354,7 +363,7 @@ void SV_LocalSound (client_t *client, char *sample, byte volume)
 
     if (sound_num >= 256)  //qb channel >7 is sys_error above
     {
-        if (current_protocol == PROTOCOL_NETQUAKE)
+        if (sv.protocol  == PROTOCOL_NETQUAKE)
             return; //don't send any info protocol can't support
         else
             field_mask |= SND_LARGESOUND;
@@ -406,7 +415,7 @@ void SV_SendServerinfo (client_t *client)
 
     MSG_WriteByte (&client->message, svc_serverinfo);
 
-    MSG_WriteLong (&client->message, current_protocol);
+    MSG_WriteLong (&client->message, sv.protocol );
 
     MSG_WriteByte (&client->message, svs.maxclients);
 
@@ -421,12 +430,12 @@ void SV_SendServerinfo (client_t *client)
 
     //qb: from johnfitz -- only send the first 256 model and sound precaches if protocol is 15
     for (i=0,s = sv.model_precache+1 ; *s; s++,i++)
-        if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
+        if (sv.protocol  != PROTOCOL_NETQUAKE || i < 256)
             MSG_WriteString (&client->message, *s);
     MSG_WriteByte (&client->message, 0);
 
     for (i=0,s = sv.sound_precache+1 ; *s ; s++,i++)
-        if (current_protocol != PROTOCOL_NETQUAKE || i < 256)
+        if (sv.protocol  != PROTOCOL_NETQUAKE || i < 256)
             MSG_WriteString (&client->message, *s);
     MSG_WriteByte (&client->message, 0);
     //johnfitz
@@ -763,7 +772,7 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
                 continue;
 
             //johnfitz -- don't send model>255 entities if protocol is 15
-            if (current_protocol == PROTOCOL_NETQUAKE && (int)ent->v.modelindex & 0xFF00)
+            if (sv.protocol  == PROTOCOL_NETQUAKE && (int)ent->v.modelindex & 0xFF00)
                 continue;
 
             //qb based on Team XLink DP_SV_DRAWONLYTOCLIENT & DP_SV_NODRAWTOCLIENT Start
@@ -832,7 +841,7 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
             bits |= U_FRAME;
 
 
-        if ((current_protocol == PROTOCOL_QBS8) && (val = GetEdictFieldValue(ent, "modelflags")))  //qb from DP
+        if ((sv.protocol  == PROTOCOL_QBS8) && (val = GetEdictFieldValue(ent, "modelflags")))  //qb from DP
         {
             i= (unsigned int)ent->v.effects;
             i |= ((unsigned int)val->_float & 0xff) << 24;
@@ -844,7 +853,7 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
             // Manoel Kasimier
             bits |= U_EFFECTS;
             // Manoel Kasimier - begin
-            if (current_protocol == PROTOCOL_QBS8)
+            if (sv.protocol  == PROTOCOL_QBS8)
             {
                 ent->baseline.effects = ent->v.effects; //qb reset baseline, also on client side.
                 if (ent->v.effects >= 256)
@@ -856,19 +865,16 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
         if (ent->baseline.modelindex != ent->v.modelindex)
             bits |= U_MODEL;
         // Tomaz - QC Alpha Scale Glow Begin (qb- modified)
-        if (current_protocol == PROTOCOL_QBS8)
+        if (sv.protocol  == PROTOCOL_QBS8)
         {
-            eval_t  *val;
-            if (val = GetEdictFieldValue(ent, "alpha"))
-            {
-                ent->alpha = ENTALPHA_ENCODE(val->_float); //qb ent->alpha
-                //qb:  fitzquake  don't send invisible entities unless they have effects
-                if (ent->alpha == ENTALPHA_ZERO && !ent->v.effects)
-                    continue;
-                //johnfitz
+            val = GetEdictFieldValue(ent, "alpha");
+            ent->alpha = ENTALPHA_ENCODE(val->_float);
+
+            //qb: FQ- don't send invisible entities unless they have effects
+            if (ent->alpha == ENTALPHA_ZERO && !ent->v.effects)
+                continue;
+            if (ent->baseline.alpha != ent->alpha)
                 bits |= U_ALPHA;
-            }
-            else ent->alpha = ENTALPHA_DEFAULT;
 
             if (val = GetEdictFieldValue(ent, "scale"))
             {
@@ -954,7 +960,7 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
 
         if (bits & U_MODEL)
         {
-            if (current_protocol == PROTOCOL_QBS8)
+            if (sv.protocol  == PROTOCOL_QBS8)
                 MSG_WriteShort (msg,    ent->v.modelindex);
             else MSG_WriteByte (msg,    ent->v.modelindex);
         }
@@ -966,7 +972,7 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
             MSG_WriteByte (msg, ent->v.skin);
         if (bits & U_EFFECTS)
         {
-            if (current_protocol == PROTOCOL_QBS8)
+            if (sv.protocol  == PROTOCOL_QBS8)
             {
                 if(bits & U_EFFECTS2) MSG_WriteLong(msg, ent->v.effects); //qb changed for modelflags
                 else MSG_WriteByte (msg, ent->v.effects);
@@ -1005,12 +1011,12 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
         if (bits & U_GLOW_BLUE)
             MSG_WriteByte(msg, glow_blue);
     }
-    // Tomaz - QC Alpha Scale Glow End
-    // Manoel Kasimier - QC frame_interval - begin
+// Tomaz - QC Alpha Scale Glow End
+// Manoel Kasimier - QC frame_interval - begin
     if (bits & U_FRAMEINTERVAL)
-        if (current_protocol == PROTOCOL_QBS8)  //qb
+        if (sv.protocol  == PROTOCOL_QBS8)  //qb
             MSG_WriteFloat(msg, frame_interval);
-    // Manoel Kasimier - QC frame_interval - end
+// Manoel Kasimier - QC frame_interval - end
 }
 
 
@@ -1136,7 +1142,7 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
         if (bits & (SU_PUNCH1<<i))
             // Manoel Kasimier - 16-bit angles - begin
         {
-            if (current_protocol == PROTOCOL_QBS8)
+            if (sv.protocol  == PROTOCOL_QBS8)
                 MSG_WriteAngle (msg, ent->v.punchangle[i]);
             else
                 // Manoel Kasimier - 16-bit angles - end
@@ -1155,7 +1161,7 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
         MSG_WriteByte (msg, ent->v.armorvalue);
     if (bits & SU_WEAPON)
     {
-        if (current_protocol == PROTOCOL_QBS8)
+        if (sv.protocol  == PROTOCOL_QBS8)
         {
             MSG_WriteShort (msg, SV_ModelIndex(pr_strings+ent->v.weaponmodel));
         }
@@ -1164,7 +1170,7 @@ void SV_WriteClientdataToMessage (edict_t *ent, sizebuf_t *msg)
 
     MSG_WriteShort (msg, ent->v.health);
     // Manoel Kasimier - high values in the status bar - begin
-    if(current_protocol == PROTOCOL_QBS8)
+    if(sv.protocol  == PROTOCOL_QBS8)
     {
         MSG_WriteShort (msg, ent->v.currentammo);
         MSG_WriteShort (msg, ent->v.ammo_shells);
@@ -1429,8 +1435,6 @@ void SV_CreateBaseline (void)
             continue;
         if (entnum > svs.maxclients && !svent->v.modelindex)
             continue;
-        if (svent->alpha == ENTALPHA_ZERO)
-            continue;
 
         //
         // create entity baseline
@@ -1447,24 +1451,22 @@ void SV_CreateBaseline (void)
         else
         {
             svent->baseline.colormap = 0;
-            svent->baseline.modelindex =
-                SV_ModelIndex(pr_strings + svent->v.model);
-
+            svent->baseline.modelindex = SV_ModelIndex(pr_strings + svent->v.model);
         }
 
         //
         // add to the message
         //
 
-        if (current_protocol == PROTOCOL_QBS8)
+        if (sv.protocol  == PROTOCOL_QBS8)
         {
-            if (svent->alpha >0 && svent->alpha<16 && entnum > svs.maxclients)
+            if (svent->alpha >0 && svent->alpha<16 )
                 svent->alpha = 16;  //qb: minimum alpha due to bitshift compression
             svent->baseline.alpha = svent->alpha;  //qb
 
             if((svent->baseline.modelindex < 256) && (svent->alpha == ENTALPHA_DEFAULT))
             {
-                if(entnum <256)
+                if(entnum <256 && entnum > svs.maxclients)
                 {
                     MSG_WriteByte (&sv.signon,svc_spawnbaseline3);
                     MSG_WriteByte (&sv.signon,entnum);
@@ -1480,9 +1482,9 @@ void SV_CreateBaseline (void)
             }
             else
             {
-                    MSG_WriteByte (&sv.signon,svc_spawnbaseline2);
-                    MSG_WriteShort (&sv.signon,entnum);
-                    MSG_WriteShort (&sv.signon, ((unsigned short)(svent->baseline.modelindex) << 4) + (svent->baseline.alpha >>4));
+                MSG_WriteByte (&sv.signon,svc_spawnbaseline2);
+                MSG_WriteShort (&sv.signon,entnum);
+                MSG_WriteShort (&sv.signon, ((unsigned short)(svent->baseline.modelindex) << 4) + (svent->baseline.alpha >>4));
             }
 
 
@@ -1490,9 +1492,9 @@ void SV_CreateBaseline (void)
 
         else
         {
+            svent->baseline.alpha = ENTALPHA_DEFAULT; //qb
             MSG_WriteByte (&sv.signon,svc_spawnbaseline);
             MSG_WriteShort (&sv.signon,entnum);
-            svent->baseline.alpha = ENTALPHA_DEFAULT; //qb
             MSG_WriteByte (&sv.signon, svent->baseline.modelindex);
         }
 
@@ -1607,6 +1609,7 @@ void SV_SpawnServer (char *server)
     memset (&sv, 0, sizeof(sv));
 
     Q_strcpy (sv.name, server);
+    sv.protocol = sv_protocol;
 
 // load progs to get entity field count
     PR_LoadProgs ();

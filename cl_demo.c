@@ -83,7 +83,7 @@ void CL_StopPlayback (void)
 #ifdef _WIN32 //qb: jqavi
     Movie_StopPlayback ();
 #endif
-    current_protocol = PROTOCOL_QBS8; //qb: revert back to standard protocol
+    cl.protocol = PROTOCOL_QBS8; //qb: revert back to standard protocol
 }
 
 /* JPG - need to fix up the demo message

@@ -122,7 +122,7 @@ void MSG_WriteShort (sizebuf_t *sb, int c);
 void MSG_WriteLong (sizebuf_t *sb, int c);
 void MSG_WriteFloat (sizebuf_t *sb, float f);
 void MSG_WriteString (sizebuf_t *sb, char *s);
-void MSG_WriteCoord (sizebuf_t *sb, float f);
+//qb:  moved to server.h where it belongs.  void MSG_WriteCoord (sizebuf_t *sb, float f);
 void MSG_WriteAngle (sizebuf_t *sb, float f);
 void MSG_WriteAngle16 (sizebuf_t *sb, float f);
 
@@ -137,7 +137,7 @@ int MSG_ReadLong (void);
 float MSG_ReadFloat (void);
 char *MSG_ReadString (void);
 
-float MSG_ReadCoord (void);
+//qb:  moved to client.h where it belongs.  float MSG_ReadCoord (void);
 float MSG_ReadAngle (void);
 float MSG_ReadAngle16 (void);
 
