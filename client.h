@@ -241,7 +241,7 @@ typedef struct
 // frag scoreboard
     scoreboard_t	*scores;		// [cl.maxclients]
 	vec3_t			death_location;		//qb:talk macro via FQ Mark V - used for %d formatting
-
+    unsigned	protocol; //qb: johnfitz
 } client_state_t;
 
 
@@ -358,6 +358,7 @@ void CL_TimeDemo_f (void);
 //
 void CL_ParseServerMessage (void);
 void CL_NewTranslation (int slot);
+float MSG_ReadCoord (void);
 
 //
 // view

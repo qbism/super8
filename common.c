@@ -630,15 +630,6 @@ void MSG_WriteString (sizebuf_t *sb, char *s)
         SZ_Write (sb, s, Q_strlen(s)+1);
 }
 
-void MSG_WriteCoord (sizebuf_t *sb, float f)
-{
-    if (current_protocol != PROTOCOL_NETQUAKE) //qb: extended coordinates by JTR
-        MSG_WriteLong (sb, (int)(f*8));
-    else
-        MSG_WriteShort (sb, (int)(f*8));
-}
-
-
 void MSG_WriteAngle (sizebuf_t *sb, float f)
 {
 	MSG_WriteByte (sb, Q_rint(f * 256.0 / 360.0) & 255); //johnfitz -- use Q_rint instead of (int)
@@ -773,16 +764,6 @@ char *MSG_ReadString (void)
     string[l] = 0;
 
     return string;
-}
-
-float MSG_ReadCoord (void)
-
-{
-
-    if (current_protocol != PROTOCOL_NETQUAKE) //qb: extended coordinates - JTR
-        return MSG_ReadLong() * (1.0/8);
-    else
-        return MSG_ReadShort() * (1.0/8);
 }
 
 float MSG_ReadAngle (void)

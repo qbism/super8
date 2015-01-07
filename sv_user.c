@@ -445,7 +445,7 @@ void SV_ReadClientMove (usercmd_t *move)
     host_client->num_pings++;
 
 // read current angles
-    if (current_protocol == PROTOCOL_QBS8)
+    if (sv.protocol == PROTOCOL_QBS8)
     {
     for (i=0 ; i<3 ; i++)
         angle[i] = MSG_ReadAngle16 ();

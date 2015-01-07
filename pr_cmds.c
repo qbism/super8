@@ -689,7 +689,7 @@ void PF_ambientsound (void)
         return;
     }
 // qb: soundnum as byte for compatibility (Marcher) Ambients should be low number, anyway.
-    if (current_protocol != PROTOCOL_NETQUAKE)
+    if (sv.protocol != PROTOCOL_NETQUAKE)
     {
         if (soundnum >MAX_SOUNDS)
         {
@@ -707,14 +707,14 @@ void PF_ambientsound (void)
 // add an svc_spawnambient command to the level signon packet
 
 
-    if (current_protocol == PROTOCOL_NETQUAKE || (soundnum < 256))
+    if (sv.protocol == PROTOCOL_NETQUAKE || (soundnum < 256))
         MSG_WriteByte (&sv.signon,svc_spawnstaticsound);
     else
         MSG_WriteByte (&sv.signon,svc_spawnstaticsound_large); //qb: for mods that stuffcmd byte (Marcher, grrr...)
     for (i=0 ; i<3 ; i++)
         MSG_WriteCoord(&sv.signon, pos[i]);
 
-    if (current_protocol != PROTOCOL_NETQUAKE && (soundnum > 255))
+    if (sv.protocol != PROTOCOL_NETQUAKE && (soundnum > 255))
         MSG_WriteShort (&sv.signon, soundnum); //qb: more ambient sounds, breaks some mods
     else
         MSG_WriteByte (&sv.signon, soundnum);
@@ -1792,7 +1792,7 @@ void PF_makestatic (void)
     ent = G_EDICT(OFS_PARM0);
     mindex = SV_ModelIndex(pr_strings + ent->v.model);
 
-    if (current_protocol == PROTOCOL_QBS8)
+    if (sv.protocol == PROTOCOL_QBS8)
     {
         if (val = GetEdictFieldValue(ent, "alpha"))
         {
@@ -1805,7 +1805,7 @@ void PF_makestatic (void)
         }
         else ent->alpha = ENTALPHA_DEFAULT;
 
-        if((ent->baseline.modelindex < 256) && (ent->alpha == ENTALPHA_DEFAULT))
+        if((mindex < 256) && (ent->alpha == ENTALPHA_DEFAULT))
         {
             MSG_WriteByte (&sv.signon,svc_spawnstatic);
             MSG_WriteByte (&sv.signon, mindex);

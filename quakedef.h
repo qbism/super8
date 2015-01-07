@@ -381,4 +381,3 @@ void Chase_Init (void);
 void Chase_Update (void);
 
 dfunction_t *ED_FindFunction (char *name);	// FrikaC - qcexec function
-extern int current_protocol; //qb

@@ -97,6 +97,17 @@ char *svc_strings[] =
 
 //=============================================================================
 
+//qb: moved here because server doesn't need it plus still supporting connect to PROTOCOL_NETQUAKE server
+float MSG_ReadCoord (void)
+{
+
+    if (cl.protocol != PROTOCOL_NETQUAKE) //qb: extended coordinates - JTR
+        return MSG_ReadLong() * (1.0/8);
+    else
+        return MSG_ReadShort() * (1.0/8);
+}
+
+
 /*
 ===============
 CL_EntityNum
@@ -285,16 +296,15 @@ void CL_ParseServerInfo (void)
     CL_ClearState ();
 
 // parse protocol version number
-    // Manoel Kasimier - 16-bit angles - edited - begin
-    current_protocol = MSG_ReadLong ();
-    if((current_protocol != PROTOCOL_NETQUAKE) && (current_protocol != PROTOCOL_QBS8)) // added
-    {
-        Con_Printf ("\n"); //becuase there's no newline after serverinfo print
-        Con_Printf ("Server returned incompatible version %i\n", current_protocol);
-        // Manoel Kasimier - 16-bit angles - edited - end
-        return;
-    }
-    else Con_Printf("Protocol version: %i\n", current_protocol);
+
+	i = MSG_ReadLong ();
+	//qb:  johnfitz -- support multiple protocols
+	if (i != PROTOCOL_NETQUAKE && i != PROTOCOL_QBS8) {
+		Con_Printf ("\n"); //because there's no newline after serverinfo print
+		Host_Error ("Server returned version %i, not %i or %i", i, PROTOCOL_NETQUAKE, PROTOCOL_QBS8);
+	}
+	cl.protocol = i;
+    Con_Printf("Protocol version: %i\n", cl.protocol);
 
 // parse maxclients
     cl.maxclients = MSG_ReadByte ();
@@ -328,7 +338,7 @@ void CL_ParseServerInfo (void)
     Con_Printf ("%c%s\n", 2, str);
 
 //qb:  johnfitz -- tell user which protocol this is
-    Con_Printf ("Using protocol %i\n", current_protocol);
+    Con_Printf ("Using protocol %i\n", cl.protocol);
 
 //
 // first we go through and touch all of the precache data that still
@@ -475,7 +485,7 @@ void CL_ParseUpdate (int bits)
 
     if (bits & U_MODEL)
     {
-        if (current_protocol == PROTOCOL_QBS8)
+        if (cl.protocol == PROTOCOL_QBS8)
             modnum = MSG_ReadShort ();
         else modnum = MSG_ReadByte ();
         if (modnum >= MAX_MODELS)
@@ -554,7 +564,7 @@ void CL_ParseUpdate (int bits)
         else
         {
             ent->effects = MSG_ReadByte();
-            if (current_protocol == PROTOCOL_QBS8) ent->baseline.effects = ent->effects;
+            if (cl.protocol == PROTOCOL_QBS8) ent->baseline.effects = ent->effects;
         }
     }
     else
@@ -749,7 +759,7 @@ void CL_ParseClientdata (void ) //qb: read bits in function similar to johnfitz
         if (bits & (SU_PUNCH1<<i) )
             // Manoel Kasimier - 16-bit angles - begin
         {
-            if (current_protocol == PROTOCOL_QBS8)
+            if (cl.protocol == PROTOCOL_QBS8)
                 cl.punchangle[i] = MSG_ReadAngle();
             else
                 // Manoel Kasimier - 16-bit angles - end
@@ -806,7 +816,7 @@ void CL_ParseClientdata (void ) //qb: read bits in function similar to johnfitz
 
     if (bits & SU_WEAPON)
     {
-        if (current_protocol == PROTOCOL_QBS8)
+        if (cl.protocol == PROTOCOL_QBS8)
         {
             i = MSG_ReadShort ();
         }
@@ -830,7 +840,7 @@ void CL_ParseClientdata (void ) //qb: read bits in function similar to johnfitz
     }
 
     // Manoel Kasimier - high values in the status bar - begin
-    if(current_protocol == PROTOCOL_QBS8)
+    if(cl.protocol == PROTOCOL_QBS8)
         i = MSG_ReadShort ();
     else
         // Manoel Kasimier - high values in the status bar - end
@@ -844,7 +854,7 @@ void CL_ParseClientdata (void ) //qb: read bits in function similar to johnfitz
     for (i=0 ; i<4 ; i++)
     {
         // Manoel Kasimier - high values in the status bar - begin
-        if(current_protocol == PROTOCOL_QBS8)
+        if(cl.protocol == PROTOCOL_QBS8)
             j = MSG_ReadShort ();
         else
             // Manoel Kasimier - high values in the status bar - end
@@ -1098,12 +1108,10 @@ void CL_ParseServerMessage (void)
             break;
 
         case svc_version:
-            // Manoel Kasimier - 16-bit angles - edited - begin
-            current_protocol = MSG_ReadLong ();
-            if((current_protocol != PROTOCOL_NETQUAKE)
-                    && (current_protocol != PROTOCOL_QBS8)) // added
-                Host_Error ("CL_ParseServerMessage: Server is unknown protocol %i", current_protocol); //qb:
-            // Manoel Kasimier - 16-bit angles - edited - end
+             i = MSG_ReadLong ();
+            if ((i != PROTOCOL_NETQUAKE) && (i != PROTOCOL_QBS8))
+                Host_Error ("CL_ParseServerMessage: Server is unknown protocol %i", i); //qb:
+            cl.protocol = i;
             break;
 
         case svc_disconnect:
