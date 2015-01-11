@@ -31,43 +31,43 @@ surfcache_t                     *sc_rover, *sc_base;
 
 int     D_SurfaceCacheForRes (int width, int height)
 {
-	int             size, pix;
+    int             size, pix;
 
-	if (COM_CheckParm ("-surfcachesize"))
-	{
-		size = Q_atoi(com_argv[COM_CheckParm("-surfcachesize")+1]) * 1024;
-		return size;
-	}
+    if (COM_CheckParm ("-surfcachesize"))
+    {
+        size = Q_atoi(com_argv[COM_CheckParm("-surfcachesize")+1]) * 1024;
+        return size;
+    }
 
-	size = SURFCACHE_SIZE_AT_320X200;
+    size = SURFCACHE_SIZE_AT_320X200;
 
-	pix = width*height;
-	if (pix > 64000)
-		size += (pix-64000)*3;
+    pix = width*height;
+    if (pix > 64000)
+        size += (pix-64000)*3;
 
 
-	return size;
+    return size;
 }
 
 void D_CheckCacheGuard (void)
 {
-	byte    *s;
-	int             i;
+    byte    *s;
+    int             i;
 
-	s = (byte *)sc_base + sc_size;
-	for (i=0 ; i<GUARDSIZE ; i++)
-		if (s[i] != (byte)i)
-			Sys_Error ("D_CheckCacheGuard: failed");
+    s = (byte *)sc_base + sc_size;
+    for (i=0 ; i<GUARDSIZE ; i++)
+        if (s[i] != (byte)i)
+            Sys_Error ("D_CheckCacheGuard: failed");
 }
 
 void D_ClearCacheGuard (void)
 {
-	byte    *s;
-	int             i;
+    byte    *s;
+    int             i;
 
-	s = (byte *)sc_base + sc_size;
-	for (i=0 ; i<GUARDSIZE ; i++)
-		s[i] = (byte)i;
+    s = (byte *)sc_base + sc_size;
+    for (i=0 ; i<GUARDSIZE ; i++)
+        s[i] = (byte)i;
 }
 
 
@@ -80,18 +80,18 @@ D_InitCaches
 void D_InitCaches (void *buffer, int size)
 {
 
-	if (!msg_suppress_1)
-		Con_DPrintf ("%ik surface cache\n", size/1024); // edited
+    if (!msg_suppress_1)
+        Con_DPrintf ("%ik surface cache\n", size/1024); // edited
 
-	sc_size = size - GUARDSIZE;
-	sc_base = (surfcache_t *)buffer;
-	sc_rover = sc_base;
+    sc_size = size - GUARDSIZE;
+    sc_base = (surfcache_t *)buffer;
+    sc_rover = sc_base;
 
-	sc_base->next = NULL;
-	sc_base->owner = NULL;
-	sc_base->size = sc_size;
+    sc_base->next = NULL;
+    sc_base->owner = NULL;
+    sc_base->size = sc_size;
 
-	D_ClearCacheGuard ();
+    D_ClearCacheGuard ();
 }
 
 
@@ -102,21 +102,21 @@ D_FlushCaches
 */
 void D_FlushCaches (void)
 {
-	surfcache_t     *c;
+    surfcache_t     *c;
 
-	if (!sc_base)
-		return;
+    if (!sc_base)
+        return;
 
-	for (c = sc_base ; c ; c = c->next)
-	{
-		if (c->owner)
-			*c->owner = NULL;
-	}
+    for (c = sc_base ; c ; c = c->next)
+    {
+        if (c->owner)
+            *c->owner = NULL;
+    }
 
-	sc_rover = sc_base;
-	sc_base->next = NULL;
-	sc_base->owner = NULL;
-	sc_base->size = sc_size;
+    sc_rover = sc_base;
+    sc_base->next = NULL;
+    sc_base->owner = NULL;
+    sc_base->size = sc_size;
 }
 
 /*
@@ -129,13 +129,9 @@ surfcache_t     *D_SCAlloc (int width, int size)
 	surfcache_t             *new;
 	qboolean                wrapped_this_time;
 
-	if ((width < 0) || (width > 256))
-		{
-		  		Sys_Error ("D_SCAlloc: bad cache width %d\n", width);
-
-		  //  width = 0; //qb: bsp2hack
-		 //   size = 1;
-		}
+//	if ((width < 0) || (width > 256))
+	if ((width < 0) || (width > 256 + 2)) // mankrip - extra for dithering
+		Sys_Error ("D_SCAlloc: bad cache width %d\n", width);
 
 	if ((size <= 0) || (size > 0x10000))
 		Sys_Error ("D_SCAlloc: bad cache size %d\n", size);
@@ -176,7 +172,8 @@ surfcache_t     *D_SCAlloc (int width, int size)
 	}
 
 // create a fragment out of any leftovers
-	if (new->size - size > 256)
+//	if (new->size - size > 256)
+	if (new->size - size > 256 + 2) // mankrip - extra for dithering
 	{
 		sc_rover = (surfcache_t *)( (byte *)new + size);
 		sc_rover->size = new->size - size;
@@ -210,7 +207,6 @@ D_CheckCacheGuard ();   // DEBUG
 	return new;
 }
 
-
 /*
 ================
 D_CacheSurface
@@ -218,73 +214,79 @@ D_CacheSurface
 */
 surfcache_t *D_CacheSurface (msurface_t *surface, int miplevel)
 {
-	surfcache_t     *cache;
+    surfcache_t     *cache;
 
 //
 // if the surface is animating or flashing, flush the cache
 //
-	r_drawsurf.texture = R_TextureAnimation (surface->texinfo->texture);
-	r_drawsurf.lightadj[0] = d_lightstylevalue[surface->styles[0]];
-	r_drawsurf.lightadj[1] = d_lightstylevalue[surface->styles[1]];
-	r_drawsurf.lightadj[2] = d_lightstylevalue[surface->styles[2]];
-	r_drawsurf.lightadj[3] = d_lightstylevalue[surface->styles[3]];
+    r_drawsurf.texture = R_TextureAnimation (surface->texinfo->texture);
+    r_drawsurf.lightadj[0] = d_lightstylevalue[surface->styles[0]];
+    r_drawsurf.lightadj[1] = d_lightstylevalue[surface->styles[1]];
+    r_drawsurf.lightadj[2] = d_lightstylevalue[surface->styles[2]];
+    r_drawsurf.lightadj[3] = d_lightstylevalue[surface->styles[3]];
 
 //
 // see if the cache holds apropriate data
 //
-	cache = surface->cachespots[miplevel];
+    cache = surface->cachespots[miplevel];
 
-	if (cache && !cache->dlight && surface->dlightframe != r_framecount && surface->shadowframe != r_framecount //qb: engoo shadowhack
-			&& cache->texture == r_drawsurf.texture
-			&& cache->lightadj[0] == r_drawsurf.lightadj[0]
-			&& cache->lightadj[1] == r_drawsurf.lightadj[1]
-			&& cache->lightadj[2] == r_drawsurf.lightadj[2]
-			&& cache->lightadj[3] == r_drawsurf.lightadj[3] )
-		return cache;
+    if (currententity == cl_entities || currententity->model->name[0] == '*') // mankrip - external BSPs are always re-lit
+        if (cache && !cache->dlight && surface->dlightframe != r_framecount && surface->shadowframe != r_framecount //qb: engoo shadowhack
+                && cache->texture == r_drawsurf.texture
+                && cache->lightadj[0] == r_drawsurf.lightadj[0]
+                && cache->lightadj[1] == r_drawsurf.lightadj[1]
+                && cache->lightadj[2] == r_drawsurf.lightadj[2]
+                && cache->lightadj[3] == r_drawsurf.lightadj[3] )
+            return cache;
 
 //
 // determine shape of surface
 //
-	surfscale = 1.0 / (1<<miplevel);
-	r_drawsurf.surfmip = miplevel;
-	r_drawsurf.surfwidth = surface->extents[0] >> miplevel;
-	r_drawsurf.rowbytes = r_drawsurf.surfwidth;
-	r_drawsurf.surfheight = surface->extents[1] >> miplevel;
+    surfscale = 1.0 / (1<<miplevel);
+    r_drawsurf.surfmip = miplevel;
+    if ( (int) (1.0f / surfscale) & 1) //qb: from MQ1.6 - mipmap 0
+        r_drawsurf.surfwidth = (surface->extents[0] >> miplevel) + 2;
+    else	r_drawsurf.surfwidth = surface->extents[0] >> miplevel;
+    r_drawsurf.rowbytes = r_drawsurf.surfwidth;
+    r_drawsurf.surfheight = surface->extents[1] >> miplevel;
 
 //
 // allocate memory if needed
 //
-	if (!cache)     // if a texture just animated, don't reallocate it
-	{
-		cache = D_SCAlloc (r_drawsurf.surfwidth,
-						   r_drawsurf.surfwidth * r_drawsurf.surfheight);
-		surface->cachespots[miplevel] = cache;
-		cache->owner = &surface->cachespots[miplevel];
-		cache->mipscale = surfscale;
-	}
+    if (!cache)     // if a texture just animated, don't reallocate it
+    {
+        if ( (int) (1.0f / surfscale) & 1) //qb: from MQ1.6 mipmap 0
+            cache = D_SCAlloc (r_drawsurf.surfwidth, (r_drawsurf.surfheight + 2) * r_drawsurf.surfwidth); // extra for dithering
+        else
+            cache = D_SCAlloc (r_drawsurf.surfwidth,
+                               r_drawsurf.surfwidth * r_drawsurf.surfheight);
+        surface->cachespots[miplevel] = cache;
+        cache->owner = &surface->cachespots[miplevel];
+        cache->mipscale = surfscale;
+    }
 
-	if (surface->dlightframe == r_framecount || surface->shadowframe == r_framecount ) //qb: engoo shadowhack
-		cache->dlight = 1;
-	else
-		cache->dlight = 0;
+    if (surface->dlightframe == r_framecount || surface->shadowframe == r_framecount ) //qb: engoo shadowhack
+        cache->dlight = 1;
+    else
+        cache->dlight = 0;
 
-	r_drawsurf.surfdat = (pixel_t *)cache->data;
+    r_drawsurf.surfdat = (pixel_t *)cache->data;
 
-	cache->texture = r_drawsurf.texture;
-	cache->lightadj[0] = r_drawsurf.lightadj[0];
-	cache->lightadj[1] = r_drawsurf.lightadj[1];
-	cache->lightadj[2] = r_drawsurf.lightadj[2];
-	cache->lightadj[3] = r_drawsurf.lightadj[3];
+    cache->texture = r_drawsurf.texture;
+    cache->lightadj[0] = r_drawsurf.lightadj[0];
+    cache->lightadj[1] = r_drawsurf.lightadj[1];
+    cache->lightadj[2] = r_drawsurf.lightadj[2];
+    cache->lightadj[3] = r_drawsurf.lightadj[3];
 
 //
 // draw and light the surface texture
 //
-	r_drawsurf.surf = surface;
+    r_drawsurf.surf = surface;
 
-	c_surf++;
-	R_DrawSurface ();
+    c_surf++;
+    R_DrawSurface ();
 
-	return surface->cachespots[miplevel];
+    return surface->cachespots[miplevel];
 }
 
 

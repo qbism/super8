@@ -188,8 +188,8 @@ void D_DrawSurfaces (void)
             if (! (pspans = s->spans))
                 continue;
 
-             if (r_overdraw && (!(s->flags & SURF_DRAWTRANSLUCENT)))
-                 continue;
+            if (r_overdraw && !(s->flags & (SURF_DRAWTURB|SURF_DRAWTRANSLUCENT)))
+                continue;
 
             r_drawnpolycount++;
 
@@ -235,31 +235,32 @@ void D_DrawSurfaces (void)
                 }
                 D_CalcGradients (pface);
 
-                if (s->flags & SURF_DRAWTURB)
+                if(r_overdraw)
                 {
-                    cacheblock = (pixel_t *) ((byte *)pface->texinfo->texture + pface->texinfo->texture->offsets[0]);
-                    cachewidth = 64;
-                    Turbulent8 (pspans);
-                }
-                else
-                {
-					pcurrentcache = D_CacheSurface (pface, miplevel);
-                    cacheblock = (pixel_t *)pcurrentcache->data;
-                    cachewidth = pcurrentcache->width;
+                    if (s->flags & SURF_DRAWTURB)
+                    {
+                        cacheblock = (pixel_t *) ((byte *)pface->texinfo->texture + pface->texinfo->texture->offsets[0]);
+                        cachewidth = 64;
+                        Turbulent8 (pspans);
+                    }
+                    else
+                    {
+                        pcurrentcache = D_CacheSurface (pface, miplevel);
+                        cacheblock = (pixel_t *)pcurrentcache->data;
+                        cachewidth = pcurrentcache->width;
 
-                    if (s->flags & SURF_DRAWFENCE)
-                        D_DrawSpans16_Fence(pspans);
-                    else if (s->flags & SURF_DRAWGLASS33)
-                        D_DrawSpans16_Blend(pspans);
-                    else if (s->flags & SURF_DRAWGLASS50)
-                        D_DrawSpans16_Blend50(pspans);
-                    else if (s->flags & SURF_DRAWGLASS66)
-                        D_DrawSpans16_BlendBackwards(pspans);
-                   // else D_DrawSpans16_Blend(pspans); //qb: catchall
+                        if (s->flags & SURF_DRAWFENCE)
+                            D_DrawSpans16_Fence(pspans);  //qb:  fence writes its own z
+                        else if (s->flags & SURF_DRAWGLASS33)
+                            D_DrawSpans16_Blend(pspans);
+                        else if (s->flags & SURF_DRAWGLASS50)
+                            D_DrawSpans16_Blend50(pspans);
+                        else if (s->flags & SURF_DRAWGLASS66)
+                            D_DrawSpans16_BlendBackwards(pspans);
+                        else D_DrawSpans16_Blend(pspans); //qb: catchall
+                    }
                 }
-
-                if (!r_overdraw && !(s->flags & SURF_DRAWFENCE)) // mankrip - translucent water
-                    D_DrawZSpans (pspans); // mankrip - edited
+                else D_DrawZSpans (pspans);
 
                 if (s->insubmodel)
                 {
@@ -336,11 +337,11 @@ void D_DrawSurfaces (void)
 
                 D_CalcGradients (pface);
 
-               // if (r_overdraw)
-               //     D_DrawSpans16_Blend (pspans); // mankrip //qb: catchall
+                // if (r_overdraw)
+                //     D_DrawSpans16_Blend (pspans); // mankrip //qb: catchall
 
-				//else
-				(*d_drawspans) (pspans);
+                //else
+                (*d_drawspans) (pspans);
 
                 D_DrawZSpans (pspans);
 
