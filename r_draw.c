@@ -532,7 +532,8 @@ void R_ClipEdge (mvertex_t *pv0, mvertex_t *pv1, clipplane_t *clip)
                 R_ClipEdge (&clipvert, pv1, clip->next);
                 return;
             }
-		} while ((clip = clip->next) != NULL);
+        }
+        while ((clip = clip->next) != NULL);
     }
 
 // add the edge
@@ -577,33 +578,22 @@ void R_RenderFace (msurface_t *fa, int clipflags)
     medge_t		*pedges, tedge;
     clipplane_t	*pclip;
 
-	// Manoel Kasimier - skyboxes - begin
-	// Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
-	// sky surfaces encountered in the world will cause the
-	// environment box surfaces to be emited
-	if ((fa->flags & SURF_DRAWSKY) && r_drawskybox)
+    // Manoel Kasimier - skyboxes - begin
+    // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
+    // sky surfaces encountered in the world will cause the
+    // environment box surfaces to be emited
+    if ((fa->flags & SURF_DRAWSKY) && r_drawskybox)
+        return; //qb: Is there a cheap way to hide faces that are behind sky faces but facing view.  Crazy mappers!
+
+    if (fa->flags & SURF_DRAWTRANSLUCENT)
     {
-		//R_EmitSkyBox ();
-		return; //qb: Is there a cheap way to hide faces that are behind sky faces but facing view.  Crazy mappers!
-        }
-	// Manoel Kasimier - skyboxes - end
-
-	// Manoel Kasimier - translucent water - begin
-//qb: could be glass		if (r_wateralpha.value < 1)
-//	{
-		if (fa->flags & SURF_DRAWTRANSLUCENT)
-		{
-//qb: could be glass			if (!r_wateralpha.value)
-//				return;
-			if (!r_overdraw)
-         		return;
-        }
-
-
-    else if (r_overdraw)
+        if (!r_overdraw)
             return;
+    }
+    else if (r_overdraw)
+        return;
 //	}
-	// Manoel Kasimier - translucent water - end
+    // Manoel Kasimier - translucent water - end
 
 // skip out if no more surfs
     if ((surface_p) >= surf_max)
@@ -803,25 +793,6 @@ void R_RenderBmodelFace (bedge_t *pedges, msurface_t *psurf)
     medge_t		tedge;
     clipplane_t	*pclip;
 
-    // mankrip - begin
- /*   if (currententity != &cl_entities[0])
-    {
-        if (r_overdraw)
-        {
-            if (currententity->alpha == ENTALPHA_ZERO)
-                return;
-
-            if ((currententity->effects & EF_ADDITIVE) || (currententity->alpha != ENTALPHA_DEFAULT))
-            {
-                return;
-            }
-            if (psurf->flags & SURF_DRAWSPRITE)
-            {
-                return;
-            }
-        }
-    } */
-    // mankrip - end
 
 // skip out if no more surfs
     if (surface_p >= surf_max)
@@ -876,7 +847,7 @@ void R_RenderBmodelFace (bedge_t *pedges, msurface_t *psurf)
 
 // if there was a clip off the left edge, add that edge too
 // FIXME: faster to do in screen space?
-// FIXME: share clipped edges?
+   // FIXME: share clipped edges?
     if (makeleftedge)
     {
         r_pedge = &tedge;

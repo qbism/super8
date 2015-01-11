@@ -513,7 +513,7 @@ D_DrawSpans
 
 
 //qbism: pointer to pbase and macroize idea from mankrip
-#define WRITEPDEST(i) { pdest[i] = *(pbase + (s >> 16) + (t >> 16) * cw_local); s+=sstep; t+=tstep;} //qb: using a const is faster
+#define WRITEPDEST(i) { pdest[i] = *(pbase + (s >> 16) + (t >> 16) * cw_local); s+=sstep; t+=tstep;} //qb: using a static is faster
 
 void D_DrawSpans16_C (espan_t *pspan) //qb: up it from 8 to 16.  This + unroll = big speed gain!
 {
@@ -781,22 +781,38 @@ void D_DrawSpans16_Fence (espan_t *pspan)
             pz += spancount;
             switch (spancount)
             {
-            case 16: WRITEFENCE(-16);
-            case 15: WRITEFENCE(-15);
-            case 14: WRITEFENCE(-14);
-            case 13: WRITEFENCE(-13);
-            case 12: WRITEFENCE(-12);
-            case 11: WRITEFENCE(-11);
-            case 10: WRITEFENCE(-10);
-            case  9: WRITEFENCE(-9);
-            case  8: WRITEFENCE(-8);
-            case  7: WRITEFENCE(-7);
-            case  6: WRITEFENCE(-6);
-            case  5: WRITEFENCE(-5);
-            case  4: WRITEFENCE(-4);
-            case  3: WRITEFENCE(-3);
-            case  2: WRITEFENCE(-2);
-            case  1: WRITEFENCE(-1);
+            case 16:
+                WRITEFENCE(-16);
+            case 15:
+                WRITEFENCE(-15);
+            case 14:
+                WRITEFENCE(-14);
+            case 13:
+                WRITEFENCE(-13);
+            case 12:
+                WRITEFENCE(-12);
+            case 11:
+                WRITEFENCE(-11);
+            case 10:
+                WRITEFENCE(-10);
+            case  9:
+                WRITEFENCE(-9);
+            case  8:
+                WRITEFENCE(-8);
+            case  7:
+                WRITEFENCE(-7);
+            case  6:
+                WRITEFENCE(-6);
+            case  5:
+                WRITEFENCE(-5);
+            case  4:
+                WRITEFENCE(-4);
+            case  3:
+                WRITEFENCE(-3);
+            case  2:
+                WRITEFENCE(-2);
+            case  1:
+                WRITEFENCE(-1);
                 break;
             }
         }
@@ -808,40 +824,35 @@ void D_DrawSpans16_Fence (espan_t *pspan)
 
 //qb: Makaqu 1.5 begin
 
-void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
+#define WRITEBLEND(i) { if (pz[i] <= (izi >> 16))  \
+    { pdest[i] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[i] * 256]; } \
+            izi += izistep; s += sstep; t += tstep; }
+
+void D_DrawSpans16_Blend (espan_t *pspan)
 {
     cw_local = cachewidth;
     pbase = (byte *)cacheblock;
 
-    //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
     sdivzstepu = d_sdivzstepu * 16;
     tdivzstepu = d_tdivzstepu * 16;
     zistepu = d_zistepu * 16;
-    //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-
-    // mankrip - begin
-    // we count on FP exceptions being turned off to avoid range problems
     izistep = (int)(d_zistepu * 0x8000 * 0x10000);
-    // mankrip - end
 
     do
     {
         pdest = (byte *)((byte *)d_viewbuffer + (screenwidth * pspan->v) + pspan->u);
-        pz = d_pzbuffer + (d_zwidth * pspan->v) + pspan->u; // mankrip
+        pz = d_pzbuffer + (d_zwidth * pspan->v) + pspan->u;
 
-        count = pspan->count >> 4; // mh
-        spancount = pspan->count % 16; // mankrip
-
-        // calculate the initial s/z, t/z, 1/z, s, and t and clamp
+        count = pspan->count >> 4;
+        spancount = pspan->count % 16;
         du = (float)pspan->u;
         dv = (float)pspan->v;
 
         sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
         tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
         zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-        z = (float)0x10000 / zi;        // prescale to 16.16 fixed-point
-        // we count on FP exceptions being turned off to avoid range problems // mankrip
-        izi = (int) (zi * 0x8000 * 0x10000); // mankrip
+        z = (float)0x10000 / zi;
+        izi = (int) (zi * 0x8000 * 0x10000);
 
         s = (int)(sdivz * z) + sadjust;
         if (s > bbextents)
@@ -855,135 +866,68 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
         else if (t < 0)
             t = 0;
 
-        while (count--) // mankrip
+        while (count--)
         {
-            // calculate s/z, t/z, zi->fixed s and t at far end of span,
-            // calculate s and t steps across span by shifting
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             sdivz += sdivzstepu;
             tdivz += tdivzstepu;
             zi += zistepu;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-            z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
+            z = (float)0x10000 / zi;
 
             snext = (int) (sdivz * z) + sadjust;
             if (snext > bbextents)
                 snext = bbextents;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             else if (snext <= 16)
-                snext = 16;   // prevent round-off error on <0 steps causing overstepping & running off the edge of the texture
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+                snext = 16;
 
             tnext = (int) (tdivz * z) + tadjust;
             if (tnext > bbextentt)
                 tnext = bbextentt;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             else if (tnext < 16)
-                tnext = 16;   // guard against round-off error on <0 steps
+                tnext = 16;
 
             sstep = (snext - s) >> 4;
             tstep = (tnext - t) >> 4;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
-            // mankrip - begin
             pdest += 16;
             pz += 16;
-            if (pz[-16] <= (izi >> 16)) pdest[-16] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-16] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-15] <= (izi >> 16)) pdest[-15] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-15] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-14] <= (izi >> 16)) pdest[-14] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-14] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-13] <= (izi >> 16)) pdest[-13] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-13] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-12] <= (izi >> 16)) pdest[-12] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-12] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-11] <= (izi >> 16)) pdest[-11] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-11] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-10] <= (izi >> 16)) pdest[-10] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-10] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -9] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -8] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -7] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -6] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -5] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -4] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -3] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -2] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -1] * 256];
-            izi += izistep;
-            // mankrip - end
+            WRITEBLEND(-16);
+            WRITEBLEND(-15);
+            WRITEBLEND(-14);
+            WRITEBLEND(-13);
+            WRITEBLEND(-12);
+            WRITEBLEND(-11);
+            WRITEBLEND(-10);
+            WRITEBLEND(-9);
+            WRITEBLEND(-8);
+            WRITEBLEND(-7);
+            WRITEBLEND(-6);
+            WRITEBLEND(-5);
+            WRITEBLEND(-4);
+            WRITEBLEND(-3);
+            WRITEBLEND(-2);
+            WRITEBLEND(-1);
 
             s = snext;
             t = tnext;
-            // mankrip - begin
         }
         if (spancount > 0)
         {
-            // mankrip - end
-
-            // calculate s/z, t/z, zi->fixed s and t at last pixel in span (so can't step off polygon),
-            // clamp, calculate s and t steps across span by division, biasing steps low so we don't run off the texture
             spancountminus1 = (float)(spancount - 1);
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             sdivz += d_sdivzstepu * spancountminus1;
             tdivz += d_tdivzstepu * spancountminus1;
             zi += d_zistepu * spancountminus1;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-            z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
+            z = (float)0x10000 / zi;
             snext = (int)(sdivz * z) + sadjust;
             if (snext > bbextents)
                 snext = bbextents;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             else if (snext < 16)
-                snext = 16;   // prevent round-off error on <0 steps from causing overstepping & running off the edge of the texture
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+                snext = 16;
 
             tnext = (int)(tdivz * z) + tadjust;
             if (tnext > bbextentt)
                 tnext = bbextentt;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             else if (tnext < 16)
-                tnext = 16;   // guard against round-off error on <0 steps
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+                tnext = 16;
 
             if (spancount > 1)
             {
@@ -991,132 +935,79 @@ void D_DrawSpans16_Blend (espan_t *pspan) // mankrip
                 tstep = (tnext - t) / (spancount - 1);
             }
 
-            //qb: Duff's Device loop unroll per mh.
             pdest += spancount;
-            // mankrip - begin
             pz += spancount;
             switch (spancount)
             {
             case 16:
-                if (pz[-16] <= (izi >> 16)) pdest[-16] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-16] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-16);
             case 15:
-                if (pz[-15] <= (izi >> 16)) pdest[-15] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-15] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-15);
             case 14:
-                if (pz[-14] <= (izi >> 16)) pdest[-14] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-14] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-14);
             case 13:
-                if (pz[-13] <= (izi >> 16)) pdest[-13] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-13] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-13);
             case 12:
-                if (pz[-12] <= (izi >> 16)) pdest[-12] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-12] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-12);
             case 11:
-                if (pz[-11] <= (izi >> 16)) pdest[-11] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-11] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-11);
             case 10:
-                if (pz[-10] <= (izi >> 16)) pdest[-10] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-10] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-10);
             case  9:
-                if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -9] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-9);
             case  8:
-                if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -8] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-8);
             case  7:
-                if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -7] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-7);
             case  6:
-                if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -6] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-6);
             case  5:
-                if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -5] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-5);
             case  4:
-                if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -4] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-4);
             case  3:
-                if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -3] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-3);
             case  2:
-                if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -2] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND(-2);
             case  1:
-                if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -1] * 256];
+                WRITEBLEND(-1);
                 break;
             }
         }
-        // mankrip - end
     }
     while ((pspan = pspan->pnext) != NULL);
 }
 
 
-void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
+#define WRITEBLEND50(i) { if (pz[i] <= (izi >> 16))  \
+    { pdest[i] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[i] * 256]; } \
+            izi += izistep; s += sstep; t += tstep; }
+
+void D_DrawSpans16_Blend50 (espan_t *pspan)
 {
     cw_local = cachewidth;
     pbase = (byte *)cacheblock;
 
-    //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
     sdivzstepu = d_sdivzstepu * 16;
     tdivzstepu = d_tdivzstepu * 16;
     zistepu = d_zistepu * 16;
-    //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-
-    // mankrip - begin
-    // we count on FP exceptions being turned off to avoid range problems
     izistep = (int)(d_zistepu * 0x8000 * 0x10000);
-    // mankrip - end
 
     do
     {
         pdest = (byte *)((byte *)d_viewbuffer + (screenwidth * pspan->v) + pspan->u);
-        pz = d_pzbuffer + (d_zwidth * pspan->v) + pspan->u; // mankrip
+        pz = d_pzbuffer + (d_zwidth * pspan->v) + pspan->u;
 
-        count = pspan->count >> 4; // mh
-        spancount = pspan->count % 16; // mankrip
-
-        // calculate the initial s/z, t/z, 1/z, s, and t and clamp
+        count = pspan->count >> 4;
+        spancount = pspan->count % 16;
         du = (float)pspan->u;
         dv = (float)pspan->v;
 
         sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
         tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
         zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-        z = (float)0x10000 / zi;        // prescale to 16.16 fixed-point
-        // we count on FP exceptions being turned off to avoid range problems // mankrip
-        izi = (int) (zi * 0x8000 * 0x10000); // mankrip
+        z = (float)0x10000 / zi;
+        izi = (int) (zi * 0x8000 * 0x10000);
 
         s = (int)(sdivz * z) + sadjust;
         if (s > bbextents)
@@ -1130,135 +1021,68 @@ void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
         else if (t < 0)
             t = 0;
 
-        while (count--) // mankrip
+        while (count--)
         {
-            // calculate s/z, t/z, zi->fixed s and t at far end of span,
-            // calculate s and t steps across span by shifting
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             sdivz += sdivzstepu;
             tdivz += tdivzstepu;
             zi += zistepu;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-            z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
+            z = (float)0x10000 / zi;
 
             snext = (int) (sdivz * z) + sadjust;
             if (snext > bbextents)
                 snext = bbextents;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             else if (snext <= 16)
-                snext = 16;   // prevent round-off error on <0 steps causing overstepping & running off the edge of the texture
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+                snext = 16;
 
             tnext = (int) (tdivz * z) + tadjust;
             if (tnext > bbextentt)
                 tnext = bbextentt;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             else if (tnext < 16)
-                tnext = 16;   // guard against round-off error on <0 steps
+                tnext = 16;
 
             sstep = (snext - s) >> 4;
             tstep = (tnext - t) >> 4;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
-            // mankrip - begin
             pdest += 16;
             pz += 16;
-            if (pz[-16] <= (izi >> 16)) pdest[-16] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-16] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-15] <= (izi >> 16)) pdest[-15] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-15] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-14] <= (izi >> 16)) pdest[-14] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-14] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-13] <= (izi >> 16)) pdest[-13] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-13] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-12] <= (izi >> 16)) pdest[-12] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-12] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-11] <= (izi >> 16)) pdest[-11] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-11] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-10] <= (izi >> 16)) pdest[-10] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-10] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -9] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -8] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -7] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -6] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -5] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -4] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -3] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -2] * 256];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -1] * 256];
-            izi += izistep;
-            // mankrip - end
+            WRITEBLEND50(-16);
+            WRITEBLEND50(-15);
+            WRITEBLEND50(-14);
+            WRITEBLEND50(-13);
+            WRITEBLEND50(-12);
+            WRITEBLEND50(-11);
+            WRITEBLEND50(-10);
+            WRITEBLEND50(-9);
+            WRITEBLEND50(-8);
+            WRITEBLEND50(-7);
+            WRITEBLEND50(-6);
+            WRITEBLEND50(-5);
+            WRITEBLEND50(-4);
+            WRITEBLEND50(-3);
+            WRITEBLEND50(-2);
+            WRITEBLEND50(-1);
 
             s = snext;
             t = tnext;
-            // mankrip - begin
         }
         if (spancount > 0)
         {
-            // mankrip - end
-
-            // calculate s/z, t/z, zi->fixed s and t at last pixel in span (so can't step off polygon),
-            // clamp, calculate s and t steps across span by division, biasing steps low so we don't run off the texture
             spancountminus1 = (float)(spancount - 1);
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             sdivz += d_sdivzstepu * spancountminus1;
             tdivz += d_tdivzstepu * spancountminus1;
             zi += d_zistepu * spancountminus1;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-            z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
+            z = (float)0x10000 / zi;
             snext = (int)(sdivz * z) + sadjust;
             if (snext > bbextents)
                 snext = bbextents;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             else if (snext < 16)
-                snext = 16;   // prevent round-off error on <0 steps from causing overstepping & running off the edge of the texture
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+                snext = 16;
 
             tnext = (int)(tdivz * z) + tadjust;
             if (tnext > bbextentt)
                 tnext = bbextentt;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             else if (tnext < 16)
-                tnext = 16;   // guard against round-off error on <0 steps
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+                tnext = 16;
 
             if (spancount > 1)
             {
@@ -1266,96 +1090,53 @@ void D_DrawSpans16_Blend50 (espan_t *pspan) //qb
                 tstep = (tnext - t) / (spancount - 1);
             }
 
-            //qb: Duff's Device loop unroll per mh.
             pdest += spancount;
-            // mankrip - begin
             pz += spancount;
             switch (spancount)
             {
             case 16:
-                if (pz[-16] <= (izi >> 16)) pdest[-16] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-16] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-16);
             case 15:
-                if (pz[-15] <= (izi >> 16)) pdest[-15] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-15] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-15);
             case 14:
-                if (pz[-14] <= (izi >> 16)) pdest[-14] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-14] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-14);
             case 13:
-                if (pz[-13] <= (izi >> 16)) pdest[-13] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-13] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-13);
             case 12:
-                if (pz[-12] <= (izi >> 16)) pdest[-12] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-12] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-12);
             case 11:
-                if (pz[-11] <= (izi >> 16)) pdest[-11] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-11] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-11);
             case 10:
-                if (pz[-10] <= (izi >> 16)) pdest[-10] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[-10] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-10);
             case  9:
-                if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -9] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-9);
             case  8:
-                if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -8] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-8);
             case  7:
-                if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -7] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-7);
             case  6:
-                if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -6] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-6);
             case  5:
-                if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -5] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-5);
             case  4:
-                if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -4] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-4);
             case  3:
-                if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -3] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-3);
             case  2:
-                if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -2] * 256];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLEND50(-2);
             case  1:
-                if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alpha50map[*(pbase + (s >> 16) + (t >> 16) * cw_local) + pdest[ -1] * 256];
+                WRITEBLEND50(-1);
                 break;
             }
         }
-        // mankrip - end
     }
     while ((pspan = pspan->pnext) != NULL);
 }
+
+
+#define WRITEBLENDBACK(i) { if (pz[i] <= (izi >> 16))  \
+    { pdest[i] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[i]]; } \
+            izi += izistep; s += sstep; t += tstep; }
 
 
 void D_DrawSpans16_BlendBackwards (espan_t *pspan)
@@ -1363,35 +1144,26 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
     cw_local = cachewidth;
     pbase = (byte *)cacheblock;
 
-    //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
     sdivzstepu = d_sdivzstepu * 16;
     tdivzstepu = d_tdivzstepu * 16;
     zistepu = d_zistepu * 16;
-    //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-
-    // mankrip - begin
-    // we count on FP exceptions being turned off to avoid range problems
     izistep = (int)(d_zistepu * 0x8000 * 0x10000);
-    // mankrip - end
 
     do
     {
         pdest = (byte *)((byte *)d_viewbuffer + (screenwidth * pspan->v) + pspan->u);
-        pz = d_pzbuffer + (d_zwidth * pspan->v) + pspan->u; // mankrip
+        pz = d_pzbuffer + (d_zwidth * pspan->v) + pspan->u;
 
-        count = pspan->count >> 4; // mh
-        spancount = pspan->count % 16; // mankrip
-
-        // calculate the initial s/z, t/z, 1/z, s, and t and clamp
+        count = pspan->count >> 4;
+        spancount = pspan->count % 16;
         du = (float)pspan->u;
         dv = (float)pspan->v;
 
         sdivz = d_sdivzorigin + dv*d_sdivzstepv + du*d_sdivzstepu;
         tdivz = d_tdivzorigin + dv*d_tdivzstepv + du*d_tdivzstepu;
         zi = d_ziorigin + dv*d_zistepv + du*d_zistepu;
-        z = (float)0x10000 / zi;        // prescale to 16.16 fixed-point
-        // we count on FP exceptions being turned off to avoid range problems // mankrip
-        izi = (int) (zi * 0x8000 * 0x10000); // mankrip
+        z = (float)0x10000 / zi;
+        izi = (int) (zi * 0x8000 * 0x10000);
 
         s = (int)(sdivz * z) + sadjust;
         if (s > bbextents)
@@ -1405,135 +1177,68 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
         else if (t < 0)
             t = 0;
 
-        while (count--) // mankrip
+        while (count--)
         {
-            // calculate s/z, t/z, zi->fixed s and t at far end of span,
-            // calculate s and t steps across span by shifting
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             sdivz += sdivzstepu;
             tdivz += tdivzstepu;
             zi += zistepu;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-            z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
+            z = (float)0x10000 / zi;
 
             snext = (int) (sdivz * z) + sadjust;
             if (snext > bbextents)
                 snext = bbextents;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             else if (snext <= 16)
-                snext = 16;   // prevent round-off error on <0 steps causing overstepping & running off the edge of the texture
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+                snext = 16;
 
             tnext = (int) (tdivz * z) + tadjust;
             if (tnext > bbextentt)
                 tnext = bbextentt;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             else if (tnext < 16)
-                tnext = 16;   // guard against round-off error on <0 steps
+                tnext = 16;
 
             sstep = (snext - s) >> 4;
             tstep = (tnext - t) >> 4;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
 
-            // mankrip - begin
             pdest += 16;
             pz += 16;
-            if (pz[-16] <= (izi >> 16)) pdest[-16] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-16]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-15] <= (izi >> 16)) pdest[-15] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-15]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-14] <= (izi >> 16)) pdest[-14] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-14]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-13] <= (izi >> 16)) pdest[-13] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-13]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-12] <= (izi >> 16)) pdest[-12] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-12]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-11] <= (izi >> 16)) pdest[-11] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-11]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[-10] <= (izi >> 16)) pdest[-10] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-10]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -9]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -8]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -7]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -6]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -5]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -4]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -3]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -2]];
-            izi += izistep;
-            s += sstep;
-            t += tstep;
-            if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -1]];
-            izi += izistep;
-            // mankrip - end
+            WRITEBLENDBACK(-16);
+            WRITEBLENDBACK(-15);
+            WRITEBLENDBACK(-14);
+            WRITEBLENDBACK(-13);
+            WRITEBLENDBACK(-12);
+            WRITEBLENDBACK(-11);
+            WRITEBLENDBACK(-10);
+            WRITEBLENDBACK(-9);
+            WRITEBLENDBACK(-8);
+            WRITEBLENDBACK(-7);
+            WRITEBLENDBACK(-6);
+            WRITEBLENDBACK(-5);
+            WRITEBLENDBACK(-4);
+            WRITEBLENDBACK(-3);
+            WRITEBLENDBACK(-2);
+            WRITEBLENDBACK(-1);
 
             s = snext;
             t = tnext;
-            // mankrip - begin
         }
         if (spancount > 0)
         {
-            // mankrip - end
-
-            // calculate s/z, t/z, zi->fixed s and t at last pixel in span (so can't step off polygon),
-            // clamp, calculate s and t steps across span by division, biasing steps low so we don't run off the texture
             spancountminus1 = (float)(spancount - 1);
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             sdivz += d_sdivzstepu * spancountminus1;
             tdivz += d_tdivzstepu * spancountminus1;
             zi += d_zistepu * spancountminus1;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
-            z = (float)0x10000 / zi;   // prescale to 16.16 fixed-point
+            z = (float)0x10000 / zi;
             snext = (int)(sdivz * z) + sadjust;
             if (snext > bbextents)
                 snext = bbextents;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             else if (snext < 16)
-                snext = 16;   // prevent round-off error on <0 steps from causing overstepping & running off the edge of the texture
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+                snext = 16;
 
             tnext = (int)(tdivz * z) + tadjust;
             if (tnext > bbextentt)
                 tnext = bbextentt;
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - begin
             else if (tnext < 16)
-                tnext = 16;   // guard against round-off error on <0 steps
-            //qb: ( http://forums.inside3d.com/viewtopic.php?t=2717 ) - end
+                tnext = 16;
 
             if (spancount > 1)
             {
@@ -1541,93 +1246,45 @@ void D_DrawSpans16_BlendBackwards (espan_t *pspan)
                 tstep = (tnext - t) / (spancount - 1);
             }
 
-            //qb: Duff's Device loop unroll per mh.
             pdest += spancount;
-            // mankrip - begin
             pz += spancount;
             switch (spancount)
             {
             case 16:
-                if (pz[-16] <= (izi >> 16)) pdest[-16] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-16]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-16);
             case 15:
-                if (pz[-15] <= (izi >> 16)) pdest[-15] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-15]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-15);
             case 14:
-                if (pz[-14] <= (izi >> 16)) pdest[-14] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-14]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-14);
             case 13:
-                if (pz[-13] <= (izi >> 16)) pdest[-13] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-13]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-13);
             case 12:
-                if (pz[-12] <= (izi >> 16)) pdest[-12] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-12]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-12);
             case 11:
-                if (pz[-11] <= (izi >> 16)) pdest[-11] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-11]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-11);
             case 10:
-                if (pz[-10] <= (izi >> 16)) pdest[-10] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[-10]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-10);
             case  9:
-                if (pz[ -9] <= (izi >> 16)) pdest[ -9] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -9]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-9);
             case  8:
-                if (pz[ -8] <= (izi >> 16)) pdest[ -8] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -8]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-8);
             case  7:
-                if (pz[ -7] <= (izi >> 16)) pdest[ -7] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -7]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-7);
             case  6:
-                if (pz[ -6] <= (izi >> 16)) pdest[ -6] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -6]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-6);
             case  5:
-                if (pz[ -5] <= (izi >> 16)) pdest[ -5] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -5]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-5);
             case  4:
-                if (pz[ -4] <= (izi >> 16)) pdest[ -4] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -4]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-4);
             case  3:
-                if (pz[ -3] <= (izi >> 16)) pdest[ -3] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -3]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-3);
             case  2:
-                if (pz[ -2] <= (izi >> 16)) pdest[ -2] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -2]];
-                izi += izistep;
-                s += sstep;
-                t += tstep;
+                WRITEBLENDBACK(-2);
             case  1:
-                if (pz[ -1] <= (izi >> 16)) pdest[ -1] = alphamap[*(pbase + (s >> 16) + (t >> 16) * cw_local) * 256 + pdest[ -1]];
+                WRITEBLENDBACK(-1);
                 break;
             }
         }
-        // mankrip - end
     }
     while ((pspan = pspan->pnext) != NULL);
 }
