@@ -1377,14 +1377,17 @@ void R_SortAliasEntities (void)
 R_DrawBEntitiesOnList
 =============
 */
+
+//#define BSPRESTART
+
 void R_DrawBEntitiesOnList (void)
 {
-//      int k;
     int                 i, j, clipflags;
     vec3_t              oldorigin;
     model_t             *clmodel;
     float               minmaxs[6];
     int        alphamask;
+    qboolean restartbsp;
     msurface_t	*psurf;
 
     if (!r_drawentities.value)
@@ -1396,16 +1399,38 @@ void R_DrawBEntitiesOnList (void)
     for (i=0 ; i<cl_numvisedicts ; i++)
     {
         currententity = cl_visedicts[i];
-
-        if(currententity->model->type == mod_brush)
+        restartbsp = false;
+        clmodel = currententity->model;
+        if(clmodel->type == mod_brush)
         {
             alphaspans = currententity->alphaspans; //qb: if r_overdraw or not
-            clmodel = currententity->model;
             psurf = &clmodel->surfaces[clmodel->firstmodelsurface];
-            if ((r_overdraw || !alphaspans))
-            {
-                d_drawspans = currententity->D_DrawSpans;
 
+            //qb: transparent entities
+            if (r_overdraw  || !alphaspans)
+            {
+#ifdef BSPRESTART
+                if (alphaspans && r_overdraw)
+                {
+                    restartbsp = true;
+                    edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
+                    surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
+                    if (auxedges)
+                        r_edges = auxedges;
+                    else
+                        r_edges =  (edge_t *)(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+
+                    if (r_surfsonstack)
+                    {
+                        surfaces =  (surf_t *)(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+                        surf_max = &surfaces[r_cnumsurfs];
+                        // surface 0 doesn't really exist; it's just a dummy because index 0
+                        // is used to indicate no edge attached to surface
+                        surfaces--;
+                    }
+                    R_BeginEdgeFrame ();
+                }
+#endif
                 // see if the bounding box lets us trivially reject, also sets
                 // trivial accept status
                 for (j=0 ; j<3 ; j++)
@@ -1484,8 +1509,17 @@ void R_DrawBEntitiesOnList (void)
                     R_TransformFrustum ();
                 }
             }
+#ifdef BSPRESTART
+            if(restartbsp)
+                R_ScanEdges (); //mankrip
+#endif
         }
+
     }
+#ifdef BSPRESTART
+    if (!restartbsp && !r_overdraw)
+#endif
+        R_ScanEdges ();
     insubmodel = false;
 }
 
@@ -1533,8 +1567,6 @@ void R_EdgeDrawing (void)
         db_time2 = Sys_DoubleTime ();
         se_time1 = db_time2;
     }
-
-    R_ScanEdges ();
 }
 
 
