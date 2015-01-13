@@ -260,7 +260,7 @@ void D_DrawSurfaces (void)
                         else D_DrawSpans16_Blend(pspans); //qb: catchall
                     }
                 }
-                else D_DrawZSpans (pspans);
+               // else D_DrawZSpans (pspans);
 
                 if (s->insubmodel)
                 {

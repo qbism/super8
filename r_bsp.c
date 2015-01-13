@@ -344,7 +344,15 @@ void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel, int alphamask)
 
     for (i=0 ; i<numsurfaces ; i++, psurf++)
     {
-         // find which side of the node we are on
+        if (pmodel != cl.worldmodel)
+        {
+            if ((psurf->flags & SURF_DRAWTRANSLUCENT))
+                currententity->alphaspans = true;
+
+            if (!r_overdraw && (alphaspans || psurf->flags & SURF_DRAWTRANSLUCENT))
+                continue; //qb: kick out fence surfaces in this case
+        }
+        // find which side of the node we are on
         pplane = psurf->plane;
 
         dot = DotProduct (modelorg, pplane->normal) - pplane->dist;
@@ -354,8 +362,7 @@ void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel, int alphamask)
         if (((psurf->flags & SURF_PLANEBACK) && (dot < -BACKFACE_EPSILON)) ||
                 (!(psurf->flags & SURF_PLANEBACK) && (dot > BACKFACE_EPSILON)))
         {
-        if (!r_overdraw && (alphamask ||  (psurf->flags & (SURF_DRAWFENCE|SURF_DRAWTURB))))
-            continue;
+
             if (alphamask)
             {
                 psurf->flags|= (alphamask | SURF_DRAWTRANSLUCENT );
@@ -430,14 +437,20 @@ void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags, int alphamask)
 
     for (i=0 ; i<numsurfaces ; i++, psurf++)
     {
+        if (pmodel != cl.worldmodel)
+        {
+            if ((psurf->flags & SURF_DRAWTRANSLUCENT))
+                currententity->alphaspans = true;
+
+            if (!r_overdraw && (alphaspans || psurf->flags & SURF_DRAWTRANSLUCENT))
+                continue; //qb: kick out fence surfaces in this case
+        }
 
         // find which side of the node we are on
         pplane = psurf->plane;
 
         dot = DotProduct (modelorg, pplane->normal) - pplane->dist;
 
-        if (!r_overdraw && (alphamask ||  (psurf->flags & (SURF_DRAWFENCE|SURF_DRAWTURB))))
-            continue;
         if (alphamask)
             psurf->flags|= (alphamask | SURF_DRAWTRANSLUCENT);
         // draw the polygon
