@@ -188,7 +188,7 @@ void D_DrawSurfaces (void)
             if (! (pspans = s->spans))
                 continue;
 
-            if (r_overdraw && !(s->flags & (SURF_DRAWTURB|SURF_DRAWTRANSLUCENT)))
+            if (r_overdraw && !(s->flags & SURF_DRAWTRANSLUCENT))
                 continue;
 
             r_drawnpolycount++;
@@ -219,7 +219,7 @@ void D_DrawSurfaces (void)
                 D_DrawSolidSurface (pspans, (int)r_clearcolor.value & 0xFF);
                 D_DrawZSpans (pspans); // mankrip - edited
             }
-            else if (s->flags & (SURF_DRAWTURB|SURF_DRAWTRANSLUCENT))
+            else if (s->flags & SURF_DRAWTRANSLUCENT)
             {
                 pface = s->data;
                 miplevel = 0;
@@ -235,32 +235,28 @@ void D_DrawSurfaces (void)
                 }
                 D_CalcGradients (pface);
 
-                if(r_overdraw)
+                if (s->flags & SURF_DRAWTURB)
                 {
-                    if (s->flags & SURF_DRAWTURB)
-                    {
-                        cacheblock = (pixel_t *) ((byte *)pface->texinfo->texture + pface->texinfo->texture->offsets[0]);
-                        cachewidth = 64;
-                        Turbulent8 (pspans);
-                    }
-                    else
-                    {
-                        pcurrentcache = D_CacheSurface (pface, miplevel);
-                        cacheblock = (pixel_t *)pcurrentcache->data;
-                        cachewidth = pcurrentcache->width;
-
-                        if (s->flags & SURF_DRAWFENCE)
-                            D_DrawSpans16_Fence(pspans);  //qb:  fence writes its own z
-                        else if (s->flags & SURF_DRAWGLASS33)
-                            D_DrawSpans16_Blend(pspans);
-                        else if (s->flags & SURF_DRAWGLASS50)
-                            D_DrawSpans16_Blend50(pspans);
-                        else if (s->flags & SURF_DRAWGLASS66)
-                            D_DrawSpans16_BlendBackwards(pspans);
-                        else D_DrawSpans16_Blend(pspans); //qb: catchall
-                    }
+                    cacheblock = (pixel_t *) ((byte *)pface->texinfo->texture + pface->texinfo->texture->offsets[0]);
+                    cachewidth = 64;
+                    Turbulent8 (pspans);
                 }
-               // else D_DrawZSpans (pspans);
+                else
+                {
+                    pcurrentcache = D_CacheSurface (pface, miplevel);
+                    cacheblock = (pixel_t *)pcurrentcache->data;
+                    cachewidth = pcurrentcache->width;
+
+                    if (s->flags & SURF_DRAWFENCE)
+                        D_DrawSpans16_Fence(pspans);  //qb:  fence writes its own z
+                    else if (s->flags & SURF_DRAWGLASS33)
+                        D_DrawSpans16_Blend(pspans);
+                    else if (s->flags & SURF_DRAWGLASS50)
+                        D_DrawSpans16_Blend50(pspans);
+                    else if (s->flags & SURF_DRAWGLASS66)
+                        D_DrawSpans16_BlendBackwards(pspans);
+                    else D_DrawSpans16_Blend(pspans); //qb: catchall
+                }
 
                 if (s->insubmodel)
                 {
@@ -327,22 +323,24 @@ void D_DrawSurfaces (void)
                 }
 
                 pface = s->data;
-                miplevel = D_MipLevelForScale (s->nearzi * scale_for_mip * pface->texinfo->mipadjust);
 
-                // FIXME: make this passed in to D_CacheSurface
-                pcurrentcache = D_CacheSurface (pface, miplevel);
-
-                cacheblock = (pixel_t *)pcurrentcache->data;
-                cachewidth = pcurrentcache->width;
-
-                D_CalcGradients (pface);
-
-                // if (r_overdraw)
-                //     D_DrawSpans16_Blend (pspans); // mankrip //qb: catchall
-
-                //else
-                (*d_drawspans) (pspans);
-
+                if (s->flags & SURF_DRAWTURB)
+                {
+                    miplevel = 0;
+                    cacheblock = (pixel_t *) ((byte *)pface->texinfo->texture + pface->texinfo->texture->offsets[0]);
+                    cachewidth = 64;
+                    D_CalcGradients (pface);
+                    Turbulent8 (pspans);
+                }
+                else
+                {
+                    miplevel = D_MipLevelForScale (s->nearzi * scale_for_mip * pface->texinfo->mipadjust);
+                    pcurrentcache = D_CacheSurface (pface, miplevel);
+                    cacheblock = (pixel_t *)pcurrentcache->data;
+                    cachewidth = pcurrentcache->width;
+                    D_CalcGradients (pface);
+                    (*d_drawspans) (pspans);
+                }
                 D_DrawZSpans (pspans);
 
                 if (s->insubmodel)
