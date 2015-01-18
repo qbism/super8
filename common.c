@@ -1953,6 +1953,19 @@ void COM_InitFilesystem (void)
     AddDir (true, basedir, gamedir, GAMENAME);
     AddDir (true, basedir, gamedir, "super8"); //qb: put super8 junk in own dir
 
+
+    i = COM_CheckParm ("-game2");
+    if (i && i < com_argc-1)
+        AddDir (true, basedir, gamedir, com_argv[i+1]);
+
+    i = COM_CheckParm ("-game3");
+    if (i && i < com_argc-1)
+        AddDir (true, basedir, gamedir, com_argv[i+1]);
+
+    i = COM_CheckParm ("-game4");
+    if (i && i < com_argc-1)
+        AddDir (true, basedir, gamedir, com_argv[i+1]);
+
 //qb: not supported	AddDir (nehahra, basedir, gamedir, "nehahra"); // Add Nehahra
     AddDir (COM_CheckParm ("-rogue"), basedir, gamedir, "rogue");
     AddDir (COM_CheckParm ("-hipnotic"), basedir, gamedir, "hipnotic");

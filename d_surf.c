@@ -129,8 +129,8 @@ surfcache_t     *D_SCAlloc (int width, int size)
 	surfcache_t             *new;
 	qboolean                wrapped_this_time;
 
-//	if ((width < 0) || (width > 256))
-	if ((width < 0) || (width > 256 + 2)) // mankrip - extra for dithering
+	if ((width < 0) || (width > 256))
+//qb: problem on bsp2 	if ((width < 0) || (width > 256 + 2)) // mankrip - extra for dithering
 		Sys_Error ("D_SCAlloc: bad cache width %d\n", width);
 
 	if ((size <= 0) || (size > 0x10000))
@@ -173,7 +173,7 @@ surfcache_t     *D_SCAlloc (int width, int size)
 
 // create a fragment out of any leftovers
 //	if (new->size - size > 256)
-	if (new->size - size > 256 + 2) // mankrip - extra for dithering
+	if (new->size - size > 256) // + 2) // mankrip - extra for dithering
 	{
 		sc_rover = (surfcache_t *)( (byte *)new + size);
 		sc_rover->size = new->size - size;
@@ -245,7 +245,7 @@ surfcache_t *D_CacheSurface (msurface_t *surface, int miplevel)
     surfscale = 1.0 / (1<<miplevel);
     r_drawsurf.surfmip = miplevel;
     if ( (int) (1.0f / surfscale) & 1) //qb: from MQ1.6 - mipmap 0
-        r_drawsurf.surfwidth = (surface->extents[0] >> miplevel) + 2;
+        r_drawsurf.surfwidth = (surface->extents[0] >> miplevel);
     else	r_drawsurf.surfwidth = surface->extents[0] >> miplevel;
     r_drawsurf.rowbytes = r_drawsurf.surfwidth;
     r_drawsurf.surfheight = surface->extents[1] >> miplevel;
@@ -256,7 +256,7 @@ surfcache_t *D_CacheSurface (msurface_t *surface, int miplevel)
     if (!cache)     // if a texture just animated, don't reallocate it
     {
         if ( (int) (1.0f / surfscale) & 1) //qb: from MQ1.6 mipmap 0
-            cache = D_SCAlloc (r_drawsurf.surfwidth, (r_drawsurf.surfheight + 2) * r_drawsurf.surfwidth); // extra for dithering
+            cache = D_SCAlloc (r_drawsurf.surfwidth, (r_drawsurf.surfheight) * r_drawsurf.surfwidth);
         else
             cache = D_SCAlloc (r_drawsurf.surfwidth,
                                r_drawsurf.surfwidth * r_drawsurf.surfheight);
