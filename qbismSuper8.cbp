@@ -19,6 +19,7 @@
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-m32" />
+					<Add option="-DASM386" />
 					<Add option="-DWIN32" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_WIN32" />

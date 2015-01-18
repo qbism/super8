@@ -867,8 +867,9 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
         // Tomaz - QC Alpha Scale Glow Begin (qb- modified)
         if (sv.protocol  == PROTOCOL_QBS8)
         {
-            val = GetEdictFieldValue(ent, "alpha");
-            ent->alpha = ENTALPHA_ENCODE(val->_float);
+            if(val = GetEdictFieldValue(ent, "alpha"))
+                ent->alpha = ENTALPHA_ENCODE(val->_float);
+            else ent->alpha = ENTALPHA_DEFAULT;
 
             //qb: FQ- don't send invisible entities unless they have effects
             if (ent->alpha == ENTALPHA_ZERO && !ent->v.effects)

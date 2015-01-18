@@ -225,7 +225,7 @@ typedef struct
     struct model_s		*model_precache[MAX_MODELS];
     struct sfx_s		*sound_precache[MAX_SOUNDS];
 
-    char		levelname[40];	// for display on solo scoreboard
+    char		levelname[22];	// for display on solo scoreboard  //qb: was 40 (too many chars for scoreboard)
     int			viewentity;		// cl_entitites[cl.viewentity] = player
     int			maxclients;
     int			gametype;
