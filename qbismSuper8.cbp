@@ -278,7 +278,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="model.h" />
-		<Unit filename="modelgen.h" />
 		<Unit filename="net.h" />
 		<Unit filename="net_dgrm.c">
 			<Option compilerVar="CC" />

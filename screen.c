@@ -34,7 +34,8 @@ float		scr_conlines;		// lines of console to display
 float       fovscale;
 float		oldfov; // edited
 cvar_t		scr_viewsize = {"viewsize","100", "viewsize[value] Reduce view size by adding a border around the screen.", true};
-cvar_t		scr_fov = {"fov","91.25", "fov[1.0 to 170.0] Field-of-view angle."};	// 10 - 170 //qb: 91.25 works best for fisheye
+cvar_t		scr_fov = {"fov","90.00", "fov[30.0 to 140.0] Field-of-view angle."};
+cvar_t		ffov_face = {"ffov_face","91.25", "fov[30 to 140.0] Field-of-view angle per face of fisheye view cube.  Adjust to improve edge alignment."};  //qb: 91.25 works best for fisheye
 cvar_t		scr_conspeed = {"scr_conspeed","1000", "scr_conspeed[value] Console screen scroll speed."};
 cvar_t		scr_showpause = {"showpause","1", "scr_showpause[0/1] Show 'pause' plaque. Turn off for screenshots."};
 cvar_t		scr_centertime = {"scr_centertime","2", "scr_centertime[time(s)] How long center print hint messages are displayed."};
@@ -338,8 +339,7 @@ SCR_Adjust
 void SCR_AdjustFOV (void)
 {
 // bound field of view //qb: change to 30 - 140
-    if (r_fisheye.value) //qb:  set it yourself, for now
-        return;
+
     if (scr_fov.value < 30)
         Cvar_Set ("fov","30");
     if (scr_fov.value > 140)
@@ -349,6 +349,19 @@ void SCR_AdjustFOV (void)
         oldfov = scr_fov.value;
         vid.recalc_refdef = true;
     }
+}
+/*
+==================
+SCR_Adjust
+==================
+*/
+void SCR_AdjustFFOV_face (void)
+{
+// bound field of view for each fisheye cube //qb: change to 30 - 140
+    if (ffov_face.value < 30)
+        Cvar_Set ("ffov_face","30");
+    if (ffov_face.value > 140)
+        Cvar_Set ("ffov_face","140");
 }
 
 void SCR_Adjust (void)
@@ -378,6 +391,7 @@ void SCR_Init (void)
 {
 
     Cvar_RegisterVariableWithCallback (&scr_fov, SCR_AdjustFOV); // Manoel Kasimier
+    Cvar_RegisterVariableWithCallback (&ffov_face, SCR_AdjustFFOV_face); //qb: per-face of fisheye cube
     Cvar_RegisterVariableWithCallback (&scr_viewsize, SCR_Adjust); // Manoel Kasimier
 //	Cvar_RegisterVariable (&scr_fov);
 //	Cvar_RegisterVariable (&scr_viewsize);

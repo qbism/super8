@@ -40,6 +40,7 @@ extern cvar_t r_light_style;
 // Manoel Kasimier - r_light_style - end
 
 extern cvar_t  r_fisheye; //qb: fisheye added
+extern cvar_t	ffov_face;
 extern cvar_t	scr_fov;
 
 extern cvar_t r_interpolation; // Manoel Kasimier - model interpolation
