@@ -1,1 +1,48 @@
-icon ICON "C:/qbismSuper8/qbS8src/s_win32/QBS8.ico"
+#if HAVE_CONFIG_H
+#include "config.h"
+#endif
+
+#include <windows.h>
+
+#pragma code_page(65001)
+
+#ifdef _DEBUG
+#define VER_FILEFLAGS   VS_FF_DEBUG
+#else
+#define VER_FILEFLAGS   0x0L
+#endif
+
+#define VER_FILEDESCRIPTION_STR     "qbism Super8"
+#define VER_ORIGINALFILENAME_STR    "qbismS8.exe"
+
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+VS_VERSION_INFO VERSIONINFO
+    FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+    FILEFLAGS       VER_FILEFLAGS
+    FILEOS          VOS_NT_WINDOWS32
+    FILETYPE        VFT_APP
+    FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904B0"
+        BEGIN
+            VALUE "Comments", "http://super8.qbism.com"
+            VALUE "CompanyName", "qbism.com"
+            VALUE "FileDescription", VER_FILEDESCRIPTION_STR
+            VALUE "OriginalFilename", VER_ORIGINALFILENAME_STR
+            VALUE "InternalName", "qbismS8"
+             VALUE "ProductName", "QBISMS8"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 0x4B0
+    END
+END
+
+LANGUAGE LANG_NEUTRAL, SUBLANG_DEFAULT
+
+
+100 ICON "C:/qbismSuper8/qbS8src/s_win32/QBS8.ico"

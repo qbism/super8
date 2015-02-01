@@ -135,7 +135,7 @@ cvar_t  r_speeds = {"r_speeds","0", "r_speeds[0/1] Toggle display of drawing tim
 //qb: fte stain cvars
 cvar_t r_stainfadeamount = {"r_stainfadeamount", "0.5", "r_stainfadeamount[value] Amount to fade stain each cycle."};
 cvar_t r_stainfadetime = {"r_stainfadetime", "5.0", "r_stainfadetime[time] How long a stain will stay before fading."};
-cvar_t r_stains = {"r_stains", "0.75", "r_stains[0.0 - 1.0] Stainmap opacity.  Set to 0 to turn off stains."}; //zero to one
+cvar_t r_stains = {"r_stains", "0.0", "r_stains[0.0 - 1.0] Stainmap opacity.  Set to 0 to turn off stains."}; //zero to one
 
 cvar_t  r_timegraph = {"r_timegraph","0", "r_timegraph[0/1] Toggle display of a performance graph. (Lower levels means better performance.)"};
 cvar_t  r_graphheight = {"r_graphheight","10", "r_graphheight[value] Set the number of lines displayed in the timegraph."};

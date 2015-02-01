@@ -809,7 +809,7 @@ void V_CalcRefdef (void)
     double xyspeed;
     float bspeed;
 
-     V_DriftPitch ();
+    V_DriftPitch ();
 
 // ent is the player model (visible when out of body)
     ent = &cl_entities[cl.viewentity];
@@ -921,7 +921,7 @@ void V_CalcRefdef (void)
     //    -----------------------------------------
     if (cl_bobmodel.value)
     {
-       gunbobtime = cl.time;
+        gunbobtime = cl.time;
         s = gunbobtime * cl_bobmodel_speed.value;
 
         bspeed = xyspeed * 0.01f;
@@ -1013,7 +1013,7 @@ the entity origin, so any view position inside that will be valid
 */
 void V_RenderView (void)
 {
-     if (con_forcedup)
+    if (con_forcedup)
         return;
 
     if (!sv_freezephysics.value)// || !sv_cheats.value) //qb
@@ -1031,14 +1031,18 @@ void V_RenderView (void)
     }
     if (r_fisheye.value)
     {
-        fisheye_accel += r_fishaccel.value;
-        ffov.value += fisheye_accel;
-        ffov.value = bound (30, ffov.value, 10000);
+        scr_fov.value = ffov_face.value;  //qb: separate value for fisheye cube fov
+        if (r_fishaccel.value)
+        {
+            fisheye_accel += r_fishaccel.value;
+            ffov.value += fisheye_accel;
+            ffov.value = bound (30, ffov.value, 10000);
+        }
         R_RenderView_Fisheye ();//qb Aardappel fisheye
     }
     else
     {
-               R_RenderView ();
+        R_RenderView ();
     }
 }
 

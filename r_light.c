@@ -254,6 +254,8 @@ int R_LightPoint (vec3_t p, int lightpoint)
 
     if (r == -1)
         r = 0;
+    if (r > 128)
+        r = 128; //qb:  getting too bright especially with colored lighting
 
     if (r < r_refdef.ambientlight)
         r = r_refdef.ambientlight;

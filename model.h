@@ -18,15 +18,66 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #ifndef __MODEL__
 #define __MODEL__
 
-#include "modelgen.h"
+#ifdef INCLUDELIBS
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+
+#include "cmdlib.h"
+#include "scriplib.h"
+#include "trilib.h"
+#include "lbmlib.h"
+#include "mathlib.h"
+
+#endif
+
 #include "spritegn.h"
 
+#define ALIAS_VERSION	6
+
+#define ALIAS_ONSEAM				0x0020
+
+// must match definition in spritegn.h
+#ifndef SYNCTYPE_T
+#define SYNCTYPE_T
+typedef enum {ST_SYNC=0, ST_RAND } synctype_t;
+#endif
+
+typedef enum { ALIAS_SINGLE=0, ALIAS_GROUP } aliasframetype_t;
+
+typedef enum { ALIAS_SKIN_SINGLE=0, ALIAS_SKIN_GROUP } aliasskintype_t;
+
+
 /*
+==============================================================================
 
-d*_t structures are on-disk representations
-m*_t structures are in-memory
+ALIAS MODELS
 
+Alias models are position independent, so the cache manager can move them.
+==============================================================================
 */
+
+#define	MD2MAX_TRIANGLES	4096
+#define MD2MAX_VERTS		2048
+#define MD2MAX_FRAMES		512
+#define MD2MAX_SKINS		32
+#define	MD2MAX_SKINNAME		64
+
+#define	SURF_PLANEBACK		2
+#define	SURF_DRAWSKY		4
+#define SURF_DRAWSPRITE		8
+#define SURF_DRAWTURB		0x10
+#define SURF_DRAWTILED		0x20
+#define SURF_DRAWBACKGROUND	0x40
+#define SURF_DRAWSKYBOX		0x80		// Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
+#define SURF_DRAWTRANSLUCENT	0x100	// Manoel Kasimier - translucent water
+#define SURF_DRAWFENCE		0x200   //qb: textures with holes
+#define SURF_DRAWGLASS33	0x400   //qb: glass (non-turbulent transparent)
+#define SURF_DRAWGLASS50	0x800   //qb: glass (non-turbulent transparent)
+#define SURF_DRAWGLASS66	0x1000   //qb: glass (non-turbulent transparent)
+#define SURF_NOTEXTURE  	0x2000   //qb: from FQ
 
 /*
 ==============================================================================
@@ -82,20 +133,24 @@ typedef struct texture_s
 } texture_t;
 
 
-#define	SURF_PLANEBACK		2
-#define	SURF_DRAWSKY		4
-#define SURF_DRAWSPRITE		8
-#define SURF_DRAWTURB		0x10
-#define SURF_DRAWTILED		0x20
-#define SURF_DRAWBACKGROUND	0x40
-#define SURF_DRAWSKYBOX		0x80		// Manoel Kasimier - skyboxes // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
-#define SURF_DRAWTRANSLUCENT	0x100	// Manoel Kasimier - translucent water
-#define SURF_DRAWFENCE		0x200   //qb: textures with holes
-#define SURF_DRAWGLASS33	0x400   //qb: glass (non-turbulent transparent)
-#define SURF_DRAWGLASS50	0x800   //qb: glass (non-turbulent transparent)
-#define SURF_DRAWGLASS66	0x1000   //qb: glass (non-turbulent transparent)
-#define SURF_NOTEXTURE  	0x2000   //qb: from FQ
+//qb:  johnfitz begin -- for clipnodes>32k
+typedef struct mclipnode_s
+{
+	int			planenum;
+	int			children[2]; // negative numbers are contents
+} mclipnode_t;
+//qb:  johnfitz end
 
+// !!! if this is changed, it must be changed in asm_i386.h too !!!
+typedef struct
+{
+	mclipnode_t	*clipnodes; //qb:  johnfitz -- was dclipnode_t
+	mplane_t	*planes;
+	int			firstclipnode;
+	int			lastclipnode;
+	vec3_t		clip_mins;
+	vec3_t		clip_maxs;
+} hull_t;
 
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
 typedef struct
@@ -186,83 +241,36 @@ typedef struct mleaf_s
 	byte		ambient_sound_level[NUM_AMBIENTS];
 } mleaf_t;
 
-//qb:  johnfitz begin -- for clipnodes>32k
-typedef struct mclipnode_s
-{
-	int			planenum;
-	int			children[2]; // negative numbers are contents
-} mclipnode_t;
-//qb:  johnfitz end
+typedef struct {
+	byte	v[3];
+	byte	lightnormalindex;
+} trivertx_t;
 
-// !!! if this is changed, it must be changed in asm_i386.h too !!!
-typedef struct
-{
-	mclipnode_t	*clipnodes; //qb:  johnfitz -- was dclipnode_t
-	mplane_t	*planes;
-	int			firstclipnode;
-	int			lastclipnode;
-	vec3_t		clip_mins;
-	vec3_t		clip_maxs;
-} hull_t;
+typedef struct {
+	trivertx_t	bboxmin;	// lightnormal isn't used
+	trivertx_t	bboxmax;	// lightnormal isn't used
+	char		name[16];	// frame name from grabbing
+} daliasframe_t;
 
-/*
-==============================================================================
+typedef struct {
+	int			numframes;
+	trivertx_t	bboxmin;	// lightnormal isn't used
+	trivertx_t	bboxmax;	// lightnormal isn't used
+} daliasgroup_t;
 
-SPRITE MODELS
-
-==============================================================================
-*/
-
-
-// FIXME: shorten these?
-typedef struct mspriteframe_s
-{
-	int		width;
-	int		height;
-	void	*pcachespot;			// remove?
-	float	up, down, left, right;
-	byte	pixels[4];
-} mspriteframe_t;
-
-typedef struct
-{
-	int				numframes;
-	float			*intervals;
-	mspriteframe_t	*frames[1];
-} mspritegroup_t;
-
-typedef struct
-{
-	spriteframetype_t	type;
-	mspriteframe_t		*frameptr;
-} mspriteframedesc_t;
-
-typedef struct
-{
-	int					type;
-	int					maxwidth;
-	int					maxheight;
-	int					numframes;
-	float				beamlength;		// remove?
-	void				*cachespot;		// remove?
-	mspriteframedesc_t	frames[1];
-} msprite_t;
-
-
-/*
-==============================================================================
-
-ALIAS MODELS
-
-Alias models are position independent, so the cache manager can move them.
-==============================================================================
-*/
 
 typedef struct
 {
 	aliasframetype_t	type;
+	int					firstpose;
+	int					numposes;
+	float				interval;
 	trivertx_t			bboxmin;
 	trivertx_t			bboxmax;
+
+	vec3_t		scale;
+	vec3_t		scale_origin;
+
 	int					frame;
 	char				name[16];
 } maliasframedesc_t;
@@ -301,17 +309,12 @@ typedef struct mtriangle_s {
 	int					facesfront;
 	int					vertindex[3];
 	int					drawn; // Manoel Kasimier - EF_CELSHADING
+	int					xyz_index[3];
+	int					st_index[3];
+	int	pad[2];
 } mtriangle_t;
 
 extern int celtri_drawn; // Manoel Kasimier - EF_CELSHADING
-
-typedef struct {
-	int					model;
-	int					stverts;
-	int					skindesc;
-	int					triangles;
-	maliasframedesc_t	frames[1];
-} aliashdr_t;
 
 //===================================================================
 
@@ -325,6 +328,7 @@ typedef struct
 {
 	char	searchpath[MAX_OSPATH];
 } loadinfo_t; //qb: model search path, from FQ Mark V
+
 
 typedef struct model_s
 {
@@ -396,6 +400,304 @@ typedef struct model_s
 	cache_user_t	cache;		// only access through Mod_Extradata
 	int				dontshadow;  //qb: shadowhack from engoo
 } model_t;
+
+typedef struct {
+	int			ident;
+	int			version;
+	vec3_t		scale;
+	vec3_t		scale_origin;
+	float		boundingradius;
+	vec3_t		eyeposition;
+	int			numskins;
+	int			skinwidth;
+	int			skinheight;
+	int			numverts;
+	int			numtris;
+	int			numframes;
+	synctype_t	synctype;
+	int			flags;
+	float		size;
+} mdl_t;
+
+// TODO: could be shorts
+
+typedef struct {
+	int		onseam;
+	int		s;
+	int		t;
+} stvert_t;
+
+typedef struct dtriangle_s {
+	int					facesfront;
+	int					vertindex[3];
+} dtriangle_t;
+
+#define DT_FACES_FRONT				0x0010
+
+// This mirrors trivert_t in trilib.h, is present so Quake knows how to
+// load this data
+
+typedef struct {
+	int			numskins;
+} daliasskingroup_t;
+
+typedef struct {
+	float	interval;
+} daliasinterval_t;
+
+typedef struct {
+	float	interval;
+} daliasskininterval_t;
+
+typedef struct {
+	aliasframetype_t	type;
+} daliasframetype_t;
+
+typedef struct {
+	aliasskintype_t	type;
+} daliasskintype_t;
+
+
+//qb: md2 from FTEQW
+typedef struct {
+	int		s;
+	int		t;
+} mstvert_t;
+
+
+typedef struct {
+	byte	v[3];
+	byte	lightnormalindex;
+} dtrivertx_t;
+typedef struct {
+	int			ident;
+	int			version;
+	vec3_t		scale;
+	vec3_t		scale_origin;
+	float		boundingradius;
+	vec3_t		eyeposition;
+	int			numskins;
+	int			skinwidth;
+	int			skinheight;
+	int			numverts;
+	int			numstverts;
+	int			numtris;
+	int			numframes;
+	synctype_t	synctype;
+	int			flags;
+	float		size;
+} mmdl_t;
+
+#define	MAX_SKINS	32
+typedef struct {
+	int			ident;
+	int			version;
+	vec3_t		scale;
+	vec3_t		scale_origin;
+	float		boundingradius;
+	vec3_t		eyeposition;
+	int			numskins;
+	int			skinwidth;
+	int			skinheight;
+	int			numverts;
+	int			numtris;
+	int			numframes;
+	synctype_t	synctype;
+	int			flags;
+	float		size;
+
+	int					model;
+	int					stverts;
+	int					skindesc;
+
+	int					numposes;
+	int					poseverts;
+	int					posedata;	// numposes*poseverts trivert_t
+
+	int					baseposedata; //original verts for triangles to reference
+	int					triangles; //we need tri data for shadow volumes
+
+	int					commands;	// gl command list with embedded s/t
+	int					gl_texturenum[MAX_SKINS][4];
+	int					texels[MAX_SKINS];
+	maliasframedesc_t	frames[1];	// variable sized
+} aliashdr_t;
+
+#define ALIAS_Z_CLIP_PLANE	5
+#define	MAXALIASFRAMES	256
+#define	MAXALIASTRIS	2048
+
+typedef struct {
+	int			ident;
+	int			version;
+	vec3_t		scale;
+	vec3_t		scale_origin;
+	float		boundingradius;
+	vec3_t		eyeposition;
+	int			numskins;
+	int			skinwidth;
+	int			skinheight;
+	int			numverts;
+	int			numtris;
+	int			numframes;
+	synctype_t	synctype;
+	int			flags;
+	float		size;
+} dmdl_t;
+
+// TODO: could be shorts
+
+typedef struct {
+	int		onseam;
+	int		s;
+	int		t;
+} dstvert_t;
+
+typedef struct {
+	short		s;
+	short		t;
+} dmd2stvert_t;
+
+typedef struct dmd2triangle_s {
+	short					xyz_index[3];
+	short					st_index[3];
+} dmd2triangle_t;
+
+
+#define MD2IDALIASHEADER		(('2'<<24)+('P'<<16)+('D'<<8)+'I')
+#define MD2ALIAS_VERSION	8
+
+#define	MD2MAX_TRIANGLES	4096
+#define MD2MAX_VERTS		2048
+#define MD2MAX_FRAMES		512
+#define MD2MAX_SKINS		32
+#define	MD2MAX_SKINNAME		64
+// sanity checking size
+#define MD2MAX_SIZE	(1024*4200)
+
+typedef struct
+{
+	short	s;
+	short	t;
+} md2stvert_t;
+
+typedef struct
+{
+	short	index_xyz[3];
+	short	index_st[3];
+} md2triangle_t;
+
+typedef struct
+{
+	byte	v[3];			// scaled qbyte to fit in frame mins/maxs
+	byte	lightnormalindex;
+} md2trivertx_t;
+
+#define MD2TRIVERTX_V0   0
+#define MD2TRIVERTX_V1   1
+#define MD2TRIVERTX_V2   2
+#define MD2TRIVERTX_LNI  3
+#define MD2TRIVERTX_SIZE 4
+
+typedef struct
+{
+	float		scale[3];	// multiply qbyte verts by this
+	float		translate[3];	// then add this
+	char		name[16];	// frame name from grabbing
+	md2trivertx_t	verts[1];	// variable sized
+} md2frame_t;
+
+
+// the glcmd format:
+// a positive integer starts a tristrip command, followed by that many
+// vertex structures.
+// a negative integer starts a trifan command, followed by -x vertexes
+// a zero indicates the end of the command list.
+// a vertex consists of a floating point s, a floating point t,
+// and an integer vertex index.
+
+
+typedef struct
+{
+	int			ident;
+	int			version;
+
+	int			skinwidth;
+	int			skinheight;
+	int			framesize;		// qbyte size of each frame
+
+	int			num_skins;
+	int			num_xyz;
+	int			num_st;			// greater than num_xyz for seams
+	int			num_tris;
+	int			num_glcmds;		// dwords in strip/fan command list
+	int			num_frames;
+
+	int			ofs_skins;		// each skin is a MAX_SKINNAME string
+	int			ofs_st;			// qbyte offset from start for stverts
+	int			ofs_tris;		// offset for dtriangles
+	int			ofs_frames;		// offset for first frame
+	int			ofs_glcmds;
+	int			ofs_end;		// end of file
+
+	int			gl_texturenum[MAX_SKINS];
+} md2_t;
+
+#define IDPOLYHEADER	(('O'<<24)+('P'<<16)+('D'<<8)+'I')
+#define MD2IDALIASHEADER        (('2'<<24)+('P'<<16)+('D'<<8)+'I')
+
+														// little-endian "IDPO"
+
+/*
+
+d*_t structures are on-disk representations
+m*_t structures are in-memory
+
+*/
+
+
+/*
+==============================================================================
+
+SPRITE MODELS
+
+==============================================================================
+*/
+
+
+// FIXME: shorten these?
+typedef struct mspriteframe_s
+{
+	int		width;
+	int		height;
+	void	*pcachespot;			// remove?
+	float	up, down, left, right;
+	byte	pixels[4];
+} mspriteframe_t;
+
+typedef struct
+{
+	int				numframes;
+	float			*intervals;
+	mspriteframe_t	*frames[1];
+} mspritegroup_t;
+
+typedef struct
+{
+	spriteframetype_t	type;
+	mspriteframe_t		*frameptr;
+} mspriteframedesc_t;
+
+typedef struct
+{
+	int					type;
+	int					maxwidth;
+	int					maxheight;
+	int					numframes;
+	float				beamlength;		// remove?
+	void				*cachespot;		// remove?
+	mspriteframedesc_t	frames[1];
+} msprite_t;
 
 //============================================================================
 

@@ -13,12 +13,14 @@ See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software Foundation, Inc.,
-59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   */
+59 Temple Place - Suite 330, Boston, MA  02111-1307, USA. s  */
 
 // models.c -- model loading and caching
 
 // models are the only shared resource between a client and server running
 // on the same machine.
+
+//qb: md2 from FTEQW build 3343. Don't get
 
 #include "quakedef.h"
 #include "r_local.h"
@@ -29,6 +31,11 @@ char	loadname[32];	// for hunk tags
 void Mod_LoadSpriteModel (model_t *mod, void *buffer);
 void Mod_LoadBrushModel (model_t *mod, void *buffer, loadedfile_t *fileinfo);	// 2001-09-12 .ENT support by Maddes
 //void Mod_LoadBrushModel (model_t *mod, void *buffer);
+
+//from old FTEQW
+void SWMod_LoadAlias2Model (model_t *mod, void *buffer);
+void SWMod_LoadAlias3Model (model_t *mod, void *buffer);
+
 void Mod_LoadAliasModel (model_t *mod, void *buffer);
 model_t *Mod_LoadModel (model_t *mod, qboolean crash);
 loadedfile_t *COM_LoadFile (char *path, int usehunk);
@@ -299,6 +306,10 @@ model_t *Mod_LoadModel (model_t *mod, qboolean crash)
     {
     case IDPOLYHEADER:
         Mod_LoadAliasModel (mod, buf);
+        break;
+
+    case MD2IDALIASHEADER:
+        SWMod_LoadAlias2Model (mod, buf);
         break;
 
     case IDSPRITEHEADER:
@@ -2268,6 +2279,288 @@ void Mod_LoadAliasModel (model_t *mod, void *buffer)
 
 //=============================================================================
 
+typedef struct
+{
+    float		scale[3];	// multiply byte verts by this
+    float		translate[3];	// then add this
+    char		name[16];	// frame name from grabbing
+    dtrivertx_t	verts[1];	// variable sized
+} dmd2aliasframe_t;
+
+void SWMod_LoadAlias2Model (model_t *mod, void *buffer)
+{
+    int					i, j;
+    mmdl_t				*pmodel;
+    md2_t				*pinmodel;
+    mstvert_t			*pstverts;
+    dmd2stvert_t		*pinstverts;
+    aliashdr_t			*pheader;
+    mtriangle_t			*ptri;
+    dmd2triangle_t		*pintriangles;
+    int					version, numframes, numskins;
+    int					size;
+    dmd2aliasframe_t	*pinframe;
+    maliasframedesc_t	*poutframe;
+    maliasskindesc_t	*pskindesc;
+    int					skinsize;
+    int					start, end, total;
+    dtrivertx_t			*frameverts;
+
+    vec3_t				mins, maxs;
+
+    if (!strcmp(loadmodel->name, "progs/player.mdl") ||
+            !strcmp(loadmodel->name, "progs/eyes.mdl"))
+    {
+        unsigned short crc;
+        byte *p;
+        int len;
+        char st[40];
+    }
+
+    start = Hunk_LowMark ();
+
+    pinmodel = (md2_t *)buffer;
+
+    version = LittleLong (pinmodel->version);
+    if (version != MD2ALIAS_VERSION)
+        Sys_Error ("%s has wrong version number (%i should be %i)",
+                   mod->name, version, MD2ALIAS_VERSION);
+
+//
+// allocate space for a working header, plus all the data except the frames,
+// skin and group info
+//
+    size = 	sizeof (aliashdr_t) + (LittleLong (pinmodel->num_frames) - 1) *
+            sizeof (pheader->frames[0]) +
+            sizeof (mmdl_t) +
+            LittleLong (pinmodel->num_st) * sizeof (mstvert_t) +
+            LittleLong (pinmodel->num_tris) * sizeof (mtriangle_t);
+
+    pheader = Hunk_AllocName (size, loadname);
+    pmodel = (mmdl_t *) ((byte *)&pheader[1] +
+                         (LittleLong (pinmodel->num_frames) - 1) *
+                         sizeof (pheader->frames[0]));
+
+    mod->flags = 0;//LittleLong (pinmodel->flags);
+
+//
+// endian-adjust and copy the data, starting with the alias model header
+//
+    pmodel->boundingradius = 100;//LittleFloat (pinmodel->boundingradius);
+    pmodel->numskins = LittleLong (pinmodel->num_skins);
+    pmodel->skinwidth = LittleLong (pinmodel->skinwidth);
+    pmodel->skinheight = LittleLong (pinmodel->skinheight);
+
+    if (pmodel->skinheight > MAX_LBM_HEIGHT)
+        Sys_Error ("model %s has a skin taller than %d", mod->name,
+                   MAX_LBM_HEIGHT);
+
+    pmodel->numverts = LittleLong (pinmodel->num_xyz);
+    pmodel->numstverts = LittleLong (pinmodel->num_st);
+
+    if (pmodel->numverts <= 0)
+        Sys_Error ("model %s has no vertices", mod->name);
+
+    if (pmodel->numverts > MAXALIASVERTS)
+        Sys_Error ("model %s has too many vertices", mod->name);
+
+    pmodel->numtris = LittleLong (pinmodel->num_tris);
+
+    if (pmodel->numtris <= 0)
+        Sys_Error ("model %s has no triangles", mod->name);
+
+    pmodel->numframes = LittleLong (pinmodel->num_frames);
+    pmodel->size = 1000;//LittleFloat (pinmodel->size) * ALIAS_BASE_SIZE_RATIO;
+    mod->synctype = 1;//LittleLong (pinmodel->synctype);
+    mod->numframes = pmodel->numframes;
+
+    for (i=0 ; i<3 ; i++)
+    {
+        pmodel->scale[i] = 0;
+        pmodel->scale_origin[i] = 0;
+        pmodel->eyeposition[i] = 0;
+    }
+
+    numskins = pmodel->numskins;
+    numframes = pmodel->numframes;
+
+    if (pmodel->skinwidth & 0x03)
+        Sys_Error ("Mod_LoadAliasModel: skinwidth not multiple of 4");
+
+    pheader->model = (byte *)pmodel - (byte *)pheader;
+
+//
+// set base s and t vertices
+//
+    pstverts = (mstvert_t *)&pmodel[1];
+    pinstverts = (dmd2stvert_t *)((byte *)pinmodel + LittleLong(pinmodel->ofs_st));
+
+    pheader->stverts = (byte *)pstverts - (byte *)pheader;
+
+    for (i=0 ; i<pmodel->numstverts ; i++)
+    {
+        // put s and t in 16.16 format
+        pstverts[i].s = LittleShort (pinstverts[i].s)<<16;
+        pstverts[i].t = LittleShort (pinstverts[i].t)<<16;
+    }
+
+//
+// set up the triangles
+//
+    ptri = (mtriangle_t *)&pstverts[pmodel->numstverts];
+    pintriangles = (dmd2triangle_t *)((byte *)pinmodel + LittleLong(pinmodel->ofs_tris));
+
+    pheader->triangles = (byte *)ptri - (byte *)pheader;
+
+    for (i=0 ; i<pmodel->numtris ; i++)
+    {
+        int		j;
+
+        for (j=0 ; j<3 ; j++)
+        {
+            ptri[i].xyz_index[j]	= LittleShort (pintriangles[i].xyz_index[j]);
+            ptri[i].st_index[j]		= LittleShort (pintriangles[i].st_index[j]);
+        }
+    }
+
+//
+// load the frames
+//
+    if (numframes < 1)
+        Sys_Error ("Mod_LoadAliasModel: Invalid # of frames: %d\n", numframes);
+
+    for (i=0 ; i<numframes ; i++)
+    {
+        pinframe = (dmd2aliasframe_t *) ((byte *)pinmodel
+                                         + LittleLong(pinmodel->ofs_frames) + i * LittleLong(pinmodel->framesize));
+        poutframe = &pheader->frames[i];
+
+        memcpy (poutframe->name, pinframe->name, sizeof(poutframe->name));
+
+        for (j=0 ; j<3 ; j++)
+        {
+            poutframe->scale[j] = LittleFloat (pinframe->scale[j]);
+            poutframe->scale_origin[j] = LittleFloat (pinframe->translate[j]);
+        }
+        VectorCopy (poutframe->scale_origin, mins);	//work out precise size.
+        VectorMA (mins, 255, poutframe->scale, maxs);
+        poutframe->bboxmin.v[0] = poutframe->bboxmin.v[1] = poutframe->bboxmin.v[2] = 0;
+        poutframe->bboxmax.v[0] = poutframe->bboxmax.v[1] = poutframe->bboxmax.v[2] = 255;
+
+        if (i == 0)
+        {
+            VectorCopy (mins, mod->mins);	//first frame - nothing to compare against.
+            VectorCopy (maxs, mod->maxs);
+        }
+        else
+        {
+            for (j = 0; j < 3; j++)
+            {
+                if (mod->mins[j] > mins[j])	//and make sure that the biggest ends up as the model size.
+                    mod->mins[j] = mins[j];
+                if (mod->maxs[j] < maxs[j])
+                    mod->maxs[j] = maxs[j];
+            }
+        }
+
+        // verts are all 8 bit, so no swapping needed
+        frameverts = Hunk_AllocName(pmodel->numverts*sizeof(dtrivertx_t), loadname);
+        poutframe->frame = (byte *)frameverts - (byte *)pheader;
+        for (j = 0; j < pmodel->numverts; j++)
+        {
+            frameverts[j].lightnormalindex = pinframe->verts[j].lightnormalindex;
+            frameverts[j].v[0] = pinframe->verts[j].v[0];
+            frameverts[j].v[1] = pinframe->verts[j].v[1];
+            frameverts[j].v[2] = pinframe->verts[j].v[2];
+        }
+
+    }
+
+    VectorCopy (mod->mins, pmodel->scale_origin);	//work out global scale
+    pmodel->scale[0] = (mod->maxs[0] - mod->mins[0])/255;
+    pmodel->scale[1] = (mod->maxs[1] - mod->mins[1])/255;
+    pmodel->scale[2] = (mod->maxs[2] - mod->mins[2])/255;
+
+    {
+        int width;
+        int height;
+        int j;
+        byte *buffer;
+        byte *texture;
+        char *skinnames;
+        byte *skin;
+        pmodel->numskins = 0;
+        skinnames = Hunk_AllocName(numskins*MD2MAX_SKINNAME, loadname);
+        memcpy(skinnames, (byte *)pinmodel + LittleLong(pinmodel->ofs_skins), numskins*MD2MAX_SKINNAME);
+
+        skinsize = pmodel->skinheight * pmodel->skinwidth;
+        pskindesc = Hunk_AllocName (numskins * sizeof (maliasskindesc_t),
+                                    loadname);
+        pheader->skindesc = (byte *)pskindesc - (byte *)pheader;
+
+        for (i=0 ; i<numskins ; i++, skinnames+=MD2MAX_SKINNAME)
+        {
+            LoadTGA_as8bit(skinnames, &texture, &width, &height);
+            if (!texture)
+            {
+                LoadPCX(skinnames, &texture, &width, &height);
+                if (!texture)
+                {
+                    Con_Printf("Skin %s not a tga or pcx\n", skinnames);
+                    continue;
+                }
+            }
+            if (width != pmodel->skinwidth || height != pmodel->skinheight)	//FIXME: scale
+            {
+                Q_free(texture);
+                Con_Printf("Skin %s not same size as model specifies it should be\n", skinnames);
+                continue;
+            }
+
+            skin = Hunk_AllocName(skinsize*r_pixbytes, loadname);
+            if (r_pixbytes == 4)
+            {
+                for (j = 0; j < skinsize*4; j+=4)
+                {
+                    skin[j+0] = texture[j+2];
+                    skin[j+1] = texture[j+1];
+                    skin[j+2] = texture[j+0];
+                    skin[j+3] = texture[j+3];
+                }
+            }
+            else
+            {
+                for (j = 0; j < skinsize; j++)	//you know when you've been palettized.
+                {
+                    skin[j+0] =  palmapnofb[texture[j*4+0]>>2][texture[j*4+1]>>2][texture[j*4+2]>>2];
+                }
+            }
+
+            Q_free(texture);
+
+            pskindesc[pmodel->numskins].type = ALIAS_SKIN_SINGLE;
+            pskindesc[pmodel->numskins].skin = (byte *)skin - (byte *)pheader;
+            pmodel->numskins++;
+        }
+    }
+
+    mod->type = mod_alias;
+
+//
+// move the complete, relocatable alias model to the cache
+//
+    end = Hunk_LowMark ();
+    total = end - start;
+
+    Cache_Alloc (&mod->cache, total, loadname);
+    if (!mod->cache.data)
+        return;
+    memcpy (mod->cache.data, pheader, total);
+
+    Hunk_FreeToLowMark (start);
+}
+
+
 /*
 =================
 Mod_LoadSpriteFrame
@@ -2469,7 +2762,7 @@ void Mod_Print (void)
     Con_Printf ("Cached models:\n");
     for (i=0, mod=mod_known ; i < mod_numknown ; i++, mod++)
     {
-		Con_Printf ("%8p : %s\n", mod->cache.data, mod->name); //johnfitz -- safeprint instead of print
+        Con_Printf ("%8p : %s\n", mod->cache.data, mod->name); //johnfitz -- safeprint instead of print
     }
-	Con_Printf ("%i models\n",mod_numknown); //johnfitz -- print the total too
+    Con_Printf ("%i models\n",mod_numknown); //johnfitz -- print the total too
 }

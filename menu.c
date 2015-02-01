@@ -113,6 +113,11 @@ void SetSavename (void)
 }
 cvar_t  help_pages = {"help_pages","6", "help_pages[value] Number of pages in help."};
 
+extern cvar_t  ffov;
+extern cvar_t  r_fisheye;
+extern cvar_t  r_coloredlights;
+extern cvar_t  r_part_scale;
+
 extern  cvar_t  samelevel;
 
 extern  cvar_t  sv_aim_h;
@@ -3063,14 +3068,14 @@ void M_Gameplay_Draw (void)
         M_Print (220, y, "vertical");
     else
         M_Print (220, y, "off");
-    M_Print (16, y+=8, "   Weapon Position Side");
+    M_Print (16, y+=8, "    Weapon Offset Side");
     if (scr_ofsy.value > 0)
         M_Print (220, y, "Left");
     else if (scr_ofsy.value < 0)
         M_Print (220, y, "Right");
     else
         M_Print (220, y, "Center");
-            M_Print (16, y+=8, " Weapon Position Height");
+            M_Print (16, y+=8, "         Weapon Height");
     if (scr_ofsz.value < 0)
         M_Print (220, y, "High");
     else if (scr_ofsz.value > 0)
@@ -3181,6 +3186,8 @@ void M_Gameplay_Key (int k)
     else if (m_inp_right || m_inp_ok)
         M_Gameplay_Change (1);
 }
+
+
 //=============================================================================
 /* AUDIO OPTIONS MENU */
 
@@ -3208,11 +3215,11 @@ void M_Audio_Draw (void)
     M_DrawCheckbox (220, y, snd_swapstereo.value);
     M_Print (16, y+=8, "          Sound Volume");
     M_DrawSlider (220, y, sfxvolume.value);
-    M_Print (16, y+=8, "       Music Volume");
+    M_Print (16, y+=8, "          Music Volume");
     M_DrawSlider (220, y, bgmvolume.value);
     M_Print (16, y+=8, "              CD Music");
     M_DrawCheckbox (220, y, cd_enabled.value);
-    M_Print (16, y+=8, "            Play CD Track");
+    M_Print (16, y+=8, "         Play CD Track");
     if (cdValid)
     {
         (cd_cursor == playTrack) ? M_Print (220, y, va("%u", cd_cursor)) : M_PrintWhite (220, y, va("%u", cd_cursor));
@@ -3222,11 +3229,11 @@ void M_Audio_Draw (void)
         M_Print (220, y, "No tracks");
     else
         M_Print (220, y, "Drive empty");
-    M_Print (16, y+=8, "                  Loop CD");
+    M_Print (16, y+=8, "               Loop CD");
     M_DrawCheckbox (220, y, playLooping);
-    M_Print (16, y+=8, "                 Pause CD");
+    M_Print (16, y+=8, "              Pause CD");
     M_DrawCheckbox (220, y, !playing && wasPlaying);
-    M_Print (16, y+=8, "                  Stop CD");
+    M_Print (16, y+=8, "               Stop CD");
     M_Print (16, y+=8, "            Open Drive");
     M_Print (16, y+=8, "           Close Drive");
     M_Print (16, y+=8, "        Reset CD Audio");
@@ -3296,7 +3303,7 @@ void M_Audio_Key (int k)
 //=============================================================================
 /* VIDEO MENU */
 
-#define VIDEO_ITEMS     18 //qb:
+#define VIDEO_ITEMS     14
 
 void M_Video_f (void)
 {
@@ -3315,13 +3322,13 @@ void M_Video_f (void)
 void M_Video_Draw (void)
 {
     // Manoel Kasimier - begin
-    int y = 19;
+    int y = 20;
 
     M_DrawPlaque ("gfx/p_option.lmp", true);
 
     M_Print (16, y+=8, "           Video modes    ...");
     M_Print (16, y+=8, "     FOV-field of view");
-    M_DrawSlider (220, y, (scr_fov.value - 30.0) / 110.0); //qb:
+    M_DrawSlider (220, y, (scr_fov.value - 30.0) / 110.0); //qb: 30 minimum
     M_Print (16, y+=8, "            Brightness");
     M_DrawSlider (220, y, (1.0 - v_gamma.value) / 0.5);
     M_Print (16, y+=8, "            Status bar");
@@ -3332,24 +3339,16 @@ void M_Video_Draw (void)
     M_DrawCheckbox (220, y, sbar_show_bg.value);
     M_Print (16, y+=8, "          Level status");
     M_DrawCheckbox (220, y, sbar_show_scores.value);
-    M_Print (16, y+=8, "           Weapon list");
-    M_DrawCheckbox (220, y, sbar_show_weaponlist.value);
-    M_Print (16, y+=8, "             Ammo list");
-    M_DrawCheckbox (220, y, sbar_show_ammolist.value);
-    M_Print (16, y+=8, "                  Keys");
-    M_DrawCheckbox (220, y, sbar_show_keys.value);
-    M_Print (16, y+=8, "                 Runes");
-    M_DrawCheckbox (220, y, sbar_show_runes.value);
-    M_Print (16, y+=8, "              Powerups");
-    M_DrawCheckbox (220, y, sbar_show_powerups.value);
-    M_Print (16, y+=8, "                 Armor");
-    M_DrawCheckbox (220, y, sbar_show_armor.value);
-    M_Print (16, y+=8, "                Health");
-    M_DrawCheckbox (220, y, sbar_show_health.value);
-    M_Print (16, y+=8, "                  Ammo");
-    M_DrawCheckbox (220, y, sbar_show_ammo.value);
-    M_Print (16, y+=8, "      Classic lighting");
-    M_DrawCheckbox (220, y, !r_light_style.value);
+    M_Print (16, y+=8, "        Particle scale");
+    M_DrawSlider (220, y, (r_part_scale.value - 0.1) / 2.5);
+    M_Print (16, y+=8, "          Fisheye mode");
+    M_DrawCheckbox (220, y, r_fisheye.value);
+    M_Print (16, y+=8, "           Fisheye FOV");
+    M_DrawSlider (220, y, (ffov.value - 30.0) / 360.0); //qb: 30 minimum
+    M_Print (16, y+=8, "      Colored lighting");
+    M_DrawCheckbox (220, y, r_coloredlights.value);
+    M_Print (16, y+=8, "      Enhance lighting");
+    M_DrawCheckbox (220, y, r_light_style.value);
     M_Print (16, y+=8, "     Water warp effect");
     M_DrawCheckbox (220, y, r_waterwarp.value); //qb: replace stipplealpha with waterwarp
     M_Print (16, y+=8, "         Water opacity");
@@ -3366,20 +3365,16 @@ void M_Video_Change (int dir)
 
     S_LocalSound ("misc/menu3.wav");
 
-    if (c == i++) ChangeCVar("fov", scr_fov.value, dir * 5, 30, 140, false); //qb:
+    if (c == i++) ChangeCVar("fov", scr_fov.value, dir * 5, 30, 140, false);
     if (c == i++) ChangeCVar("gamma", v_gamma.value, dir * -0.05, 0.5, 1, true);
     if (c == i++) ChangeCVar("sbar", sbar.value, dir, 0, 4, true);
     if (c == i++) ChangeCVar("sbar_scale", sbar_scale.value, dir * 0.005, 0.05, 1.0, true);
     if (c == i++) Cvar_SetValue ("sbar_show_bg", !sbar_show_bg.value);
     if (c == i++) Cvar_SetValue ("sbar_show_scores", !sbar_show_scores.value);
-    if (c == i++) Cvar_SetValue ("sbar_show_weaponlist", !sbar_show_weaponlist.value);
-    if (c == i++) Cvar_SetValue ("sbar_show_ammolist", !sbar_show_ammolist.value);
-    if (c == i++) Cvar_SetValue ("sbar_show_keys", !sbar_show_keys.value);
-    if (c == i++) Cvar_SetValue ("sbar_show_runes", !sbar_show_runes.value);
-    if (c == i++) Cvar_SetValue ("sbar_show_powerups", !sbar_show_powerups.value);
-    if (c == i++) Cvar_SetValue ("sbar_show_armor", !sbar_show_armor.value);
-    if (c == i++) Cvar_SetValue ("sbar_show_health", !sbar_show_health.value);
-    if (c == i++) Cvar_SetValue ("sbar_show_ammo", !sbar_show_ammo.value);
+    if (c == i++) ChangeCVar("r_part_scale", r_part_scale.value, dir * 0.1, 0.1, 2.5, true);
+    if (c == i++) Cvar_SetValue ("r_fisheye", !r_fisheye.value);
+    if (c == i++) ChangeCVar("ffov", ffov.value, dir * 10, 30, 360, false);
+    if (c == i++) Cvar_SetValue ("r_coloredlights", !r_coloredlights.value);
     if (c == i++) Cvar_SetValue ("r_light_style", !r_light_style.value);
     if (c == i++) Cvar_SetValue ("r_waterwarp", !r_waterwarp.value);
     if (c == i++) ChangeCVar("r_wateralpha", r_wateralpha.value, dir*0.166667, 0, 1, true);
