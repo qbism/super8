@@ -67,7 +67,7 @@ cvar_t	sbar_show_powerups	= {"sbar_show_powerups","1", "[0/1] Toggles display of
 cvar_t	sbar_show_armor		= {"sbar_show_armor","1", "[0/1] Toggles display of status bar armor.", false};
 cvar_t	sbar_show_health	= {"sbar_show_health","1", "[0/1] Toggles display of status bar health.", false};
 cvar_t	sbar_show_ammo		= {"sbar_show_ammo","1", "[0/1] Toggles display of status bar ammo.", false};
-cvar_t	sbar_show_bg		= {"sbar_show_bg","0", "[0/1] Toggles display of status bar background.", false};
+cvar_t	sbar_show_bg		= {"sbar_show_bg","0", "[0/1] Toggles display of status bar background.", true};
 cvar_t	sbar                = {"sbar","1", "sbar[0-4] Status bar mode. 0 is off, 1-3 are 'classic' modes, 4 is a different mode.", true};
 
 cvar_t	crosshair_color		= {"crosshair_color","12", "crosshair_color[0-17] 0-15 are built-in colors, 16 is crosshair_custom1, and 17 is crosshair_custom2.", true};

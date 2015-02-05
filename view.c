@@ -39,7 +39,7 @@ int r_fviews;
 
 int  vibration_update[2];
 
-cvar_t	scr_ofsx = {"scr_ofsx","0", "scr_ofsx[value] video screen x offset", false};
+cvar_t	scr_ofsx = {"scr_ofsx","0", "scr_ofsx[value] video screen x offset", true};
 cvar_t	scr_ofsy = {"scr_ofsy","0", "scr_ofsy[value] video screen y offset", true}; // Manoel Kasimier - saved in the config file - edited
 cvar_t	scr_ofsz = {"scr_ofsz","0", "scr_ofsz[value] video screen x offset", true};
 
@@ -48,9 +48,9 @@ cvar_t	v_fragtiltangle = {"v_fragtiltangle", "80", "v_fragtiltangle[angle] view 
 cvar_t	cl_rollspeed = {"cl_rollspeed", "200", "cl_rollspeed[time] How quickly to tilt view to roll angle."};
 cvar_t	cl_rollangle = {"cl_rollangle", "2.0", "cl_rollangle[angle] Angle to tilt view when turning."};
 
-cvar_t	cl_bob = {"cl_bob","0.007", "cl_bob[value] Amount of view bob when moving.", false};
-cvar_t	cl_bobcycle = {"cl_bobcycle","0.6", "cl_bobcycle[value] View bob frequency.", false};
-cvar_t	cl_bobup = {"cl_bobup","0.5", "cl_bobup[0.0 - 1.0] Proportion view bob up.", false};
+cvar_t	cl_bob = {"cl_bob","0.007", "cl_bob[value] Amount of view bob when moving.", true};
+cvar_t	cl_bobcycle = {"cl_bobcycle","0.6", "cl_bobcycle[value] View bob frequency.", true};
+cvar_t	cl_bobup = {"cl_bobup","0.5", "cl_bobup[0.0 - 1.0] Proportion view bob up.", true};
 cvar_t  cl_bobmodel = {"cl_bobmodel", "3", "cl_bobmodel[1-7] various types of weapon bob.", true};
 cvar_t  cl_bobmodel_speed = {"cl_bobmodel_speed", "7", "cl_bobmodel_speed[1-20] speed of weapon bob.", true};
 cvar_t  cl_bobmodel_side = {"cl_bobmodel_side", "0.3", "cl_bobmodel_side[0.0-1.0] side-to-side weapon bob speed.", true};
@@ -857,11 +857,12 @@ void V_CalcRefdef (void)
             r_refdef.vieworg[i] += forward[i] + right[i] + up[i];
     else
         // Manoel Kasimier - end
-        for (i=0 ; i<3 ; i++)
-            r_refdef.vieworg[i] += scr_ofsx.value*forward[i]
-                                   + scr_ofsy.value*right[i]
-                                   + scr_ofsz.value*up[i];
 
+        if (cl.maxclients <= 1) //qb: from johnfitz -- moved cheat-protection here from V_RenderView
+            for (i=0 ; i<3 ; i++)
+                r_refdef.vieworg[i] += scr_ofsx.value*forward[i]
+                                       + scr_ofsy.value*right[i]
+                                       + scr_ofsz.value*up[i];
 
     V_BoundOffsets ();
 
@@ -880,9 +881,6 @@ void V_CalcRefdef (void)
     view->origin[2] += bob;
     if (!cl_nobob.value) // Manoel Kasimier - cl_nobob
         view->origin[2] += 2; // Manoel Kasimier - cl_nobob
-
-    view->origin[1] += (pow(scr_fov.value, 2)-scr_fov.value*70)/2000; //qb: compensate view model position
-    view->origin[2] += (pow(scr_fov.value, 2)-scr_fov.value*70)/2000 -1;//qb: compensate view model position
 
     view->model = cl.model_precache[cl.stats[STAT_WEAPON]];
     view->frame = cl.stats[STAT_WEAPONFRAME];
@@ -919,7 +917,7 @@ void V_CalcRefdef (void)
     //	  -----------------------------------------
     // ** SAJT'S KEGENDARY BOBMODEL CODE STARTS HERE! **
     //    -----------------------------------------
-    if (cl_bobmodel.value)
+    if (cl_bobmodel.value && cl_bob.value) //qb: added cl_bob.value
     {
         gunbobtime = cl.time;
         s = gunbobtime * cl_bobmodel_speed.value;
