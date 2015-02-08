@@ -402,8 +402,8 @@ void Draw2Dimage_ScaledMappedTranslatedTransparent (int x, int y, byte *source, 
     byte  tbyte;
     unsigned short   * pusdest;
     int    v, u, vscale, uscale;
+    x += (MIN_VID_WIDTH-320)/2- (MIN_VID_WIDTH - MIN_VID_WIDTH/(sbar_scale.value*1.8/nativeaspect))/2;
 
-    x += (MIN_VID_WIDTH-320)/2- (MIN_VID_WIDTH - MIN_VID_WIDTH/sbar_scale.value)/2; //qb: square aspect is 320x180 or 360x202.5  ...sigh...
     y += (sscale ?(200.0/sbar_scale.value) - 200.0 : (100.0/sbar_scale.value)-100);
     if (xpadding < 0)
         Sys_Error ("Draw2Dimage_ScaledMappedTranslatedTransparent: xpadding < 0");

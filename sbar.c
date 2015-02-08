@@ -1376,8 +1376,8 @@ void Sbar_DeathmatchOverlay (void)
     //qb: big and sort of lazy..
     oldsbarscale = sbar_scale.value;
     sbar_scale.value = 1.0;
-    scr_2d_scale_h = vid.width / (MIN_VID_WIDTH/sbar_scale.value);
-    scr_2d_scale_v =  vid.height / (MIN_VID_HEIGHT/sbar_scale.value);
+    scr_2d_scale_h = vid.width * sbar_scale.value / (200.0 * 1.8);
+    scr_2d_scale_v = vid.height / (MIN_VID_HEIGHT/sbar_scale.value);
 
     scr_copyeverything = 1;
     scr_fullupdate = 0;
@@ -1444,7 +1444,7 @@ void Sbar_DeathmatchOverlay (void)
         y += 10;
     }
     sbar_scale.value =oldsbarscale;
-        scr_2d_scale_h = vid.width / (360.0/sbar_scale.value);
+    scr_2d_scale_h = vid.width * sbar_scale.value / (200.0 * nativeaspect);
     if (scr_2d_scale_h < 1)
         scr_2d_scale_h = 1;
     scr_2d_scale_v =  vid.height / (200.0/sbar_scale.value);

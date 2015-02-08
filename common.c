@@ -1945,7 +1945,7 @@ void COM_InitFilesystem (void)
 
     i = COM_CheckParm ("-sndspeed");  //qb: from Darkplaces
     if (i && i < com_argc-1)
-        snd_speed.value = Q_atoi (com_argv[i+1]);
+          snd_speed = CLAMP(8000, (int) Q_atoi (com_argv[i+1]), 96000);
 
 //
 // start up with GAMENAME by default (id1)

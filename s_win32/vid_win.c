@@ -2161,7 +2161,7 @@ void VID_MenuDraw (void)
         }
     }
 
-    M_Print (8 * 8, 26, "Windowed Modes:           Custom:");
+    M_Print (6 * 8, 26, "Windowed Modes:           Custom:");
     column = 6;
     row = 26 + 1 * 8;  //qb: save a row, was 1 * 8
 
@@ -2172,12 +2172,12 @@ void VID_MenuDraw (void)
         else
             M_Print (column, row, modedescs[i].desc);
 
-        column += 11 * 8;
+        column += 10 * 8;
     }
 
     if (vid_wmodes > VID_WINDOWED_MODES)
     {
-        M_Print (12 * 8, 26 + 3 * 8, "Fullscreen Modes:");
+        M_Print (11 * 8, 26 + 3 * 8, "Fullscreen Modes:");
         column = 6;
         row = 26 + 4 * 8;  //qb: was 6 * 8, save a couple rows for more modes.
 
@@ -2188,7 +2188,7 @@ void VID_MenuDraw (void)
             else
                 M_Print (column, row, modedescs[i].desc);
 
-            column += 11 * 8;
+            column += 10 * 8;
 
             if (((i - VID_WINDOWED_MODES) % VID_ROW_SIZE) == (VID_ROW_SIZE-1))
             {
@@ -2232,7 +2232,7 @@ void VID_MenuDraw (void)
         M_Print (15 * 8, 26 + MODE_AREA_HEIGHT * 8 + 8 * 7,
                  "Esc to exit");
         row = 26 + 1 * 8 + (vid_line / VID_ROW_SIZE) * 8; //qb: was 36 + 2 * 8, more rows.
-        column = -4 + (vid_line % VID_ROW_SIZE) * 11 * 8;
+        column = -4 + (vid_line % VID_ROW_SIZE) * 10 * 8;
 
         if (vid_line >= VID_WINDOWED_MODES)
             row += 2 * 8;  //qb: was 3 * 8; more rows

@@ -355,6 +355,7 @@ extern	int			sb_lines;			// scan lines to draw
 extern	float		scr_2d_scale_h, scr_2d_scale_v;
 
 extern int		minimum_memory;
+extern int   snd_speed; //qb:
 extern byte     palmapnofb[64][64][64];
 extern byte	    palmap[64][64][64]; //qb: higher-quality from engoo (palmap2)
 extern byte		*draw_chars;
@@ -363,8 +364,7 @@ extern cvar_t   cmdline;
 extern cvar_t	developer;
 extern cvar_t	host_timescale;
 extern cvar_t	chase_active;
-extern cvar_t   snd_speed; //qb
-extern cvar_t   vid_mode; //qb
+extern cvar_t   vid_mode; //qb:
 extern cvar_t	sys_ticrate;
 extern cvar_t	sys_nostdout;
 extern cvar_t   r_palette;
