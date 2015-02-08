@@ -1171,7 +1171,7 @@ void SCR_UpdateScreen (void)
     V_RenderView ();
 
     //qb: dump this here
-    scr_2d_scale_h = vid.width / (360.0/sbar_scale.value);
+    scr_2d_scale_h = vid.width * sbar_scale.value / (200.0 * nativeaspect);
     if (scr_2d_scale_h < 1)
         scr_2d_scale_h = 1;
     scr_2d_scale_v =  vid.height / (200.0/sbar_scale.value);

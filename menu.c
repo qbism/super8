@@ -32,7 +32,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 extern byte identityTable[256]; //qb: MQ 1.6 hudscale
 extern byte translationTable[256];
-
+extern float screenAspect;
 float scr_2d_scale_h = 1.0,     scr_2d_scale_v = 1.0;
 int scr_2d_offset_x, scr_2d_offset_y;
 
@@ -70,7 +70,7 @@ int scandir(const char *dir, struct dirent ***namelist,
     if (i == 0) return(-1);
     if (compar != NULL)
         qsort((void *)(*namelist), (size_t)i, sizeof(struct dirent *),
-                        (int (*)(const void *, const void *)) compar);
+              (int (*)(const void *, const void *)) compar);
 
     return(i);
 }
@@ -574,10 +574,10 @@ char *timetos (int mytime)
 {
     int
     hours               = mytime/3600,
-         min_tens       = ((mytime%3600)/60)/10,
-            min_units   = ((mytime%3600)/60)%10,
-              tens              = (mytime%60)/10,
-                    units               = (mytime%60)%10;
+    min_tens       = ((mytime%3600)/60)/10,
+    min_units   = ((mytime%3600)/60)%10,
+    tens              = (mytime%60)/10,
+    units               = (mytime%60)%10;
     return va("%i:%i%i:%i%i", hours, min_tens, min_units, tens, units);
 }
 char *skilltos(int i)
@@ -2016,7 +2016,7 @@ int isFile(const struct dirent *nombre)
 
 void M_Menu_MapList_f (void)
 {
-        int x = 0;
+    int x = 0;
     int i;
     key_dest = key_menu;
     m_state = m_maplist;
@@ -2198,15 +2198,15 @@ void M_Options_Key (int k)
     {
         switch (m_cursor[m_state]) // Manoel Kasimier - replaced cursor variables
         {
-            // Manoel Kasimier - begin
+        // Manoel Kasimier - begin
         case 0:
             M_Setup_f ();
             break;
-            // Manoel Kasimier - end
+        // Manoel Kasimier - end
         case 1:
             M_Keys_f ();
             break;
-            // Manoel Kasimier - begin
+        // Manoel Kasimier - begin
         case 2+QUICKHACK:
             M_Mouse_f ();
             break;
@@ -2219,12 +2219,12 @@ void M_Options_Key (int k)
         case 5+QUICKHACK:
             M_Video_f ();
             break;
-            // Manoel Kasimier - end
+        // Manoel Kasimier - end
         case 6+QUICKHACK:
             m_state = m_none;
             Con_ToggleConsole_f ();
             break;
-            // Manoel Kasimier - begin
+        // Manoel Kasimier - begin
         case 7+QUICKHACK:
             m_entersound = true;
             Host_WriteConfiguration ();
@@ -2236,7 +2236,7 @@ void M_Options_Key (int k)
         case 9+QUICKHACK:
             M_PopUp_f("Do you wish to load the\ndefault settings?", "exec default.cfg\n"); // Manoel Kasimier
             break;
-            // Manoel Kasimier - end
+        // Manoel Kasimier - end
         default:
             break;
         }
@@ -3075,7 +3075,7 @@ void M_Gameplay_Draw (void)
         M_Print (220, y, "Right");
     else
         M_Print (220, y, "Center");
-            M_Print (16, y+=8, "         Weapon Height");
+    M_Print (16, y+=8, "         Weapon Height");
     if (scr_ofsz.value < 0)
         M_Print (220, y, "High");
     else if (scr_ofsz.value > 0)
@@ -3141,7 +3141,7 @@ void M_Gameplay_Change (int dir)
         }
     }
     if (c == i++) ChangeCVar("scr_ofsy", scr_ofsy.value, dir * -7, -7, 7, false);
-   if (c == i++) ChangeCVar("scr_ofsz", scr_ofsz.value, dir * -3, -3, 3, false);
+    if (c == i++) ChangeCVar("scr_ofsz", scr_ofsz.value, dir * -3, -3, 3, false);
     if (c == i++) Cvar_SetValue ("r_drawviewmodel", !r_drawviewmodel.value);
     if (c == i++) Cvar_SetValue ("cl_nobob", !cl_nobob.value);
     if (c == i++) Cvar_SetValue ("sv_idealpitchscale", !sv_idealpitchscale.value * 0.8);
@@ -3335,6 +3335,7 @@ void M_Video_Draw (void)
     M_DrawSlider (220, y, sbar.value / 4.0);
     M_Print (16, y+=8, "      Status bar scale");
     M_DrawSlider (220, y, sbar_scale.value / 1.0);
+    M_DrawSlider (220, y, sbar_scale.value / 1.0);
     M_Print (16, y+=8, "            Background");
     M_DrawCheckbox (220, y, sbar_show_bg.value);
     M_Print (16, y+=8, "          Level status");
@@ -3369,6 +3370,7 @@ void M_Video_Change (int dir)
     if (c == i++) ChangeCVar("gamma", v_gamma.value, dir * -0.05, 0.5, 1, true);
     if (c == i++) ChangeCVar("sbar", sbar.value, dir, 0, 4, true);
     if (c == i++) ChangeCVar("sbar_scale", sbar_scale.value, dir * 0.005, 0.05, 1.0, true);
+
     if (c == i++) Cvar_SetValue ("sbar_show_bg", !sbar_show_bg.value);
     if (c == i++) Cvar_SetValue ("sbar_show_scores", !sbar_show_scores.value);
     if (c == i++) ChangeCVar("r_part_scale", r_part_scale.value, dir * 0.1, 0.1, 2.5, true);
@@ -3603,15 +3605,15 @@ credits1:
             M_DrawTextBox (0, y, 38*8, 23*8);
             M_Print             (22,    y+=24,  "      qbism Super 8 engine  ");
             M_Print             (22,    y+=8,   "        super8.qbism.com  ");
-            M_PrintWhite(22,    y+=12,  "       forked from Makaqu     ");
-            M_PrintWhite(22,    y+=8,   "Programmed by Manoel Kasimier");
+            M_PrintWhite(22,    y+=12,  "forked from Mankrip's Makaqu engine");
+            M_PrintWhite(22,    y+=8,   "      plus code from:");
             M_PrintWhite(22,    y+=12,  "ToChriS Quake by Victor Luchitz");
-            M_PrintWhite(22,    y+=8,   "FlashQuake port by Michael Rennie");
-            M_PrintWhite(22,    y+=8,   "FlashProQuake port by Baker");
+            M_PrintWhite(22,    y+=8,   "Fixes and Watcom port by Levent");
+            M_PrintWhite(22,    y+=8,   "John's FitzQuake & Baker's Mark V");
             M_PrintWhite(22,    y+=8,   "joequake engine by Jozsef Szalontai");
             M_PrintWhite(22,    y+=8,   "qrack engine coded by R00k");
             M_PrintWhite(22,    y+=8,   "fteqw engine by Spike and FTE Team");
-            M_PrintWhite(22,    y+=8,   "FitzQuake coded by John Fitz");
+            M_PrintWhite(22,    y+=8,   "fisheye code from Aardappel");
             M_PrintWhite(22,    y+=8,   "DarkPlaces engine by Lord Havoc");
             M_PrintWhite(22,    y+=8,   "engoo engine by Leilei");
             M_PrintWhite(22,    y+=8,   "GoldQuake engine by Sajt");
@@ -3678,10 +3680,10 @@ char *quitMessage =  //qb: show credits
 Press N to Reconsider.\n\
 \n\
 qbism Super8 engine\n\
-Forked from Makaqu.\n\
-Thanks to ToChriS Quake,\n\
-FlashProQuake, joequake,\n\
-Qrack, FTEQW, FitzQuake,\n\
+Fork of Makaqu +thanks to:\n\
+joequake, ToChriS Quake,\n\
+Aardappel, Levent,\n\
+Qrack, FTEQW, FQ, Mark V,\n\
 DarkPlaces, GoldQuake,\n\
 engoo, BJP's WinQuake, &\n\
 inside3d.com tutorials.";
@@ -4476,7 +4478,7 @@ void M_Keydown (int key)
     // Manoel Kasimier - menus which aren't turned off by m_inp_off
     switch (m_state)
     {
-        // Manoel Kasimier - begin
+    // Manoel Kasimier - begin
     case m_popup: // must be verified before all other menus!
         M_PopUp_Key (key);
         return;

@@ -68,6 +68,7 @@ int 		desired_bits = 16;
 
 int sound_started=0;
 
+int     snd_speed = 11025; //qb: only set at command line
 int		s_rawend; //qb: QS
 portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
 
@@ -81,7 +82,6 @@ cvar_t ambient_level = {"snd_ambient_level", "0.3", "snd_ambient_level[0.0 - 1.0
 cvar_t ambient_fade = {"snd_ambient_fade", "100", "snd_ambient_fade[distance] - ambient volume fade distance."};
 cvar_t snd_noextraupdate = {"snd_noextraupdate", "1", "snd_noextraupdate[0/1] Toggles extra update off.  Set to 0 if sound is choppy."};
 cvar_t snd_show = {"snd_show", "0", "snd_show[0/1] Toggles listing of sounds currently being played."};
-cvar_t snd_speed = {"snd_speed", "48000", "snd_speed[frequency] Sound khz resolution."};  //qb:
 cvar_t _snd_mixahead = {"snd_mixahead", "0.15", "snd_mixahead[time] Audio mix ahead in seconds.", true};
 cvar_t snd_stereo = {"snd_stereo", "1", "snd_stereo[0/1] Toggles stereo audio.", true}; // Manoel Kasimier
 cvar_t snd_swapstereo = {"snd_swapstereo", "0", "snd_swapstereo[0/1] Toggles swap stereo channels.", true}; // Manoel Kasimier
@@ -195,8 +195,7 @@ void S_Init (void)
     Cvar_RegisterVariable(&ambient_fade);
     Cvar_RegisterVariable(&snd_noextraupdate);
     Cvar_RegisterVariable(&snd_show);
-    Cvar_RegisterVariable(&snd_speed);  //qb:
-    Cvar_RegisterVariable(&_snd_mixahead);
+     Cvar_RegisterVariable(&_snd_mixahead);
     Cvar_RegisterVariable(&snd_swapstereo); // Manoel Kasimier
     Cvar_RegisterVariable(&snd_stereo); // Manoel Kasimier
 
@@ -216,7 +215,7 @@ void S_Init (void)
         shm = (void *) Hunk_AllocName(sizeof(*shm), "shm");
         shm->splitbuffer = 0;
         shm->samplebits = 16;
-        shm->speed = 44100; //Flash sampling rate is 44.1KHz
+        shm->speed = snd_speed;
         shm->channels = 2;
         shm->samples = 32768;
         shm->samplepos = 0;
