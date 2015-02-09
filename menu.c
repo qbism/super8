@@ -3608,7 +3608,7 @@ credits1:
             M_PrintWhite(22,    y+=12,  "forked from Mankrip's Makaqu engine");
             M_PrintWhite(22,    y+=8,   "      plus code from:");
             M_PrintWhite(22,    y+=12,  "ToChriS Quake by Victor Luchitz");
-            M_PrintWhite(22,    y+=8,   "Fixes and Watcom port by Levent");
+            M_PrintWhite(22,    y+=8,   "Fixes and cleanup by Levent");
             M_PrintWhite(22,    y+=8,   "John's FitzQuake & Baker's Mark V");
             M_PrintWhite(22,    y+=8,   "joequake engine by Jozsef Szalontai");
             M_PrintWhite(22,    y+=8,   "qrack engine coded by R00k");

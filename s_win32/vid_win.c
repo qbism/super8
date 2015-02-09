@@ -368,7 +368,7 @@ cvar_t          vid_fullscreen_mode = {"vid_fullscreen_mode", "4", "vid_fullscre
 cvar_t          vid_windowed_mode = {"vid_windowed_mode", "0", "vid_windowed_mode[value]  Initial windowed mode.", true};
 cvar_t          vid_window_x = {"vid_window_x", "0", "vid_window_x[value] Window placement on screen.", false}; //qb: was true
 cvar_t          vid_window_y = {"vid_window_y", "0", "vid_window_y[value] Window placement on screen.", false};
-cvar_t          vid_nativeaspect = {"vid_nativeaspect", "0.0", "vid_nativeaspect[value] Autodected unless this is set manually.", true};
+cvar_t          vid_nativeaspect = {"vid_nativeaspect", "0.0", "vid_nativeaspect[0.0-value] Autodected if 0.0, otherwise set override.", true};
 
 float       nativeaspect;
 float       calc_nativeaspect = 1.0;
