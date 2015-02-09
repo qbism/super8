@@ -718,8 +718,6 @@ void NET_Init (void)
 	i = COM_CheckParm ("-port");
 	if (!i)
 		i = COM_CheckParm ("-udpport");
-	if (!i)
-		i = COM_CheckParm ("-ipxport");
 
 	if (i)
 	{
