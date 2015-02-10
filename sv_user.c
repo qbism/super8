@@ -582,7 +582,7 @@ nextmsg:
                 else if (Q_strncasecmp(s, "qcexec", 6) == 0) // FrikaC - qcexec function
                     ret = 1; // FrikaC - qcexec function
                 if (ret == 2)
-                    Cbuf_InsertText (s);
+                    Cbuf_InsertText (s, "clc_stringcmd");
                 else if (ret == 1)
                     Cmd_ExecuteString (s, src_client);
                 else

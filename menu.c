@@ -851,7 +851,7 @@ void M_PopUp_Draw (void)
 void M_PopUp_Key (int key)
 {
     if (m_inp_yes && popup_command)
-        Cbuf_AddText(popup_command);
+        Cbuf_AddText(popup_command, "popup_command");
     else if (!m_inp_no)
         return;
 
@@ -1034,11 +1034,11 @@ static void StartNewGame (void)
 {
     key_dest = key_game;
     if (sv.active)
-        Cbuf_AddText ("disconnect\n");
-    Cbuf_AddText ("maxplayers 1\n");
+        Cbuf_AddText ("disconnect\n", "disconnect");
+    Cbuf_AddText ("maxplayers 1\n", "maxplayers");
     Cvar_SetValue (teamplay.name, 0); //qb: cleanups from Levent
     Cvar_SetValue (coop.name, 0);
-    Cbuf_AddText ("map start\n");
+    Cbuf_AddText ("map start\n", "StartNewGame");
 }
 
 void M_SinglePlayer_Key (int key)
@@ -1429,7 +1429,7 @@ void M_Save_Key (int k)
                         {
                             //qb: removed refresh.  simply exit menu instead
                             Cbuf_AddText (va ("save%s %s%c%i%i.sav\n", (m_state==m_savesmall)?"small":"", savename.string,
-                                              (m_state==m_savesmall)?'G':'S', i/10, i%10)); //qb: switch to .sav extension
+                                              (m_state==m_savesmall)?'G':'S', i/10, i%10), "m_savesmall"); //qb: switch to .sav extension
                         }
                         else
                             M_PopUp_f ((m_state==m_savesmall)?"Overwrite saved game?":"Overwrite saved state?", va ("save%s %s%c%i%i.sav\n",
@@ -1442,7 +1442,7 @@ void M_Save_Key (int k)
                         // Host_Loadgame_f can't bring up the loading plaque because too much
                         // stack space has been used, so do it now
                         SCR_BeginLoadingPlaque ();
-                        Cbuf_AddText (va ("load%s %s%c%i%i.sav\n", (m_state==m_loadsmall)?"small":"", savename.string, (m_state==m_loadsmall)?'G':'S', i/10, i%10) );
+                        Cbuf_AddText (va ("load%s %s%c%i%i.sav\n", (m_state==m_loadsmall)?"small":"", savename.string, (m_state==m_loadsmall)?'G':'S', i/10, i%10), "m_loadsmall" );
                         fade_level = 0; // BlackAura - Menu background fading
                         return;
                         // Manoel Kasimier - begin
@@ -1955,7 +1955,7 @@ void M_GameOptions_Key (int key)
                              maxplayers, !o_deathmatch, o_deathmatch, o_teamplay, o_skill, o_fraglimit, o_timelimit, o_samelevel, s));
             else
                 Cbuf_AddText(va("disconnect\nlisten 0\nmaxplayers %u\ncoop %i\ndeathmatch %i\nteamplay %i\nskill %i\nfraglimit %i\ntimelimit %i\nsamelevel %i\nmap %s\n",
-                                maxplayers, !o_deathmatch, o_deathmatch, o_teamplay, o_skill, o_fraglimit, o_timelimit, o_samelevel, s));
+                                maxplayers, !o_deathmatch, o_deathmatch, o_teamplay, o_skill, o_fraglimit, o_timelimit, o_samelevel, s), "serverstats");
             free(s);
             // Manoel Kasimier - end
         }
@@ -2127,7 +2127,7 @@ void M_MapList_Key (int key)
     case K_ENTER:
         S_LocalSound ("misc/menu2.wav");
         strcpy(nombreFile, listaFiles[posArrow]);
-        Cbuf_AddText (va("map %s\n", strtok(nombreFile, ".bsp")));
+        Cbuf_AddText (va("map %s\n", strtok(nombreFile, ".bsp")), "numbered files");
         break;
     }
 }
@@ -2358,12 +2358,12 @@ void M_Setup_Key (int k)
         // Manoel Kasimier - update player setup on exit - begin
 #if NET_MENUS // Manoel Kasimier - removed multiplayer menus
         if (Q_strcmp(cl_name.string, setup_hostname) != 0)
-            Cbuf_AddText ( va ("hostname \"%s\"\n", setup_hostname) );
+            Cbuf_AddText ( va ("hostname \"%s\"\n", setup_hostname), "hostname" );
 #endif
         if (Q_strcmp(cl_name.string, setup_myname) != 0)
-            Cbuf_AddText ( va ("name \"%s\"\n", setup_myname) );
+            Cbuf_AddText ( va ("name \"%s\"\n", setup_myname), "setup_myname" );
         if (setup_top != setup_oldtop || setup_bottom != setup_oldbottom)
-            Cbuf_AddText( va ("color %i %i\n", setup_top, setup_bottom) );
+            Cbuf_AddText( va ("color %i %i\n", setup_top, setup_bottom), "color" );
         Cvar_SetValue ("crosshair", setup_crosshair);
         Cvar_SetValue ("crosshair_color", setup_crosshair_color);
         if (m_inp_off)
@@ -2838,7 +2838,7 @@ void M_Keys_Key (int k)
             else
                 // Manoel Kasimier - end
                 sprintf (cmd, "bind \"%s\" \"%s\"\n", Key_KeynumToString (k), bindnames[cmd_for_position[m_cursor[m_state]]][0]); // Manoel Kasimier - edited
-            Cbuf_InsertText (cmd);
+            Cbuf_InsertText (cmd, "M_Keys_Key");
             bind_grab = false;
         }
         return;
@@ -3269,9 +3269,9 @@ void M_Audio_Change (int dir)
     if (c == i++) playLooping = !playLooping;
     if (c == i++) (!playing && wasPlaying) ? CDAudio_Resume() : CDAudio_Pause();
     if (c == i++) CDAudio_Stop();
-    if (c == i++) Cbuf_AddText ("cd eject\n");
-    if (c == i++) Cbuf_AddText ("cd close\n");
-    if (c == i++) Cbuf_AddText ("cd reset\n");
+    if (c == i++) Cbuf_AddText ("cd eject\n", "cd eject");
+    if (c == i++) Cbuf_AddText ("cd close\n", "cd close");
+    if (c == i++) Cbuf_AddText ("cd reset\n", "cd reset");
 
 }
 void M_Audio_Key (int k)
@@ -3490,16 +3490,16 @@ void M_Developer_Change (int dir)
     if (c == i++)
     {
         M_Off();
-        Cbuf_AddText ("timedemo demo1.dem\n");
+        Cbuf_AddText ("timedemo demo1.dem\n", "timedemo demo1");
     }
-    if (c == i++) Cbuf_AddText ("noclip\n");
-    if (c == i++) Cbuf_AddText ("fly\n");
-    if (c == i++) Cbuf_AddText ("notarget\n");
-    if (c == i++) Cbuf_AddText ("god\n");
+    if (c == i++) Cbuf_AddText ("noclip\n", "noclip");
+    if (c == i++) Cbuf_AddText ("fly\n", "fly");
+    if (c == i++) Cbuf_AddText ("notarget\n", "notarget");
+    if (c == i++) Cbuf_AddText ("god\n", "god");
     if (c == i++)
     {
         M_Off();
-        Cbuf_AddText ("impulse 9\n");
+        Cbuf_AddText ("impulse 9\n", "impulse 9");
     }
 }
 void M_Developer_Key (int k)
@@ -3551,7 +3551,7 @@ void M_Credits_Key (int key)
     {
         m_cursor[m_state] += 1;
         m_credits_starttime = realtime-8.0;//8.5
-        Cbuf_InsertText ("exec quake.rc\n");
+        Cbuf_InsertText ("exec quake.rc\n", "exec quake.rc");
     }
     else if (m_cursor[m_state] == 3)
         M_Off ();
@@ -4066,7 +4066,7 @@ void M_LanConfig_Key (int key)
             fade_level = 0;
             key_dest = key_game;
             m_state = m_none;
-            Cbuf_AddText ( va ("connect \"%s\"\n", lanConfig_joinname) );
+            Cbuf_AddText ( va ("connect \"%s\"\n", lanConfig_joinname), "lanConfig_joinname" );
             break;
         }
 
@@ -4288,7 +4288,7 @@ void M_ServerList_Key (int k)
         fade_level = 0;
         key_dest = key_game;
         m_state = m_none;
-        Cbuf_AddText ( va ("connect \"%s\"\n", hostcache[slist_cursor].cname) );
+        Cbuf_AddText ( va ("connect \"%s\"\n", hostcache[slist_cursor].cname), "M_ServerList_Key: connect" );
         break;
 
     default:
@@ -4301,7 +4301,7 @@ void M_ConfigureNetSubsystem(void)
 {
 // enable/disable net systems to match desired config
 
-    Cbuf_AddText ("stopdemo\n");
+    Cbuf_AddText ("stopdemo\n", "stopdemo");
 
     if (IPXConfig || TCPIPConfig)
         net_hostport = lanConfig_port;
@@ -4518,7 +4518,7 @@ void M_Keydown (int key)
 #ifdef _WIN32
     if (key == '-')
     {
-        Cbuf_AddText ("vid_minimize\n");
+        Cbuf_AddText ("vid_minimize\n", "vid_minimize");
         return;
     }
 #endif

@@ -1032,7 +1032,7 @@ void PF_localcmd (void)
     char	*str;
 
     str = G_STRING(OFS_PARM0);
-    Cbuf_AddText (str);
+    Cbuf_AddText (str, "PF_localcmd");
 }
 
 /*
@@ -1813,7 +1813,7 @@ void PF_makestatic (void)
         else
         {
             MSG_WriteByte (&sv.signon,svc_spawnstatic2);
-            MSG_WriteShort (&sv.signon, ((unsigned short)(mindex) << 4) + (ent->alpha >>4));
+            MSG_WriteShort (&sv.signon, ((unsigned short)(mindex) << 4) + (ent->alpha >>4));  //12 bits for model index = 4096
         }
     }
     else
@@ -1876,7 +1876,7 @@ void PF_changelevel (void)
     svs.changelevel_issued = true;
 
     s = G_STRING(OFS_PARM0);
-    Cbuf_AddText (va("changelevel %s\n",s));
+    Cbuf_AddText (va("changelevel %s\n",s), "changelevel");
 }
 
 

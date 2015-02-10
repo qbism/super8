@@ -170,8 +170,8 @@ void Key_Console (int key)
 	// enter command
 	if (key == K_ENTER || key == K_DC_Y) // Manoel Kasimier - controller functionality to the console - edited
 	{
-		Cbuf_AddText (key_lines[edit_line]+1);	// skip the >
-		Cbuf_AddText ("\n");
+		Cbuf_AddText (key_lines[edit_line]+1, "key_lines");	// skip the >
+		Cbuf_AddText ("\n", "-");
 		Con_Printf ("%s\n",key_lines[edit_line]);
 		edit_line = (edit_line + 1) & 31;
 		history_line = edit_line;
@@ -330,11 +330,11 @@ void Key_Message (int key)
 	if (key == K_ENTER)
 	{
 		if (team_message)
-			Cbuf_AddText ("say_team \"");
+			Cbuf_AddText ("say_team \"", "-");
 		else
-			Cbuf_AddText ("say \"");
-		Cbuf_AddText(chat_buffer);
-		Cbuf_AddText("\"\n");
+			Cbuf_AddText ("say \"", "-");
+		Cbuf_AddText(chat_buffer, "Key_Message: chat_buffer");
+		Cbuf_AddText("\"\n", "-");
 
 		key_dest = key_game;
 		chat_bufferlen = 0;
@@ -991,14 +991,14 @@ void Key_Event (int key, qboolean down)
 		if (kb && kb[0] == '+')
 		{
 			sprintf (cmd, "-%s %i\n", kb+1, key);
-			Cbuf_AddText (cmd);
+			Cbuf_AddText (cmd, "shiftbindings");
 		}
 		// Manoel Kasimier - function shift - end
 		kb = keybindings[key];
 		if (kb && kb[0] == '+')
 		{
 			sprintf (cmd, "-%s %i\n", kb+1, key);
-			Cbuf_AddText (cmd);
+			Cbuf_AddText (cmd, "keybindings");
 		}
 		if (keyshift[key] != key)
 		{
@@ -1006,7 +1006,7 @@ void Key_Event (int key, qboolean down)
 			if (kb && kb[0] == '+')
 			{
 				sprintf (cmd, "-%s %i\n", kb+1, key);
-				Cbuf_AddText (cmd);
+				Cbuf_AddText (cmd, "keybindings2");
 			}
 		}
 		return;
@@ -1039,12 +1039,12 @@ void Key_Event (int key, qboolean down)
 			if (kb[0] == '+')
 			{	// button commands add keynum as a parm
 				sprintf (cmd, "%s %i\n", kb, key);
-				Cbuf_AddText (cmd);
+				Cbuf_AddText (cmd, "keybindings3");
 			}
 			else
 			{
-				Cbuf_AddText (kb);
-				Cbuf_AddText ("\n");
+				Cbuf_AddText (kb, "kb");
+				Cbuf_AddText ("\n", "keybindings return");
 			}
 		}
 		return;
@@ -1053,7 +1053,7 @@ void Key_Event (int key, qboolean down)
 	// Manoel Kasimier - function shift - begin
 	if (key_dest == key_menu)
 		if (keybindings[key] && !Q_strcmp(keybindings[key], "+shift"))
-			Cbuf_AddText (va("+shift %i\n", key)); // hack for the "customize controls" menu
+			Cbuf_AddText (va("+shift %i\n", key), "key_menu"); // hack for the "customize controls" menu
 	// Manoel Kasimier - function shift - end
 
 //	if (!down)	// Manoel Kasimier - removed - there's a return earlier on this function
