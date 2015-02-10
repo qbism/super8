@@ -389,7 +389,7 @@ void CL_ParseEntityLump (char *entdata)
             //  Cvar_Set ("r_skyname", value);
             // Manoel Kasimier - begin
         {
-            Cbuf_AddText(va("wait;loadsky %s\n", value));
+            Cbuf_AddText(va("wait;loadsky %s\n", value), "loadsky");
             //  R_LoadSky(value);
             return; // Manoel Kasimier
         }
@@ -397,13 +397,13 @@ void CL_ParseEntityLump (char *entdata)
         // more checks here..
         if (Q_strcmp (key, "palette") == 0) //qb: use palette field in worldspawn.
         {
-            Cbuf_AddText(va("wait;loadpalette %s\n", value));
+            Cbuf_AddText(va("wait;loadpalette %s\n", value), "loadpalette");
             return;
         }
     }
     // Manoel Kasimier - begin
     if (r_skyname.string[0])
-        Cbuf_AddText(va("wait;loadsky %s\n", r_skyname.string));
+        Cbuf_AddText(va("wait;loadsky %s\n", r_skyname.string), "loadsky");
     //  R_LoadSky(r_skyname.string); // crashes the engine if the r_skyname cvar is set before the game boots
     else
         R_LoadSky("");

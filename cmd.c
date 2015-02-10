@@ -90,7 +90,7 @@ Cbuf_AddText
 Adds command text at the end of the buffer
 ============
 */
-void Cbuf_AddText (char *text)
+void Cbuf_AddText (char *text, char *caller)  //qb: report calling info
 {
     int		l;
 
@@ -98,7 +98,7 @@ void Cbuf_AddText (char *text)
 
     if (cmd_text.cursize + l >= cmd_text.maxsize)
     {
-        Con_Printf ("Cbuf_AddText: overflow on %i\n", cmd_text.cursize);
+        Con_Printf ("Cbuf_AddText: %s overflow on %i\n", caller, cmd_text.cursize);
         return;
     }
 
@@ -115,10 +115,11 @@ Adds a \n to the text
 FIXME: actually change the command buffer to do less copying
 ============
 */
-void Cbuf_InsertText (char *text)
+void Cbuf_InsertText (char *text, char *caller)
 {
     char	*temp;
     int		templen;
+
 
     // copy off any commands still remaining in the exec buffer
     templen = cmd_text.cursize;
@@ -132,7 +133,7 @@ void Cbuf_InsertText (char *text)
         temp = NULL;	// shut up compiler
 
     // add the entire text of the file
-    Cbuf_AddText (text);
+    Cbuf_AddText (text, caller);
 
     // add the copied off data
     if (templen)
@@ -246,7 +247,7 @@ void Cmd_StuffCmds_f (void)
     }
     cmds[j] = 0;
 
-    Cbuf_InsertText (cmds);
+    Cbuf_InsertText (cmds, "Cmd_StuffCmds_f");
 }
 
 
@@ -298,12 +299,12 @@ void Cmd_Exec_f (void)
     f = (char *)fileinfo->data;	// 2001-09-12 Returning information about loaded file by Maddes
     Con_DPrintf ("execing %s\n",Cmd_Argv(1)); // edited
 
-    Cbuf_InsertText ("\n"); // Manoel Kasimier - for files that doesn't end with a newline
-    Cbuf_InsertText (f);
+    Cbuf_InsertText ("\n", "Cmd_Exec_f newline"); // Manoel Kasimier - for files that doesn't end with a newline
+    Cbuf_InsertText (f, Cmd_Argv(1));
     // Manoel Kasimier - begin
     // skip a frame to prevent possible crashes when the engine is started with the "-map" parameter
     //	if (!Q_strcmp(Cmd_Argv(1), "quake.rc"))
-    Cbuf_InsertText ("wait\n");
+    Cbuf_InsertText ("wait\n", "Cmd_Exec_f wait");
     // Manoel Kasimier - end
     Hunk_FreeToLowMark (mark);
 }
@@ -1363,7 +1364,7 @@ void	Cmd_ExecuteString (char *text, cmd_source_t src)
     {
         if (!Q_strcasecmp (cmd_argv[0], a->name))
         {
-            Cbuf_InsertText (a->value);
+            Cbuf_InsertText (a->value, "Cmd_ExecuteString");
             return;
         }
     }

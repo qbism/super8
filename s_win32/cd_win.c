@@ -367,7 +367,7 @@ static void CD_f (void)
     if (Q_strcasecmp(command, "close") == 0)
     {
         CDAudio_CloseDoor();
-        Cbuf_AddText ("wait;cd reset\n"); // Manoel Kasimier - CD player in menu - auto-update CD status after closing drive door
+        Cbuf_AddText ("wait;cd reset\n", "cd reset"); // Manoel Kasimier - CD player in menu - auto-update CD status after closing drive door
         return;
     }
 

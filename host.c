@@ -756,7 +756,7 @@ void Host_GetConsoleCommands (void)
         cmd = Sys_ConsoleInput ();
         if (!cmd)
             break;
-        Cbuf_AddText (cmd);
+        Cbuf_AddText (cmd, "Host_GetConsoleCommands");
     }
 }
 
@@ -1061,7 +1061,7 @@ void Host_Init (quakeparms_t *parms)
 
     //SCR_Adjust(); // Manoel Kasimier - screen positioning
     //M_Credits_f(); // Manoel Kasimier //qb: go straight to demo
-    Cbuf_InsertText ("exec quake.rc\n"); //qb: go straight to demo
+    Cbuf_InsertText ("exec quake.rc\n", "exec quake.rc"); //qb: go straight to demo
 
     Hunk_AllocName (0, "-HOST_HUNKLEVEL-");
     host_hunklevel = Hunk_LowMark ();
