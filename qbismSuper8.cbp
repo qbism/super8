@@ -360,6 +360,7 @@
 			<Option target="Release Win32 no music" />
 		</Unit>
 		<Unit filename="render.h" />
+		<Unit filename="s_win32/QBS8.ico" />
 		<Unit filename="s_win32/cd_win.c">
 			<Option compilerVar="CC" />
 		</Unit>

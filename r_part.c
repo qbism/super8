@@ -682,14 +682,14 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             for (j=0 ; j<3 ; j++)
             {
                 p->org[j] = start[j] + ((rand()&6)-3);
-                p->vel[j] = (float)((rand()%24)-12); //qb: add scatter velocity, for wall sticking
+                p->vel[j] = (float)((rand()%40)-20); //qb: add scatter velocity, for wall sticking
 
             }
             p->type = pt_sticky;
             p->die = cl.time + r_part_sticky_time.value + (rand()%6); //qb: stick around
             p->start_time = cl.time; // Manoel Kasimier
             p->alpha = 1.0;
-            p->alphavel = -0.05;
+            p->alphavel = (-0.95 -((rand()%10)/100))/(r_part_sticky_time.value + 0.0001);  // -0.05;
             break;
 
         case 3:
@@ -730,7 +730,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             p->die = cl.time + 32;
             p->start_time = cl.time + r_part_sticky_time.value + (rand()%6); //qb: stick around
             p->alpha = 1.0;
-            p->alphavel = -0.03;
+            p->alphavel = (-0.95 -((rand()%10)/100))/(r_part_sticky_time.value+ 0.0001);
             break;
 
         case 6: // voor trail

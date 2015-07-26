@@ -20,11 +20,13 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "quakedef.h"
 #include "version.h" //qb - generated from bat
 
+extern trace_t SV_ClipMoveToEntity (edict_t *ent, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end);
+
 int sv_protocol = PROTOCOL_QBS8; //qb
 server_t    sv;
 server_static_t     svs;
 
-cvar_t  sv_cullentities = {"sv_cullentities","1", "sv_cullentities[0-3] Antiwallhack. 0=off, 1=players, 2=players and entities, 3=doors, plats, etc. ", false, true}; //qb: qrack
+cvar_t  sv_cullentities = {"sv_cullentities","1", "sv_cullentities[0-2] Antiwallhack. 0=off, 1=players, 2=players and entities.", false, true}; //qb: qrack
 cvar_t  sv_progs        = {"sv_progs", "progs.dat", "sv_progs[name.dat] Specify which progs to use." }; //qb: enginex
 cvar_t	sv_imp12hack    = {"sv_imp12hack", "0", "sv_imp12hack[0-1] toggle. Force previous weapon cycle to impulse 12 with no compatibility check.  Works for a few old mods.", true, true}; //qb: CycleWeaponReverse
 cvar_t  sv_qcexec       = {"sv_qcexec","0", "sv_qcexec[0/1] Toggle to allow qc commands to be executed from the console.", false, true}; // Manoel Kasimier - qcexec
@@ -43,49 +45,24 @@ void MSG_WriteCoord (sizebuf_t *sb, float f)
 
 /*
 ===============
-SV_InvisibleToClient  //qb:  r00k
+SV_InvisibleToClient  //qb:  r00k qrack tute
 ===============
 */
 qboolean SV_InvisibleToClient(edict_t *viewer, edict_t *seen)
 {
-    int i;
-    trace_t   tr;
-    vec3_t   start;
-    vec3_t   end;
-    extern trace_t SV_ClipMoveToEntity (edict_t *ent, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end);
-    extern qboolean CL_Clip_Test(vec3_t org);
-    int it;
-    int vi;
+    int		i;
+    trace_t	tr;
+    vec3_t	start;
+    vec3_t	end;
 
-    vi = (int)viewer->v.colormap - 1;
-
-    if (seen->tracetimer[vi] > sv.time)
-        return false;
-
-    it = (int)(seen->v.items);
-
-    //R00k: DM players want to see the Quad/Pent glow. Dont cull them at the moment...(fixme)
-    if ((strcmp(pr_strings + seen->v.classname, "player") == 0) && ((it & IT_QUAD) || (it & IT_INVULNERABILITY)))
+    if (seen->v.movetype == MOVETYPE_PUSH )//dont cull doors and plats :(
     {
         return false;
     }
 
     if (sv_cullentities.value == 1)    //1 only check player models, 2 = check all ents
-    {
-        if (strcmp(pr_strings + seen->v.classname, "player"))
-            return false;
-    }
-
-    if (seen->v.movetype == MOVETYPE_PUSH )
-    {
-        if (sv_cullentities.value == 3)
-        {
-            if (CL_Clip_Test(seen->v.origin)== false)
-                return false;
-        }
-        else
-            return false;
-    }
+    if (strcmp(pr_strings + seen->v.classname, "player"))
+        return false;
 
     memset (&tr, 0, sizeof(tr));
     tr.fraction = 1;
@@ -100,20 +77,13 @@ qboolean SV_InvisibleToClient(edict_t *viewer, edict_t *seen)
     end[2] = 0.5 * (seen->v.mins[2] + seen->v.maxs[2]);
 
     tr = SV_ClipMoveToEntity (sv.edicts, start, vec3_origin, vec3_origin, end);
-
     if (tr.fraction == 1)// line hit the ent
-    {
-        seen->tracetimer[vi] = sv.time + 0.2;
-        return false;
-    }
-
-    memset (&tr, 0, sizeof(tr));
-    tr.fraction = 1;
+            return false;
 
     //last attempt to eliminate any flaws...
     if ((!strcmp(pr_strings + seen->v.classname, "player")) || (sv_cullentities.value > 1))
     {
-        for (i = 0; i < 8; i++)
+        for (i = 0; i < 64; i++)
         {
             end[0] = seen->v.origin[0] + offsetrandom(seen->v.mins[0], seen->v.maxs[0]);
             end[1] = seen->v.origin[1] + offsetrandom(seen->v.mins[1], seen->v.maxs[1]);
@@ -121,16 +91,15 @@ qboolean SV_InvisibleToClient(edict_t *viewer, edict_t *seen)
 
             tr = SV_ClipMoveToEntity (sv.edicts, start, vec3_origin, vec3_origin, end);
             if (tr.fraction == 1)// line hit the ent
-            {
-                //Con_DPrintf (va("found ent in %i hits\n", i));
-                seen->tracetimer[vi] = sv.time + 0.2;
-                return false;
-            }
+			{
+				    Con_DPrintf (va("found ent in %i hits\n", i));
+                    return false;
+			}
         }
     }
+
     return true;
 }
-
 
 /*
 ===============
@@ -724,6 +693,8 @@ loc1:
     }
 }
 
+//qb: qrack tute
+#define offsetrandom(MIN,MAX) ((rand() & 32767) * (((MAX)-(MIN)) * (1.0f / 32767.0f)) + (MIN))
 
 /*
 =============
@@ -797,6 +768,10 @@ void SV_WriteEntitiesToClient (edict_t  *clent, sizebuf_t *msg)
 
             // if the entity didn't touch any leafs in the pvs don't send it to the client
             if (!ent->touchleaf && !sv_novis.value) continue;//qb - novis from FQ
+
+            //qb: qrack
+            if ((SV_InvisibleToClient(clent,ent)) && (sv_cullentities.value))
+					continue;
         }
 
 
