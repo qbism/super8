@@ -862,7 +862,7 @@ void V_CalcRefdef (void)
             for (i=0 ; i<3 ; i++)
                 r_refdef.vieworg[i] += scr_ofsx.value*forward[i]
                                        + scr_ofsy.value*right[i]
-                                       + scr_ofsz.value*up[i];
+                                       + (scr_ofsz.value + 0.5 - ((float)sb_lines * 0.01)) *up[i]; //qb: sbar_show_bg compensation
 
     V_BoundOffsets ();
 
@@ -879,8 +879,6 @@ void V_CalcRefdef (void)
         view->origin[i] += forward[i]*bob*0.4;
     }
     view->origin[2] += bob;
-    if (!cl_nobob.value) // Manoel Kasimier - cl_nobob
-        view->origin[2] += 2; // Manoel Kasimier - cl_nobob
 
     view->model = cl.model_precache[cl.stats[STAT_WEAPON]];
     view->frame = cl.stats[STAT_WEAPONFRAME];

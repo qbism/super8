@@ -941,7 +941,7 @@ void R_ViewChanged (vrect_t *pvrect, int lineadj)
     }
     else
     {
-        pixelAspect = nativeaspect/((float)(r_refdef.vrect.width) /(float)(r_refdef.vrect.height)); //qb: Lavent correction
+        pixelAspect = nativeaspect/((float)(r_refdef.vrect.width) /(float)(r_refdef.vrect.height+lineadj)); //qb: lineadj and Lavent correction
         if(vid_windowed_mode.value)
             screenAspect = 1;
         else

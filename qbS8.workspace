@@ -2,7 +2,5 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
 		<Project filename="qbismSuper8.cbp" />
-		<Project filename="../../Q1sources/qbWinQuakeDX/WinQuake.cbp" />
-		<Project filename="../../q2sources/q2xp/quake2.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
