@@ -1,3 +1,5 @@
+Last updated 12/16/12
+
 qbism Super8 is an open source (GPL) 3D game engine with advanced yet intentionally retro 8-bit graphics for a crunchy pixelated look.  The source code is forked from Makaqu Quake with enhancements from other Quake engine projects, plus a few original ideas.  The goal is to expand the capabilities of authentic software-rendering without sacrificing performance.
 
 Super8 runs in Windows, and in Linux under Wine last time I checked. Previous builds also ran in Flash and DOS.  (Flash support is in limbo while Adobe works out new tools, and my last DOS box has died.)  Memory and processor requirements are light.  It remains snappy on those little 1Ghz Atom netbooks for example.
