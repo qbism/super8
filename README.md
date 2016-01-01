@@ -1,4 +1,4 @@
-qbism Super8 readme
+qbism Super8
 
 The goal of Super8 is to expand the capabilities of true 8-bit rendering to play contemporary Quake maps: epic environments, hundreds of monsters, crunchy pixelated graphics. The source code is forked from Makaqu with enhancements from other open source Quake engine projects, plus a few original ideas.
 
