@@ -272,7 +272,6 @@ extern	cvar_t	cl_nolerp;
 extern	cvar_t	cl_maxfps; //qb: from qrack
 
 extern	cvar_t	cl_beams_quakepositionhack;
-extern	cvar_t	cl_beams_position_x;
 
 extern	cvar_t	cl_pitchdriftspeed;
 extern	cvar_t	lookspring;

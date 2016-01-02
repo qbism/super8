@@ -201,6 +201,8 @@ void Key_Console (int key)
 			Cmd_CompleteParameter (cmd, "*.cfg");
 		else if (strstr(cmd, "load ") == cmd)
 			Cmd_CompleteParameter (cmd, "*.sav");
+		else if ((strstr(cmd, "loadpalette ") == cmd) || (strstr(cmd, "r_palette ") == cmd))
+			Cmd_CompleteParameter (cmd, "*.lmp");
 		else if (strstr(cmd, "gamedir ") == cmd)
 			Cmd_CompleteParameter (cmd, "*");
 		else

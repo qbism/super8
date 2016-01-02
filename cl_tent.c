@@ -351,10 +351,8 @@ void CL_UpdateTEnts (void)
 	// if coming from the player, update the start position
 		if (b->entity == cl.viewentity)
 		{
-			// Manoel Kasimier - begin
 			// This keeps the angle of the beam identical to the viewangle
-			if (b->model->name[10] == '2' //"progs/bolt2.mdl" bloody hack
-       &&(cl_beams_quakepositionhack.value && !(cl_beams_position_x.value)))
+			if (cl_beams_quakepositionhack.value != 0)
 			{
 				vec3_t	front, right, up;
 				VectorSubtract (b->start, b->end, dist);
@@ -362,12 +360,13 @@ void CL_UpdateTEnts (void)
 				AngleVectors (r_refdef.viewangles, front, right, up);
 
 				VectorCopy (cl_entities[cl.viewentity].origin, b->start);
+
 				b->end[0] = b->start[0] + front[0]*forward;
 				b->end[1] = b->start[1] + front[1]*forward;
 				b->end[2] = b->start[2] + front[2]*forward;
 			}
+
 			else
-			// Manoel Kasimier - end
 			VectorCopy (cl_entities[cl.viewentity].origin, b->start);
 		}
 

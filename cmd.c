@@ -1256,6 +1256,10 @@ void Cmd_CompleteParameter (char *partial, char *attachment)
     {
         Q_strncpyz (subdir, "maps/", sizeof(subdir));
     }
+    if (!Q_strcmp(attachment, "*.lmp"))
+    {
+        Q_strncpyz (subdir, "gfx/", sizeof(subdir));
+    }
     if (!Q_strcmp(attachment, "*.mp3"))
     {
         Q_strncpyz (subdir, "music/", sizeof(subdir));

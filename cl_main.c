@@ -45,8 +45,7 @@ cvar_t	m_yaw = {"m_yaw","0.022", "m_yaw[value] Sets speed of left and right turn
 cvar_t	m_forward = {"m_forward","1", "m_forward[value] Forward and reverse mouse speed.", true};
 cvar_t	m_side = {"m_side","0.8", "m_side[value] Strafe speed with mouse.", true};
 cvar_t	m_look = {"m_look","1", "m_look[0/1] Mouse look toggle.", true}; // Manoel Kasimier - m_look
-cvar_t cl_beams_quakepositionhack = {"cl_beams_quakepositionhack", "1", "cl_beams_quakepositionhack [0/1] Lightning gun fires from player center, plus cl_beam_position_(x,y,z) offsets.", true};
-cvar_t cl_beams_position_x = {"cl_beams_position_x", "0", "cl_beams_position_x[value] [0/1] Lightning gun fires from player center, plus cl_beam_position_(x,y,z) offsets.", true};
+cvar_t cl_beams_quakepositionhack = {"cl_beams_quakepositionhack", "1", "cl_beams_quakepositionhack [0/1] Beams (lightning) fire from player center like QuakeWorld.", true};
 
 client_static_t	cls;
 client_state_t	cl;
