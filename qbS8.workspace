@@ -2,5 +2,6 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
 		<Project filename="qbismSuper8.cbp" />
+		<Project filename="../../../Q1sources/darkplaces/darkplaces.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>

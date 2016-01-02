@@ -353,7 +353,8 @@ void CL_UpdateTEnts (void)
 		{
 			// Manoel Kasimier - begin
 			// This keeps the angle of the beam identical to the viewangle
-			if (b->model->name[10] == '2' /*"progs/bolt2.mdl"*/) // bloody hack
+			if (b->model->name[10] == '2' //"progs/bolt2.mdl" bloody hack
+       &&(cl_beams_quakepositionhack.value && !(cl_beams_position_x.value)))
 			{
 				vec3_t	front, right, up;
 				VectorSubtract (b->start, b->end, dist);

@@ -917,7 +917,7 @@ void R_AliasSetupSkin (void)
     skinnum = currententity->skinnum;
     if ((skinnum >= pmdl->numskins) || (skinnum < 0))
     {
-        Con_DPrintf ("R_AliasSetupSkin: no such skin # %d\n", skinnum);
+        Con_DPrintf ("R_AliasSetupSkin: no such skin # %d for %s\n", skinnum, currententity->model);
         skinnum = 0;
     }
 
