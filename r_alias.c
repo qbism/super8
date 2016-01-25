@@ -658,7 +658,10 @@ void R_AliasTransformFinalVert (finalvert_t *fv, auxvert_t *av,
     fv->v[2] = pstverts->s;
     fv->v[3] = pstverts->t;
 
-    fv->flags = pstverts->onseam;
+    //qb:  expects 32 (0x0020), but some models set onseam to 1. Bug discovered by ericw
+    if (pstverts->onseam)
+        fv->flags = ALIAS_ONSEAM;
+    else fv->flags = 0;
 
 // lighting
     plightnormal = r_avertexnormals[pverts->lightnormalindex];
@@ -712,7 +715,11 @@ void R_AliasTransformAndProjectFinalVerts (finalvert_t *fv, stvert_t *pstverts)
 
         fv->v[2] = pstverts->s;
         fv->v[3] = pstverts->t;
-        fv->flags = pstverts->onseam;
+
+    //qb:  expects 32 (0x0020), but some models set onseam to 1. Bug discovered by ericw
+    if (pstverts->onseam)
+        fv->flags = ALIAS_ONSEAM;
+    else fv->flags = 0;
 
         // lighting
         plightnormal = r_avertexnormals[pverts->lightnormalindex];
@@ -761,7 +768,10 @@ void R_AliasTransformFinalBlendedVert (finalvert_t *fv, auxvert_t *av,
     fv->v[2] = pstverts->s;
     fv->v[3] = pstverts->t;
 
-    fv->flags = pstverts->onseam;
+     //qb:  expects 32 (0x0020), but some models set onseam to 1. Bug discovered by ericw
+    if (pstverts->onseam)
+        fv->flags = ALIAS_ONSEAM;
+    else fv->flags = 0;
 
 // lighting
     // Manoel Kasimier - begin
@@ -823,7 +833,11 @@ void R_AliasTransformAndProjectFinalBlendedVerts (finalvert_t *fv, stvert_t *pst
 
         fv->v[2] = pstverts->s;
         fv->v[3] = pstverts->t;
-        fv->flags = pstverts->onseam;
+
+    //qb:  expects 32 (0x0020), but some models set onseam to 1. Bug discovered by ericw
+    if (pstverts->onseam)
+        fv->flags = ALIAS_ONSEAM;
+    else fv->flags = 0;
 
         // lighting
         // Manoel Kasimier - begin
@@ -1044,8 +1058,8 @@ void R_AliasSetupLighting_new () //qb: a hybrid of MK's version.
     VectorCopy(currententity->origin, t);
     r_ambientlight = R_LightPoint (t, currententity->lightpoint) * 0.7 + 8;
     currententity->lightpoint = r_ambientlight;
- //   if (currententity == &cl.viewent)
- //       if (r_ambientlight < 12)
+//   if (currententity == &cl.viewent)
+//       if (r_ambientlight < 12)
 //            r_ambientlight = 12;		// always give some light on gun
     shadelight = r_ambientlight;
 
@@ -1315,7 +1329,7 @@ R_AliasDrawModel
 ================
 */
 static finalvert_t finalverts[MAXALIASVERTS +
-                               ((CACHE_SIZE - 1) / sizeof(finalvert_t)) + 1];
+                              ((CACHE_SIZE - 1) / sizeof(finalvert_t)) + 1];
 static auxvert_t auxverts[MAXALIASVERTS];
 
 void R_AliasDrawModel (/* alight_t *plighting */) // Manoel Kasimier - edited
