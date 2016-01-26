@@ -697,7 +697,7 @@ void GrabColormap (void)  //qb: fixed, was a little screwy
 // note: 254 instead of 255 because 255 is the transparent color, and we
 // don't want anything remapping to that
 //
-            *colmap++ = BestColor(red,green,blue, 0, 254);
+            *colmap++ = BestColor(red*2, green*2, blue*2, 0, 254); //qb: compensation factor for lost overbright.
         }
         for ( ; c<256 ; c++)
         {

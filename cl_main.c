@@ -781,7 +781,7 @@ void CL_RelinkEntities (void)
                 dl->radius = 200 + (rand()&31);
                 dl->minlight = 32;
                 dl->die = cl.time + 0.1;
-                dl->color = palmapnofb[18][21][19]; //qb: dyncol
+                dl->color = palmapnofb[9][9][8]; //qb: dyncol
             }
             if (ent->effects & EF_BRIGHTLIGHT)
             {
@@ -790,7 +790,7 @@ void CL_RelinkEntities (void)
                 dl->origin[2] += 16;
                 dl->radius = 400 + (rand()&31);
                 dl->die = cl.time + 0.001;
-                dl->color = palmapnofb[25][22][18]; //qb: dyncol
+                dl->color = palmapnofb[13][11][9]; //qb: dyncol
             }
             if (ent->effects & EF_DIMLIGHT)
             {
@@ -798,7 +798,7 @@ void CL_RelinkEntities (void)
                 VectorCopy (ent->origin,  dl->origin);
                 dl->radius = 200 + (rand()&31);
                 dl->die = cl.time + 0.001;
-                dl->color = palmapnofb[14][12][8]; //qb: dyncol
+                dl->color = palmapnofb[7][6][4]; //qb: dyncol
             }
 
         } // Manoel Kasimier
@@ -825,7 +825,7 @@ void CL_RelinkEntities (void)
                 dl->origin[2] += 16;
                 dl->radius = 100 + (rand()&31);
                 dl->die = cl.time + 0.05;
-                dl->color = palmapnofb[4][26][6]; //qb: dyncol
+                dl->color = palmapnofb[2][13][3]; //qb: dyncol
                 R_RocketTrail (oldorg, ent->origin, 3);
             }
             else if (ent->effects & EF_TRACER2)
@@ -835,7 +835,7 @@ void CL_RelinkEntities (void)
                 VectorCopy (ent->origin, dl->origin);
                 dl->radius = 100;
                 dl->die = cl.time + 0.05;
-                dl->color = palmapnofb[20][14][4];
+                dl->color = palmapnofb[10][7][2];
             }
             else if (ent->effects & EF_ROCKET)
             {
@@ -844,7 +844,7 @@ void CL_RelinkEntities (void)
                 VectorCopy (ent->origin, dl->origin);
                 dl->radius = 150;
                 dl->die = cl.time + 0.01;
-                dl->color = palmapnofb[28][12][2];
+                dl->color = palmapnofb[14][6][2];
             }
             else if (ent->effects & EF_GRENADE)
                 R_RocketTrail (oldorg, ent->origin, 1);
@@ -855,7 +855,7 @@ void CL_RelinkEntities (void)
                 VectorCopy (ent->origin, dl->origin);
                 dl->radius = 150;
                 dl->die = cl.time + 0.01;
-                dl->color = palmapnofb[28][6][6];
+                dl->color = palmapnofb[14][3][3];
             }
         } // Manoel Kasimier
         // Tomaz - QC Glow
@@ -867,7 +867,7 @@ void CL_RelinkEntities (void)
                 dl->radius = abs(ent->glow_size); // Manoel Kasimier - edited
                 dl->dark = (ent->glow_size < 0); // Manoel Kasimier
                 dl->die = cl.time + 0.001;
-                dl->color = palmapnofb[ent->glow_red >>2] [ent->glow_green >>2] [ent->glow_blue >>2]; //qb: dyncol
+                dl->color = palmapnofb[ent->glow_red >>3] [ent->glow_green >>3] [ent->glow_blue >>3]; //qb: dyncol
             }
 
         ent->forcelink = false;

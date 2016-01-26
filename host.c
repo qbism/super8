@@ -68,7 +68,7 @@ byte        *alphamap, *alpha50map, *additivemap, *fogmap, *fencemap; //qb: move
 
 cvar_t	r_skyalpha = {"r_skyalpha","0.1", "r_skyalpha[0.0 to 1.0] Sky layer transparency."}; //0.6 Manoel Kasimier - translucent sky
 
-cvar_t  r_palette =  {"r_palette", "s8pal", "r_palette[name] Default palette.", true}; //qb: the default palette to load
+cvar_t  r_palette =  {"r_palette", "palette", "r_palette[name] Default palette.", true}; //qb: the default palette to load
 
 cvar_t	host_framerate = {"host_framerate","0", " host_framerate[0.0 - 0.99] When non-zero, this value will override the calculated framerate."};	// set for slow motion
 cvar_t	host_speeds = {"host_speeds","0", "host_speeds[0/1] Toggle the display of host info."};			// set for running times
