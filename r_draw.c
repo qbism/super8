@@ -585,7 +585,7 @@ void R_RenderFace (msurface_t *fa, int clipflags)
     if ((fa->flags & SURF_DRAWSKY) && r_drawskybox)
         return; //qb: Is there a cheap way to hide faces that are behind sky faces but facing view.  Crazy mappers!
 
-    if (fa->flags & SURF_DRAWTRANSLUCENT)
+if (fa->flags & SURF_DRAWTRANSLUCENT)
     {
         if (!r_overdraw)
             return;
@@ -847,7 +847,7 @@ void R_RenderBmodelFace (bedge_t *pedges, msurface_t *psurf)
 
 // if there was a clip off the left edge, add that edge too
 // FIXME: faster to do in screen space?
-   // FIXME: share clipped edges?
+    // FIXME: share clipped edges?
     if (makeleftedge)
     {
         r_pedge = &tedge;

@@ -1378,17 +1378,17 @@ R_DrawBEntitiesOnList
 =============
 */
 
-//#define BSPRESTART
+//#define  BSPRESTART
 
 void R_DrawBEntitiesOnList (void)
 {
-    int                 i, j, clipflags;
+    int                 i, j, k, clipflags;
     vec3_t              oldorigin;
     model_t             *clmodel;
     float               minmaxs[6];
     int        alphamask;
-    qboolean restartbsp;
     msurface_t	*psurf;
+    qboolean translucent;
 
     if (!r_drawentities.value)
         return;
@@ -1399,30 +1399,39 @@ void R_DrawBEntitiesOnList (void)
     for (i=0 ; i<cl_numvisedicts ; i++)
     {
         currententity = cl_visedicts[i];
-        restartbsp = false;
         clmodel = currententity->model;
         if(clmodel->type == mod_brush)
         {
-            alphaspans = currententity->alphaspans; //qb: if r_overdraw or not
-            psurf = &clmodel->surfaces[clmodel->firstmodelsurface];
+              translucent = currententity->alphaspans; //qb: if r_overdraw or not
+
 
             //qb: transparent entities
-            if (r_overdraw  || !alphaspans)
+            if (r_overdraw || !translucent)
             {
+            psurf = &clmodel->surfaces[clmodel->firstmodelsurface];
+
 #ifdef BSPRESTART
-                if (alphaspans && r_overdraw)
+                if (translucent) //qb: blended entities similar to MQ 1.6
                 {
-                    restartbsp = true;
-                    edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
-                    surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
+                    edge_t	ledges[NUMSTACKEDGES +
+                                   ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
+                    surf_t	lsurfs[NUMSTACKSURFACES +
+                                   ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
+
                     if (auxedges)
+                    {
                         r_edges = auxedges;
+                    }
                     else
-                        r_edges =  (edge_t *)(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+                    {
+                        r_edges =  (edge_t *)
+                                   (((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+                    }
 
                     if (r_surfsonstack)
                     {
-                        surfaces =  (surf_t *)(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+                        surfaces =  (surf_t *)
+                                    (((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
                         surf_max = &surfaces[r_cnumsurfs];
                         // surface 0 doesn't really exist; it's just a dummy because index 0
                         // is used to indicate no edge attached to surface
@@ -1430,7 +1439,9 @@ void R_DrawBEntitiesOnList (void)
                     }
                     R_BeginEdgeFrame ();
                 }
-#endif
+#endif // BSPRESTART
+
+
                 // see if the bounding box lets us trivially reject, also sets
                 // trivial accept status
                 for (j=0 ; j<3 ; j++)
@@ -1499,6 +1510,13 @@ void R_DrawBEntitiesOnList (void)
                         currententity->topnode = NULL;
                     }
 
+
+#ifdef BSPRESTART
+                    if (translucent)
+                        R_ScanEdges ();
+#endif // BSPRESTART
+
+
                     // put back world rotation and frustum clipping
                     // FIXME: R_RotateBmodel should just work off base_vxx
                     VectorCopy (base_vpn, vpn);
@@ -1509,17 +1527,9 @@ void R_DrawBEntitiesOnList (void)
                     R_TransformFrustum ();
                 }
             }
-#ifdef BSPRESTART
-            if(restartbsp)
-                R_ScanEdges (); //mankrip
-#endif
         }
 
     }
-#ifdef BSPRESTART
-    if (!restartbsp && !r_overdraw)
-#endif
-        R_ScanEdges ();
     insubmodel = false;
 }
 
@@ -1567,6 +1577,12 @@ void R_EdgeDrawing (void)
         db_time2 = Sys_DoubleTime ();
         se_time1 = db_time2;
     }
+
+ #ifdef BSPRESTART
+    if(!r_overdraw)
+ #endif // BSPRESTART
+
+        R_ScanEdges ();
 }
 
 
@@ -1622,8 +1638,9 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     if (!cl_entities[0].model || !cl.worldmodel)
         Sys_Error ("R_RenderView: NULL worldmodel");
 
-    r_overdraw = false; // Manoel Kasimier - translucent water
+    r_overdraw = false;
     R_EdgeDrawing ();
+
     if (!r_dspeeds.value)
     {
         S_ExtraUpdate ();       // don't let sound get messed up if going slow
@@ -1654,10 +1671,10 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     if (r_dspeeds.value)
         dp_time2 = Sys_DoubleTime (); // draw particles time
 
-    // Manoel Kasimier - translucent water - begin
     r_overdraw = true;
-    R_EdgeDrawing ();
-    // Manoel Kasimier - translucent water - end
+   R_EdgeDrawing ();
+    r_overdraw = false;
+
 
     R_DrawViewModel (true); //qb: draw after particles.  it's worth the overdraw.
     R_DrawViewModel (false); // Manoel Kasimier

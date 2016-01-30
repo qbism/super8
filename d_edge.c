@@ -148,12 +148,14 @@ void D_CalcGradients (msurface_t *pface)
 D_DrawSurfaces
 ==============
 */
+
+surfcache_t		*pcurrentcache; // mankrip
 void D_DrawSurfaces (void)
 {
     surf_t			*s;
     espan_t			*pspans;
     msurface_t		*pface;
-    surfcache_t		*pcurrentcache;
+//    surfcache_t		*pcurrentcache;
     vec3_t			world_transformed_modelorg;
     vec3_t			local_modelorg;
 
@@ -199,17 +201,12 @@ void D_DrawSurfaces (void)
 
             if (s->flags & SURF_DRAWSKY)
             {
-                D_DrawSkyScans8 (pspans); // mankrip
+                D_DrawSkyScans8(pspans); // mankrip
                 D_DrawZSpans (pspans); // mankrip - edited
             }
 
-            else if (s->flags & SURF_DRAWBACKGROUND)
+            else if (s->flags & SURF_DRAWBACKGROUND && !r_overdraw)
             {
-                // mankrip - translucent water - begin
-                if (r_overdraw)
-                    continue;
-                // mankrip - translucent water - end
-
                 // set up a gradient for the background surface that places it
                 // effectively at infinity distance from the viewpoint
                 d_zistepu = 0;
@@ -219,7 +216,7 @@ void D_DrawSurfaces (void)
                 D_DrawSolidSurface (pspans, (int)r_clearcolor.value & 0xFF);
                 D_DrawZSpans (pspans); // mankrip - edited
             }
-            else if (s->flags & SURF_DRAWTRANSLUCENT)
+            else if (s->flags & SURF_DRAWTRANSLUCENT && r_overdraw)
             {
                 pface = s->data;
                 miplevel = 0;
@@ -258,6 +255,7 @@ void D_DrawSurfaces (void)
                     else D_DrawSpans16_Blend(pspans); //qb: catchall
                 }
 
+
                 if (s->insubmodel)
                 {
                     // restore the old drawing state
@@ -276,7 +274,7 @@ void D_DrawSurfaces (void)
             }
             // mankrip - skyboxes - begin
             // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
-            else if (s->flags & SURF_DRAWSKYBOX)
+            else if (s->flags & SURF_DRAWSKYBOX && !r_overdraw)
             {
                 extern byte	r_skypixels[6][1024*1024]; //qb: increased to 1024x1024
 
@@ -303,7 +301,6 @@ void D_DrawSurfaces (void)
                 d_zistepu = 0;
                 d_zistepv = 0;
                 d_ziorigin = -0.9;
-
                 D_DrawZSpans (pspans); // mankrip - edited
             }
             // Manoel Kasimier - skyboxes - end
@@ -331,7 +328,7 @@ void D_DrawSurfaces (void)
                     cachewidth = 64;
                     D_CalcGradients (pface);
                     Turbulent8 (pspans);
-                }
+                 }
                 else
                 {
                     miplevel = D_MipLevelForScale (s->nearzi * scale_for_mip * pface->texinfo->mipadjust);
@@ -340,8 +337,8 @@ void D_DrawSurfaces (void)
                     cachewidth = pcurrentcache->width;
                     D_CalcGradients (pface);
                     (*d_drawspans) (pspans);
+                    D_DrawZSpans (pspans);
                 }
-                D_DrawZSpans (pspans);
 
                 if (s->insubmodel)
                 {

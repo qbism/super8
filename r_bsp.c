@@ -347,9 +347,9 @@ void R_DrawSolidClippedSubmodelPolygons (model_t *pmodel, int alphamask)
         if (pmodel != cl.worldmodel)
         {
             if ((psurf->flags & SURF_DRAWTRANSLUCENT))
-                currententity->alphaspans = true;
+              currententity->alphaspans = true;
 
-            if (!r_overdraw && (alphaspans || psurf->flags & SURF_DRAWTRANSLUCENT))
+            if (!r_overdraw && currententity->alphaspans)
                 continue; //qb: kick out fence surfaces in this case
         }
         // find which side of the node we are on
@@ -440,9 +440,9 @@ void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags, int alphamask)
         if (pmodel != cl.worldmodel)
         {
             if ((psurf->flags & SURF_DRAWTRANSLUCENT))
-                currententity->alphaspans = true;
+              currententity->alphaspans = true;
 
-            if (!r_overdraw && (alphaspans || psurf->flags & SURF_DRAWTRANSLUCENT))
+            if (!r_overdraw && currententity->alphaspans)
                 continue; //qb: kick out fence surfaces in this case
         }
 
