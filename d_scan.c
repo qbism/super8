@@ -411,7 +411,7 @@ void Turbulent8 (espan_t *pspan)
             r_turb_t = r_turb_t & ((CYCLE<<16)-1);
 
             // Manoel Kasimier - translucent water - begin
-            if (r_overdraw)
+            if (1) //(r_overdraw)
             {
                 if (r_wateralpha.value <= 0.41) // 33%
                 {
