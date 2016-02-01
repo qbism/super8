@@ -1951,7 +1951,7 @@ void COM_InitFilesystem (void)
 // start up with GAMENAME by default (id1)
 //
     AddDir (true, basedir, gamedir, GAMENAME);
-    AddDir (true, basedir, gamedir, "super8"); //qb: put super8 junk in own dir
+//qb: no more!    AddDir (true, basedir, gamedir, "super8"); //qb: put super8 junk in own dir
 
 
     i = COM_CheckParm ("-game2");

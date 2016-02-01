@@ -194,55 +194,18 @@ void D_DrawSurfaces (void)
             d_zistepv = s->d_zistepv;
             d_ziorigin = s->d_ziorigin;
 
-  /*          if (s->flags & SURF_DRAWTURB) //  && !r_overdraw && !(s->flags |= SURF_DRAWTRANSLUCENT))
-			{
-				pface = s->data;
-				miplevel = 0;
-				cacheblock = (pixel_t *)
-						((byte *)pface->texinfo->texture +
-						pface->texinfo->texture->offsets[0]);
-				cachewidth = 64;
-				D_CalcGradients (pface);
-
-				if (s->insubmodel)
-				{
-					// FIXME: we don't want to do all this for every polygon!
-					// TODO: store once at start of frame
-					currententity = s->entity;	//FIXME: make this passed in to R_RotateBmodel ()
-					VectorSubtract (r_origin, currententity->origin, local_modelorg);
-					TransformVector (local_modelorg, transformed_modelorg);
-
-					R_RotateBmodel ();	// FIXME: don't mess with the frustum, make entity passed in
-				}
-
-				Turbulent8 (pspans); // mankrip
-
-				 if(!(s->flags & SURF_DRAWTRANSLUCENT))
-				 D_DrawZSpans (pspans);
-
-				if (s->insubmodel)
-				{
-					// restore the old drawing state
-					// FIXME: we don't want to do this every time!
-					// TODO: speed up
-					currententity = &cl_entities[0];
-					VectorCopy (world_transformed_modelorg,
-								transformed_modelorg);
-					VectorCopy (base_vpn, vpn);
-					VectorCopy (base_vup, vup);
-					VectorCopy (base_vright, vright);
-					VectorCopy (base_modelorg, modelorg);
-					R_TransformFrustum ();
-				}
-			}
-
-            else */ if (r_overdraw && !(s->flags & SURF_DRAWTRANSLUCENT))
-               continue;
+            if (s->flags & SURF_DRAWTRANSLUCENT)
+            {
+                if (!r_overdraw)
+                    continue;
+            }
+            else if (r_overdraw)
+                continue;
 
             // mankrip - skyboxes - begin
             // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 
-            else if (s->flags & SURF_DRAWSKY)
+            if (s->flags & SURF_DRAWSKY)
             {
                 D_DrawSkyScans8(pspans); // mankrip
                 D_DrawZSpans (pspans); // mankrip - edited
@@ -260,7 +223,7 @@ void D_DrawSurfaces (void)
                 D_DrawSolidSurface (pspans, (int)r_clearcolor.value & 0xFF);
                 D_DrawZSpans (pspans); // mankrip - edited
             }
-            else if (s->flags & SURF_DRAWTRANSLUCENT) // && !(s->flags & SURF_DRAWTURB))
+            else if (s->flags & SURF_DRAWTRANSLUCENT)
             {
                 pface = s->data;
                 miplevel = 0;
@@ -299,7 +262,6 @@ void D_DrawSurfaces (void)
                     else D_DrawSpans16_Blend(pspans); //qb: catchall
                 }
 
-
                 if (s->insubmodel)
                 {
                     // restore the old drawing state
@@ -317,7 +279,7 @@ void D_DrawSurfaces (void)
                 }
             }
 
- 			else if (s->flags & SURF_DRAWSKYBOX)
+            else if (s->flags & SURF_DRAWSKYBOX)
             {
                 extern byte	r_skypixels[6][1024*1024]; //qb: increased to 1024x1024
 
@@ -347,44 +309,44 @@ void D_DrawSurfaces (void)
                 D_DrawZSpans (pspans); // mankrip - edited
             }
             // Manoel Kasimier - skyboxes - end
- 			else if (!r_overdraw)
-			{
-				if (s->insubmodel)
-				{
-				// FIXME: we don't want to do all this for every polygon!
-				// TODO: store once at start of frame
-					currententity = s->entity;	//FIXME: make this passed in to
-												// R_RotateBmodel ()
-					VectorSubtract (r_origin, currententity->origin, local_modelorg);
-					TransformVector (local_modelorg, transformed_modelorg);
+            else if (!r_overdraw)
+            {
+                if (s->insubmodel)
+                {
+                    // FIXME: we don't want to do all this for every polygon!
+                    // TODO: store once at start of frame
+                    currententity = s->entity;	//FIXME: make this passed in to
+                    // R_RotateBmodel ()
+                    VectorSubtract (r_origin, currententity->origin, local_modelorg);
+                    TransformVector (local_modelorg, transformed_modelorg);
 
-					R_RotateBmodel ();	// FIXME: don't mess with the frustum,
-										// make entity passed in
-				}
+                    R_RotateBmodel ();	// FIXME: don't mess with the frustum,
+                    // make entity passed in
+                }
 
-				pface = s->data;
+                pface = s->data;
 
                 if (s->flags & SURF_DRAWTURB)
-				{
+                {
                     miplevel = 0;
                     cacheblock = (pixel_t *) ((byte *)pface->texinfo->texture + pface->texinfo->texture->offsets[0]);
                     cachewidth = 64;
                     D_CalcGradients (pface);
                     Turbulent8 (pspans);
-				}
-				else
-				{
+                }
+                else
+                {
                     miplevel = D_MipLevelForScale (s->nearzi * scale_for_mip * pface->texinfo->mipadjust);
                     pcurrentcache = D_CacheSurface (pface, miplevel);
                     cacheblock = (pixel_t *)pcurrentcache->data;
                     cachewidth = pcurrentcache->width;
                     D_CalcGradients (pface);
-					(*d_drawspans) (pspans);
-				}
+                    (*d_drawspans) (pspans);
+                }
                 D_DrawZSpans (pspans);
 
-				if (s->insubmodel)
-				{
+                if (s->insubmodel)
+                {
                     // restore the old drawing state
                     // FIXME: we don't want to do this every time!
                     // TODO: speed up

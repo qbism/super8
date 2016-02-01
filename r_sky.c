@@ -118,39 +118,16 @@ qboolean R_LoadSkybox (char *name)
             LoadTGA_as8bit (pathname, &pic, &width, &height);
             if (!pic)
             {
-                Con_Printf ("Couldn't load %s\n", pathname);
-#ifdef __linux__
-                snprintf (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); // Manoel Kasimier - edited
-#else
-                Q_snprintfz (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); //qb: Q_snprintfz
-
-#endif
-                LoadPCX (pathname, &pic, &width, &height);
-
-                if (!pic)
-                {
-                    Sys_Error ("Couldn't load sky, and\ncouldn't load default sky texture %s\n", pathname);  //qb: no sky = crash, so exit gracefully
-                    return false;
-                }
+                Con_Printf ("Couldn't find skybox %s\n", name);
+                return false;
             }
-        }
-        // Manoel Kasimier - hi-res skyboxes - begin
-        if (((width != 256) && (width != 512) && (width != 1024)) || ((height != 256) && (height != 512) && (height != 1024)))
-        {
-            free (pic);
-            Con_Printf ("width for %s must be 256, 512, or 1024\n", pathname);
-            Con_Printf ("Couldn't load %s\n", pathname);
-#ifdef __linux__
-            snprintf (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); // Manoel Kasimier - edited
-#else
-            Q_snprintfz (pathname, sizeof(pathname), "gfx/env/def_sky.pcx\0", skyname, suf[r_skysideimage[i]]); //qb: Q_snprintfz
 
-#endif
-            LoadPCX (pathname, &pic, &width, &height);
-
-            if (!pic)
+            // Manoel Kasimier - hi-res skyboxes - begin
+            if (((width != 256) && (width != 512) && (width != 1024)) || ((height != 256) && (height != 512) && (height != 1024)))
             {
-                Sys_Error ("Couldn't load sky, and\ncouldn't load default sky texture %s\n", pathname);  //qb: no sky = crash, so exit gracefully
+                free (pic);
+                Con_Printf ("width for skybox must be 256, 512, or 1024\n");
+                Con_Printf ("Couldn't load skybox %s\n", name);
                 return false;
             }
         }
@@ -246,35 +223,35 @@ update internal variables
 
 void Fog_Update (float density, float red, float green, float blue, float time)
 {
-	//save previous settings for fade
-	if (time > 0)
-	{
-		//check for a fade in progress
-		if (fade_done > cl.time)
-		{
-			float f;
+    //save previous settings for fade
+    if (time > 0)
+    {
+        //check for a fade in progress
+        if (fade_done > cl.time)
+        {
+            float f;
 
-			f = (fade_done - cl.time) / fade_time;
-			old_density = f * old_density + (1.0 - f) * fog_density;
-			old_red = f * old_red + (1.0 - f) * fog_red;
-			old_green = f * old_green + (1.0 - f) * fog_green;
-			old_blue = f * old_blue + (1.0 - f) * fog_blue;
-		}
-		else
-		{
-			old_density = fog_density;
-			old_red = fog_red;
-			old_green = fog_green;
-			old_blue = fog_blue;
-		}
-	}
+            f = (fade_done - cl.time) / fade_time;
+            old_density = f * old_density + (1.0 - f) * fog_density;
+            old_red = f * old_red + (1.0 - f) * fog_red;
+            old_green = f * old_green + (1.0 - f) * fog_green;
+            old_blue = f * old_blue + (1.0 - f) * fog_blue;
+        }
+        else
+        {
+            old_density = fog_density;
+            old_red = fog_red;
+            old_green = fog_green;
+            old_blue = fog_blue;
+        }
+    }
 
-	fog_density = density;
-	fog_red = red;
-	fog_green = green;
-	fog_blue = blue;
-	fade_time = time;
-	fade_done = cl.time + time;
+    fog_density = density;
+    fog_red = red;
+    fog_green = green;
+    fog_blue = blue;
+    fade_time = time;
+    fade_done = cl.time + time;
 }
 
 /*

@@ -585,15 +585,32 @@ void R_RenderFace (msurface_t *fa, int clipflags)
     if ((fa->flags & SURF_DRAWSKY) && r_drawskybox)
         return; //qb: Is there a cheap way to hide faces that are behind sky faces but facing view.  Crazy mappers!
 
-if (fa->flags & SURF_DRAWTRANSLUCENT)
+
+    if (fa->flags & SURF_DRAWTRANSLUCENT)
     {
         if (!r_overdraw)
             return;
     }
     else if (r_overdraw)
         return;
-//	}
-    // Manoel Kasimier - translucent water - end
+
+/*
+    if (currententity == &cl_entities[0])
+        if (currententity->alphaspans)
+        {
+            if (!r_overdraw)
+                return;
+        }
+        else if (fa->flags & SURF_DRAWTRANSLUCENT)
+        {
+            if (!r_overdraw)
+                return;
+        }
+
+        else if (r_overdraw)
+            if (currententity == &cl_entities[0])
+                return;
+*/
 
 // skip out if no more surfs
     if ((surface_p) >= surf_max)

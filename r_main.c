@@ -567,7 +567,7 @@ void GrabAlpha50map (void) //qb: 50% / 50% alpha
 
 void GrabFogmap (void) //qb: better fog blending from engoo
 {
-    int c,l, r,g,b;
+    int c,l, r,g,b, avg;
     byte *colmap;
     colmap = fogmap;
     for (l=0; l<256; l++)
@@ -578,9 +578,14 @@ void GrabFogmap (void) //qb: better fog blending from engoo
                 *colmap++ = 255;
             else
             {
-                r = host_basepal[c*3] + host_basepal[l*3];
-                g = host_basepal[c*3+1] + host_basepal[l*3+1];
-                b = host_basepal[c*3+2] + host_basepal[l*3+2];
+                r = host_basepal[l*3]* 0.25; //qb: overbright factor
+                g = host_basepal[l*3+1]* 0.25;
+                b = host_basepal[l*3+2]* 0.25;
+                avg = (r + g + b)/3;
+                r = host_basepal[c*3] *0.75 + r + avg; //qb: overbright factor
+                g = host_basepal[c*3+1] *0.75 + g + avg;
+                b = host_basepal[c*3+2] *0.75 + b + avg;
+
                 r = bound(0,r,254);
                 g = bound(0,g,254);
                 b = bound(0,b,254);
@@ -613,13 +618,13 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
                 rp=host_basepal[p*3];
                 gp=host_basepal[p*3+1];
                 bp=host_basepal[p*3+2];
-                flatten = max(rc*0.6+rp*0.9, max(gc*0.6+gp*0.9, bc*0.6+bp*0.9)) - 254;
+                flatten = max(rc*0.5+rp*0.5, max(gc*0.5+gp*0.5, bc*0.5+bp*0.5)) - 254;
                 if (flatten < 0)
                     flatten = 0;
 
-                r = bound(0,(rc*0.6+ rp*0.9)-flatten ,254);
-                g = bound(0,(gc*0.6+ gp*0.9)-flatten ,254);
-                b = bound(0,(bc*0.6+ bp*0.9)-flatten ,254);
+                r = bound(0,(rc*0.5+ rp*0.5)-flatten ,254);
+                g = bound(0,(gc*0.5+ gp*0.5)-flatten ,254);
+                b = bound(0,(bc*0.5+ bp*0.5)-flatten ,254);
 
                 *colmap++ = BestColor(r,g,b, 0, 223);
             }
@@ -1308,24 +1313,17 @@ sort entities by depth.
 */
 int R_DepthSortAliasEntities (const void *a, const void *b)
 {
-    static int   offset;
     entity_t   *enta = *((entity_t **) a);
     entity_t   *entb = *((entity_t **) b);
 
     // sort back to front
     if (enta->distance > entb->distance)
-    {
-        offset = 1;
-    }
-    else if (enta->distance < entb->distance)
-    {
-        offset = -1;
-    }
-    else
-    {
-        offset = 0;
-    }
-    return offset;
+        return 1;
+
+    if (enta->distance < entb->distance)
+        return -1;
+
+    return 0;
 }
 
 /*
@@ -1378,7 +1376,7 @@ R_DrawBEntitiesOnList
 =============
 */
 
-#define  BSPRESTART
+//#define  BSPRESTART
 
 void R_DrawBEntitiesOnList (void)
 {
@@ -1403,32 +1401,36 @@ void R_DrawBEntitiesOnList (void)
         clmodel = currententity->model;
         if(clmodel->type == mod_brush)
         {
-            psurf = &clmodel->surfaces[clmodel->firstmodelsurface];
-            //qb: transparent entities
-            if (r_overdraw  || !(currententity->alphaspans))
+            //psurf = &clmodel->surfaces[clmodel->firstmodelsurface];
+
+            //qb: overlaid transparent entities
+            if (r_overdraw  || !currententity->alphaspans)
             {
+
 #ifdef BSPRESTART
                 if (currententity->alphaspans && r_overdraw)
-                {
-                    edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
-                    surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
-                    if (auxedges)
-                        r_edges = auxedges;
-                    else
-                        r_edges =  (edge_t *)(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-
-                    if (r_surfsonstack)
+                    if (currententity != &cl_entities[0])
                     {
-                        surfaces =  (surf_t *)(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-                        surf_max = &surfaces[r_cnumsurfs];
-                        // surface 0 doesn't really exist; it's just a dummy because index 0
-                        // is used to indicate no edge attached to surface
-                        surfaces--;
+                        {
+                            restartbsp = true;
+                            edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
+                            surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
+                            if (auxedges)
+                                r_edges = auxedges;
+                            else
+                                r_edges =  (edge_t *)(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+
+                            if (r_surfsonstack)
+                            {
+                                surfaces =  (surf_t *)(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+                                surf_max = &surfaces[r_cnumsurfs];
+                                // surface 0 doesn't really exist; it's just a dummy because index 0
+                                // is used to indicate no edge attached to surface
+                                surfaces--;
+                            }
+                            R_BeginEdgeFrame ();
+                        }
                     }
-                    else
-                        restartbsp = true;
-                    R_BeginEdgeFrame ();
-                }
 #endif
                 // see if the bounding box lets us trivially reject, also sets
                 // trivial accept status
@@ -1458,8 +1460,6 @@ void R_DrawBEntitiesOnList (void)
                     // instanced model
                     if (clmodel->firstmodelsurface != 0)
                         R_PushDlights (clmodel->nodes + clmodel->hulls[0].firstclipnode); //qb: from MH
-                    else
-                        restartbsp = false;
 
                     r_pefragtopnode = NULL;
 
@@ -1515,7 +1515,7 @@ void R_DrawBEntitiesOnList (void)
                 }
 
 #ifdef BSPRESTART
-                if(restartbsp)
+                if(restartbsp && currententity != &cl_entities[0])
                 {
                     R_ScanEdges ();
                     restartbsp = false;
@@ -1527,7 +1527,9 @@ void R_DrawBEntitiesOnList (void)
 
     }
     insubmodel = false;
-    if(!restarted)
+#ifdef BSPRESTART
+    if(!restarted )
+#endif
         R_ScanEdges ();
 }
 
@@ -1639,6 +1641,7 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     r_overdraw = false;
     R_EdgeDrawing ();
 
+
     if (!r_dspeeds.value)
     {
         S_ExtraUpdate ();       // don't let sound get messed up if going slow
@@ -1672,7 +1675,6 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     r_overdraw = true;
     R_EdgeDrawing ();
     r_overdraw = false;
-
 
     R_DrawViewModel (true); //qb: draw after particles.  it's worth the overdraw.
     R_DrawViewModel (false); // Manoel Kasimier
