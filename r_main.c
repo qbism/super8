@@ -1385,15 +1385,11 @@ void R_DrawBEntitiesOnList (void)
     model_t             *clmodel;
     float               minmaxs[6];
     int        alphamask;
-    qboolean restartbsp, restarted;
+    qboolean restartbsp, restarted, worldent;
     msurface_t	*psurf;
-
-    if (!r_drawentities.value)
-        return;
 
     VectorCopy (modelorg, oldorigin);
     insubmodel = true;
-    restarted = false;
 
     for (i=0 ; i<cl_numvisedicts ; i++)
     {
@@ -1401,36 +1397,41 @@ void R_DrawBEntitiesOnList (void)
         clmodel = currententity->model;
         if(clmodel->type == mod_brush)
         {
-            //psurf = &clmodel->surfaces[clmodel->firstmodelsurface];
+            worldent = (currententity == &cl_entities[0]);
+
+            if (!r_drawentities.value && !worldent)
+                return;
 
             //qb: overlaid transparent entities
-            if (r_overdraw  || !currententity->alphaspans)
+            //  if (r_overdraw && currententity == &cl_entities[0])
+            //      currententity->alphaspans = true;
+            //  if (!r_overdraw && currententity == &cl_entities[0])
+            //      currententity->alphaspans = false;
+
+            if ((r_overdraw  || !currententity->alphaspans) || worldent)
             {
 
 #ifdef BSPRESTART
-                if (currententity->alphaspans && r_overdraw)
-                    if (currententity != &cl_entities[0])
-                    {
-                        {
-                            restartbsp = true;
-                            edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
-                            surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
-                            if (auxedges)
-                                r_edges = auxedges;
-                            else
-                                r_edges =  (edge_t *)(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+                if ((currententity->alphaspans || worldent) && r_overdraw)
+                {
+                    restartbsp = true;
+                    edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
+                    surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
+                    if (auxedges)
+                        r_edges = auxedges;
+                    else
+                        r_edges =  (edge_t *)(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
 
-                            if (r_surfsonstack)
-                            {
-                                surfaces =  (surf_t *)(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-                                surf_max = &surfaces[r_cnumsurfs];
-                                // surface 0 doesn't really exist; it's just a dummy because index 0
-                                // is used to indicate no edge attached to surface
-                                surfaces--;
-                            }
-                            R_BeginEdgeFrame ();
-                        }
+                    if (r_surfsonstack)
+                    {
+                        surfaces =  (surf_t *)(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+                        surf_max = &surfaces[r_cnumsurfs];
+                        // surface 0 doesn't really exist; it's just a dummy because index 0
+                        // is used to indicate no edge attached to surface
+                        surfaces--;
                     }
+                    R_BeginEdgeFrame ();
+                }
 #endif
                 // see if the bounding box lets us trivially reject, also sets
                 // trivial accept status
@@ -1461,43 +1462,48 @@ void R_DrawBEntitiesOnList (void)
                     if (clmodel->firstmodelsurface != 0)
                         R_PushDlights (clmodel->nodes + clmodel->hulls[0].firstclipnode); //qb: from MH
 
-                    r_pefragtopnode = NULL;
-
-                    for (j=0 ; j<3 ; j++)
+                    if (!worldent)
                     {
-                        r_emins[j] = minmaxs[j];
-                        r_emaxs[j] = minmaxs[3+j];
-                    }
+                        r_pefragtopnode = NULL;
 
-                    R_SplitEntityOnNode2 (cl.worldmodel->nodes);
-
-                    if (r_pefragtopnode)
-                    {
-                        currententity->topnode = r_pefragtopnode;
-
-                        //qbism- alpha mask surf flags of alpha entities.
-                        if (currententity->alpha == ENTALPHA_DEFAULT)
-                            alphamask = 0;
-                        else if (ENTALPHA_DECODE(currententity->alpha) < 0.43)
-                            alphamask = SURF_DRAWGLASS33;
-                        else if (ENTALPHA_DECODE(currententity->alpha) < 0.60)
-                            alphamask = SURF_DRAWGLASS50;
-                        else alphamask = SURF_DRAWGLASS66;
-
-                        if (r_pefragtopnode->contents >= 0)
+                        for (j=0 ; j<3 ; j++)
                         {
-                            // not a leaf; has to be clipped to the world BSP
-                            r_clipflags = clipflags;
-                            R_DrawSolidClippedSubmodelPolygons (clmodel,alphamask);
+                            r_emins[j] = minmaxs[j];
+                            r_emaxs[j] = minmaxs[3+j];
                         }
-                        else
+
+                        R_SplitEntityOnNode2 (cl.worldmodel->nodes);
+
+                        if (r_pefragtopnode)
                         {
-                            // falls entirely in one leaf, so we just put all the
-                            // edges in the edge list and let 1/z sorting handle
-                            // drawing order
-                            R_DrawSubmodelPolygons (clmodel, clipflags,alphamask);
+                            currententity->topnode = r_pefragtopnode;
+
+                            //qbism- alpha mask surf flags of alpha entities.
+
+                            if (currententity->alpha == ENTALPHA_DEFAULT)
+                                alphamask = 0;
+                            else if (ENTALPHA_DECODE(currententity->alpha) < 0.43)
+                                alphamask = SURF_DRAWGLASS33;
+                            else if (ENTALPHA_DECODE(currententity->alpha) < 0.60)
+                                alphamask = SURF_DRAWGLASS50;
+                            else alphamask = SURF_DRAWGLASS66;
+
+
+                            if (r_pefragtopnode->contents >= 0)
+                            {
+                                // not a leaf; has to be clipped to the world BSP
+                                r_clipflags = clipflags;
+                                R_DrawSolidClippedSubmodelPolygons (clmodel,alphamask);
+                            }
+                            else
+                            {
+                                // falls entirely in one leaf, so we just put all the
+                                // edges in the edge list and let 1/z sorting handle
+                                // drawing order
+                                R_DrawSubmodelPolygons (clmodel, clipflags,alphamask);
+                            }
+                            currententity->topnode = NULL;
                         }
-                        currententity->topnode = NULL;
                     }
 
                     // put back world rotation and frustum clipping
@@ -1509,13 +1515,13 @@ void R_DrawBEntitiesOnList (void)
                     VectorCopy (oldorigin, modelorg);
                     R_TransformFrustum ();
                 }
-                else
-                {
-                    restartbsp = false; //qb: fully clipped, reset
-                }
+                //    else
+                //    {
+                //        restartbsp = false; //qb: fully clipped, reset
+                //    }
 
 #ifdef BSPRESTART
-                if(restartbsp && currententity != &cl_entities[0])
+                if(restartbsp && r_overdraw)
                 {
                     R_ScanEdges ();
                     restartbsp = false;
@@ -1524,11 +1530,10 @@ void R_DrawBEntitiesOnList (void)
 #endif
             }
         }
-
     }
     insubmodel = false;
 #ifdef BSPRESTART
-    if(!restarted )
+    if (!r_overdraw)
 #endif
         R_ScanEdges ();
 }
