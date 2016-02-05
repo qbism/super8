@@ -17,12 +17,9 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "../quakedef.h"
 #include "winquake.h"
-#include <winuser.h>
 #include "../d_local.h"
 #include "resource.h"
 #include "../bgmusic.h"
-#include <ddraw.h>
-
 
 // true if the ddraw driver started up OK
 qboolean    vid_usingddraw = false;

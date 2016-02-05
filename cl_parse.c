@@ -406,7 +406,6 @@ void CL_ParseServerInfo (void)
     }
 
 // local state
-    cl_entities[0].alphaspans = true; //qb:  usually true for modern maps
     cl_entities[0].model = cl.worldmodel = cl.model_precache[1];
     vibration_update[0] = vibration_update[1] = false; // Manoel Kasimier
     LOC_LoadLocations ();	//qb: talk macro - Read a location file

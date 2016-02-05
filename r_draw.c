@@ -594,24 +594,6 @@ void R_RenderFace (msurface_t *fa, int clipflags)
     else if (r_overdraw)
         return;
 
-/*
-    if (currententity == &cl_entities[0])
-        if (currententity->alphaspans)
-        {
-            if (!r_overdraw)
-                return;
-        }
-        else if (fa->flags & SURF_DRAWTRANSLUCENT)
-        {
-            if (!r_overdraw)
-                return;
-        }
-
-        else if (r_overdraw)
-            if (currententity == &cl_entities[0])
-                return;
-*/
-
 // skip out if no more surfs
     if ((surface_p) >= surf_max)
     {

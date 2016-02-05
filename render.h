@@ -123,7 +123,7 @@ typedef struct entity_s
 	// Tomaz - QC Alpha Scale Glow End
 	float distance; //qb: from reckless, depth sorting
 	int lightpoint; //qb: remember lightpoint for blending
-	qboolean alphaspans; //qb: if the span is transparent
+	qboolean alphaspans; //qb: if the entity is transparent
 } entity_t;
 
 // !!! if this is changed, it must be changed in asm_draw.h too !!!
