@@ -1370,156 +1370,273 @@ void R_SortAliasEntities (void)
 }
 
 
+
+
+
+void R_DrawSolidEntity (model_t *clmodel)
+{
+    int             i, j, clipflags;
+    vec3_t          oldorigin;
+    float           minmaxs[6];
+    int             alphamask;
+
+    VectorCopy (modelorg, oldorigin);
+
+    // see if the bounding box lets us trivially reject, also sets
+    // trivial accept status
+    minmaxs[0  ] = currententity->origin[0] + clmodel->mins[0];
+    minmaxs[1  ] = currententity->origin[1] + clmodel->mins[1];
+    minmaxs[2  ] = currententity->origin[2] + clmodel->mins[2];
+    minmaxs[3+0] = currententity->origin[0] + clmodel->maxs[0];
+    minmaxs[3+1] = currententity->origin[1] + clmodel->maxs[1];
+    minmaxs[3+2] = currententity->origin[2] + clmodel->maxs[2];
+
+    clipflags = R_BmodelCheckBBox (clmodel, minmaxs);
+
+    if (clipflags != BMODEL_FULLY_CLIPPED || currententity == &cl_entities[0])
+    {
+        VectorCopy (currententity->origin, r_entorigin);
+        VectorSubtract (r_origin, r_entorigin, modelorg);
+        // FIXME: is this needed?
+        //      VectorCopy (modelorg, r_worldmodelorg); // Manoel Kasimier - removed
+
+        r_pcurrentvertbase = clmodel->vertexes;
+
+        // FIXME: stop transforming twice
+        R_RotateBmodel ();
+
+        // calculate dynamic lighting for bmodel if it's not an
+        // instanced model
+        if (clmodel->firstmodelsurface != 0)
+            R_PushDlights (clmodel->nodes + clmodel->hulls[0].firstclipnode); //qb: from MH
+
+        r_pefragtopnode = NULL;
+
+        for (j=0 ; j<3 ; j++)
+        {
+            r_emins[j] = minmaxs[j];
+            r_emaxs[j] = minmaxs[3+j];
+        }
+
+        R_SplitEntityOnNode2 (cl.worldmodel->nodes);
+
+        if (r_pefragtopnode)
+        {
+            currententity->topnode = r_pefragtopnode;
+
+            //qbism- alpha mask surf flags of alpha entities.
+            if (currententity->alpha == ENTALPHA_DEFAULT)
+                alphamask = 0;
+            else if (ENTALPHA_DECODE(currententity->alpha) < 0.43)
+                alphamask = SURF_DRAWGLASS33;
+            else if (ENTALPHA_DECODE(currententity->alpha) < 0.60)
+                alphamask = SURF_DRAWGLASS50;
+            else alphamask = SURF_DRAWGLASS66;
+
+
+            if (r_pefragtopnode->contents >= 0)
+            {
+                // not a leaf; has to be clipped to the world BSP
+                r_clipflags = clipflags;
+                R_DrawSolidClippedSubmodelPolygons (clmodel,alphamask);
+            }
+            else
+            {
+                // falls entirely in one leaf, so we just put all the
+                // edges in the edge list and let 1/z sorting handle
+                // drawing order
+                R_DrawSubmodelPolygons (clmodel, clipflags,alphamask);
+            }
+            currententity->topnode = NULL;
+        }
+
+        // put back world rotation and frustum clipping
+        // FIXME: R_RotateBmodel should just work off base_vxx
+        VectorCopy (base_vpn, vpn);
+        VectorCopy (base_vup, vup);
+        VectorCopy (base_vright, vright);
+        VectorCopy (oldorigin, modelorg);
+        R_TransformFrustum ();
+
+    }
+}
+
+
+void R_DrawBlendedEntity (model_t *clmodel)
+{
+    int             i, j, clipflags;
+    vec3_t          oldorigin;
+    float           minmaxs[6];
+    int             alphamask;
+
+    edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
+    surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
+    if (auxedges)
+        r_edges = auxedges;
+    else
+        r_edges =  (edge_t *)(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+
+    if (r_surfsonstack)
+    {
+        surfaces =  (surf_t *)(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+        surf_max = &surfaces[r_cnumsurfs];
+        // surface 0 doesn't really exist; it's just a dummy because index 0
+        // is used to indicate no edge attached to surface
+        surfaces--;
+    }
+    R_BeginEdgeFrame ();
+    VectorCopy (modelorg, oldorigin);
+    // see if the bounding box lets us trivially reject, also sets
+    // trivial accept status
+    minmaxs[0  ] = currententity->origin[0] + clmodel->mins[0];
+    minmaxs[1  ] = currententity->origin[1] + clmodel->mins[1];
+    minmaxs[2  ] = currententity->origin[2] + clmodel->mins[2];
+    minmaxs[3+0] = currententity->origin[0] + clmodel->maxs[0];
+    minmaxs[3+1] = currententity->origin[1] + clmodel->maxs[1];
+    minmaxs[3+2] = currententity->origin[2] + clmodel->maxs[2];
+
+    clipflags = R_BmodelCheckBBox (clmodel, minmaxs);
+
+    if (clipflags != BMODEL_FULLY_CLIPPED)
+    {
+        VectorCopy (currententity->origin, r_entorigin);
+        VectorSubtract (r_origin, r_entorigin, modelorg);
+        // FIXME: is this needed?
+        //      VectorCopy (modelorg, r_worldmodelorg); // Manoel Kasimier - removed
+
+        r_pcurrentvertbase = clmodel->vertexes;
+
+        // FIXME: stop transforming twice
+        R_RotateBmodel ();
+
+        // calculate dynamic lighting for bmodel if it's not an
+        // instanced model
+        if (clmodel->firstmodelsurface != 0)
+            R_PushDlights (clmodel->nodes + clmodel->hulls[0].firstclipnode); //qb: from MH
+
+        r_pefragtopnode = NULL;
+
+        for (j=0 ; j<3 ; j++)
+        {
+            r_emins[j] = minmaxs[j];
+            r_emaxs[j] = minmaxs[3+j];
+        }
+
+        R_SplitEntityOnNode2 (cl.worldmodel->nodes);
+
+        if (r_pefragtopnode)
+        {
+            currententity->topnode = r_pefragtopnode;
+
+            //qbism- alpha mask surf flags of alpha entities.
+            if (currententity->alpha == ENTALPHA_DEFAULT)
+                alphamask = 0;
+            else if (ENTALPHA_DECODE(currententity->alpha) < 0.43)
+                alphamask = SURF_DRAWGLASS33;
+            else if (ENTALPHA_DECODE(currententity->alpha) < 0.60)
+                alphamask = SURF_DRAWGLASS50;
+            else alphamask = SURF_DRAWGLASS66;
+
+
+            if (r_pefragtopnode->contents >= 0)
+            {
+                // not a leaf; has to be clipped to the world BSP
+                r_clipflags = clipflags;
+                R_DrawSolidClippedSubmodelPolygons (clmodel,alphamask);
+            }
+            else
+            {
+                // falls entirely in one leaf, so we just put all the
+                // edges in the edge list and let 1/z sorting handle
+                // drawing order
+                R_DrawSubmodelPolygons (clmodel, clipflags,alphamask);
+            }
+            currententity->topnode = NULL;
+        }
+        R_ScanEdges ();
+        // put back world rotation and frustum clipping
+        // FIXME: R_RotateBmodel should just work off base_vxx
+        VectorCopy (base_vpn, vpn);
+        VectorCopy (base_vup, vup);
+        VectorCopy (base_vright, vright);
+        VectorCopy (oldorigin, modelorg);
+        R_TransformFrustum ();
+    }
+}
+
+
+
 /*
 =============
 R_DrawBEntitiesOnList
 =============
 */
-
-//#define  BSPRESTART
-
-void R_DrawBEntitiesOnList (void)
+void R_DrawSolidEntitiesOnList (void)
 {
-    int             i, j, clipflags;
+    int             i;
     vec3_t          oldorigin;
     model_t         *clmodel;
-    float           minmaxs[6];
-    int             alphamask;
-    qboolean        restartbsp, worldent;
 
     VectorCopy (modelorg, oldorigin);
     insubmodel = true;
 
+//qb: don't do this, the world is a blended entity
+//    currententity = &cl_entities[0];
+//    clmodel = currententity->model;
+//    R_DrawSolidEntity(clmodel);
+
+    if (!r_drawentities.value )
+    {
+        insubmodel = false;
+        R_ScanEdges ();
+        return;
+    }
+
     for (i=0 ; i<cl_numvisedicts ; i++)
     {
         currententity = cl_visedicts[i];
+        if (currententity == &cl_entities[0])
+            continue;
         clmodel = currententity->model;
-        if(clmodel->type == mod_brush)
-        {
-            worldent = (currententity == &cl_entities[0]);
-
-            if (!r_drawentities.value && !worldent)
-                return;
-
-            if (r_overdraw  || !currententity->alphaspans)
-            {
-#ifdef BSPRESTART
-                if ((currententity->alphaspans || worldent) && r_overdraw)
-                {
-                    restartbsp = true;
-                    edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
-                    surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
-                    if (auxedges)
-                        r_edges = auxedges;
-                    else
-                        r_edges =  (edge_t *)(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-
-                    if (r_surfsonstack)
-                    {
-                        surfaces =  (surf_t *)(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-                        surf_max = &surfaces[r_cnumsurfs];
-                        // surface 0 doesn't really exist; it's just a dummy because index 0
-                        // is used to indicate no edge attached to surface
-                        surfaces--;
-                    }
-                    R_BeginEdgeFrame ();
-                }
-#endif
-
-                // see if the bounding box lets us trivially reject, also sets
-                // trivial accept status
-                for (j=0 ; j<3 ; j++)
-                {
-                    minmaxs[j] = currententity->origin[j] +
-                                 clmodel->mins[j];
-                    minmaxs[3+j] = currententity->origin[j] +
-                                   clmodel->maxs[j];
-                }
-
-                clipflags = R_BmodelCheckBBox (clmodel, minmaxs);
-
-                if (clipflags != BMODEL_FULLY_CLIPPED)
-                {
-                    VectorCopy (currententity->origin, r_entorigin);
-                    VectorSubtract (r_origin, r_entorigin, modelorg);
-                    // FIXME: is this needed?
-                    //      VectorCopy (modelorg, r_worldmodelorg); // Manoel Kasimier - removed
-
-                    r_pcurrentvertbase = clmodel->vertexes;
-
-                    // FIXME: stop transforming twice
-                    R_RotateBmodel ();
-
-                    // calculate dynamic lighting for bmodel if it's not an
-                    // instanced model
-                    if (clmodel->firstmodelsurface != 0)
-                        R_PushDlights (clmodel->nodes + clmodel->hulls[0].firstclipnode); //qb: from MH
-
-                    r_pefragtopnode = NULL;
-
-                    for (j=0 ; j<3 ; j++)
-                    {
-                        r_emins[j] = minmaxs[j];
-                        r_emaxs[j] = minmaxs[3+j];
-                    }
-
-                    R_SplitEntityOnNode2 (cl.worldmodel->nodes);
-
-                    if (r_pefragtopnode)
-                    {
-                        currententity->topnode = r_pefragtopnode;
-
-                        //qbism- alpha mask surf flags of alpha entities.
-                        if (currententity->alpha == ENTALPHA_DEFAULT)
-                            alphamask = 0;
-                        else if (ENTALPHA_DECODE(currententity->alpha) < 0.43)
-                            alphamask = SURF_DRAWGLASS33;
-                        else if (ENTALPHA_DECODE(currententity->alpha) < 0.60)
-                            alphamask = SURF_DRAWGLASS50;
-                        else alphamask = SURF_DRAWGLASS66;
-
-
-                        if (r_pefragtopnode->contents >= 0)
-                        {
-                            // not a leaf; has to be clipped to the world BSP
-                            r_clipflags = clipflags;
-                            R_DrawSolidClippedSubmodelPolygons (clmodel,alphamask);
-                        }
-                        else
-                        {
-                            // falls entirely in one leaf, so we just put all the
-                            // edges in the edge list and let 1/z sorting handle
-                            // drawing order
-                            R_DrawSubmodelPolygons (clmodel, clipflags,alphamask);
-                        }
-                        currententity->topnode = NULL;
-                    }
-
-                    // put back world rotation and frustum clipping
-                    // FIXME: R_RotateBmodel should just work off base_vxx
-                    VectorCopy (base_vpn, vpn);
-                    VectorCopy (base_vup, vup);
-                    VectorCopy (base_vright, vright);
-                    //VectorCopy (base_modelorg, modelorg);
-                    VectorCopy (oldorigin, modelorg);
-                    R_TransformFrustum ();
-                }
-
-#ifdef BSPRESTART
-                if(restartbsp && r_overdraw)
-                {
-                    R_ScanEdges ();
-                    restartbsp = false;
-                }
-#endif
-            }
-        }
+        if(clmodel->type == mod_brush && !currententity->alphaspans)
+            R_DrawSolidEntity(clmodel);
     }
     insubmodel = false;
-#ifdef BSPRESTART
-    if (!r_overdraw)
-#endif
-        R_ScanEdges ();
+    R_ScanEdges ();
+}
+
+
+void R_DrawBlendedEntitiesOnList (void)
+{
+    int             i;
+    vec3_t          oldorigin;
+    model_t         *clmodel;
+
+    VectorCopy (modelorg, oldorigin);
+    insubmodel = true;
+    currententity = &cl_entities[0];
+    clmodel = currententity->model;
+
+    R_DrawBlendedEntity(clmodel);
+
+    if (!r_drawentities.value )
+    {
+        insubmodel = false;
+        return;
+    }
+
+    for (i=0 ; i<cl_numvisedicts ; i++)
+    {
+        currententity = cl_visedicts[i];
+        if (currententity == &cl_entities[0])
+            continue;
+        clmodel = currententity->model;
+        if(clmodel->type == mod_brush && currententity->alphaspans)
+            R_DrawBlendedEntity(clmodel);
+    }
+
+    insubmodel = false;
+
 }
 
 
@@ -1530,21 +1647,24 @@ R_EdgeDrawing
 */
 void R_EdgeDrawing (void)
 {
-    edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
-    surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
-
-    r_edges = (auxedges) ? auxedges : (edge_t *) ( ( (long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-
-    if (r_surfsonstack)
+    if(!r_overdraw)
     {
-        surfaces = (surf_t *) ( ( (long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-        surf_max = &surfaces[r_cnumsurfs];
-        // surface 0 doesn't really exist; it's just a dummy because index 0
-        // is used to indicate no edge attached to surface
-        surfaces--;
-    }
+        edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
+        surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
 
+        r_edges = (auxedges) ? auxedges : (edge_t *) ( ( (long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+
+        if (r_surfsonstack)
+        {
+            surfaces = (surf_t *) ( ( (long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+            surf_max = &surfaces[r_cnumsurfs];
+            // surface 0 doesn't really exist; it's just a dummy because index 0
+            // is used to indicate no edge attached to surface
+            surfaces--;
+        }
+    }
     R_BeginEdgeFrame ();
+
 
     if (r_dspeeds.value)
     {
@@ -1559,19 +1679,10 @@ void R_EdgeDrawing (void)
         db_time1 = rw_time2;
     }
 
-    R_DrawBEntitiesOnList ();
-
-    if (r_dspeeds.value)
-    {
-        db_time2 = Sys_DoubleTime ();
-        se_time1 = db_time2;
-    }
-
-#ifdef BSPRESTART
-//   if (!r_overdraw)
-#endif // BSPRESTART
-
-    //      R_ScanEdges ();
+    if (r_overdraw)
+        R_DrawBlendedEntitiesOnList();
+    else
+        R_DrawSolidEntitiesOnList();
 }
 
 

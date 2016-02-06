@@ -25,8 +25,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #define	MAXVERTS	16					// max points in a surface polygon
 #define MAXWORKINGVERTS	(MAXVERTS+4)	// max points in an intermediate
 										//  polygon (while processing)
-#define	MAXHEIGHT		1080 //qb: was 1024.  Why not more?
-#define	MAXWIDTH		1920 //qb: was 1280
+#define	MAXHEIGHT		3840  //qb: 4k, was 1024.
+#define	MAXWIDTH		2160  //qb: 4k, was 1280
 #define MAXDIMENSION	((MAXHEIGHT > MAXWIDTH) ? MAXHEIGHT : MAXWIDTH)
 
 #define SIN_BUFFER_SIZE	(MAXDIMENSION+CYCLE)
