@@ -525,10 +525,8 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
     int		i, k, mark;
     float   normalize;
     int r, g, b;
-    //float wlout;
     byte	*out, *outv, *data;
-    //byte     *outvalue;
-    //byte *lout;
+
     char	litname[1024];
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
 
@@ -537,7 +535,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
         loadmodel->lightdata = NULL;
         return;
     }
-    loadmodel->lightdata = Hunk_AllocName ( l->filelen, "modlight");
+    loadmodel->lightdata = Hunk_AllocName ( l->filelen, "modlight" +999); //qb: need padding if recalc from lit
     memcpy (loadmodel->lightdata, mod_base + l->fileofs, l->filelen);
     if (cls.state != ca_dedicated)
     {
@@ -545,9 +543,10 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
         COM_StripExtension(loadmodel->name, litname);
         COM_DefaultExtension(litname, ".lit");    //qb: indexed colored
         fileinfo = COM_LoadFile(litname,0); //qb: don't load into hunk
-        if (fileinfo && ((l->filelen*3 +8) == fileinfo->filelen))
+        if (fileinfo && ((l->filelen*3 +999) == fileinfo->filelen))
         {
-            Con_DPrintf("%s loaded from %s\n", litname, fileinfo->path->pack ? fileinfo->path->pack->filename : fileinfo->path->filename);
+            Con_DPrintf("%s loaded from %s\n", litname,
+                        fileinfo->path->pack ? fileinfo->path->pack->filename : fileinfo->path->filename);
             mark = Hunk_LowMark();
             data = fileinfo->data;
             if (data[0] == 'Q' && data[1] == 'L' && data[2] == 'I' && data[3] == 'T')
@@ -555,11 +554,10 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                 i = LittleLong(((int *)data)[1]);
                 if (i == 1)
                 {
-                    loadmodel->colordata = Hunk_AllocName (l->filelen+4, "modcolor"); //qb: need some padding for dither
+                    loadmodel->colordata = Hunk_AllocName (l->filelen+999, "modcolor"); //qb: need some padding for dither
                     k=8;
                     out = loadmodel->colordata;
                     outv = loadmodel->lightdata; //qb: value. Recalc since sometimes lit is not equivalent
-                    //outvalue = loadmodel->lightdata;
                     while(k <= fileinfo->filelen)
                     {
                         r = data[k++];
@@ -567,9 +565,8 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                         b = data[k++];
                         normalize = sqrt(r*r + g*g + b*b)*2 +1.0;  //qb: factor for overbright compensation
                         *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
-                        *outv++ = (r+g+b)>>2;//CLAMP(0, normalize, 127);
+                        *outv++ = (r+g+b)/3;
                      }
-                    //  Q_free(fileinfo);
                     return;
                 }
                 else
@@ -582,8 +579,8 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                 Con_Printf("Corrupt .LIT file (old version?), ignoring\n");
         }
         //qb: no lit.  Still need something for colored dynamic lights.
-        loadmodel->colordata = Hunk_AllocName (l->filelen+3, "modcolor"); //qb: need some padding
-        memset (loadmodel->colordata, 1, l->filelen+3);  //qb: fill w/ color index
+        loadmodel->colordata = Hunk_AllocName (l->filelen+999, "modcolor"); //qb: need some padding
+        memset (loadmodel->colordata, 1, l->filelen+999);  //qb: fill w/ color index
     }
 }
 

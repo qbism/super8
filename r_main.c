@@ -1371,8 +1371,6 @@ void R_SortAliasEntities (void)
 
 
 
-
-
 void R_DrawSolidEntity (model_t *clmodel)
 {
     int             i, j, clipflags;
@@ -1393,7 +1391,7 @@ void R_DrawSolidEntity (model_t *clmodel)
 
     clipflags = R_BmodelCheckBBox (clmodel, minmaxs);
 
-    if (clipflags != BMODEL_FULLY_CLIPPED || currententity == &cl_entities[0])
+    if (clipflags != BMODEL_FULLY_CLIPPED)
     {
         VectorCopy (currententity->origin, r_entorigin);
         VectorSubtract (r_origin, r_entorigin, modelorg);
@@ -1469,22 +1467,6 @@ void R_DrawBlendedEntity (model_t *clmodel)
     float           minmaxs[6];
     int             alphamask;
 
-    edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
-    surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
-    if (auxedges)
-        r_edges = auxedges;
-    else
-        r_edges =  (edge_t *)(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-
-    if (r_surfsonstack)
-    {
-        surfaces =  (surf_t *)(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-        surf_max = &surfaces[r_cnumsurfs];
-        // surface 0 doesn't really exist; it's just a dummy because index 0
-        // is used to indicate no edge attached to surface
-        surfaces--;
-    }
-    R_BeginEdgeFrame ();
     VectorCopy (modelorg, oldorigin);
     // see if the bounding box lets us trivially reject, also sets
     // trivial accept status
@@ -1526,6 +1508,21 @@ void R_DrawBlendedEntity (model_t *clmodel)
 
         if (r_pefragtopnode)
         {
+            edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
+            surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
+            if (auxedges)
+                r_edges = auxedges;
+            else
+                r_edges =  (edge_t *)(((long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+
+            if (r_surfsonstack)
+            {
+                surfaces =  (surf_t *)(((long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+                surf_max = &surfaces[r_cnumsurfs];
+                surfaces--;
+            }
+            R_BeginEdgeFrame ();
+
             currententity->topnode = r_pefragtopnode;
 
             //qbism- alpha mask surf flags of alpha entities.
@@ -1552,8 +1549,9 @@ void R_DrawBlendedEntity (model_t *clmodel)
                 R_DrawSubmodelPolygons (clmodel, clipflags,alphamask);
             }
             currententity->topnode = NULL;
+            R_ScanEdges ();
         }
-        R_ScanEdges ();
+
         // put back world rotation and frustum clipping
         // FIXME: R_RotateBmodel should just work off base_vxx
         VectorCopy (base_vpn, vpn);
@@ -1568,7 +1566,7 @@ void R_DrawBlendedEntity (model_t *clmodel)
 
 /*
 =============
-R_DrawBEntitiesOnList
+R_DrawBEntitiesOnList //qb: broken into solid and blended
 =============
 */
 void R_DrawSolidEntitiesOnList (void)
@@ -1580,11 +1578,11 @@ void R_DrawSolidEntitiesOnList (void)
     VectorCopy (modelorg, oldorigin);
     insubmodel = true;
 
-//qb: don't do this, the world is a blended entity
-//    currententity = &cl_entities[0];
-//    clmodel = currententity->model;
-//    R_DrawSolidEntity(clmodel);
-
+    /* qb: todo:  if r_deconstructivist
+        currententity = &cl_entities[0];
+        clmodel = currententity->model;
+       R_DrawSolidEntity(clmodel);
+    */
     if (!r_drawentities.value )
     {
         insubmodel = false;
@@ -1595,14 +1593,13 @@ void R_DrawSolidEntitiesOnList (void)
     for (i=0 ; i<cl_numvisedicts ; i++)
     {
         currententity = cl_visedicts[i];
-        if (currententity == &cl_entities[0])
-            continue;
+        //     if (currententity == &cl_entities[0])
+        //         continue;
         clmodel = currententity->model;
         if(clmodel->type == mod_brush && !currententity->alphaspans)
             R_DrawSolidEntity(clmodel);
     }
     insubmodel = false;
-    R_ScanEdges ();
 }
 
 
@@ -1614,10 +1611,6 @@ void R_DrawBlendedEntitiesOnList (void)
 
     VectorCopy (modelorg, oldorigin);
     insubmodel = true;
-    currententity = &cl_entities[0];
-    clmodel = currententity->model;
-
-    R_DrawBlendedEntity(clmodel);
 
     if (!r_drawentities.value )
     {
@@ -1628,15 +1621,14 @@ void R_DrawBlendedEntitiesOnList (void)
     for (i=0 ; i<cl_numvisedicts ; i++)
     {
         currententity = cl_visedicts[i];
-        if (currententity == &cl_entities[0])
-            continue;
+        //     if (currententity == &cl_entities[0])
+        //        continue;
         clmodel = currententity->model;
         if(clmodel->type == mod_brush && currententity->alphaspans)
             R_DrawBlendedEntity(clmodel);
     }
 
     insubmodel = false;
-
 }
 
 
@@ -1647,22 +1639,20 @@ R_EdgeDrawing
 */
 void R_EdgeDrawing (void)
 {
-    if(!r_overdraw)
+    edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
+    surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
+
+    r_edges = (auxedges) ? auxedges : (edge_t *) ( ( (long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+
+    if (r_surfsonstack)
     {
-        edge_t	ledges[NUMSTACKEDGES	+ ((CACHE_SIZE - 1) / sizeof(edge_t)) + 1];
-        surf_t	lsurfs[NUMSTACKSURFACES	+ ((CACHE_SIZE - 1) / sizeof(surf_t)) + 1];
-
-        r_edges = (auxedges) ? auxedges : (edge_t *) ( ( (long)&ledges[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-
-        if (r_surfsonstack)
-        {
-            surfaces = (surf_t *) ( ( (long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
-            surf_max = &surfaces[r_cnumsurfs];
-            // surface 0 doesn't really exist; it's just a dummy because index 0
-            // is used to indicate no edge attached to surface
-            surfaces--;
-        }
+        surfaces = (surf_t *) ( ( (long)&lsurfs[0] + CACHE_SIZE - 1) & ~(CACHE_SIZE - 1));
+        surf_max = &surfaces[r_cnumsurfs];
+        // surface 0 doesn't really exist; it's just a dummy because index 0
+        // is used to indicate no edge attached to surface
+        surfaces--;
     }
+
     R_BeginEdgeFrame ();
 
 
@@ -1673,16 +1663,24 @@ void R_EdgeDrawing (void)
 
     R_RenderWorld ();
 
-    if (r_dspeeds.value)
+    if (!r_overdraw) // mankrip
     {
-        rw_time2 = Sys_DoubleTime ();
-        db_time1 = rw_time2;
-    }
+        if (r_dspeeds.value)
+        {
+            rw_time2 = Sys_DoubleTime ();
+            db_time1 = rw_time2;
+        }
 
-    if (r_overdraw)
-        R_DrawBlendedEntitiesOnList();
-    else
-        R_DrawSolidEntitiesOnList();
+        R_DrawSolidEntitiesOnList ();
+
+        if (r_dspeeds.value)
+        {
+            db_time2 = Sys_DoubleTime ();
+            se_time1 = db_time2;
+        }
+    }
+    // if(!r_overdraw)
+    R_ScanEdges ();
 }
 
 
@@ -1774,6 +1772,7 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
 
     r_overdraw = true;
     R_EdgeDrawing ();
+    R_DrawBlendedEntitiesOnList();
     r_overdraw = false;
 
     R_DrawViewModel (true); //qb: draw after particles.  it's worth the overdraw.

@@ -188,30 +188,30 @@ void D_DrawSurfaces (void)
             if (! (pspans = s->spans))
                 continue;
 
+  //          if (s->flags & SURF_DRAWTRANSLUCENT)
+  //          {
+  //              if (!r_overdraw)
+  //                  continue;
+ //           }
+ //           else if (r_overdraw)
+ //               continue;
+
             r_drawnpolycount++;
 
             d_zistepu = s->d_zistepu;
             d_zistepv = s->d_zistepv;
             d_ziorigin = s->d_ziorigin;
 
-            if (s->flags & SURF_DRAWTRANSLUCENT)
-            {
-                if (!r_overdraw)
-                    continue;
-            }
-            else if (r_overdraw)
-                continue;
-
             // mankrip - skyboxes - begin
             // Code taken from the ToChriS engine - Author: Vic (vic@quakesrc.org) (http://hkitchen.quakesrc.org/)
 
-            if (s->flags & SURF_DRAWSKY)
+            if (s->flags & SURF_DRAWSKY && !r_overdraw)
             {
                 D_DrawSkyScans8(pspans); // mankrip
                 D_DrawZSpans (pspans); // mankrip - edited
             }
 
-            else if (s->flags & SURF_DRAWBACKGROUND)
+            else if (s->flags & SURF_DRAWBACKGROUND && !r_overdraw)
             {
 
                 // set up a gradient for the background surface that places it
@@ -223,7 +223,7 @@ void D_DrawSurfaces (void)
                 D_DrawSolidSurface (pspans, (int)r_clearcolor.value & 0xFF);
                 D_DrawZSpans (pspans); // mankrip - edited
             }
-            else if (s->flags & SURF_DRAWTRANSLUCENT)
+            else if (s->flags & SURF_DRAWTRANSLUCENT && r_overdraw)
             {
                 pface = s->data;
                 miplevel = 0;
@@ -279,7 +279,7 @@ void D_DrawSurfaces (void)
                 }
             }
 
-            else if (s->flags & SURF_DRAWSKYBOX)
+            else if (s->flags & SURF_DRAWSKYBOX && !r_overdraw)
             {
                 extern byte	r_skypixels[6][1024*1024]; //qb: increased to 1024x1024
 
