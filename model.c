@@ -543,7 +543,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
         COM_StripExtension(loadmodel->name, litname);
         COM_DefaultExtension(litname, ".lit");    //qb: indexed colored
         fileinfo = COM_LoadFile(litname,0); //qb: don't load into hunk
-        if (fileinfo && ((l->filelen*3 +999) == fileinfo->filelen))
+        if (fileinfo && ((l->filelen*3 +8) == fileinfo->filelen))
         {
             Con_DPrintf("%s loaded from %s\n", litname,
                         fileinfo->path->pack ? fileinfo->path->pack->filename : fileinfo->path->filename);
@@ -565,7 +565,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                         b = data[k++];
                         normalize = sqrt(r*r + g*g + b*b)*2 +1.0;  //qb: factor for overbright compensation
                         *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
-                        *outv++ = CLAMP(0, normalize/2, 255);
+                        *outv++ = (r+b+g)/3;  //CLAMP(0, normalize, 127);
                      }
                     return;
                 }
