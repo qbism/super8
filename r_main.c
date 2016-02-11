@@ -618,13 +618,13 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
                 rp=host_basepal[p*3];
                 gp=host_basepal[p*3+1];
                 bp=host_basepal[p*3+2];
-                flatten = max(rc*0.4+rp*0.6, max(gc*0.4+gp*0.6, bc*0.4+bp*0.6)) - 254;
+                flatten = max(rc*0.3+rp*0.5, max(gc*0.3+gp*0.5, bc*0.3+bp*0.5)) - 254;
                 if (flatten < 0)
                     flatten = 0;
 
-                r = bound(0,(rc*0.4+ rp*0.6)-flatten ,254);
-                g = bound(0,(gc*0.4+ gp*0.6)-flatten ,254);
-                b = bound(0,(bc*0.4+ bp*0.6)-flatten ,254);
+                r = bound(0,(rc*0.3+ rp*0.5)-flatten ,254);
+                g = bound(0,(gc*0.3+ gp*0.5)-flatten ,254);
+                b = bound(0,(bc*0.3+ bp*0.5)-flatten ,254);
 
                 *colmap++ = BestColor(r,g,b, 0, 223);
             }

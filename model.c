@@ -525,7 +525,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
     int		i, k, mark;
     float   normalize;
     int r, g, b;
-    byte	*out, *outv, *data;
+    byte	*out, *data;
 
     char	litname[1024];
     loadedfile_t	*fileinfo;	// 2001-09-12 Returning information about loaded file by Maddes
@@ -557,7 +557,6 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                     loadmodel->colordata = Hunk_AllocName (l->filelen+999, "modcolor"); //qb: need some padding for dither
                     k=8;
                     out = loadmodel->colordata;
-                    outv = loadmodel->lightdata; //qb: value. Recalc since sometimes lit is not equivalent
                     while(k <= fileinfo->filelen)
                     {
                         r = data[k++];
@@ -565,7 +564,6 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                         b = data[k++];
                         normalize = sqrt(r*r + g*g + b*b)*2 +1.0;  //qb: factor for overbright compensation
                         *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
-                        *outv++ = (r+b+g)/3;  //CLAMP(0, normalize, 127);
                      }
                     return;
                 }
