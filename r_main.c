@@ -598,7 +598,7 @@ void GrabFogmap (void) //qb: better fog blending from engoo
 void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show through
 {
     int c,p, r,g,b;
-    float rc,gc,bc, rp,gp,bp, flatten;
+    float rc,gc,bc, rp,gp,bp;
     byte *colmap;
 
     colmap = lightcolormap;
@@ -618,13 +618,10 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
                 rp=host_basepal[p*3];
                 gp=host_basepal[p*3+1];
                 bp=host_basepal[p*3+2];
-                flatten = max(rc*0.3+rp*0.5, max(gc*0.3+gp*0.5, bc*0.3+bp*0.5)) - 254;
-                if (flatten < 0)
-                    flatten = 0;
 
-                r = bound(0,(rc*0.3+ rp*0.5)-flatten ,254);
-                g = bound(0,(gc*0.3+ gp*0.5)-flatten ,254);
-                b = bound(0,(bc*0.3+ bp*0.5)-flatten ,254);
+                r = bound(0,(rc*0.5+ rp*0.5)-flatten ,254);
+                g = bound(0,(gc*0.5+ gp*0.5)-flatten ,254);
+                b = bound(0,(bc*0.5+ bp*0.5)-flatten ,254);
 
                 *colmap++ = BestColor(r,g,b, 0, 223);
             }

@@ -55,6 +55,7 @@ cvar_t	saved1 = {"saved1", "0", "Used by progs.dat.", true};
 cvar_t	saved2 = {"saved2", "0", "Used by progs.dat.", true};
 cvar_t	saved3 = {"saved3", "0", "Used by progs.dat.", true};
 cvar_t	saved4 = {"saved4", "0", "Used by progs.dat.", true};
+cvar_t	temp1 = {"temp1", "0", "Added to improve QS compatibility.  Used by progs.dat.", true};
 
 #define	MAX_FIELD_LEN	64
 #define GEFV_CACHESIZE	2
@@ -1358,6 +1359,7 @@ void PR_Init (void)
     Cvar_RegisterVariable (&saved2);
     Cvar_RegisterVariable (&saved3);
     Cvar_RegisterVariable (&saved4);
+    Cvar_RegisterVariable (&temp1);
 // 2001-09-14 Enhanced BuiltIn Function System (EBFS) by Maddes  start
     Cvar_RegisterVariable (&pr_builtin_remap);
 // 2001-09-14 Enhanced BuiltIn Function System (EBFS) by Maddes  end
