@@ -860,9 +860,8 @@ void V_CalcRefdef (void)
 
         if (cl.maxclients <= 1) //qb: from johnfitz -- moved cheat-protection here from V_RenderView
             for (i=0 ; i<3 ; i++)
-                r_refdef.vieworg[i] += scr_ofsx.value*forward[i]
-                                       + scr_ofsy.value*right[i]
-                                       + (scr_ofsz.value + 0.5 - ((float)sb_lines * 0.01)) *up[i]; //qb: sbar_show_bg compensation
+                r_refdef.vieworg[i] += scr_ofsx.value*forward[i] + scr_ofsy.value*right[i] + scr_ofsz.value*up[i];
+
 
     V_BoundOffsets ();
 

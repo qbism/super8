@@ -366,6 +366,7 @@ cvar_t          vid_windowed_mode = {"vid_windowed_mode", "0", "vid_windowed_mod
 cvar_t          vid_window_x = {"vid_window_x", "0", "vid_window_x[value] Window placement on screen.", false}; //qb: was true
 cvar_t          vid_window_y = {"vid_window_y", "0", "vid_window_y[value] Window placement on screen.", false};
 cvar_t          vid_nativeaspect = {"vid_nativeaspect", "0.0", "vid_nativeaspect[0.0-value] Autodected if 0.0, otherwise set override.", true};
+//cvar_t          vid_stretch_by_2 = {"vid_stretch_by_2", "0", "vid_stretch[0/1] Toggle stretch for bigger pixels.", true};
 
 float       nativeaspect;
 float       calc_nativeaspect = 1.0;
@@ -395,6 +396,7 @@ typedef struct
     int                 modenum;
     int                 fullscreen;
     char                modedesc[20];
+    qboolean            stretched;
 } vmode_t;
 
 static vmode_t  modelist[MAX_MODE_LIST];
@@ -769,7 +771,21 @@ void VID_GetDisplayModes (void)
                         Con_Printf("mode %i   ", nummodes);
                         Cvar_SetValue("vid_fullscreen_mode", vid_default); //qb
                     }
+                    if (modelist[nummodes].width >= MIN_VID_WIDTH*2 && modelist[nummodes].height >= MIN_VID_HEIGHT*2)
+                    {
+                        nummodes++;
+                        modelist[nummodes].type = MS_FULLDIB;
+                        modelist[nummodes].width = devmode.dmPelsWidth/2;
+                        modelist[nummodes].height = devmode.dmPelsHeight/2;
+                        modelist[nummodes].modenum = 0;
+                        modelist[nummodes].fullscreen = 1;
+                        modelist[nummodes].stretched = true;
+                        sprintf (modelist[nummodes].modedesc, "%dx%dS ",
+                                 devmode.dmPelsWidth/2, devmode.dmPelsHeight/2);
+
+                    }
                     nummodes++;
+
                 }
             }
         }
@@ -908,8 +924,18 @@ qboolean VID_SetFullDIBMode (int modenum)
     VID_DestroyWindow ();
 
     gdevmode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT;
-    gdevmode.dmPelsWidth = modelist[modenum].width;
-    gdevmode.dmPelsHeight = modelist[modenum].height;
+
+    if(modelist[modenum].stretched)
+    {
+        gdevmode.dmPelsWidth = modelist[modenum].width*2;
+        gdevmode.dmPelsHeight = modelist[modenum].height*2;
+    }
+    else
+    {
+        gdevmode.dmPelsWidth = modelist[modenum].width;
+        gdevmode.dmPelsHeight = modelist[modenum].height;
+    }
+
     gdevmode.dmSize = sizeof (gdevmode);
 
     if (ChangeDisplaySettings (&gdevmode, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
@@ -919,9 +945,16 @@ qboolean VID_SetFullDIBMode (int modenum)
     vid_fulldib_on_focus_mode = modenum;
     WindowRect.top = WindowRect.left = 0;
 
-    WindowRect.right = modelist[modenum].width;
-    WindowRect.bottom = modelist[modenum].height;
-
+    if(modelist[modenum].stretched)
+    {
+        WindowRect.right = modelist[modenum].width*2;
+        WindowRect.bottom = modelist[modenum].height*2;
+    }
+    else
+    {
+        WindowRect.right = modelist[modenum].width;
+        WindowRect.bottom = modelist[modenum].height;
+    }
     DIBWidth = ((int)modelist[modenum].width /4) *4; //qb: multiple of 4
     DIBHeight = modelist[modenum].height;
 
@@ -1089,7 +1122,12 @@ int VID_SetMode (int modenum, byte *palette)
 
     // attempt to create a direct draw driver
     if (vid_ddraw.value)
-        VID_CreateDDrawDriver (DIBWidth, DIBHeight, palette, &vid.buffer, &vid.rowbytes);
+    {
+        if (modelist[modenum].stretched)
+            VID_CreateDDrawDriver (DIBWidth*2, DIBHeight*2, palette, &vid.buffer, &vid.rowbytes);
+        else
+            VID_CreateDDrawDriver (DIBWidth, DIBHeight, palette, &vid.buffer, &vid.rowbytes);
+    }
 
     // create a gdi driver if directdraw failed or if we preferred not to use it
     if (!vid_usingddraw)
@@ -1098,7 +1136,10 @@ int VID_SetMode (int modenum, byte *palette)
         VID_UnloadAllDrivers ();
 
         // now create the gdi driver
-        VID_CreateGDIDriver (DIBWidth, DIBHeight, palette);
+        if (modelist[modenum].stretched)
+            VID_CreateGDIDriver (DIBWidth*2, DIBHeight*2, palette);
+        else
+            VID_CreateGDIDriver (DIBWidth, DIBHeight, palette);
     }
 
     // if ddraw failed to come up we disable the cvar too
@@ -1274,6 +1315,7 @@ void VID_Init (byte *palette)
         Cvar_RegisterVariable (&vid_window_x);
         Cvar_RegisterVariable (&vid_window_y);
         Cvar_RegisterVariableWithCallback (&vid_nativeaspect, Vid_SetAspect);
+//       Cvar_RegisterVariable(&vid_stretch_by_2);
 
         Cmd_AddCommand ("vid_testmode", VID_TestMode_f);
         Cmd_AddCommand ("vid_nummodes", VID_NumModes_f);
@@ -1510,25 +1552,53 @@ void FlipScreen (vrect_t *rects)
                             pdst[30] = ddpal[psrc[30]];
                         }
                     }
+
+                    IDirectDrawSurface_Unlock (dd_BackBuffer, NULL);
+
+                    // correctly offset source
+                    sRect.left = SrcRect.left + rects->x;
+                    sRect.right = SrcRect.left + rects->x + rects->width;
+                    sRect.top = SrcRect.top + rects->y;
+                    sRect.bottom = SrcRect.top + rects->y + rects->height;
+
+                    // correctly offset dest
+                    if(modelist[vid_modenum].stretched)
+                    {
+                        dRect.left = DstRect.left + rects->x;
+                        dRect.right = DstRect.left + rects->x + rects->width*2;
+                        dRect.top = DstRect.top + rects->y;
+                        dRect.bottom = DstRect.top + rects->y + rects->height*2;
+                    }
+                    else
+                    {
+                        dRect.left = DstRect.left + rects->x;
+                        dRect.right = DstRect.left + rects->x + rects->width;
+                        dRect.top = DstRect.top + rects->y;
+                        dRect.bottom = DstRect.top + rects->y + rects->height;
+                    }
+
+                    // copy to front buffer
+                    IDirectDrawSurface_Blt (dd_FrontBuffer, &dRect, dd_BackBuffer, &sRect, 0, NULL);
                 }
-
-                IDirectDrawSurface_Unlock (dd_BackBuffer, NULL);
-
-                // correctly offset source
-                sRect.left = SrcRect.left + rects->x;
-                sRect.right = SrcRect.left + rects->x + rects->width;
-                sRect.top = SrcRect.top + rects->y;
-                sRect.bottom = SrcRect.top + rects->y + rects->height;
-
-                // correctly offset dest
-                dRect.left = DstRect.left + rects->x;
-                dRect.right = DstRect.left + rects->x + rects->width;
-                dRect.top = DstRect.top + rects->y;
-                dRect.bottom = DstRect.top + rects->y + rects->height;
-
-                // copy to front buffer
-                IDirectDrawSurface_Blt (dd_FrontBuffer, &dRect, dd_BackBuffer, &sRect, 0, NULL);
             }
+        }
+
+        else if (hdcDIBSection && modelist[vid_modenum].stretched)
+        {
+            StretchBlt
+            (
+                hdcGDI,
+                rects->x+(rects->width %4) /2,
+                rects->y,
+                rects->x + (int)(rects->width /2)*4,
+                rects->y + rects->height*2,
+                hdcDIBSection,
+                rects->x +(rects->width %4) /2,
+                rects->y,
+                rects->x + (int)(rects->width /4)*4,
+                rects->y + rects->height,
+                SRCCOPY
+            );
         }
         else if (hdcDIBSection)
         {

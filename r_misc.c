@@ -381,24 +381,12 @@ void R_SetupFrame (void)
 
     if ((r_dowarp != r_dowarpold) || r_viewchanged)
     {
-        if (r_dowarp)
-        {
             vrect.x = 0;
             vrect.y = 0;
             vrect.width = vid.width;
             vrect.height = vid.height;
 
             R_ViewChanged (&vrect, sb_lines);
-        }
-        else
-        {
-            vrect.x = 0;
-            vrect.y = 0;
-            vrect.width = vid.width;
-            vrect.height = vid.height;
-
-            R_ViewChanged (&vrect, sb_lines);
-        }
 
         r_viewchanged = false;
     }
