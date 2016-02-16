@@ -562,7 +562,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                         r = data[k++];
                         g = data[k++];
                         b = data[k++];
-                        normalize = sqrt(r*r + g*g + b*b)*2 +1.0;  //qb: factor for overbright compensation
+                        normalize = sqrt(r*r + g*g + b*b)*3 +1.0;  //qb: factor for overbright compensation
                         *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
                      }
                     return;

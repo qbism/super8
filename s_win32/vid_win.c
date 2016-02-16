@@ -613,29 +613,29 @@ void VID_InitModes (HINSTANCE hInstance)
         Sys_Error ("Couldn't register window class");
 
     modelist[0].type = MS_WINDOWED;
-    modelist[0].width = 854;
+    modelist[0].width = 640;
     modelist[0].height = 480;
-    strcpy (modelist[0].modedesc, "854x480");
+    strcpy (modelist[0].modedesc, "640x480");
     modelist[0].modenum = MODE_WINDOWED;
     modelist[0].fullscreen = 0;
 
     modelist[1].type = MS_WINDOWED;
     modelist[1].width = 1024;
-    modelist[1].height = 600;
-    strcpy (modelist[1].modedesc, "1024x600");
+    modelist[1].height = 768;
+    strcpy (modelist[1].modedesc, "1024x768");
     modelist[1].modenum = MODE_WINDOWED + 1;
     modelist[1].fullscreen = 0;
 
     modelist[2].type = MS_WINDOWED;
-    modelist[2].width = 1024; //qb:
-    modelist[2].height = 768;
-    strcpy (modelist[2].modedesc, "1024x768");
+    modelist[2].width = 1280; //qb:
+    modelist[2].height = 720;
+    strcpy (modelist[2].modedesc, "1280x720");
     modelist[2].modenum = MODE_WINDOWED + 2;
     modelist[2].fullscreen = 0;
 
     modelist[3].type = MS_WINDOWED;
-    modelist[3].width = 1280; //qb: custom, this is just the default.
-    modelist[3].height = 720;
+    modelist[3].width = 800; //qb: custom, this is just the default.
+    modelist[3].height = 600;
     strcpy (modelist[3].modedesc, "custom");
     modelist[3].modenum = MODE_WINDOWED + 3;
     modelist[3].fullscreen = 0;
@@ -859,7 +859,7 @@ qboolean VID_SetWindowedMode (int modenum)
                        );
 
         if (!hWndWinQuake)
-            Sys_Error ("Couldn't create DIB window");
+            Sys_Error ("Couldn't set DIB windowed mode");
 
         // compatibility
         mainwindow = hWndWinQuake;
@@ -881,7 +881,9 @@ qboolean VID_SetWindowedMode (int modenum)
                        SWP_NOCOPYBITS | SWP_NOZORDER |
                        SWP_HIDEWINDOW))
     {
-        Sys_Error ("Couldn't resize DIB window");
+        //qb: no need to crash
+        Con_Printf ("Couldn't size DIB to %ix%i windowed mode.\n", modelist[modenum].width, modelist[modenum].height);
+        return false;
     }
 
     if (hide_window)
@@ -973,7 +975,8 @@ qboolean VID_SetFullDIBMode (int modenum)
                        WindowRect.bottom - WindowRect.top,
                        SWP_NOCOPYBITS | SWP_NOZORDER))
     {
-        Sys_Error ("Couldn't resize DIB window");
+        Con_Printf ("Couldn't size DIB to %ix%i fullscreen mode.\n", modelist[modenum].width, modelist[modenum].height);
+        return false;
     }
 
     // position and show the DIB window
