@@ -20,6 +20,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 #include "r_local.h"
 #include "bgmusic.h"
 #ifdef _WIN32 //qb: jqavi
+#include "s_win32/winquake.h"
 #include "s_win32/movie_avi.h"
 #include "version.h"
 #include <windows.h>
@@ -294,6 +295,7 @@ void Host_WriteConfiguration (void)
 void WriteHelp(FILE *f)
 {
     cvar_t	*var;
+    int i;
     //cmd_function_t      *cmd;
 #ifdef WIN32
     SYSTEM_INFO siSysInfo;
@@ -373,19 +375,29 @@ void WriteHelp(FILE *f)
         fprintf(f, "AMD x64\n");
         break;
     default:
-       fprintf(f, "unknown\n");
+        fprintf(f, "unknown\n");
     }
-     fprintf(f, "  Processor revision: %u\n",
+    fprintf(f, "  Processor revision: %u\n",
             siSysInfo.wProcessorRevision);
-     fprintf(f, "  Number of processors: %u\n",
+    fprintf(f, "  Number of processors: %u\n",
             siSysInfo.dwNumberOfProcessors);
     fprintf(f, "  Page size: %u\n", siSysInfo.dwPageSize);
     fprintf(f, "  Processor type: %u\n\n", siSysInfo.dwProcessorType);
 #endif
     fprintf (f, ">>>>> graphics: \n");
-    fprintf (f, "  video mode: %s\n", vid_mode.string);
-    fprintf (f, "  resolution: %i x %i \n\n", vid.width, vid.height);
-
+    fprintf (f, "  current video mode: %s\n", vid_mode.string);
+    fprintf (f, "  available modes:\n");
+    for(i=0; i<nummodes; i++)
+        if (modelist[i].width)
+        {
+            fprintf (f, "  mode: %i   resolution: %i x %i", i, modelist[i].width, modelist[i].height);
+            if(modelist[i].type == MS_WINDOWED)
+                fprintf (f, " windowed");
+            if(modelist[i].stretched)
+                fprintf (f, " stretched");
+            fprintf (f, "\n");
+        }
+    fprintf (f, "\n");
     fprintf (f, ">>>>> cvars that are different from super8 defaults: \n");
     for (var = cvar_vars ; var ; var = var->next)
     {
@@ -400,21 +412,21 @@ void WriteHelp(FILE *f)
                 fprintf (f, "Saved in super8.cfg: no\n\n");
         }
     }
-/*
-    fprintf (f, "\n\n>>>>>>>>>>> ALL SUPER8 COMMANDS <<<<<<<<<<<<\n\n");
-    for (cmd = cmd_functions ; cmd ; cmd = cmd->next)
-    {
-        fprintf (f, "%-24s ", cmd->name);
-        if(cmd->next == NULL)
-            break;
-        cmd = cmd->next;
-        fprintf (f, "%-24s ", cmd->name);
-        if(cmd->next == NULL)
-            break;
-        cmd = cmd->next;
-        fprintf (f, "%-24s\n", cmd->name);
-    }
-*/
+    /*
+        fprintf (f, "\n\n>>>>>>>>>>> ALL SUPER8 COMMANDS <<<<<<<<<<<<\n\n");
+        for (cmd = cmd_functions ; cmd ; cmd = cmd->next)
+        {
+            fprintf (f, "%-24s ", cmd->name);
+            if(cmd->next == NULL)
+                break;
+            cmd = cmd->next;
+            fprintf (f, "%-24s ", cmd->name);
+            if(cmd->next == NULL)
+                break;
+            cmd = cmd->next;
+            fprintf (f, "%-24s\n", cmd->name);
+        }
+    */
 }
 
 
@@ -434,7 +446,7 @@ void Host_WriteDiagnostics (char *status)
         }
         fprintf (f, ">>>>>>>>>>> SUPER8 BUILD %s DIAGNOSTICS REPORT <<<<<<<<<<<<\n", BUILDVERSION);
         fprintf (f, "Time: "__TIME__" "__DATE__"\n\n");
-       fprintf (f, "Status: %s\n\n", status);
+        fprintf (f, "Status: %s\n\n", status);
         WriteHelp (f);
         fclose (f);
     }
@@ -455,7 +467,7 @@ void Host_WriteStatus (char *status)
             return;
         }
         fprintf (f, ">>>>>>>>>>> SUPER8 BUILD %s DEBUG STATUS <<<<<<<<<<<<\n", BUILDVERSION);
-       fprintf (f, "Status: %s\n\n", status);
+        fprintf (f, "Status: %s\n\n", status);
         fclose (f);
     }
 }
@@ -1069,7 +1081,7 @@ void Host_Init (quakeparms_t *parms)
     host_initialized = true;
 
     Sys_Printf ("========Quake Initialized=========\n");
- }
+}
 
 
 /*
@@ -1094,17 +1106,18 @@ void Host_Shutdown(char *status) //qb: pass status to diagnostic
     // keep Con_Printf from trying to update the screen
     scr_disabled_for_loading = true;
     Host_WriteConfiguration ();
-        if (con_initialized) History_Shutdown (); //qb: Baker/ezQuake- command history
+    Host_WriteDiagnostics (status); //qb: write info for status/ debugging
+    if (con_initialized)
+        History_Shutdown (); //qb: Baker/ezQuake- command history
     BGM_Shutdown(); //qb: QS
     CDAudio_Shutdown ();
     NET_Shutdown ();
     S_Shutdown();
     IN_Shutdown ();
-
     if (cls.state != ca_dedicated)
     {
         VID_Shutdown();
     }
-    Host_WriteDiagnostics (status); //qb: write info for status/ debugging
+
 }
 

@@ -325,7 +325,6 @@ cvar_t vid_ddraw = {"vid_ddraw", "0", "vid_ddraw[0/1] Toggle use direct draw.", 
 // compatibility
 qboolean                DDActive;
 
-#define MAX_MODE_LIST   40 //qb: this many will fit on menu, I think
 #define VID_ROW_SIZE    4   //qb: was 3
 #define VID_WINDOWED_MODES 4 //qb: last one is a custom mode
 
@@ -355,11 +354,11 @@ viddef_t        vid;                            // global video state
 #define MODE_FULLSCREEN_DEFAULT (MODE_WINDOWED + VID_WINDOWED_MODES) //qb: was 3
 
 // Note that 0 is MODE_WINDOWED
-cvar_t          vid_mode = {"vid_mode", "4", "vid_mode[value] Video mode.", true}; //qb: was false
+cvar_t          vid_mode = {"vid_mode", "2", "vid_mode[value] Video mode.", true}; //qb: was false
 cvar_t          vid_default_mode_win = {"vid_default_mode_win", "0", "vid_default_mode_win[value] Default windowed mode.", true};
 cvar_t          vid_wait = {"vid_wait", "1", "vid_wait[0/1] Toggle wait for vertical refresh.", true};
-cvar_t          vid_config_x = {"vid_config_x", "1280", "vid_config_x[value] Custom windowed mode width.", true};
-cvar_t          vid_config_y = {"vid_config_y", "720", "vid_config_y[value] Custom windowed mode height.", true};
+cvar_t          vid_config_x = {"vid_config_x", "800", "vid_config_x[value] Custom windowed mode width.", true};
+cvar_t          vid_config_y = {"vid_config_y", "600", "vid_config_y[value] Custom windowed mode height.", true};
 cvar_t          _windowed_mouse = {"_windowed_mouse", "1", "_windowed_mouse[0/1] Toggle allow mouse in windowed mode.", true};
 cvar_t          vid_fullscreen_mode = {"vid_fullscreen_mode", "4", "vid_fullscreen_mode[value]  Initial fullscreen mode.", true};
 cvar_t          vid_windowed_mode = {"vid_windowed_mode", "0", "vid_windowed_mode[value]  Initial windowed mode.", true};
@@ -388,19 +387,8 @@ unsigned        d_8to24table[256];
 
 int     mode;
 
-typedef struct
-{
-    modestate_t type;
-    int                 width;
-    int                 height;
-    int                 modenum;
-    int                 fullscreen;
-    char                modedesc[20];
-    qboolean            stretched;
-} vmode_t;
-
-static vmode_t  modelist[MAX_MODE_LIST];
-static int              nummodes = VID_WINDOWED_MODES;  // reserve space for windowed mode  //qb: was 3
+vmode_t  modelist[MAX_MODE_LIST];
+int              nummodes = VID_WINDOWED_MODES;  // reserve space for windowed mode  //qb: was 3
 
 //static vmode_t        *pcurrentmode;
 
@@ -707,12 +695,8 @@ VID_GetDisplayModes
 void VID_GetDisplayModes (void)
 {
     DEVMODE     devmode;
-    //int j, cmodes;
     int         i, modenum, existingmode, originalnummodes, lowestres;
     int     highestres; //qb: use this as basis for video aspect ratio
-    //int               numlowresmodes;
-    //int bpp, done;
-    //int               cstretch, istretch, mstretch;
     BOOL        stat;
 
     // enumerate > 8 bpp modes
@@ -771,7 +755,8 @@ void VID_GetDisplayModes (void)
                         Con_Printf("mode %i   ", nummodes);
                         Cvar_SetValue("vid_fullscreen_mode", vid_default); //qb
                     }
-                    if (modelist[nummodes].width >= MIN_VID_WIDTH*2 && modelist[nummodes].height >= MIN_VID_HEIGHT*2)
+                    if (modelist[nummodes].width >= MIN_VID_WIDTH*2 && modelist[nummodes].height >= MIN_VID_HEIGHT*2
+                        && (nummodes + 1 < MAX_MODE_LIST))
                     {
                         nummodes++;
                         modelist[nummodes].type = MS_FULLDIB;

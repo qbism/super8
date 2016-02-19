@@ -51,7 +51,21 @@ void	VID_UnlockBuffer (void);
 
 typedef enum {MS_WINDOWED, MS_FULLSCREEN, MS_FULLDIB, MS_UNINIT} modestate_t;
 
+typedef struct
+{
+    modestate_t type;
+    int                 width;
+    int                 height;
+    int                 modenum;
+    int                 fullscreen;
+    char                modedesc[20];
+    qboolean            stretched;
+} vmode_t;
+
+#define MAX_MODE_LIST   40 //qb: this many will fit on menu, I think
 extern modestate_t	modestate;
+extern vmode_t  modelist[MAX_MODE_LIST];
+extern int nummodes;
 
 extern HWND			mainwindow;
 extern int		ActiveApp, Minimized;

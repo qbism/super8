@@ -39,8 +39,7 @@ float  uwarpscale = 1.0f, vwarpscale = 1.0f;
 void R_InitTurb (void)
 {
     // mankrip - hi-res waterwarp - begin
-    extern cvar_t vid_mode;
-    float
+   float
     ideal_width, ideal_height
     ,   ustep
     ,   uoffset // horizontal offset for the phase
