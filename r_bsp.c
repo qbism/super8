@@ -467,6 +467,22 @@ void R_DrawSubmodelPolygons (model_t *pmodel, int clipflags, int alphamask)
 
 
 
+void Liquid_Think (qboolean underwater) //qb: autotrans from MarkV
+{
+	if (underwater) frame.has_underwater = true;
+	else frame.has_abovewater = true;
+
+	if (frame.has_underwater && frame.has_abovewater)
+	{
+		if (!frame.nearwaterportal && !r_novis.value && !r_novis.value)
+		{
+			Con_DPrintf ("AUTO WATER VIS:  Level is vised!\n");
+			level.water_vis_known = true;
+			level.water_vis = true;
+		}
+	}
+}
+
 
 /*
 ================
@@ -534,15 +550,17 @@ void R_RecursiveWorldNode (mnode_t *node, int clipflags)
         mark = pleaf->firstmarksurface;
         c = pleaf->nummarksurfaces;
 
-        if (c)
-        {
-            do
-            {
-                (*mark)->visframe = r_framecount;
-                mark++;
-            }
-            while (--c);
-        }
+		if (c)
+		{
+			for ( ; c ; c--, mark++)
+			{
+				if (!level.water_vis_known)
+					Liquid_Think ((*mark)->flags & SURF_UNDERWATER);
+
+				(*mark)->visframe = r_framecount;
+
+			}
+		}
 
         // deal with model fragments in this leaf
         if (pleaf->efrags)
@@ -587,44 +605,35 @@ void R_RecursiveWorldNode (mnode_t *node, int clipflags)
         // draw stuff
         c = node->numsurfaces;
 
-        if (c)
-        {
-            surf = cl.worldmodel->surfaces + node->firstsurface;
 
-            if (dot < -BACKFACE_EPSILON)
-            {
-                do
-                {
-                    if ((surf->flags & SURF_PLANEBACK) &&
-                            (surf->visframe == r_framecount))
-                    {
-                        R_RenderFace (surf, clipflags);
-                    }
+		if (c)  //qb: reworked from MarkV
+		{
+			surf = cl.worldmodel->surfaces + node->firstsurface;
 
-                    surf++;
-                }
-                while (--c);
-            }
-            else if (dot > BACKFACE_EPSILON)
-            {
-                do
-                {
-                    if (!(surf->flags & SURF_PLANEBACK) &&
-                            (surf->visframe == r_framecount))
-                    {
+			if (dot < 0 -BACKFACE_EPSILON)
+				side = SURF_PLANEBACK;
+			else if (dot > BACKFACE_EPSILON)
+				side = 0;
 
-                        R_RenderFace (surf, clipflags);
 
-                    }
+			for ( ; c ; c--, surf++)
+			{
+				if (surf->visframe != r_framecount)
+					continue;
 
-                    surf++;
-                }
-                while (--c);
-            }
+				if (( (dot < 0) ^ !!(surf->flags & SURF_PLANEBACK)))
+					continue; // wrong side
 
-            // all surfaces on the same node share the same sequence number
-            r_currentkey++;
-        }
+				if (!level.water_vis_known)
+					Liquid_Think (surf->flags & SURF_UNDERWATER);
+
+				R_RenderFace (surf, clipflags);
+
+			} // End of for
+
+			// all surfaces on the same node share the same sequence number
+			r_currentkey++;
+		} // End of if c
 
         // recurse down the back side
         R_RecursiveWorldNode (node->children[!side], clipflags);

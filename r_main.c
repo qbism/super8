@@ -57,6 +57,10 @@ int                     r_clipflags;
 
 int      sintable[SIN_BUFFER_SIZE];
 
+frame_render_t frame;  //qb: autotrans from MarkV
+level_info_t level;  //qb: autotrans from MarkV
+
+
 //qb: from engoo
 // COLOR Translation stuff
 // Came straight out of image.c of Quake2 tools
@@ -175,6 +179,7 @@ cvar_t  r_skyfog = {"r_skyfog","0.20", "r_skyfog[0.0 - 1.0] Fog density for sky.
 cvar_t  r_wateralpha = {"r_wateralpha","0.50", "r_wateralpha[0.0 - 1.0] Alpha of water surfaces.", true}; // Manoel Kasimier - translucent water
 cvar_t  r_shadowhack = {"r_shadowhack", "0", "r_shadowhack[0/1] Toggle use of darklights to fake entity shadows.", false};
 cvar_t  r_shadowhacksize = {"r_shadowhacksize", "2.7", "r_shadowhacksize[value] Radius factor of fake entity shadows.", true};
+cvar_t  r_novis = {"r_novis","0", "r_novis[0/1] Toggle underwater vis for any map, but reduces render speed.", false}; // Manoel Kasimier - translucent water
 
 //qb: particle cvars
 cvar_t  r_part_scale = {"r_part_scale", "1.0", "r_part_scale[value] Particle scale.", true};
@@ -314,6 +319,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_shadowhack); //qb: engoo shadowhack
     Cvar_RegisterVariable (&r_shadowhacksize); //qb
     Cvar_RegisterVariable (&r_nolerp_list); //qb: from FQ
+    Cvar_RegisterVariable (&r_novis); //qb: from MarkV
 
     //qb: ftestain cvars
     Cvar_RegisterVariable(&r_stains);
@@ -1027,7 +1033,7 @@ R_MarkLeaves
 */
 void R_MarkLeaves (void)
 {
-    byte        *vis;
+    byte        *vis, solid[16000];
     mnode_t     *node;
     int         i;
 
@@ -1037,7 +1043,40 @@ void R_MarkLeaves (void)
     r_visframecount++;
     r_oldviewleaf = r_viewleaf;
 
-    vis = Mod_LeafPVS (r_viewleaf, cl.worldmodel);
+     //qb: autotrans from MarkV
+    // Baker:
+    {
+        msurface_t **mark;
+        for (i = 0, mark = r_viewleaf->firstmarksurface; i < r_viewleaf->nummarksurfaces; i++, mark++)
+            if ((*mark)->flags & SURF_DRAWTRANSLUCENT)
+                frame.nearwaterportal = true; // Baker: frame vars are reset to false each frame
+    }
+	if (r_novis.value)
+	{
+		vis = solid;
+		memset (solid, 0xff, (cl.worldmodel->numleafs+7)>>3);
+	}
+	else
+	{
+		vis = Mod_LeafPVS (r_viewleaf, cl.worldmodel);
+	}
+
+    if (!frame.nearwaterportal && !level.ever_been_away_from_water_portal)
+        level.ever_been_away_from_water_portal = true;
+
+    if (frame.nearwaterportal && !level.water_vis_known)
+    {
+
+        // Baker: This is to avoid a spawn nearwaterportal situation confusing the detection which could be
+        // in theory caused by a save game happening to save in such a rare place.  This is an almost impossible
+        // scenario.
+        if (level.ever_been_away_from_water_portal)
+        {
+            Con_DPrintf ("AUTO WATER VIS:  Level is NOT vised!\n");
+            level.water_vis_known = true;
+            level.water_vis = false;
+        }
+    }
 
     for (i=0 ; i<cl.worldmodel->numleafs ; i++)
     {
@@ -1758,10 +1797,7 @@ void R_RenderView (void) //qb: so can just setup frame once, for fisheye and ste
     R_MarkLeaves ();    // done here so we know if we're in water
 #endif
 
-// make FDIV fast. This reduces timing precision after we've been running for a
-// while, so we don't do it globally.  This also sets chop mode, and we do it
-// here so that setup stuff like the refresh area calculations match what's
-// done in screen.c
+    R_SetLiquidAlpha (); //qb: autotrans from MarkV
 
     if (!cl_entities[0].model || !cl.worldmodel)
         Sys_Error ("R_RenderView: NULL worldmodel");

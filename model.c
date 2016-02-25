@@ -564,7 +564,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                         b = data[k++];
                         normalize = sqrt(r*r + g*g + b*b)*3 +1.0;  //qb: factor for overbright compensation
                         *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
-                     }
+                    }
                     return;
                 }
                 else
@@ -915,6 +915,7 @@ void Mod_FlagFaces ( msurface_t *out)
     if (!Q_strncmp(out->texinfo->texture->name,"sky",3))	// sky
     {
         out->flags |= (SURF_DRAWSKY | SURF_DRAWTILED);
+        level.sky = true;
         return;
     }
 
@@ -929,7 +930,10 @@ void Mod_FlagFaces ( msurface_t *out)
         // Manoel Kasimier - translucent water - begin
         if (Q_strncmp(out->texinfo->texture->name,"*lava",5)) // lava should be opaque
             //	if (Q_strncmp(out->texinfo->texture->name,"*teleport",9)) // teleport should be opaque
+        {
             out->flags |= SURF_DRAWTRANSLUCENT;
+            level.water = true;
+        }
         // Manoel Kasimier - translucent water - end
         out->flags |= (SURF_DRAWTURB | SURF_DRAWTILED);
         for (i=0 ; i<2 ; i++)

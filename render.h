@@ -158,6 +158,26 @@ typedef struct
 } refdef_t;
 
 
+typedef struct //qb: autotrans from MarkV
+{
+	qboolean oldwater;				// Doesn't apply to WinQuake, just GL and the Direct3D version forces to 1 every frame.
+	qboolean nearwaterportal; 		// GL + WinQuake
+	qboolean has_underwater; 		// GL + WinQuake
+	qboolean has_abovewater; 		// GL + WinQuake
+	qboolean has_sky; 				// Baker: Could work for WinQuake but not relevant.
+	qboolean has_mirror; 			// Baker: Would be real hard to make it work for WinQuake.
+
+// Baker: Direct3D wrapper doesn't have stencil, so will have to have the mirror some other way.
+// Baker: Will have to draw the sky the traditional way
+
+	float liquid_alpha; 		// WinQuake:  A per surface indicator of how much alpha to apply for current liquid texture.
+
+	float wateralpha; 			// GL + WinQuake, alpha for the frame
+	float slimealpha; 			// GL + WinQuake, alpha for the frame
+	float lavaalpha; 			// GL + WinQuake, alpha for the frame
+	float mirroralpha; 			// Baker: Don't see this working in WinQuake easily, unless I add a stencil buffer to WinQuake
+} frame_render_t;
+
 //
 // refresh
 //
@@ -169,19 +189,20 @@ extern vec3_t	r_origin, vpn, vright, vup;
 extern	struct texture_s	*r_notexture_mip;
 
 extern float fovscale; // Manoel Kasimier - FOV-based scaling
+extern frame_render_t frame; //qb: autotrans from MarkV
 
 void R_Init (void);
 void R_InitSin (void);
 void R_InitTextures (void);
 void R_InitEfrags (void);
 void R_RenderView (void);		//qb: do lerp once in fisheye // must set r_refdef first
-void R_ViewChanged (vrect_t *pvrect, int lineadj);
-								// called whenever r_refdef or vid change
+void R_ViewChanged (vrect_t *pvrect, int lineadj); // called whenever r_refdef or vid change
 void R_InitSky (struct texture_s *mt);	// called at level load
 void R_LoadSky (char *s); // Manoel Kasimier - skyboxes
 void LoadPCX (char *filename, byte **pic, int *width, int *height); // Manoel Kasimier - skyboxes
 void LoadTGA_as8bit (char *filename, byte **pic, int *width, int *height); // Manoel Kasimier //qb: MK 1.4
 
+void R_SetLiquidAlpha (void); //qb: autotrans from MarkV
 
 void R_AddEfrags (entity_t *ent);
 void R_RemoveEfrags (entity_t *ent);

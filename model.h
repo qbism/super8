@@ -78,6 +78,7 @@ Alias models are position independent, so the cache manager can move them.
 #define SURF_DRAWGLASS50	0x800   //qb: glass (non-turbulent transparent)
 #define SURF_DRAWGLASS66	0x1000   //qb: glass (non-turbulent transparent)
 #define SURF_NOTEXTURE  	0x2000   //qb: from FQ
+#define SURF_UNDERWATER		0x4000   //qb: autotrans from MarkV
 
 /*
 ==============================================================================
@@ -700,6 +701,29 @@ typedef struct
 } msprite_t;
 
 //============================================================================
+
+
+typedef struct //qb: autotrans from MarkV
+{
+// Baker: Server doesn't bother to read these.  WinQuake client doesn't bother to read fog key.
+	char		sky_key[MAX_QPATH];
+	char		fog_key[MAX_QPATH];
+
+// The following are definitely known by client/server immediately because they occur in model load.
+	qboolean	water;
+	qboolean	lava;
+	qboolean	slime;
+	qboolean	teleporter;
+	qboolean	sky;
+
+// The following are not immediately known.  Although could probably have loader cross these off if no liquid textures.
+	qboolean	ever_been_away_from_water_portal;
+	qboolean	water_vis_known;
+	qboolean	water_vis;
+
+} level_info_t;
+
+extern level_info_t level;
 
 void	Mod_Init (void);
 void	Mod_ClearAll (void);

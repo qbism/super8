@@ -75,6 +75,7 @@ extern cvar_t	r_skyalpha; // Manoel Kasimier - translucent sky
 //extern cvar_t	sw_stipplealpha; // Manoel Kasimier
 //extern cvar_t	r_sprite_addblend; // Manoel Kasimier
 extern cvar_t   r_nolerp_list; //qb: //from FQ
+extern cvar_t   r_novis; //qb: implementation from MarkV
 
 extern cvar_t	r_coloredlights; //qb: at last!
 extern cvar_t	r_clcolorweight;

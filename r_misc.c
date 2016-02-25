@@ -73,6 +73,34 @@ void R_TimeRefresh_f (void)
     r_refdef.viewangles[1] = startangle;
 }
 
+void R_SetLiquidAlpha (void) //qb: autotrans from MarkV, thanks to Baker
+{
+	if (!level.water_vis_known && frame.has_abovewater && frame.has_underwater)
+	{
+		// Baker: Don't let this scenario lock us into a false reading.
+		// Although this would be an extremely hard scenario to generate, would take an incredibly well placed saved game
+		// and I tried hard to stand somewhere a save game cause this problem and couldn't despite my best efforts.
+
+		if (!frame.nearwaterportal && !r_novis.value)
+		{
+			Con_DPrintf ("AUTO WATER VIS:  Level is vised!\n");
+			level.water_vis_known = true;
+			level.water_vis = true;
+		}
+	}
+
+    if (level.water_vis_known && level.water_vis)			frame.liquid_alpha = true;  // Known to be watervised
+	else if (level.water_vis_known && !level.water_vis)			frame.liquid_alpha = false; // Known to be not watervised
+	else if (frame.has_abovewater && frame.has_underwater)		frame.liquid_alpha = true;	// Weird situation almost impossible
+	else														frame.liquid_alpha = false;	 // Vis not known yet, but no water brushes in scene
+
+	if (frame.liquid_alpha)
+	{
+		frame.wateralpha	= CLAMP(0, r_wateralpha.value, 1.0);
+	} else frame.wateralpha = 1;
+}
+
+
 
 /*
 ================
