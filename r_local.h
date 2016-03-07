@@ -78,7 +78,7 @@ extern cvar_t   r_nolerp_list; //qb: //from FQ
 extern cvar_t   r_novis; //qb: implementation from MarkV
 
 extern cvar_t	r_coloredlights; //qb: at last!
-extern cvar_t	r_clcolorweight;
+extern cvar_t  r_saturation;
 
 extern cvar_t   r_fog; //qb: fog!  not TOO bad...
 extern int      r_fviews; //qb: number of fisheye views

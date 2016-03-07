@@ -157,7 +157,7 @@ cvar_t  r_nolerp_list = {"r_nolerp_list", "progs/flame.mdl,progs/flame2.mdl,prog
                          "r_nolerp_list[models] Do not smooth animation for these models."
                         };
 
-
+cvar_t  r_saturation = {"r_saturation", "0.5", "r_saturation[0.0 to 1.0] colored light saturation.", true}; //qb:
 cvar_t  r_coloredlights = {"r_coloredlights", "1", "r_coloredlights[0/1] Toggle use of colored lighting.", true}; //qb:
 cvar_t r_fog = {"r_fog", "1", "r_fog[0/1] Toggle rendering of fog.", true}; //qb:  draw fog?
 
@@ -287,6 +287,7 @@ void R_Init (void)
     Cvar_RegisterVariable (&r_graphheight);
     Cvar_RegisterVariable (&r_drawflat);
     Cvar_RegisterVariable (&r_ambient);
+    Cvar_RegisterVariable (&r_saturation); //qb:
     Cvar_RegisterVariable (&r_coloredlights); //qb:
     Cvar_RegisterVariable (&r_fog); //qb:
 

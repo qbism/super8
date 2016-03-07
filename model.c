@@ -523,7 +523,7 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
 {
     //int j;
     int		i, k, mark;
-    float   normalize;
+    float   normalize, satpow;
     int r, g, b;
     byte	*out, *data;
 
@@ -557,13 +557,15 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                     loadmodel->colordata = Hunk_AllocName (l->filelen+999, "modcolor"); //qb: need some padding for dither
                     k=8;
                     out = loadmodel->colordata;
+                    r_saturation.value = bound (0, r_saturation.value, 1.0);
+                    satpow = 1.5 + 1.25 * r_saturation.value;
                     while(k <= fileinfo->filelen)
                     {
                         r = data[k++];
                         g = data[k++];
                         b = data[k++];
-                        normalize = sqrt(r*r + g*g + b*b)*3 +1.0;  //qb: factor for overbright compensation
-                        *out++ = BestColor(r*r/normalize, g*g/normalize, b*b/normalize,0,254);
+                        normalize = sqrt(pow(r,satpow) + pow(g,satpow) + pow(b,satpow))*pow(satpow,1.6) *1.5 + 1.0;  //qb: factor for overbright compensation
+                        *out++ = BestColor(pow(r,satpow)/normalize, pow(g,satpow)/normalize, pow(b,satpow)/normalize,0,254);
                     }
                     return;
                 }

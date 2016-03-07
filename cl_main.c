@@ -312,14 +312,14 @@ void CL_EstablishConnection (char *host)
     CL_Disconnect ();
 
     cls.netcon = NET_Connect (host);
-    if (!cls.netcon)
-        Host_Error ("CL_Connect: connect failed\n");
-    Con_DPrintf ("CL_EstablishConnection: connected to %s\n", host);
+	if (!cls.netcon)
+		Host_Error ("CL_Connect: connect failed\n");
+	Con_DPrintf ("CL_EstablishConnection: connected to %s\n", host);
 
-    cls.demonum = -1;			// not in the demo loop now
-    cls.state = ca_connected;
-    cls.signon = 0;				// need all the signon messages before playing
-    MSG_WriteByte (&cls.message, clc_nop); // ProQuake NAT Fix  //qb: thx to Baker
+	cls.demonum = -1;			// not in the demo loop now
+	cls.state = ca_connected;
+	cls.signon = 0;				// need all the signon messages before playing
+	MSG_WriteByte (&cls.message, clc_nop);	// ProQuake NAT Fix  //qb: thx to Baker
 }
 
 /*
