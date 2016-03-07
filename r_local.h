@@ -328,6 +328,7 @@ void GrabAlphamap (void); //qb: color lookup tables
 void GrabAlpha50map (void);  //qb:
 void GrabAdditivemap (void); //qb:
 void GrabColormap (void); //qb:
+void GrabFencemap (void); //qb:
 void V_BonusFlash_f (void);  //qb: add prototype to appease Cygwin (swc compiling)
 
 

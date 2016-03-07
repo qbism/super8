@@ -6,7 +6,7 @@
 		<Option makefile="MAKEFILE" />
 		<Option execution_dir="C:/qbismSuper8/qbS8src/s_win32/" />
 		<Option pch_mode="2" />
-		<Option compiler="mingw32" />
+		<Option compiler="mingw_32" />
 		<Build>
 			<Target title="Debug Win32">
 				<Option platforms="Windows;" />
@@ -14,7 +14,7 @@
 				<Option working_dir="../../quake" />
 				<Option object_output="s_win32/Debug" />
 				<Option type="0" />
-				<Option compiler="mingw32" />
+				<Option compiler="mingw_32" />
 				<Option parameters=" -heapsize 64000 -map start" />
 				<Compiler>
 					<Add option="-g" />
@@ -74,7 +74,7 @@
 				<Option working_dir="../../quake" />
 				<Option object_output="s_win32/Release_nomusic" />
 				<Option type="0" />
-				<Option compiler="mingw32" />
+				<Option compiler="mingw_32" />
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-fomit-frame-pointer" />
@@ -97,7 +97,7 @@
 				<Option working_dir="../../quake/" />
 				<Option object_output="s_win32/Release_watcom" />
 				<Option type="0" />
-				<Option compiler="mingw32" />
+				<Option compiler="mingw_32" />
 				<Option projectLibDirsRelation="1" />
 				<Compiler>
 					<Add option="-bw" />

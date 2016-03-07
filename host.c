@@ -180,7 +180,7 @@ void	Host_FindMaxClients (void)
             svs.maxclients = Q_atoi (com_argv[i+1]);
         }
         else
-            svs.maxclients = 16;  //qb: was 8
+            svs.maxclients = 8;
     }
     else
         cls.state = ca_disconnected;
@@ -193,16 +193,16 @@ void	Host_FindMaxClients (void)
         if (i != (com_argc - 1))
             svs.maxclients = Q_atoi (com_argv[i+1]);
         else
-            svs.maxclients = 16;  //qb: was 8
+            svs.maxclients = 8;
     }
     if (svs.maxclients < 1)
-        svs.maxclients = 16;  //qb: was 8
+        svs.maxclients = 8;
     else if (svs.maxclients > MAX_SCOREBOARD)
         svs.maxclients = MAX_SCOREBOARD;
 
     svs.maxclientslimit = svs.maxclients;
     if (svs.maxclientslimit < 4)
-        svs.maxclientslimit = 16;  //qb: was 4
+        svs.maxclientslimit = 4;
     svs.clients = Hunk_AllocName (svs.maxclientslimit*sizeof(client_t), "clients");
 
     if (svs.maxclients > 1)
@@ -1108,9 +1108,12 @@ void Host_Shutdown(char *status) //qb: pass status to diagnostic
     Host_WriteConfiguration ();
     Host_WriteDiagnostics (status); //qb: write info for status/ debugging
     if (con_initialized)
-        History_Shutdown (); //qb: Baker/ezQuake- command history
+     if (cls.state != ca_dedicated)
+    {
+               History_Shutdown (); //qb: Baker/ezQuake- command history
     BGM_Shutdown(); //qb: QS
     CDAudio_Shutdown ();
+    }
     NET_Shutdown ();
     S_Shutdown();
     IN_Shutdown ();

@@ -72,7 +72,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define	ON_EPSILON		0.1			// point on plane side epsilon
 
 #define	MAX_MSGLEN		65000 //qb: 65535 Super8 max, 65535 per qsb - was 8000		// max length of a reliable message
-#define	MAX_DATAGRAM	65000 //qb: 65535 Super8 max - was 1024		// max length of unreliable message
+#define	MAX_DATAGRAM	65000 //qb: 65535- header size = Super8 max - was 1024		// max length of unreliable message
 #define	DATAGRAM_MTU	1440 //qb:  max 1448 for multiplayer, assumes wifi.  johnfitz -- if client is nonlocal
 
 //

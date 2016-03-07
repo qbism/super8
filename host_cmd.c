@@ -50,7 +50,7 @@ void Host_Quit_f (void)
     CL_Disconnect ();
     Host_ShutdownServer(false);
     // Manoel Kasimier - begin
-
+    if (cls.state != ca_dedicated) //qb: can't do for ded serv
     {
         vrect_t vrect;
         vrect.pnext = NULL;
@@ -410,46 +410,46 @@ void Host_Changelevel_f (void)
     // Manoel Kasimier - map transition lists - begin
 
 
-        if (pr_global_struct->deathmatch)
-            f = fopen (va("%s/maps/maps_dm.txt", com_gamedir), "r");
-        else
-            f = fopen (va("%s/maps/maps_sp.txt", com_gamedir), "r");
-        if (f)
+    if (pr_global_struct->deathmatch)
+        f = fopen (va("%s/maps/maps_dm.txt", com_gamedir), "r");
+    else
+        f = fopen (va("%s/maps/maps_sp.txt", com_gamedir), "r");
+    if (f)
+    {
+        while (!feof(f))
         {
-            while (!feof(f))
+            for (i=0 ; true ; i++)
             {
-                for (i=0 ; true ; i++)
-                {
-                    r = fgetc (f);
-                    if (r == EOF || !r || r == '\n')
-                        break;
-                    if (i >= sizeof(str)-1) // end of string
-                        continue;
-                    if (i > 0)
-                        if (str[i-1] == '/' && r == '/') // start of comment
-                            str[i-1] = 0;
-                    str[i] = r;
-                }
-                str[i] = 0;
-                Cmd_TokenizeString(str);
-                if (Cmd_Argc() < 3)
+                r = fgetc (f);
+                if (r == EOF || !r || r == '\n')
+                    break;
+                if (i >= sizeof(str)-1) // end of string
                     continue;
-                if (!Q_strcmp(Cmd_Argv(0), sv.name))
+                if (i > 0)
+                    if (str[i-1] == '/' && r == '/') // start of comment
+                        str[i-1] = 0;
+                str[i] = r;
+            }
+            str[i] = 0;
+            Cmd_TokenizeString(str);
+            if (Cmd_Argc() < 3)
+                continue;
+            if (!Q_strcmp(Cmd_Argv(0), sv.name))
+            {
+                if (!Q_strcmp(Cmd_Argv(1), level))
                 {
-                    if (!Q_strcmp(Cmd_Argv(1), level))
-                    {
-                        Q_strcpy (level, Cmd_Argv(2));
-                        break;
-                    }
-                    else if (!Q_strcmp(Cmd_Argv(1), "*"))
-                    {
-                        Q_strcpy (level, Cmd_Argv(2));
-                        break;
-                    }
+                    Q_strcpy (level, Cmd_Argv(2));
+                    break;
+                }
+                else if (!Q_strcmp(Cmd_Argv(1), "*"))
+                {
+                    Q_strcpy (level, Cmd_Argv(2));
+                    break;
                 }
             }
-            fclose (f);
         }
+        fclose (f);
+    }
 
     // Manoel Kasimier - map transition lists - end
     allowcheats = sv_cheats.value;
@@ -488,8 +488,22 @@ This is sent just before a server changes levels
 */
 void Host_Reconnect_f (void)
 {
-    SCR_BeginLoadingPlaque ();
-    cls.signon = 0;             // need new connection messages
+    //qb: from MarkV:  Clear the noise
+    S_BlockSound ();
+    S_ClearBuffer ();
+    S_UnblockSound ();
+
+    if (cls.demoplayback) //qb: demoplayback check from MarkV
+    {
+        Con_DPrintf("Demo playing; ignoring reconnect\n");
+        SCR_EndLoadingPlaque (); // reconnect happens before signon reply #4
+        return;
+    }
+    else
+    {
+        SCR_BeginLoadingPlaque ();
+        cls.signon = 0;		// need new connection messages
+    }
 }
 
 /*
@@ -857,7 +871,7 @@ void Host_Loadgame_f (void)
     }
     fscanf (f, "%s\n", str);
     for (i=0 ; i<NUM_SPAWN_PARMS ; i++)
-         fscanf (f, "%f\n", &spawn_parms[i]);
+        fscanf (f, "%f\n", &spawn_parms[i]);
 
     // this silliness is so we can load 1.06 save files, which have float skill values
     fscanf (f, "%f\n", &tfloat);
@@ -1020,9 +1034,9 @@ void Host_Version_f (void)
 {
     Con_Printf ("\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n"
                 "\n   \01\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\03"
-               "\02\n   SUPER8 SERVER BUILD %s"
-                                  "\n   \07\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\11"
-                                  "\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n", BUILDVERSION);
+                "\02\n   SUPER8 SERVER BUILD %s"
+                "\n   \07\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\10\11"
+                "\n\n\35\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\36\37\n\n", BUILDVERSION);
     Con_Printf ("Exe: "__TIME__" "__DATE__"\n");
 }
 
