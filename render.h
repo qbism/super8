@@ -164,18 +164,8 @@ typedef struct //qb: autotrans from MarkV
 	qboolean nearwaterportal; 		// GL + WinQuake
 	qboolean has_underwater; 		// GL + WinQuake
 	qboolean has_abovewater; 		// GL + WinQuake
-	qboolean has_sky; 				// Baker: Could work for WinQuake but not relevant.
-	qboolean has_mirror; 			// Baker: Would be real hard to make it work for WinQuake.
 
-// Baker: Direct3D wrapper doesn't have stencil, so will have to have the mirror some other way.
-// Baker: Will have to draw the sky the traditional way
-
-	float liquid_alpha; 		// WinQuake:  A per surface indicator of how much alpha to apply for current liquid texture.
-
-	float wateralpha; 			// GL + WinQuake, alpha for the frame
-	float slimealpha; 			// GL + WinQuake, alpha for the frame
-	float lavaalpha; 			// GL + WinQuake, alpha for the frame
-	float mirroralpha; 			// Baker: Don't see this working in WinQuake easily, unless I add a stencil buffer to WinQuake
+	qboolean liquid_alpha;  //qb: simplified from MarkV
 } frame_render_t;
 
 //

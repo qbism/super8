@@ -93,11 +93,6 @@ void R_SetLiquidAlpha (void) //qb: autotrans from MarkV, thanks to Baker
 	else if (level.water_vis_known && !level.water_vis)			frame.liquid_alpha = false; // Known to be not watervised
 	else if (frame.has_abovewater && frame.has_underwater)		frame.liquid_alpha = true;	// Weird situation almost impossible
 	else														frame.liquid_alpha = false;	 // Vis not known yet, but no water brushes in scene
-
-	if (frame.liquid_alpha)
-	{
-		frame.wateralpha	= CLAMP(0, r_wateralpha.value, 1.0);
-	} else frame.wateralpha = 1;
 }
 
 

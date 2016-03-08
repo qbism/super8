@@ -55,7 +55,8 @@ qboolean SV_InvisibleToClient(edict_t *viewer, edict_t *seen)
     vec3_t	start;
     vec3_t	end;
 
-    if (seen->v.movetype == MOVETYPE_PUSH )//dont cull doors and plats :(
+    //qb: don't cull anything if sv_novis.
+    if (seen->v.movetype == MOVETYPE_PUSH || sv_novis.value )//dont cull doors and plats :(
     {
         return false;
     }

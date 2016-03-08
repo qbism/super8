@@ -605,7 +605,6 @@ void R_RecursiveWorldNode (mnode_t *node, int clipflags)
         // draw stuff
         c = node->numsurfaces;
 
-
 		if (c)  //qb: reworked from MarkV
 		{
 			surf = cl.worldmodel->surfaces + node->firstsurface;

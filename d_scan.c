@@ -39,7 +39,7 @@ float  uwarpscale = 1.0f, vwarpscale = 1.0f;
 void R_InitTurb (void)
 {
     // mankrip - hi-res waterwarp - begin
-   float
+    float
     ideal_width, ideal_height
     ,   ustep
     ,   uoffset // horizontal offset for the phase
@@ -409,82 +409,83 @@ void Turbulent8 (espan_t *pspan)
             r_turb_s = r_turb_s & ((CYCLE<<16)-1);
             r_turb_t = r_turb_t & ((CYCLE<<16)-1);
 
-            // Manoel Kasimier - translucent water - begin
-            if (r_overdraw)
-            {
-                if (r_wateralpha.value <= 0.41) // 33%
-                {
-                    do
-                    {
-                        if (*pz <= (izi >> 16))
-                        {
-                            sturb = ((r_turb_s + r_turb_turb[(r_turb_t>>16)&(CYCLE-1)])>>16)&63;
-                            tturb = ((r_turb_t + r_turb_turb[(r_turb_s>>16)&(CYCLE-1)])>>16)&63;
-#define temp *(r_turb_pbase + (tturb<<6) + sturb)
-                            *r_turb_pdest = alphamap[temp + *r_turb_pdest*256];
-                        }
-                        *r_turb_pdest++;
-                        izi += izistep;
-                        pz++;
-                        r_turb_s += r_turb_sstep;
-                        r_turb_t += r_turb_tstep;
-                    }
-                    while (--r_turb_spancount > 0);
-                }
-                else if (r_wateralpha.value < 0.61 || !alphamap) // 50%
-                {
-                    do
-                    {
-                        if (*pz <= (izi >> 16))
-                        {
-                            sturb = ((r_turb_s + r_turb_turb[(r_turb_t>>16)&(CYCLE-1)])>>16)&63;
-                            tturb = ((r_turb_t + r_turb_turb[(r_turb_s>>16)&(CYCLE-1)])>>16)&63;
-#define temp *(r_turb_pbase + (tturb<<6) + sturb)
-                            *r_turb_pdest = alpha50map[temp + *r_turb_pdest*256];
-                        }
-                        *r_turb_pdest++;
-                        izi += izistep;
-                        pz++;
-                        r_turb_s += r_turb_sstep;
-                        r_turb_t += r_turb_tstep;
-                    }
-                    while (--r_turb_spancount > 0);
-
-                }
-                else //if (r_wateralpha.value >= 0.66 && alphamap) // 66%
-                {
-                    do
-                    {
-                        if (*pz <= (izi >> 16))
-                        {
-                            sturb = ((r_turb_s + r_turb_turb[(r_turb_t>>16)&(CYCLE-1)])>>16)&63;
-                            tturb = ((r_turb_t + r_turb_turb[(r_turb_s>>16)&(CYCLE-1)])>>16)&63;
-#define temp *(r_turb_pbase + (tturb<<6) + sturb)
-                            *r_turb_pdest = alphamap[*r_turb_pdest + temp*256];
-                        }
-                        *r_turb_pdest++;
-                        izi += izistep;
-                        pz++;
-                        r_turb_s += r_turb_sstep;
-                        r_turb_t += r_turb_tstep;
-                    }
-                    while (--r_turb_spancount > 0);
-                }
-            }
-            else
-                // Manoel Kasimier - translucent water - end
+            if (r_wateralpha.value >= 1 || (!frame.liquid_alpha && !r_novis.value))
             {
                 do //qb: just move D_DrawTurbulent8Span stuff here
                 {
+                    if (*pz <= (izi >> 16))
+                    {
 #define sturb (((r_turb_s + r_turb_turb[(r_turb_t>>16)&(CYCLE-1)])>>16)&63) // Manoel Kasimier - edited
 #define tturb (((r_turb_t + r_turb_turb[(r_turb_s>>16)&(CYCLE-1)])>>16)&63) // Manoel Kasimier - edited
-                    *r_turb_pdest++ = *(r_turb_pbase + (tturb<<6) + sturb);
+                        *r_turb_pdest = *(r_turb_pbase + (tturb<<6) + sturb);
+                    }
+                    *r_turb_pdest++;
+                    izi += izistep;
+                    pz++;
                     r_turb_s += r_turb_sstep;
                     r_turb_t += r_turb_tstep;
                 }
                 while (--r_turb_spancount > 0);
 #undef sturb
 #undef tturb
+            }
+            else if (r_wateralpha.value <= 0.41) // 33%
+            {
+                do
+                {
+                    if (*pz <= (izi >> 16))
+                    {
+                        sturb = ((r_turb_s + r_turb_turb[(r_turb_t>>16)&(CYCLE-1)])>>16)&63;
+                        tturb = ((r_turb_t + r_turb_turb[(r_turb_s>>16)&(CYCLE-1)])>>16)&63;
+#define temp *(r_turb_pbase + (tturb<<6) + sturb)
+                        *r_turb_pdest = alphamap[temp + *r_turb_pdest*256];
+                    }
+                    *r_turb_pdest++;
+                    izi += izistep;
+                    pz++;
+                    r_turb_s += r_turb_sstep;
+                    r_turb_t += r_turb_tstep;
+                }
+                while (--r_turb_spancount > 0);
+            }
+            else if (r_wateralpha.value < 0.61 || !alphamap) // 50%
+            {
+                do
+                {
+                    if (*pz <= (izi >> 16))
+                    {
+                        sturb = ((r_turb_s + r_turb_turb[(r_turb_t>>16)&(CYCLE-1)])>>16)&63;
+                        tturb = ((r_turb_t + r_turb_turb[(r_turb_s>>16)&(CYCLE-1)])>>16)&63;
+#define temp *(r_turb_pbase + (tturb<<6) + sturb)
+                        *r_turb_pdest = alpha50map[temp + *r_turb_pdest*256];
+                    }
+                    *r_turb_pdest++;
+                    izi += izistep;
+                    pz++;
+                    r_turb_s += r_turb_sstep;
+                    r_turb_t += r_turb_tstep;
+                }
+                while (--r_turb_spancount > 0);
+
+            }
+            else // if (r_wateralpha.value >= 0.66 && alphamap) // 66%
+            {
+                do
+                {
+                    if (*pz <= (izi >> 16))
+                    {
+                        sturb = ((r_turb_s + r_turb_turb[(r_turb_t>>16)&(CYCLE-1)])>>16)&63;
+                        tturb = ((r_turb_t + r_turb_turb[(r_turb_s>>16)&(CYCLE-1)])>>16)&63;
+#define temp *(r_turb_pbase + (tturb<<6) + sturb)
+                        *r_turb_pdest = alphamap[*r_turb_pdest + temp*256];
+                    }
+                    *r_turb_pdest++;
+                    izi += izistep;
+                    pz++;
+                    r_turb_s += r_turb_sstep;
+                    r_turb_t += r_turb_tstep;
+                }
+                while (--r_turb_spancount > 0);
             }
 
 end_of_loop: // Manoel Kasimier - translucent water

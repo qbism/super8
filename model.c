@@ -1269,6 +1269,20 @@ void Mod_ProcessLeafs_S (dsleaf_t *in, int filelen)
         out->efrags = NULL;
         for (j=0 ; j<4 ; j++)
             out->ambient_sound_level[j] = in->ambient_level[j];
+
+        //qb: from MarkV- gl underwater warp. Baker: This marks the surface as underwater
+		if (out->contents != CONTENTS_EMPTY)
+		{
+			for (j=0 ; j < out->nummarksurfaces ; j++)
+			{
+				msurface_t** surf = &out->firstmarksurface[j];
+				if (!surf || !(*surf) || !(*surf)->texinfo || !(*surf)->texinfo->texture)
+				{
+					continue;
+				}
+				out->firstmarksurface[j]->flags |= SURF_UNDERWATER; // This screws up?
+			}
+		}
     }
 }
 
@@ -1313,6 +1327,20 @@ void Mod_ProcessLeafs_L1 (dl1leaf_t *in, int filelen)
 
         for (j=0 ; j<4 ; j++)
             out->ambient_sound_level[j] = in->ambient_level[j];
+
+        //qb: from MarkV- gl underwater warp. Baker: This marks the surface as underwater
+		if (out->contents != CONTENTS_EMPTY)
+		{
+			for (j=0 ; j < out->nummarksurfaces ; j++)
+			{
+				msurface_t** surf = &out->firstmarksurface[j];
+				if (!surf || !(*surf) || !(*surf)->texinfo || !(*surf)->texinfo->texture)
+				{
+					continue;
+				}
+				out->firstmarksurface[j]->flags |= SURF_UNDERWATER; // This screws up?
+			}
+		}
     }
 }
 
@@ -1357,6 +1385,20 @@ void Mod_ProcessLeafs_L2 (dl2leaf_t *in, int filelen)
 
         for (j=0 ; j<4 ; j++)
             out->ambient_sound_level[j] = in->ambient_level[j];
+
+        //qb: from MarkV- gl underwater warp. Baker: This marks the surface as underwater
+		if (out->contents != CONTENTS_EMPTY)
+		{
+			for (j=0 ; j < out->nummarksurfaces ; j++)
+			{
+				msurface_t** surf = &out->firstmarksurface[j];
+				if (!surf || !(*surf) || !(*surf)->texinfo || !(*surf)->texinfo->texture)
+				{
+					continue;
+				}
+				out->firstmarksurface[j]->flags |= SURF_UNDERWATER; // This screws up?
+			}
+		}
     }
 }
 

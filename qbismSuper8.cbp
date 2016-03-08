@@ -14,27 +14,28 @@
 				<Option working_dir="../../quake" />
 				<Option object_output="s_win32/Debug" />
 				<Option type="0" />
-				<Option compiler="mingw_32" />
+				<Option compiler="mingw32" />
 				<Option parameters=" -heapsize 64000 -map start" />
 				<Compiler>
+					<Add option="-pg" />
 					<Add option="-g" />
 					<Add option="-m32" />
 					<Add option="-DASM386" />
 					<Add option="-DWIN32" />
 					<Add option="-D_WINDOWS" />
 					<Add option="-D_WIN32" />
+					<Add option="-DUSE_CODEC_MP3" />
+					<Add option="-DUSE_CODEC_OGG" />
+					<Add option="-DUSE_CODEC_VORBIS" />
 					<Add directory="s_win32/codecs/include" />
 				</Compiler>
-				<ResourceCompiler>
-					<Add directory="./dxsdk/sdk/inc" />
-				</ResourceCompiler>
 				<Linker>
+					<Add option="-pg -lgmon" />
 					<Add option="-m32" />
 					<Add library="vorbisfile" />
 					<Add library="vorbis" />
 					<Add library="ogg" />
 					<Add library="mad" />
-					<Add library="ssp" />
 					<Add directory="s_win32/codecs/x86" />
 				</Linker>
 			</Target>
