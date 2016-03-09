@@ -350,7 +350,7 @@ void Host_Map_f (void)
     Q_strcat (cls.mapstring, "\n");
 
     svs.serverflags = 0;                        // haven't completed an episode yet
-    allowcheats = sv_cheats.value;
+    allowcheats = (sv_cheats.value || svs.maxclients == 1);
 
     Q_strcpy (name, Cmd_Argv(1));
 
@@ -452,7 +452,7 @@ void Host_Changelevel_f (void)
     }
 
     // Manoel Kasimier - map transition lists - end
-    allowcheats = sv_cheats.value;
+    allowcheats = (sv_cheats.value || svs.maxclients == 1);
     SV_SpawnServer (level);
 }
 
@@ -474,7 +474,7 @@ void Host_Restart_f (void)
         return;
     Q_strcpy (mapname, sv.name);        // must copy out, because it gets cleared
     // in sv_spawnserver
-    allowcheats = sv_cheats.value;
+    allowcheats = (sv_cheats.value || svs.maxclients == 1);
     SV_SpawnServer (mapname);
 }
 
@@ -703,7 +703,7 @@ void Host_SmallLoadgame_f (void)
     fscanf (f, "%s\n", &name);
     fscanf (f, "%i\n", &svs.serverflags);
     fclose (f);
-    allowcheats = sv_cheats.value;
+    allowcheats = (sv_cheats.value || svs.maxclients == 1);
     SV_SpawnServer (name);
     if (!sv.active)
         return;
@@ -886,7 +886,7 @@ void Host_Loadgame_f (void)
     fscanf (f, "%f\n", &time);
     fscanf (f, "%i\n", &svs.serverflags);
     CL_Disconnect_f ();
-    allowcheats = sv_cheats.value;
+    allowcheats = (sv_cheats.value || svs.maxclients == 1);
     SV_SpawnServer (mapname);
     if (!sv.active)
     {

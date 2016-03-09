@@ -1509,7 +1509,7 @@ void SV_Physics (void)
         {
             SV_Physics_Client (ent, i);
         }
-        else if (!sv_freezephysics.value || !sv_cheats.value) //qb: freeze everything but players
+        else if (!sv_freezephysics.value || !allowcheats) //qb: freeze everything but players
             switch ((int) ent->v.movetype)
             {
             case MOVETYPE_PUSH:

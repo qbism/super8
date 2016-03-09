@@ -558,14 +558,23 @@ void Mod_LoadLighting (lump_t *l)  //qb: colored lit load modified from Engoo
                     k=8;
                     out = loadmodel->colordata;
                     r_saturation.value = bound (0, r_saturation.value, 1.0);
-                    satpow = 1.5 + 1.25 * r_saturation.value;
+//qb:  based on public-domain function by Darel Rex Finley
+#define  Pr  .299
+#define  Pg  .587
+#define  Pb  .114
+
+                    satpow = 2.0 * r_saturation.value;
                     while(k <= fileinfo->filelen)
                     {
                         r = data[k++];
                         g = data[k++];
                         b = data[k++];
-                        normalize = sqrt(pow(r,satpow) + pow(g,satpow) + pow(b,satpow))*pow(satpow,1.6) *1.5 + 1.0;  //qb: factor for overbright compensation
-                        *out++ = BestColor(pow(r,satpow)/normalize, pow(g,satpow)/normalize, pow(b,satpow)/normalize,0,254);
+                        normalize = sqrt(r*r*Pr + g*g*Pg + b*b*Pb ) ;
+                        r= normalize + (r-normalize)* satpow;
+                        g= normalize + (g-normalize)* satpow;
+                        b= normalize + (b-normalize)* satpow;
+                        normalize = sqrt(r*r + g*g + b*b )*2.0 + 1.0;
+                        *out++ = BestColor(r*r/normalize,g*g/normalize,b*b/normalize,0,254);
                     }
                     return;
                 }

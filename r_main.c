@@ -193,6 +193,7 @@ cvar_t  r_part_explo2_count = {"r_part_explo2_count", "200", "r_part_explo2_coun
 cvar_t  r_part_explo2_time = {"r_part_explo2_time", "0.3", "r_part_explo2_time[value] Particle lifespan for explo2 effect.", true};
 cvar_t  r_part_explo2_vel = {"r_part_explo2_vel", "300", "r_part_explo2_vel[value] Particle velocity for explo2 effect.", true};
 cvar_t  r_part_sticky_time = {"r_part_sticky_time", "24", "r_part_sticky_time[value] Lifespan for sticky particles.", true};
+cvar_t  r_part_transparent = {"r_part_transparent", "1", "r_part_transparent[0/1] Toggle transparent particles.", true};
 
 
 void R_InitSin (void)
@@ -339,7 +340,7 @@ void R_Init (void)
     Cvar_RegisterVariable(&r_part_explo2_time);
     Cvar_RegisterVariable(&r_part_explo2_vel);
     Cvar_RegisterVariable(&r_part_sticky_time);
-
+    Cvar_RegisterVariable(&r_part_transparent);
     view_clipplanes[0].leftedge = true;
     view_clipplanes[1].rightedge = true;
     view_clipplanes[1].leftedge = view_clipplanes[2].leftedge =
@@ -626,9 +627,9 @@ void GrabLightcolormap (void) //qb: for colored lighting, fullbrights show throu
                 gp=host_basepal[p*3+1];
                 bp=host_basepal[p*3+2];
 
-                r = bound(0,(rc*0.5+ rp*0.5) ,254);
-                g = bound(0,(gc*0.5+ gp*0.5) ,254);
-                b = bound(0,(bc*0.5+ bp*0.5) ,254);
+                r = bound(0,(rc*0.4+ rp*0.65) ,254);
+                g = bound(0,(gc*0.4+ gp*0.65) ,254);
+                b = bound(0,(bc*0.4+ bp*0.65) ,254);
 
                 *colmap++ = BestColor(r,g,b, 0, 223);
             }

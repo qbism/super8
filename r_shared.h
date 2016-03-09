@@ -57,6 +57,7 @@ extern cvar_t r_part_explo2_count;
 extern cvar_t r_part_explo2_time;
 extern cvar_t r_part_explo2_vel;
 extern cvar_t r_part_sticky_time;   //new type for gib trail or similar, sticks to walls and floors
+extern cvar_t r_part_transparent;
 
 extern int	sintable[SIN_BUFFER_SIZE];
 

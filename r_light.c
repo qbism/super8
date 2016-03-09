@@ -120,7 +120,7 @@ void R_PushDlights (mnode_t *headnode)  //qb: from MH tute - increased dlights
     //qb: moved to r_main // currententity = &cl_entities[0]; // mankrip - dynamic lights on moving brush models fix
     for (i = 0; i < MAX_DLIGHTS; i++, l++)
     {
-        if ((l->die < cl.time && (!sv_freezephysics.value || !sv_cheats.value)) || (l->radius <= 0)) //qb freeze
+        if ((l->die < cl.time && (!sv_freezephysics.value || !allowcheats)) || (l->radius <= 0)) //qb freeze
             continue;
 
         R_MarkLights (l, i, headnode);

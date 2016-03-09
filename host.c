@@ -890,7 +890,7 @@ void _Host_Frame (float time)
     if (cls.signon == SIGNONS)
     {
         S_Update (r_origin, vpn, vright, vup);
-        if (!sv_freezephysics.value || !sv_cheats.value) //qb
+        if (!sv_freezephysics.value || !allowcheats) //qb
             CL_DecayLights ();
     }
     else

@@ -87,6 +87,7 @@ void R_DarkFieldParticles (entity_t *ent)
                 p->start_time = cl.time; // Manoel Kasimier
                 p->color = 150 + rand()%6;
                 p->type = pt_slowgrav;
+                p->alpha = 1.0;
 
                 dir[0] = j*8;
                 dir[1] = i*8;
@@ -164,6 +165,7 @@ void R_EntityParticles (entity_t *ent)
         p->start_time = cl.time; // Manoel Kasimier
         p->color = 0x6f;
         p->type = pt_explode;
+        p->alpha = 1.0;
 
         p->org[0] = ent->origin[0] + r_avertexnormals[i][0]*dist + forward[0]*beamlength;
         p->org[1] = ent->origin[1] + r_avertexnormals[i][1]*dist + forward[1]*beamlength;
@@ -233,6 +235,7 @@ void R_ReadPointFile_f (void)
         p->type = pt_static;
         VectorCopy (vec3_origin, p->vel);
         VectorCopy (org, p->org);
+        p->alpha = 1.0;
     }
 
     fclose (f);
@@ -291,6 +294,7 @@ void R_ParticleExplosion (vec3_t org)
         p->start_time = cl.time-1.4; // Manoel Kasimier
         p->color = ramp1[0];
         p->ramp = rand()&3;
+        p->alpha = 1.0;
         if (i & 1)
         {
             p->type = pt_explode;
@@ -337,6 +341,7 @@ void R_ParticleExplosion2 (vec3_t org, int colorStart, int colorLength)
         p->start_time = cl.time; // Manoel Kasimier
         p->color = colorStart + (colorMod % colorLength);
         colorMod++;
+        p->alpha = 1.0;
 
         p->type = pt_blob;
         for (j=0 ; j<3 ; j++)
@@ -368,6 +373,7 @@ void R_BlobExplosion (vec3_t org)
         active_particles = p;
         p->die = cl.time + r_part_blob_time.value + (rand()&8)*0.03;
         p->start_time = cl.time; // Manoel Kasimier
+        p->alpha = 1.0;
 
         if (i & 1)
         {
@@ -438,6 +444,7 @@ void R_RunParticleEffect (vec3_t org, vec3_t dir, int color, int count)
             p->start_time = cl.time-1.4; // Manoel Kasimier
             p->color = ramp1[0];
             p->ramp = rand()&3;
+p->alpha = 1.0;
 
             if (i & 1)
             {
@@ -548,6 +555,7 @@ void R_LavaSplash (vec3_t org)
                 p->start_time = cl.time; // Manoel Kasimier
                 p->color = 68 + (rand()&7);
                 p->type = pt_grav;
+p->alpha = 1.0;
 
                 dir[0] = j*448 + (rand()&27);
                 dir[1] = i*448 + (rand()&27);
@@ -593,6 +601,7 @@ void R_TeleportSplash (vec3_t org)
                 p->start_time = cl.time; // Manoel Kasimier
                 p->color = 7 + (rand()&7);
                 p->type = pt_slowgrav;
+                p->alpha = 1.0;
 
                 dir[0] = j*8;
                 dir[1] = i*8;
@@ -652,6 +661,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             {
                 p->type = pt_grav;
                 p->color = 32;
+                p->alpha = 1.0;
                 for (j=0 ; j<3 ; j++)
                     p->org[j] = start[j] + ((rand()&6)-3);
                 break;
@@ -697,6 +707,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
             p->die = cl.time + 0.5;
             p->start_time = cl.time; // Manoel Kasimier
             p->type = pt_static;
+            p->alpha = 1.0;
             if (type == 3)
                 p->color = 52 + ((tracercount&4)<<1);
             else
@@ -736,6 +747,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
         case 6: // voor trail
             p->color = 9*16 + 8 + (rand()&3);
             p->type = pt_static;
+            p->alpha = 1.0;
             p->die = cl.time + 0.3;
             p->start_time = cl.time; // Manoel Kasimier
             for (j=0 ; j<3 ; j++)
@@ -744,7 +756,7 @@ void R_RocketTrail (vec3_t start, vec3_t end, int type)
         case 7: // rail trail smoke
             p->ramp = (rand()&3) + 2;
             p->color = ramp3[(int)p->ramp];
-            p->alpha = 1;
+            p->alpha = 1.0;
             p->alphavel = -3.7 - rand()%1;
             p->type = pt_staticfade;
             for (j=0 ; j<3 ; j++)
@@ -810,7 +822,7 @@ void R_DrawParticles (void)
     grav = frametime * sv_gravity.value * 0.05;
     dvel = 4*frametime;
 
-    if (!sv_freezephysics.value || !sv_cheats.value) //qb
+    if (!sv_freezephysics.value || !allowcheats) //qb
         for ( ;; )
         {
             kill = active_particles;
@@ -826,7 +838,7 @@ void R_DrawParticles (void)
 
     for (p=active_particles ; p ; p=p->next)
     {
-        if (!sv_freezephysics.value || !sv_cheats.value) //qb
+        if (!sv_freezephysics.value || !allowcheats) //qb
             for ( ;; )
             {
                 kill = p->next;
@@ -839,20 +851,21 @@ void R_DrawParticles (void)
                 }
                 break;
             }
-        // Manoel Kasimier - begin
+        // Manoel Kasimier - transparent particles
 
-        //  alpha = 1.0 - ((cl.time - p->start_time) / (p->die - cl.time));
-        if (p->alpha <= 0.43)
+        if (!r_part_transparent.value || p->alpha >= 0.80)
+            D_DrawParticle_C (p);
+        else if (p->alpha <= 0.43)
             D_DrawParticle_33_C (p);
         else if (p->alpha <= 0.60)
             D_DrawParticle_50_C (p);
-        else if (p->alpha <= 0.80)
-            D_DrawParticle_66_C (p);
         else
-            //D_DrawParticle(p);  //qb: disabled because no FOV scaling
-            D_DrawParticle_C (p);  // renamed to not conflict with the asm version
+            D_DrawParticle_66_C (p);
 
-        if (!sv_freezephysics.value || !sv_cheats.value)
+            //D_DrawParticle(p);  //qb: disabled because no FOV scaling
+            // renamed to not conflict with the asm version
+
+        if (!sv_freezephysics.value || !allowcheats)
         {
             p->org[0] += p->vel[0] * frametime;
             p->org[1] += p->vel[1] * frametime;
@@ -1226,7 +1239,7 @@ void R_RailTrail (vec3_t start, vec3_t end)
     vec3_t              vec;
     float               len;
     int                 j;
-    particle_t  *p;
+    particle_t          *p;
     float               dec;
     vec3_t              right, up;
     int                 i;

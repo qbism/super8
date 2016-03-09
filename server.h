@@ -216,7 +216,7 @@ extern	edict_t		*sv_player;
 
 extern float		scr_centertime_off;
 
-
+extern qboolean allowcheats;
 
 //===========================================================
 
