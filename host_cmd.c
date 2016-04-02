@@ -35,19 +35,18 @@ Host_Quit_f
 ==================
 */
 
-extern void M_Quit_f (void);
-
-void Host_Quit_f (void) //qb: restored original function
+void Host_Quit_f (void)
 {
-	if (key_dest != key_console && cls.state != ca_dedicated)
-	{
-		M_Quit_f ();
-		return;
-	}
-	CL_Disconnect ();
-	Host_ShutdownServer(false);
+    /* // Manoel Kasimier - "quit" always quits - removed - begin
+     if (key_dest != key_console && cls.state != ca_dedicated)
+     {
+     M_Menu_Quit_f ();
+     return;
+     }
+     */ // Manoel Kasimier - "quit" always quits - removed - end	CL_Disconnect ();
+    Host_ShutdownServer(false);
 
-	Sys_Quit ();
+    Sys_Quit ();
 }
 
 

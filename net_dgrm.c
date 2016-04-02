@@ -1036,9 +1036,9 @@ static qsocket_t *_Datagram_CheckNewConnections (void) //qb: from bjpquake
 			// it's somebody coming back in from a crash/disconnect
 			// so close the old qsocket and let their retry get them back in
 
-			// ProQuake fix
-//			NET_Close(s);
-//			return NULL;
+			//qb: ProQuake fix commented these out, but otherwise can't reconnect on LAN
+			NET_Close(s);
+			return NULL;
 		}
 	}
 

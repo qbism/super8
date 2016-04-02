@@ -629,6 +629,11 @@ qboolean NET_CanSendMessage (qsocket_t *sock)
 
 int NET_SendToAll(sizebuf_t *data, int blocktime)
 {
+	return NET_SendToAll2 (data, blocktime, false);
+}
+
+int NET_SendToAll2 (sizebuf_t *data, int blocktime, qboolean nolocals)
+{
 	double		start;
 	int			i;
 	int			count = 0;
@@ -643,6 +648,7 @@ int NET_SendToAll(sizebuf_t *data, int blocktime)
 		{
 			if (host_client->netconnection->driver == 0)
 			{
+				if (!nolocals)
 				NET_SendMessage(host_client->netconnection, data);
 				state1[i] = true;
 				state2[i] = true;

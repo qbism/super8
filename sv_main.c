@@ -1505,7 +1505,12 @@ void SV_SendReconnect (void)
 
     MSG_WriteByte (&msg, svc_stufftext);
     MSG_WriteString (&msg, "reconnect\n");
-    NET_SendToAll (&msg, 5);
+
+	// Don't send a reconnect message to a local client; it can cause problems if coming
+	// after the client has already reached signon 4. In that case, the client will behave
+	// as if reconnect is entered in the console while playing; the loading plaque will
+	// display and the client is detached from the game (which will continue)
+	NET_SendToAll2 (&msg, 5, true);
 
     if (cls.state != ca_dedicated)
 
