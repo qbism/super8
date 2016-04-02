@@ -588,6 +588,19 @@ static void Test_Poll(void)
     }
 }
 
+void Strip_Port (char *ch)  //qb: Baker - IP port
+{
+	if (ch = strchr(ch, ':'))
+	{
+		int old_port = net_hostport;
+		sscanf(ch+1, "%d", &net_hostport);
+		for ( ; ch[-1] == ' ' ; ch--);
+		*ch = 0;
+		if (net_hostport != old_port)
+			Con_Printf("Setting port to %d\n", net_hostport);
+	}
+}
+
 static void Test_f (void)
 {
 	char	*host;
@@ -1379,6 +1392,8 @@ ErrorReturn2:
 qsocket_t *Datagram_Connect (char *host)
 {
     qsocket_t *ret = NULL;
+
+    Strip_Port(host); //qb: Baker - IP port
 
     for (net_landriverlevel = 0; net_landriverlevel < net_numlandrivers; net_landriverlevel++)
         if (net_landrivers[net_landriverlevel].initialized)

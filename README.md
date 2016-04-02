@@ -1,11 +1,44 @@
-qbism Super8
+qbism Super8 build 278
 
 The goal of Super8 is to expand the capabilities of authentic 8-bit rendering to play contemporary Quake maps: epic environments, hundreds of monsters, crunchy pixelated graphics. The source code is forked from Makaqu with enhancements from other open source Quake engine projects, plus a few original ideas.
 
-Super8 runs in Windows, and in Linux under Wine. Memory and processor requirements are light. It remains snappy on those little 1Ghz Atom netbooks for example.
+Super8 is developed in Windows 7 and is occasionally tested in Linux under Wine.  Windows 10, 8, XP, and Vista are reported to run it by users.
 
-Recent new stuff
-——————-
+Thanks to everyone who gave feedback on the test builds from the color-overhaul experiments leading up to now!
+
+
+New in build 278
+——————————————————
+
+Changes in this release:
+
+more accurate color rendition.
+
+r_saturation - cvar for map colored lighting intensity.
+
+pixel doubling - for extra chunkiness (and render speed) automatically generate pixel-doubled option for compatible video modes.  These resolutions are listed with an 'S' in the video mode menu.
+
+Resolution support up to 4K, but not fully tested.
+
+cl_beams_quakepositionhack - cvar to turn off automatic centering of lighting bolts.  For mods that want an off-center bolt effect.
+
+Improved overlapping transparencies -  It will usually be possible to see translucent water through a translucent window, for example.
+
+automatic unvised map detection (slightly glitchy) - if water was created opaque (like classic Quake maps) transparency is turned off.  BUT to 'fake it', toggle r_novis and sv_novis cvars to 1.
+
+r_novis - make water and similar textures transparent on old 'unvised' maps. 
+
+sv_novis - don't cull any items serverside.  Normally the server culls most items that are hidden behind walls.
+
+Fixed dedicated server (I hope).
+
+Add tab-completion to loadpalette and r_palette.
+
+Cheats always allowed in single-player mode.
+
+
+Other relatively recent stuff
+————————————————————————————————
 Gigantic bsp2 map support.
 
 Alpha and fence textures.
