@@ -35,39 +35,19 @@ Host_Quit_f
 ==================
 */
 
-extern void M_Menu_Quit_f (void);
+extern void M_Quit_f (void);
 
-void Host_Quit_f (void)
+void Host_Quit_f (void) //qb: restored original function
 {
-    /* // Manoel Kasimier - "quit" always quits - removed - begin
-    if (key_dest != key_console && cls.state != ca_dedicated)
-    {
-    M_Menu_Quit_f ();
-    return;
-    }
-    */ // Manoel Kasimier - "quit" always quits - removed - end
+	if (key_dest != key_console && cls.state != ca_dedicated)
+	{
+		M_Quit_f ();
+		return;
+	}
+	CL_Disconnect ();
+	Host_ShutdownServer(false);
 
-    CL_Disconnect ();
-    Host_ShutdownServer(false);
-    // Manoel Kasimier - begin
-    if (cls.state != ca_dedicated) //qb: can't do for ded serv
-    {
-        vrect_t vrect;
-        vrect.pnext = NULL;
-        vrect.x = vrect.y = 0;
-        vrect.width = vid.width;
-        vrect.height = vid.height;
-
-        Draw_Fill (0, 0, vid.width, vid.height, 0);
-        VID_Update (&vrect);
-
-        Draw_Fill (0, 0, vid.width, vid.height, 0);
-        VID_Update (&vrect);
-    }
-
-    // Manoel Kasimier - end
-
-    Sys_Quit ();
+	Sys_Quit ();
 }
 
 
