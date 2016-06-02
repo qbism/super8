@@ -159,9 +159,8 @@ qboolean R_AliasCheckBBox (void)
     pmodel = currententity->model;
     pahdr = Mod_Extradata (pmodel);
     pmdl = (mdl_t *)((byte *)pahdr + pahdr->model);
-    // Manoel Kasimier - model interpolation - begin
-    if (r_interpolation.value)
-    {
+
+    // Manoel Kasimier - model interpolation
         if (currententity != &cl.viewent && currententity != &cl_entities[cl.viewentity])
             R_AliasSetUpBlendedTransform (0);
         else
@@ -177,43 +176,6 @@ qboolean R_AliasCheckBBox (void)
         // z worldspace coordinates
         basepts[0][2] = basepts[1][2] = basepts[4][2] = basepts[5][2] =	(float)min(bboxmin1->v[2], bboxmin2->v[2]);
         basepts[2][2] = basepts[3][2] = basepts[6][2] = basepts[7][2] = (float)max(bboxmax1->v[2], bboxmax2->v[2]);
-    }
-    else
-    {
-        // Manoel Kasimier - model interpolation - end
-        R_AliasSetUpTransform (0);
-
-// construct the base bounding box for this frame
-        /*	// Manoel Kasimier - model interpolation - removed - begin
-        	frame = currententity->frame;
-        // TODO: don't repeat this check when drawing?
-        	if ((frame >= pmdl->numframes) || (frame < 0))
-        	{
-        		Con_DPrintf ("R_AliasCheckBBox: No such frame %d %s\n", frame, // edited
-        				pmodel->name);
-        		frame = 0;
-        	}
-        */	// Manoel Kasimier - model interpolation - removed - end
-        pframedesc = &pahdr->frames[currententity->frame]; // Manoel Kasimier - model interpolation - edited
-
-// x worldspace coordinates
-        basepts[0][0] = basepts[1][0] = basepts[2][0] = basepts[3][0] =
-                                            (float)pframedesc->bboxmin.v[0];
-        basepts[4][0] = basepts[5][0] = basepts[6][0] = basepts[7][0] =
-                                            (float)pframedesc->bboxmax.v[0];
-
-// y worldspace coordinates
-        basepts[0][1] = basepts[3][1] = basepts[5][1] = basepts[6][1] =
-                                            (float)pframedesc->bboxmin.v[1];
-        basepts[1][1] = basepts[2][1] = basepts[4][1] = basepts[7][1] =
-                                            (float)pframedesc->bboxmax.v[1];
-
-// z worldspace coordinates
-        basepts[0][2] = basepts[1][2] = basepts[4][2] = basepts[5][2] =
-                                            (float)pframedesc->bboxmin.v[2];
-        basepts[2][2] = basepts[3][2] = basepts[6][2] = basepts[7][2] =
-                                            (float)pframedesc->bboxmax.v[2];
-    } // Manoel Kasimier - model interpolation
 
     zclipped = false;
     zfullyclipped = true;
@@ -309,20 +271,6 @@ qboolean R_AliasCheckBBox (void)
     if (allclip)
         return false;	// trivial reject off one side
 
-    if (!r_interpolation.value) // Manoel Kasimier - model interpolation
-    {
-        // Manoel Kasimier - model interpolation - the engine is crashing when both trivial_accept and interpolation are used
-        currententity->trivial_accept = !anyclip & !zclipped;
-
-        if (currententity->trivial_accept)
-        {
-            if (minz > (r_aliastransition + (pmdl->size * r_resfudge)))
-            {
-                currententity->trivial_accept |= 2;
-            }
-        }
-    } // Manoel Kasimier - model interpolation
-
     return true;
 }
 
@@ -365,12 +313,10 @@ void R_AliasPreparePoints (void)
 
     for (i=0 ; i<r_anumverts ; i++, fv++, av++, r_apverts++, r_apverts1++, r_apverts2++, pstverts++) // Manoel Kasimier - model interpolation - edited
     {
-        // Manoel Kasimier - model interpolation - begin
-        if (r_interpolation.value)
+        // Manoel Kasimier - model interpolation
             R_AliasTransformFinalBlendedVert (fv, av, r_apverts1, r_apverts2, pstverts);
-        else
-            // Manoel Kasimier - model interpolation - end
-            R_AliasTransformFinalVert (fv, av, r_apverts, pstverts);
+
+           //ccc R_AliasTransformFinalVert (fv, av, r_apverts, pstverts);
         if (av->fv[2] < ALIAS_Z_CLIP_PLANE)
             fv->flags |= ALIAS_Z_CLIP;
         else
@@ -481,7 +427,7 @@ void R_AliasSetUpTransform (int trivial_accept)
 // TODO: should use a look-up table
 // TODO: could cache lazily, stored in the entity
 
-    if (!r_interpolation.value || (currententity == &cl.viewent) || currententity == &cl_entities[cl.viewentity]) // Manoel Kasimier - model interpolation
+    if ((currententity == &cl.viewent) || currententity == &cl_entities[cl.viewentity]) // Manoel Kasimier - model interpolation
     {
         // Manoel Kasimier - model interpolation
         angles[ROLL] = currententity->angles[ROLL];
@@ -895,12 +841,10 @@ void R_AliasPrepareUnclippedPoints (void)
 // FIXME: just use pfinalverts directly?
     fv = pfinalverts;
 
-    // Manoel Kasimier - model interpolation - begin
-    if (r_interpolation.value)
+    // Manoel Kasimier - model interpolation
         R_AliasTransformAndProjectFinalBlendedVerts (fv, pstverts);
-    else
-        // Manoel Kasimier - model interpolation - end
-        R_AliasTransformAndProjectFinalVerts (fv, pstverts);
+
+       //ccc R_AliasTransformAndProjectFinalVerts (fv, pstverts);
 
     if (r_affinetridesc.drawtype)
         D_PolysetDrawFinalVerts (fv, r_anumverts);
@@ -1254,11 +1198,12 @@ void R_AliasSetupBlendedFrame (void)
     {
         if ((pose != e->pose2) || (paliasgroup != e->framegroup2)) // Manoel Kasimier - edited
         {
-            if (e->reset_frame_interpolation == true || e->effects & MOD_NOLERP)  //qb: from FQ
+            if (!r_interpolation.value || e->reset_frame_interpolation == true || e->model->flags & MOD_NOLERP)  //qb: from FQ
             {
                 e->framegroup1 = paliasgroup; // Manoel Kasimier
                 e->pose1 = pose;
                 e->reset_frame_interpolation = false;
+                blend = 1; //qb: added
             }
             else
             {
@@ -1346,10 +1291,9 @@ void R_AliasDrawModel (/* alight_t *plighting */) // Manoel Kasimier - edited
     pmdl = (mdl_t *)((byte *)paliashdr + paliashdr->model);
 
     // Manoel Kasimier - model interpolation - begin
-    if (r_interpolation.value)
         R_AliasSetupBlendedFrame();
-    else
-        R_AliasSetupFrame ();
+
+     //ccc   R_AliasSetupFrame ();
 
     // see if the bounding box lets us trivially reject, also sets trivial accept status
     if (!R_AliasCheckBBox ())
@@ -1358,10 +1302,10 @@ void R_AliasDrawModel (/* alight_t *plighting */) // Manoel Kasimier - edited
         return;
     }
 
-    if (r_interpolation.value && currententity != &cl.viewent && currententity != &cl_entities[cl.viewentity])
+    if (currententity != &cl.viewent && currententity != &cl_entities[cl.viewentity])
         R_AliasSetUpBlendedTransform (currententity->trivial_accept);
-    else
-        R_AliasSetUpTransform (currententity->trivial_accept);
+
+    //ccc    R_AliasSetUpTransform (currententity->trivial_accept);
     // Manoel Kasimier - model interpolation - end
     R_AliasSetupSkin ();
     // Manoel Kasimier - begin

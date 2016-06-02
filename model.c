@@ -20,7 +20,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 // models are the only shared resource between a client and server running
 // on the same machine.
 
-//qb: md2 from FTEQW build 3343. Don't get
+//qb: md2 from FTEQW build 3343.
 
 #include "quakedef.h"
 #include "r_local.h"
@@ -939,12 +939,12 @@ void Mod_FlagFaces ( msurface_t *out)
     if (out->texinfo->texture->name[0] == '*')		// turbulent
     {
         // Manoel Kasimier - translucent water - begin
-        if (Q_strncmp(out->texinfo->texture->name,"*lava",5)) // lava should be opaque
+       //qb: screw opaque lava   if (Q_strncmp(out->texinfo->texture->name,"*lava",5)) // lava should be opaque
             //	if (Q_strncmp(out->texinfo->texture->name,"*teleport",9)) // teleport should be opaque
-        {
+       // {
             out->flags |= SURF_DRAWTRANSLUCENT;
             level.water = true;
-        }
+      //  }
         // Manoel Kasimier - translucent water - end
         out->flags |= (SURF_DRAWTURB | SURF_DRAWTILED);
         for (i=0 ; i<2 ; i++)
@@ -2080,25 +2080,36 @@ void Mod_SetExtraFlags (model_t *mod)
 {
     char *s;
     int i;
+    char tmp[MAX_QPATH];
 
     if (!mod || !mod->name || mod->type != mod_alias)
         return;
 
 //qb: would wipe out effects as flags.	mod->flags &= 0xFF; //only preserve first byte
 
-    // nolerp flag
-    for (s=r_nolerp_list.string; *s; s += i+1, i=0)
-    {
-        //search forwards to the next comma or end of string
-        for (i=0; s[i] != ',' && s[i] != 0; i++) ;
-
-        //compare it to the model name
-        if (!strncmp(mod->name, s, i))
-        {
-            mod->flags |= MOD_NOLERP;
-            break;
-        }
-    }
+	//qb: from QS- nolerp flag
+	s = r_nolerp_list.string;
+	while (*s)
+	{
+		// make a copy until the next comma or end of string
+		i = 0;
+		while (*s && *s != ',')
+		{
+			if (i < MAX_QPATH - 1)
+				tmp[i++] = *s;
+			s++;
+		}
+		tmp[i] = '\0';
+		//compare it to the model name
+		if (!strcmp(mod->name, tmp))
+		{
+			mod->flags |= MOD_NOLERP;
+			break;
+		}
+		//search forwards to the next comma or end of string
+		while (*s && *s == ',')
+			s++;
+	}
 }
 
 

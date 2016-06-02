@@ -34,7 +34,6 @@ extern byte identityTable[256]; //qb: MQ 1.6 hudscale
 extern byte translationTable[256];
 extern float screenAspect;
 float scr_2d_scale_h = 1.0,     scr_2d_scale_v = 1.0;
-int scr_2d_offset_x, scr_2d_offset_y;
 
 cvar_t  savename = {"savename","QBS8_", "savename[name] Save game name prefix."}; // 8 uppercase characters
 
@@ -2316,13 +2315,13 @@ void M_Setup_Draw (void)
     // Manoel Kasimier - crosshair - begin
     M_Print (64, y + setup_cursor_table[i++]/*88*/, "Crosshair");
     M_Print (64, y + setup_cursor_table[i]/*96*/, "Color");
-    M_DrawTextBox (160, y + setup_cursor_table[i]-16/*80*/, 2*12, 2*16);
+    M_DrawTextBox (164, y + setup_cursor_table[i]-16, 2*24, 2*24);
     i1 = crosshair.value;
     i2 = crosshair_color.value;
     crosshair.value = setup_crosshair;
     crosshair_color.value = setup_crosshair_color;
-    Crosshair_Start((184 + (360-320)/2- (MIN_VID_WIDTH - MIN_VID_WIDTH/sbar_scale.value)/2) * scr_2d_scale_h - 6*(vid.width/MIN_VID_WIDTH),
-                    (144 + (100.0/sbar_scale.value)-100) * scr_2d_scale_v - 6*(vid.width/MIN_VID_WIDTH));
+    Crosshair_Start(37*scr_2d_scale_h + scr_vrect.x + scr_vrect.width/2 - 6*(vid.width/MIN_VID_WIDTH),
+                    52*scr_2d_scale_v + scr_vrect.y + scr_vrect.height/2 - 6*(vid.width/MIN_VID_WIDTH)); //qb: scale factor
     crosshair.value = i1;
     crosshair_color.value = i2;
     // Manoel Kasimier - crosshair - end

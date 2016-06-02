@@ -22,6 +22,7 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 // we need to declare some mouse variables here, because the menu system
 // references them even when on a unix system.
 
+void R_NoLerpList_f (void);
 extern float fog_density;  //qb: so we can clear it between maps
 
 int BestColor (int r, int g, int b, int start, int stop);
@@ -802,7 +803,7 @@ void CL_RelinkEntities (void)
             }
 
         } // Manoel Kasimier
-        if (!(ent->effects & 0xFF800000))  //qb: based on DP model flags
+        if (!(ent->effects & EF_NOMODELFLAGS))  //qb: based on DP model flags
             ent->effects |= ent->model->flags;
 
         if (ent->effects) // Manoel Kasimier
@@ -1072,7 +1073,7 @@ void CL_Init (void)
     Cvar_RegisterVariable (&cl_vibration); // Manoel Kasimier
     Cvar_RegisterVariable (&cl_showfps);	// 2001-11-31 FPS display by QuakeForge/Muff
     Cvar_RegisterVariable (&cl_shownet);
-    Cvar_RegisterVariable (&cl_nolerp);
+    Cvar_RegisterVariableWithCallback (&cl_nolerp,R_NoLerpList_f);
     Cvar_RegisterVariable (&lookspring);
     Cvar_RegisterVariable (&lookstrafe);
     Cvar_RegisterVariable (&sensitivity);

@@ -430,9 +430,7 @@ void Vid_SetAspect (void)
 {
     if (vid_nativeaspect.value > 0.0)
         nativeaspect = vid_nativeaspect.value;
-    else if (vid_modenum <=MODE_SETTABLE_WINDOW)
-        nativeaspect = (float)modelist[vid_modenum].width/modelist[vid_modenum].height; //qb: if windowed.
-    else nativeaspect = calc_nativeaspect;
+     else nativeaspect = calc_nativeaspect;
 }
 
 /*
