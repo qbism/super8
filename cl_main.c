@@ -567,7 +567,7 @@ float	CL_LerpPoint (void)
 
     f = cl.mtime[0] - cl.mtime[1];
 
-    if (!f || cl_nolerp.value || cls.timedemo || sv.active)
+    if (!f || cls.timedemo || sv.active)
     {
         cl.time = cl.ctime = cl.mtime[0];  //DEMO_REWIND qb: Baker change
         return 1;
@@ -602,7 +602,7 @@ float	CL_LerpPoint (void)
             SetPal(2);
             //DEMO_REWIND qb: Baker change
             if (bumper_on)
-                cl.ctime = cl.mtime[0];
+                 cl.time = cl.ctime = cl.mtime[0];
             else cl.time = cl.ctime = cl.mtime[0]; // Here is where we get foobar'd
             //DEMO_REWIND
         }
@@ -610,6 +610,10 @@ float	CL_LerpPoint (void)
     }
     else
         SetPal(0);
+
+    //qb: from johnfitz -- better nolerp behavior
+	if (cl_nolerp.value)
+		return 1;
 
     return frac;
 }
@@ -814,7 +818,7 @@ void CL_RelinkEntities (void)
             {
 //		ent->effects |= EF_REFLECTIVE; //qb: test effect on rotating items
                 ent->angles[1] = bobjrotate;
-            }
+              }
             if (ent->effects & EF_GIB)
                 R_RocketTrail (oldorg, ent->origin, 2);
             else if (ent->effects & EF_ZOMGIB)
@@ -881,7 +885,8 @@ void CL_RelinkEntities (void)
                 //	if (ent->translate_start_time)
                 VectorCopy (ent->msg_origins[0], ent->origin);
                 //	if (ent->rotate_start_time)
-                VectorCopy (ent->msg_angles[0], ent->angles);
+                if (!(ent->effects & EF_ROTATE)) //qb: added to keep pickups spinning
+                    VectorCopy (ent->msg_angles[0], ent->angles);
             }
         // Manoel Kasimier - model interpolation - end
 
