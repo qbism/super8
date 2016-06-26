@@ -22,6 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "../quakedef.h"
 #include "movie_avi.h"
 #include "windows.h"
+#include "winquake.h"
+
 extern unsigned int ddpal[256];
 extern RGBQUAD		colors[256];
 extern cvar_t vid_ddraw;
@@ -73,14 +75,14 @@ void Movie_Start_f (void)
 
     if (Cmd_Argc() != 2) //qb: autogenerate file name if none is given.
     {
-        Q_strcpy(name,"screenshots/qbs8_000.avi"); //qb: screenshots dir
+        Q_strcpy(name,"qbs8_000.avi"); //qb: screenshots dir
 
         for (i=0 ; i<=999 ; i++)
         {
-            name[17] = i/100 + '0';
-            name[18] = (i/10)%10 + '0';
-            name[19] = i%10 + '0';
-            sprintf (path, "%s/%s", com_gamedir, name);
+            name[5] = i/100 + '0';
+            name[6] = (i/10)%10 + '0';
+            name[7] = i%10 + '0';
+            sprintf (path, "%s/%s/%s", com_gamedir, "screenshots", name);
             if (Sys_FileTime(path) == -1)
                 break;	// file doesn't exist
         }
@@ -97,7 +99,7 @@ void Movie_Start_f (void)
     }
 
     hack_ctr = capture_hack.value;
-    Q_snprintfz (path, sizeof(path), "%s/%s", com_gamedir, name);
+    Q_snprintfz (path, sizeof(path), "%s/%s/%s", com_gamedir, "screenshots", name);
     if (!(moviefile = fopen(path, "wb")))
     {
         COM_CreatePath (path);
@@ -112,7 +114,7 @@ void Movie_Start_f (void)
         Con_Printf("Capturing video %s\n", path);
     else
         Con_Printf("Movie_Start_f: Movie capture open failed.\n");
- }
+}
 
 void Movie_Stop (void)
 {
@@ -169,8 +171,8 @@ void Movie_CaptureDemo_f (void)  //qb: with additional enhancement from FQ Mark 
     {
         Movie_StopPlayback ();
         Con_Printf("Movie_CaptureDemo_f: movie_is_capturing = false.\n");
-     }
-  //qb: why is this here? Host_Stopdemo_f ();
+    }
+    //qb: why is this here? Host_Stopdemo_f ();
 }
 
 void Movie_Init (void)
@@ -221,9 +223,9 @@ double Movie_FrameTime (void)
 
 void Movie_UpdateScreen (void)  //qb: add stretch and gamma to capture
 {
-	//int k;
-    int	i, j, rowp;
-    int r,g,b; //qb:
+    //int k;
+    int	i, j;
+    static int r,g,b,v, rowp; //qb: speedup
     byte	*buffer, *p, *hwpal;
 
     if (!Movie_IsActive())
@@ -246,20 +248,62 @@ void Movie_UpdateScreen (void)  //qb: add stretch and gamma to capture
         hwpal = (byte *) &ddpal;
     else
         hwpal = (byte *) &colors;
-    buffer = Q_malloc (vid.width * vid.height * 3, "movie buffer");
-    p = buffer;
-    for (i = vid.height - 1 ; i >= 0 ; i--)
+    if (modelist[vid_modenum].stretched) //qb: capture stretched modes properly
     {
-        rowp = i * vid.rowbytes;
-        for (j = 0 ; j < vid.width ; j++)
+        buffer = Q_malloc (4 * vid.width * vid.height * 3, "movie buffer");
+        p = buffer;
+        for (i = vid.height - 1 ; i >= 0 ; i--)
         {
-            r = hwpal[vid.buffer[rowp]*4+0];  //qb: *4 because ddpal is 32bit (alpha)
-            g = hwpal[vid.buffer[rowp]*4+1];
-            b = hwpal[vid.buffer[rowp]*4+2];
-            *p++ = r;
-            *p++ = g;
-            *p++ = b;
-            rowp++;
+            rowp = i * vid.rowbytes;
+            for (j = 0 ; j < vid.width ; j++)
+            {
+                v = vid.buffer[rowp]*4;  //qb: *4 because ddpal is 32bit (alpha)
+                r = hwpal[v];
+                g = hwpal[v+1];
+                b = hwpal[v+2];
+                *p++ = r;
+                *p++ = g;
+                *p++ = b;
+                *p++ = r;
+                *p++ = g;
+                *p++ = b;
+                rowp++;
+            }
+            rowp = i * vid.rowbytes;
+            for (j = 0 ; j < vid.width ; j++)
+            {
+                v = vid.buffer[rowp]*4;  //qb: *4 because ddpal is 32bit (alpha)
+                r = hwpal[v];
+                g = hwpal[v+1];
+                b = hwpal[v+2];
+                *p++ = r;
+                *p++ = g;
+                *p++ = b;
+                *p++ = r;
+                *p++ = g;
+                *p++ = b;
+                rowp++;
+            }
+        }
+    }
+    else
+    {
+        buffer = Q_malloc (vid.width * vid.height * 3, "movie buffer");
+        p = buffer;
+        for (i = vid.height - 1 ; i >= 0 ; i--)
+        {
+            rowp = i * vid.rowbytes;
+            for (j = 0 ; j < vid.width ; j++)
+            {
+                v = vid.buffer[rowp]*4;  //qb: *4 because ddpal is 32bit (alpha)
+                r = hwpal[v];
+                g = hwpal[v+1];
+                b = hwpal[v+2];
+                *p++ = r;
+                *p++ = g;
+                *p++ = b;
+                rowp++;
+            }
         }
     }
     Capture_WriteVideo (buffer);

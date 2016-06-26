@@ -66,6 +66,7 @@ typedef struct
 extern modestate_t	modestate;
 extern vmode_t  modelist[MAX_MODE_LIST];
 extern int nummodes;
+extern int vid_modenum;
 
 extern HWND			mainwindow;
 extern int		ActiveApp, Minimized;
