@@ -351,29 +351,29 @@ SV_AddGravity
 */
 void SV_AddGravity (edict_t *ent) //qb- gravity fix from mh
 {
-   float   ent_gravity;
-   eval_t   *val;
+    float   ent_gravity;
+    eval_t   *val;
 
-   val = GetEdictFieldValue (ent, "gravity");
+    val = GetEdictFieldValue (ent, "gravity");
 
-   if (val && val->_float)
-      ent_gravity = val->_float;
-   else ent_gravity = 1.0;
+    if (val && val->_float)
+        ent_gravity = val->_float;
+    else ent_gravity = 1.0;
 
-   // in case SV_AddGravity gets called on an entity more than once per frame
-   // (can this ever happen???)
-   if (ent->grav_frame != host_framecount)
-   {
-      // update from last frame's gravity
-      ent->v.velocity[2] -= ent->last_grav;
-      ent->grav_frame = host_framecount;
-   }
+    // in case SV_AddGravity gets called on an entity more than once per frame
+    // (can this ever happen???)
+    if (ent->grav_frame != host_framecount)
+    {
+        // update from last frame's gravity
+        ent->v.velocity[2] -= ent->last_grav;
+        ent->grav_frame = host_framecount;
+    }
 
-   // evaluate this frame's gravity
-   ent->last_grav = (ent_gravity * sv_gravity.value * host_frametime) / 2.0f;
+    // evaluate this frame's gravity
+    ent->last_grav = (ent_gravity * sv_gravity.value * host_frametime) / 2.0f;
 
-   // update from this frame's gravity
-   ent->v.velocity[2] -= ent->last_grav;
+    // update from this frame's gravity
+    ent->v.velocity[2] -= ent->last_grav;
 }
 
 /*
@@ -1064,75 +1064,77 @@ SV_CycleWeaponReverse //qb: from reQueim
 */
 void SV_CycleWeaponReverse (edict_t *ent)
 {
-	int			it, weapon;
-	qboolean	has_ammo;
-	dfunction_t	*func;
+    int			it, weapon;
+    qboolean	has_ammo;
+    dfunction_t	*func;
 
-	it = (int) ent->v.items;
-	weapon = (int) ent->v.weapon;
-	ent->v.impulse = 0;
+    it = (int) ent->v.items;
+    weapon = (int) ent->v.weapon;
+    ent->v.impulse = 0;
 
-	while (1)
-	{
-		has_ammo = true;
+    while (1)
+    {
+        has_ammo = true;
 
-		switch (weapon)
-		{
-		case IT_LIGHTNING:
-			weapon = IT_ROCKET_LAUNCHER;
-			if (ent->v.ammo_rockets < 1)
-				has_ammo = false;
-			break;
-		case IT_ROCKET_LAUNCHER:
-			weapon = IT_GRENADE_LAUNCHER;
-			if (ent->v.ammo_rockets < 1)
-				has_ammo = false;
-			break;
-		case IT_GRENADE_LAUNCHER:
-			weapon = IT_SUPER_NAILGUN;
-			if (ent->v.ammo_nails < 2)
-				has_ammo = false;
-			break;
-		case IT_SUPER_NAILGUN:
-			weapon = IT_NAILGUN;
-			if (ent->v.ammo_nails < 1)
-				has_ammo = false;
-			break;
-		case IT_NAILGUN:
-			weapon = IT_SUPER_SHOTGUN;
-			if (ent->v.ammo_shells < 2)
-				has_ammo = false;
-			break;
-		case IT_SUPER_SHOTGUN:
-			weapon = IT_SHOTGUN;
-			if (ent->v.ammo_shells < 1)
-				has_ammo = false;
-			break;
-		case IT_SHOTGUN:
-			weapon = IT_AXE;
-			break;
-		case IT_AXE:
-			weapon = IT_LIGHTNING;
-			if (ent->v.ammo_cells < 1)
-				has_ammo = false;
-			break;
-		}
+        switch (weapon)
+        {
+        case IT_LIGHTNING:
+            weapon = IT_ROCKET_LAUNCHER;
+            if (ent->v.ammo_rockets < 1)
+                has_ammo = false;
+            break;
+        case IT_ROCKET_LAUNCHER:
+            weapon = IT_GRENADE_LAUNCHER;
+            if (ent->v.ammo_rockets < 1)
+                has_ammo = false;
+            break;
+        case IT_GRENADE_LAUNCHER:
+            weapon = IT_SUPER_NAILGUN;
+            if (ent->v.ammo_nails < 2)
+                has_ammo = false;
+            break;
+        case IT_SUPER_NAILGUN:
+            weapon = IT_NAILGUN;
+            if (ent->v.ammo_nails < 1)
+                has_ammo = false;
+            break;
+        case IT_NAILGUN:
+            weapon = IT_SUPER_SHOTGUN;
+            if (ent->v.ammo_shells < 2)
+                has_ammo = false;
+            break;
+        case IT_SUPER_SHOTGUN:
+            weapon = IT_SHOTGUN;
+            if (ent->v.ammo_shells < 1)
+                has_ammo = false;
+            break;
+        case IT_SHOTGUN:
+            weapon = IT_AXE;
+            break;
+        case IT_AXE:
+            weapon = IT_LIGHTNING;
+            if (ent->v.ammo_cells < 1)
+                has_ammo = false;
+            break;
+        default:
+            weapon = IT_AXE;
+        }
 
-		if ((it & weapon) && has_ammo)
-		{
-			func = ED_FindFunction ("W_SetCurrentAmmo");
-			if (func)
-			{
-			// W_SetCurrentAmmo usually has no params, but for lthsp2-lthsp5
-			// it expects "self" as an argument
-			//	if (func->numparms == 1)
-			//		((int *)pr_globals)[OFS_PARM0] = pr_global_struct->self;
-				ent->v.weapon = weapon;
-				PR_ExecuteProgram (func - pr_functions);
-			}
-			return;
-		}
-	}
+        if ((it & weapon) && has_ammo)
+        {
+            func = ED_FindFunction ("W_SetCurrentAmmo");
+            if (func)
+            {
+                // W_SetCurrentAmmo usually has no params, but for lthsp2-lthsp5
+                // it expects "self" as an argument
+                //	if (func->numparms == 1)
+                //		((int *)pr_globals)[OFS_PARM0] = pr_global_struct->self;
+                ent->v.weapon = weapon;
+                PR_ExecuteProgram (func - pr_functions);
+            }
+            return;
+        }
+    }
 };
 
 
@@ -1212,15 +1214,15 @@ void SV_Physics_Client (edict_t	*ent, int num)
     pr_global_struct->self = EDICT_TO_PROG(ent);
 
 //qb: impulse 12 from reQuiem- JDH: another hack, this time for progs that lack CycleWeaponReverse
-	if ((ent->v.impulse == 12.0) && ((sv_imp12hack.value) || sv_imp12hack.value) &&
-		!ent->v.deadflag && (ent->v.view_ofs[0] || ent->v.view_ofs[1] || ent->v.view_ofs[2]))
-	{
+    if ((ent->v.impulse == 12.0) && ((sv_imp12hack.value) || sv_imp12hack.value) &&
+            !ent->v.deadflag && (ent->v.view_ofs[0] || ent->v.view_ofs[1] || ent->v.view_ofs[2]))
+    {
         val = GetEdictFieldValue(ent, "attack_finished");
-		if (val && (sv.time >= val->_float))
-		{
-			SV_CycleWeaponReverse (ent);
-		}
-	}
+        if (val && (sv.time >= val->_float))
+        {
+            SV_CycleWeaponReverse (ent);
+        }
+    }
 
     PR_ExecuteProgram (pr_global_struct->PlayerPostThink);
 }
@@ -1409,16 +1411,16 @@ void SV_Physics_Toss (edict_t *ent)
 
     ClipVelocity (ent->v.velocity, trace.plane.normal, ent->v.velocity, backoff);
 
- // stop if on ground - qb- per Baker/ Rook post on inside3d.com
-   //R00k: fixed by LordHavoc
-   if (trace.plane.normal[2] > 0.5 && fabs(DotProduct(trace.plane.normal, ent->v.velocity)) < 15)//R00k changed so dm6 grenade ramp doesnt stick as much..
-   {
-      ent->v.flags = (int)ent->v.flags | FL_ONGROUND;
-      ent->v.groundentity = EDICT_TO_PROG(trace.ent);
-      ClipVelocity (ent->v.velocity, trace.plane.normal, ent->v.velocity, backoff + (trace.plane.normal[2]));
-   }
-   else
-      ent->v.flags = (int)ent->v.flags & ~FL_ONGROUND;
+// stop if on ground - qb- per Baker/ Rook post on inside3d.com
+    //R00k: fixed by LordHavoc
+    if (trace.plane.normal[2] > 0.5 && fabs(DotProduct(trace.plane.normal, ent->v.velocity)) < 15)//R00k changed so dm6 grenade ramp doesnt stick as much..
+    {
+        ent->v.flags = (int)ent->v.flags | FL_ONGROUND;
+        ent->v.groundentity = EDICT_TO_PROG(trace.ent);
+        ClipVelocity (ent->v.velocity, trace.plane.normal, ent->v.velocity, backoff + (trace.plane.normal[2]));
+    }
+    else
+        ent->v.flags = (int)ent->v.flags & ~FL_ONGROUND;
 
 
 // check for in water

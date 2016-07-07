@@ -111,7 +111,7 @@ void Movie_Start_f (void)
     }
     movie_is_capturing = Capture_Open (path);
     if (movie_is_capturing)
-        Con_Printf("Capturing video %s\n", path);
+        Con_DPrintf("Capturing video %s\n", path);  //qb: is printed on the vid, so only in debug mode.
     else
         Con_Printf("Movie_Start_f: Movie capture open failed.\n");
 }

@@ -1647,9 +1647,9 @@ Host_Give_f
 */
 void Host_Give_f (void)
 {
-    char        *t;
-    int         v;
-    eval_t      *val;
+    const char	*t;
+    int	v;
+    eval_t	*val;
 
     if (cmd_source == src_command)
     {
@@ -1657,7 +1657,7 @@ void Host_Give_f (void)
         return;
     }
 
-    if (pr_global_struct->deathmatch && !host_client->privileged)
+    if (pr_global_struct->deathmatch)
         return;
 
     if (!allowcheats)
@@ -1705,16 +1705,6 @@ void Host_Give_f (void)
         }
         break;
 
-    case 'a':
-        if (rogue)
-        {
-            val = GetEdictFieldValue(sv_player, "armorvalue1");
-            if (val)
-                val->_float = v;
-        }
-
-        sv_player->v.armorvalue = v;
-        break;
     case 's':
         if (rogue)
         {
@@ -1722,9 +1712,9 @@ void Host_Give_f (void)
             if (val)
                 val->_float = v;
         }
-
         sv_player->v.ammo_shells = v;
         break;
+
     case 'n':
         if (rogue)
         {
@@ -1741,6 +1731,7 @@ void Host_Give_f (void)
             sv_player->v.ammo_nails = v;
         }
         break;
+
     case 'l':
         if (rogue)
         {
@@ -1753,6 +1744,7 @@ void Host_Give_f (void)
             }
         }
         break;
+
     case 'r':
         if (rogue)
         {
@@ -1769,6 +1761,7 @@ void Host_Give_f (void)
             sv_player->v.ammo_rockets = v;
         }
         break;
+
     case 'm':
         if (rogue)
         {
@@ -1781,9 +1774,11 @@ void Host_Give_f (void)
             }
         }
         break;
+
     case 'h':
         sv_player->v.health = v;
         break;
+
     case 'c':
         if (rogue)
         {
@@ -1800,6 +1795,7 @@ void Host_Give_f (void)
             sv_player->v.ammo_cells = v;
         }
         break;
+
     case 'p':
         if (rogue)
         {
@@ -1812,7 +1808,72 @@ void Host_Give_f (void)
             }
         }
         break;
+
+    //johnfitz -- give armour
+    case 'a':
+        if (v > 150)
+        {
+            sv_player->v.armortype = 0.8;
+            sv_player->v.armorvalue = v;
+            sv_player->v.items = sv_player->v.items -
+                                 ((int)(sv_player->v.items) & (int)(IT_ARMOR1 | IT_ARMOR2 | IT_ARMOR3)) +
+                                 IT_ARMOR3;
+        }
+        else if (v > 100)
+        {
+            sv_player->v.armortype = 0.6;
+            sv_player->v.armorvalue = v;
+            sv_player->v.items = sv_player->v.items -
+                                 ((int)(sv_player->v.items) & (int)(IT_ARMOR1 | IT_ARMOR2 | IT_ARMOR3)) +
+                                 IT_ARMOR2;
+        }
+        else if (v >= 0)
+        {
+            sv_player->v.armortype = 0.3;
+            sv_player->v.armorvalue = v;
+            sv_player->v.items = sv_player->v.items -
+                                 ((int)(sv_player->v.items) & (int)(IT_ARMOR1 | IT_ARMOR2 | IT_ARMOR3)) +
+                                 IT_ARMOR1;
+        }
+        break;
+        //johnfitz
     }
+
+    //johnfitz -- update currentammo to match new ammo (so statusbar updates correctly)
+    switch ((int)(sv_player->v.weapon))
+    {
+    case IT_SHOTGUN:
+    case IT_SUPER_SHOTGUN:
+        sv_player->v.currentammo = sv_player->v.ammo_shells;
+        break;
+    case IT_NAILGUN:
+    case IT_SUPER_NAILGUN:
+    case RIT_LAVA_SUPER_NAILGUN:
+        sv_player->v.currentammo = sv_player->v.ammo_nails;
+        break;
+    case IT_GRENADE_LAUNCHER:
+    case IT_ROCKET_LAUNCHER:
+    case RIT_MULTI_GRENADE:
+    case RIT_MULTI_ROCKET:
+        sv_player->v.currentammo = sv_player->v.ammo_rockets;
+        break;
+    case IT_LIGHTNING:
+    case HIT_LASER_CANNON:
+    case HIT_MJOLNIR:
+        sv_player->v.currentammo = sv_player->v.ammo_cells;
+        break;
+    case RIT_LAVA_NAILGUN: //same as IT_AXE
+        if (rogue)
+            sv_player->v.currentammo = sv_player->v.ammo_nails;
+        break;
+    case RIT_PLASMA_GUN: //same as HIT_PROXIMITY_GUN
+        if (rogue)
+            sv_player->v.currentammo = sv_player->v.ammo_cells;
+        if (hipnotic)
+            sv_player->v.currentammo = sv_player->v.ammo_rockets;
+        break;
+    }
+    //johnfitz
 }
 
 edict_t *FindViewthing (void)
