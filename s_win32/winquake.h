@@ -62,7 +62,7 @@ typedef struct
     qboolean            stretched;
 } vmode_t;
 
-#define MAX_MODE_LIST   40 //qb: this many will fit on menu, I think
+#define MAX_MODE_LIST   200 //qb: 40 will fit on menu, I think
 extern modestate_t	modestate;
 extern vmode_t  modelist[MAX_MODE_LIST];
 extern int nummodes;

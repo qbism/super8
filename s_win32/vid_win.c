@@ -2127,7 +2127,7 @@ void VID_MenuDraw (void)
 {
     qpic_t              *p;
     char                *ptr;
-    int                 lnummodes, i, j, k, column, row, dup, dupmode;
+    int                 lnummodes, i, j, k, m, column, row, dup, dupmode;
     char                temp[100];
     vmode_t             *pv;
     modedesc_t  tmodedesc;
@@ -2151,8 +2151,12 @@ void VID_MenuDraw (void)
     lnummodes = VID_NumModes ();
 
     //for (i = 3; i < lnummodes; i++)
+    m=0;
     for (i = VID_WINDOWED_MODES; i < lnummodes; i++)
-    {
+   {
+        m++;
+        if (m > 40) //qbism: 40 max
+            break;
         ptr = VID_GetModeDescriptionMemCheck (i);
         pv = VID_GetModePtr (i);
 
@@ -2205,7 +2209,7 @@ void VID_MenuDraw (void)
     {
         for (j = (i + 1); j < vid_wmodes; j++)
         {
-            if (modedescs[i].width > modedescs[j].width)
+            if (modedescs[i].width < modedescs[j].width)  //qb: was >
             {
                 tmodedesc = modedescs[i];
                 modedescs[i] = modedescs[j];
