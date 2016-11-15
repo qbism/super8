@@ -290,7 +290,7 @@ static int cw_local;  //qb: using a static is faster, based on assembly output
 Turbulent8
 =============
 */
-void Turbulent8 (espan_t *pspan)
+void Turbulent8 (espan_t *pspan, float trans)
 {
     static int     izistep2, sturb, tturb, teste; // Manoel Kasimier - translucent water
 
@@ -409,7 +409,7 @@ void Turbulent8 (espan_t *pspan)
             r_turb_s = r_turb_s & ((CYCLE<<16)-1);
             r_turb_t = r_turb_t & ((CYCLE<<16)-1);
 
-            if (r_wateralpha.value >= 1 || (!frame.liquid_alpha && !r_novis.value))
+            if (trans >= 0.82 || (!frame.liquid_alpha && !r_novis.value))
             {
                 do //qb: just move D_DrawTurbulent8Span stuff here
                 {
@@ -429,7 +429,7 @@ void Turbulent8 (espan_t *pspan)
 #undef sturb
 #undef tturb
             }
-            else if (r_wateralpha.value <= 0.41) // 33%
+            else if (trans <= 0.41) // 33%
             {
                 do
                 {
@@ -448,7 +448,7 @@ void Turbulent8 (espan_t *pspan)
                 }
                 while (--r_turb_spancount > 0);
             }
-            else if (r_wateralpha.value < 0.61 || !alphamap) // 50%
+            else if (trans <= 0.61) // 50%
             {
                 do
                 {
@@ -468,7 +468,7 @@ void Turbulent8 (espan_t *pspan)
                 while (--r_turb_spancount > 0);
 
             }
-            else // if (r_wateralpha.value >= 0.66 && alphamap) // 66%
+            else // 66%
             {
                 do
                 {
@@ -487,6 +487,7 @@ void Turbulent8 (espan_t *pspan)
                 }
                 while (--r_turb_spancount > 0);
             }
+
 
 end_of_loop: // Manoel Kasimier - translucent water
             r_turb_s = snext;

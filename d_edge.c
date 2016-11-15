@@ -156,6 +156,7 @@ void D_DrawSurfaces (void)
     surfcache_t		*pcurrentcache;
     vec3_t			world_transformed_modelorg;
     vec3_t			local_modelorg;
+    float           trans;
 
     currententity = &cl_entities[0];
     TransformVector (modelorg, transformed_modelorg);
@@ -188,13 +189,13 @@ void D_DrawSurfaces (void)
             if (! (pspans = s->spans))
                 continue;
 
-  //          if (s->flags & SURF_DRAWTRANSLUCENT)
-  //          {
-  //              if (!r_overdraw)
-  //                  continue;
- //           }
- //           else if (r_overdraw)
- //               continue;
+            //          if (s->flags & SURF_DRAWTRANSLUCENT)
+            //          {
+            //              if (!r_overdraw)
+            //                  continue;
+//           }
+//           else if (r_overdraw)
+//               continue;
 
             r_drawnpolycount++;
 
@@ -243,7 +244,14 @@ void D_DrawSurfaces (void)
                 {
                     cacheblock = (pixel_t *) ((byte *)pface->texinfo->texture + pface->texinfo->texture->offsets[0]);
                     cachewidth = 64;
-                    Turbulent8 (pspans);
+
+                    if (s->flags & SURF_SLIME)
+                        trans = r_slimealpha.value;
+                    else if (s->flags & SURF_LAVA)
+                        trans = r_lavaalpha.value;
+                    else trans = r_wateralpha.value;
+
+                    Turbulent8 (pspans, trans);
                 }
                 else
                 {
@@ -326,13 +334,13 @@ void D_DrawSurfaces (void)
 
                 pface = s->data;
 
-                if (s->flags & SURF_DRAWTURB)
+                if (s->flags & SURF_DRAWTURB && !(s->flags & SURF_DRAWTRANSLUCENT))
                 {
                     miplevel = 0;
                     cacheblock = (pixel_t *) ((byte *)pface->texinfo->texture + pface->texinfo->texture->offsets[0]);
                     cachewidth = 64;
                     D_CalcGradients (pface);
-                    Turbulent8 (pspans);
+                    Turbulent8 (pspans, 1);
                 }
                 else
                 {

@@ -45,6 +45,9 @@ extern cvar_t	scr_fov;
 
 extern cvar_t r_interpolation; // Manoel Kasimier - model interpolation
 extern cvar_t r_wateralpha; // Manoel Kasimier - translucent water
+extern cvar_t r_slimealpha;
+extern cvar_t r_lavaalpha;
+
 extern qboolean      r_overdraw; // Manoel Kasimier - translucent water
 extern byte       *alphamap, *alpha50map, *additivemap, *fogmap, *fencemap;
 extern byte       *lightcolormap;  //qb: light colors

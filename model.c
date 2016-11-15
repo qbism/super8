@@ -832,7 +832,6 @@ void Mod_LoadTexinfo (lump_t *l)
         if (!loadmodel->textures)
         {
             out->texture = r_notexture_mip;	// checkerboard texture
-            out->flags |= SURF_NOTEXTURE; //qb: from FQ
         }
         else
         {
@@ -842,7 +841,6 @@ void Mod_LoadTexinfo (lump_t *l)
             if (!out->texture)
             {
                 out->texture = r_notexture_mip; // texture not found
-                out->flags |= SURF_NOTEXTURE; //qb: from FQ
             }
         }
     }
@@ -923,6 +921,7 @@ void CalcSurfaceExtents (msurface_t *s)
 void Mod_FlagFaces ( msurface_t *out)
 {
     int i;
+    float trans;
     if (!Q_strncmp(out->texinfo->texture->name,"sky",3))	// sky
     {
         out->flags |= (SURF_DRAWSKY | SURF_DRAWTILED);
@@ -938,15 +937,14 @@ void Mod_FlagFaces ( msurface_t *out)
 
     if (out->texinfo->texture->name[0] == '*')		// turbulent
     {
-        // Manoel Kasimier - translucent water - begin
-       //qb: screw opaque lava   if (Q_strncmp(out->texinfo->texture->name,"*lava",5)) // lava should be opaque
-            //	if (Q_strncmp(out->texinfo->texture->name,"*teleport",9)) // teleport should be opaque
-       // {
-            out->flags |= SURF_DRAWTRANSLUCENT;
-            level.water = true;
-      //  }
-        // Manoel Kasimier - translucent water - end
-        out->flags |= (SURF_DRAWTURB | SURF_DRAWTILED);
+        if (!Q_strncmp(out->texinfo->texture->name,"*lava",5))
+             out->flags |= (SURF_LAVA | SURF_DRAWTURB | SURF_DRAWTILED | SURF_DRAWTRANSLUCENT);
+        else if (!Q_strncmp(out->texinfo->texture->name,"*slime",6))
+             out->flags |= (SURF_SLIME | SURF_DRAWTURB | SURF_DRAWTILED | SURF_DRAWTRANSLUCENT);
+        else out->flags |= (SURF_WATER | SURF_DRAWTURB | SURF_DRAWTILED | SURF_DRAWTRANSLUCENT);
+
+        level.water = true;
+
         for (i=0 ; i<2 ; i++)
         {
             out->extents[i] = 16384;
@@ -1280,18 +1278,18 @@ void Mod_ProcessLeafs_S (dsleaf_t *in, int filelen)
             out->ambient_sound_level[j] = in->ambient_level[j];
 
         //qb: from MarkV- gl underwater warp. Baker: This marks the surface as underwater
-		if (out->contents != CONTENTS_EMPTY)
-		{
-			for (j=0 ; j < out->nummarksurfaces ; j++)
-			{
-				msurface_t** surf = &out->firstmarksurface[j];
-				if (!surf || !(*surf) || !(*surf)->texinfo || !(*surf)->texinfo->texture)
-				{
-					continue;
-				}
-				out->firstmarksurface[j]->flags |= SURF_UNDERWATER; // This screws up?
-			}
-		}
+        if (out->contents != CONTENTS_EMPTY)
+        {
+            for (j=0 ; j < out->nummarksurfaces ; j++)
+            {
+                msurface_t** surf = &out->firstmarksurface[j];
+                if (!surf || !(*surf) || !(*surf)->texinfo || !(*surf)->texinfo->texture)
+                {
+                    continue;
+                }
+                out->firstmarksurface[j]->flags |= SURF_UNDERWATER; // This screws up?
+            }
+        }
     }
 }
 
@@ -1338,18 +1336,18 @@ void Mod_ProcessLeafs_L1 (dl1leaf_t *in, int filelen)
             out->ambient_sound_level[j] = in->ambient_level[j];
 
         //qb: from MarkV- gl underwater warp. Baker: This marks the surface as underwater
-		if (out->contents != CONTENTS_EMPTY)
-		{
-			for (j=0 ; j < out->nummarksurfaces ; j++)
-			{
-				msurface_t** surf = &out->firstmarksurface[j];
-				if (!surf || !(*surf) || !(*surf)->texinfo || !(*surf)->texinfo->texture)
-				{
-					continue;
-				}
-				out->firstmarksurface[j]->flags |= SURF_UNDERWATER; // This screws up?
-			}
-		}
+        if (out->contents != CONTENTS_EMPTY)
+        {
+            for (j=0 ; j < out->nummarksurfaces ; j++)
+            {
+                msurface_t** surf = &out->firstmarksurface[j];
+                if (!surf || !(*surf) || !(*surf)->texinfo || !(*surf)->texinfo->texture)
+                {
+                    continue;
+                }
+                out->firstmarksurface[j]->flags |= SURF_UNDERWATER; // This screws up?
+            }
+        }
     }
 }
 
@@ -1396,18 +1394,18 @@ void Mod_ProcessLeafs_L2 (dl2leaf_t *in, int filelen)
             out->ambient_sound_level[j] = in->ambient_level[j];
 
         //qb: from MarkV- gl underwater warp. Baker: This marks the surface as underwater
-		if (out->contents != CONTENTS_EMPTY)
-		{
-			for (j=0 ; j < out->nummarksurfaces ; j++)
-			{
-				msurface_t** surf = &out->firstmarksurface[j];
-				if (!surf || !(*surf) || !(*surf)->texinfo || !(*surf)->texinfo->texture)
-				{
-					continue;
-				}
-				out->firstmarksurface[j]->flags |= SURF_UNDERWATER; // This screws up?
-			}
-		}
+        if (out->contents != CONTENTS_EMPTY)
+        {
+            for (j=0 ; j < out->nummarksurfaces ; j++)
+            {
+                msurface_t** surf = &out->firstmarksurface[j];
+                if (!surf || !(*surf) || !(*surf)->texinfo || !(*surf)->texinfo->texture)
+                {
+                    continue;
+                }
+                out->firstmarksurface[j]->flags |= SURF_UNDERWATER; // This screws up?
+            }
+        }
     }
 }
 
@@ -2087,29 +2085,29 @@ void Mod_SetExtraFlags (model_t *mod)
 
 //qb: would wipe out effects as flags.	mod->flags &= 0xFF; //only preserve first byte
 
-	//qb: from QS- nolerp flag
-	s = r_nolerp_list.string;
-	while (*s)
-	{
-		// make a copy until the next comma or end of string
-		i = 0;
-		while (*s && *s != ',')
-		{
-			if (i < MAX_QPATH - 1)
-				tmp[i++] = *s;
-			s++;
-		}
-		tmp[i] = '\0';
-		//compare it to the model name
-		if (!strcmp(mod->name, tmp))
-		{
-			mod->flags |= MOD_NOLERP;
-			break;
-		}
-		//search forwards to the next comma or end of string
-		while (*s && *s == ',')
-			s++;
-	}
+    //qb: from QS- nolerp flag
+    s = r_nolerp_list.string;
+    while (*s)
+    {
+        // make a copy until the next comma or end of string
+        i = 0;
+        while (*s && *s != ',')
+        {
+            if (i < MAX_QPATH - 1)
+                tmp[i++] = *s;
+            s++;
+        }
+        tmp[i] = '\0';
+        //compare it to the model name
+        if (!strcmp(mod->name, tmp))
+        {
+            mod->flags |= MOD_NOLERP;
+            break;
+        }
+        //search forwards to the next comma or end of string
+        while (*s && *s == ',')
+            s++;
+    }
 }
 
 

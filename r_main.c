@@ -176,7 +176,9 @@ cvar_t  r_light_vec_z = {"r_light_vec_z", "-1", "r_light_vec_z[value] Z vector w
 cvar_t  r_light_style = {"r_light_style", "1", "r_light_style[0/1] Toggle dramatic lighting of models.", true};
 // Manoel Kasimier - changed alias models lighting - end
 cvar_t  r_skyfog = {"r_skyfog","0.20", "r_skyfog[0.0 - 1.0] Fog density for sky.", true}; // qb:  Maybe later.  Just make the sky brighter?
-cvar_t  r_wateralpha = {"r_wateralpha","0.50", "r_wateralpha[0.0 - 1.0] Alpha of water surfaces.", true}; // Manoel Kasimier - translucent water
+cvar_t  r_wateralpha = {"r_wateralpha","0.33", "r_wateralpha[0.0 - 1.0] Alpha of water surfaces.", true}; // Manoel Kasimier - translucent water
+cvar_t  r_slimealpha = {"r_slimealpha","0.66", "r_slimealpha[0.0 - 1.0] Alpha of slime surfaces.", true}; // Manoel Kasimier - translucent water
+cvar_t  r_lavaalpha = {"r_lavaalpha","1.0", "r_lavaalpha[0.0 - 1.0] Alpha of lava surfaces.", true}; // Manoel Kasimier - translucent water
 cvar_t  r_shadowhack = {"r_shadowhack", "0", "r_shadowhack[0/1] Toggle use of darklights to fake entity shadows.", false};
 cvar_t  r_shadowhacksize = {"r_shadowhacksize", "2.7", "r_shadowhacksize[value] Radius factor of fake entity shadows.", true};
 cvar_t  r_novis = {"r_novis","0", "r_novis[0/1] Toggle underwater vis for any map, but reduces render speed.", false}; // Manoel Kasimier - translucent water
@@ -315,6 +317,8 @@ void R_Init (void)
     // Manoel Kasimier - changed alias models lighting - end
     Cvar_RegisterVariable (&r_interpolation); // Manoel Kasimier - model interpolation
     Cvar_RegisterVariable (&r_wateralpha); // Manoel Kasimier - translucent water
+    Cvar_RegisterVariable (&r_slimealpha); //qb:
+    Cvar_RegisterVariable (&r_lavaalpha); //qb:
     Cvar_RegisterVariable (&r_skyfog); //qb: skyfog
 //    Cvar_RegisterVariable (&sw_stipplealpha); // Manoel Kasimier
 //    Cvar_RegisterVariable (&r_sprite_addblend); // Manoel Kasimier

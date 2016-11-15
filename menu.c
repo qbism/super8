@@ -3302,7 +3302,7 @@ void M_Audio_Key (int k)
 //=============================================================================
 /* VIDEO MENU */
 
-#define VIDEO_ITEMS     14
+#define VIDEO_ITEMS     16
 
 void M_Video_f (void)
 {
@@ -3353,6 +3353,10 @@ void M_Video_Draw (void)
     M_DrawCheckbox (220, y, r_waterwarp.value); //qb: replace stipplealpha with waterwarp
     M_Print (16, y+=8, "         Water opacity");
     M_DrawSlider (220, y, r_wateralpha.value);
+    M_Print (16, y+=8, "         Slime opacity");
+    M_DrawSlider (220, y, r_slimealpha.value);
+    M_Print (16, y+=8, "         Lava opacity");
+    M_DrawSlider (220, y, r_lavaalpha.value);
 
     M_DrawCursor (200, 28, m_cursor[m_state]);
     // Manoel Kasimier - end
@@ -3379,6 +3383,8 @@ void M_Video_Change (int dir)
     if (c == i++) Cvar_SetValue ("r_light_style", !r_light_style.value);
     if (c == i++) Cvar_SetValue ("r_waterwarp", !r_waterwarp.value);
     if (c == i++) ChangeCVar("r_wateralpha", r_wateralpha.value, dir*0.166667, 0, 1, true);
+    if (c == i++) ChangeCVar("r_slimealpha", r_slimealpha.value, dir*0.166667, 0, 1, true);
+    if (c == i++) ChangeCVar("r_lavaalpha", r_lavaalpha.value, dir*0.166667, 0, 1, true);
 }
 // Manoel Kasimier - end
 void M_Video_Key (int k) // int key Edited by Manoel Kasimier
