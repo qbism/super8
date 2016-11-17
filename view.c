@@ -19,6 +19,8 @@ along with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "quakedef.h"
 #include "r_local.h"
+extern  cvar_t  sbar_scale; //qb: added
+extern  cvar_t  sbar_show_bg;
 
 /*
 
@@ -819,10 +821,8 @@ void V_CalcRefdef (void)
 
 // transform the view offset by the model's matrix to get the offset from
 // model origin for the view
-    ent->angles[YAW] = cl.viewangles[YAW];	// the model should face
-    // the view dir
-    ent->angles[PITCH] = -cl.viewangles[PITCH];	// the model should face
-    // the view dir
+    ent->angles[YAW] = cl.viewangles[YAW];	// the model should face the view dir
+    ent->angles[PITCH] = -cl.viewangles[PITCH];	// the model should face the view dir
 
     if (!cl_nobob.value) // Manoel Kasimier - cl_nobob
         bob = V_CalcBob ();
@@ -844,8 +844,7 @@ void V_CalcRefdef (void)
     V_AddIdle ();
 
 // offsets
-    angles[PITCH] = -ent->angles[PITCH];	// because entity pitches are
-    //  actually backward
+    angles[PITCH] = -ent->angles[PITCH]; // because entity pitches are actually backward
     angles[YAW] = ent->angles[YAW];
     angles[ROLL] = ent->angles[ROLL];
 
@@ -858,7 +857,7 @@ void V_CalcRefdef (void)
     else
         // Manoel Kasimier - end
 
-        if (cl.maxclients <= 1) //qb: from johnfitz -- moved cheat-protection here from V_RenderView
+        if (sv_cheats.value || cl.maxclients <= 1) //qb: from johnfitz -- moved cheat-protection here from V_RenderView
             for (i=0 ; i<3 ; i++)
                 r_refdef.vieworg[i] += scr_ofsx.value*forward[i] + scr_ofsy.value*right[i] + scr_ofsz.value*up[i];
 
@@ -879,6 +878,33 @@ void V_CalcRefdef (void)
     }
     view->origin[2] += bob;
 
+    //restore and improve weapon offset code with status bar
+    //takes sbar scaling into account //qb: based on bangstk quakespasm fork
+    float scale = CLAMP (1.0, sbar_scale.value, (float) vid.height / MIN_VID_HEIGHT);
+    scale /= (float) vid.height / MIN_VID_HEIGHT; //unit scale
+
+    float sbaroffset = 0;
+
+    if (sbar_show_bg.value)
+    {
+        switch ((int)sbar.value)
+        {
+        case 1:
+            sbaroffset = scale * 3;
+            break;
+        case 2:
+            sbaroffset = scale * 5;
+            break;
+        case 3:
+            sbaroffset = scale * 7;
+            break;
+        default:
+            sbaroffset = scale;
+        }
+    }
+    else sbaroffset = scale;
+
+    view->origin[2] += sbaroffset;
     view->model = cl.model_precache[cl.stats[STAT_WEAPON]];
     view->frame = cl.stats[STAT_WEAPONFRAME];
     view->colormap = vid.colormap;
