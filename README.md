@@ -1,4 +1,4 @@
-qbism Super8 build 282
+qbism Super8 build 288
 
 The goal of Super8 is to expand the capabilities of authentic 8-bit rendering to play contemporary Quake maps: epic environments, hundreds of monsters, crunchy pixelated graphics. The source code is forked from Makaqu with enhancements from other open source Quake engine projects, plus a few original ideas.
 
@@ -7,15 +7,11 @@ Super8 is developed in Windows 7 and is occasionally tested in Linux under Wine.
 Thanks to everyone who gave feedback on the test builds from the color-overhaul experiments leading up to now!
 
 
-New in build 282
+New in build 288
 ——————————————————
-Changes in this release: FIXES!
-Fix EF_ROTATE in demos (rotating pickup items) 
-Fix nolerp list
-Fix crosshair location in menu
-Set nativeaspect for all modes (including windowed modes now)
-and...
-Let lava be transparent? Heck yes.
+Individual water, slime, and lava transparency like other modern engines.  Console variables: r_wateralpha, r_slimealpha, r_lavaalpha
+
+More video modes available.  In the video menu, modes are listed in descending resolution, with high-res modes first. The menu is still limited to 40 modes shown, however, actual available is increased to 200. To see other modes type vid_describemodes in the console. Set vid_mode manually in the console to set a mode that doesn't fit in the menu. 
 
 Other relatively recent stuff
 ————————————————————————————————
@@ -23,21 +19,19 @@ more accurate color rendition.
 
 r_saturation - cvar for map colored lighting intensity.
 
+Set nativeaspect for all modes (including windowed modes now)
+
 pixel doubling - for extra chunkiness (and render speed) automatically generate pixel-doubled option for compatible video modes.  These resolutions are listed with an 'S' in the video mode menu.
 
 Resolution support up to 4K, but not fully tested.
 
 cl_beams_quakepositionhack - cvar to turn off automatic centering of lighting bolts.  For mods that want an off-center bolt effect.
 
-Improved overlapping transparencies -  It will usually be possible to see translucent water through a translucent window, for example.
-
-automatic unvised map detection (slightly glitchy) - if water was created opaque (like classic Quake maps) transparency is turned off.  BUT to 'fake it', toggle r_novis and sv_novis cvars to 1.
+Automatic unvised map detection thanks to Mark V source.  If water was created opaque (like classic Quake maps) transparency is turned off.  BUT to 'fake it', toggle r_novis and sv_novis cvars to 1.
 
 r_novis - make water and similar textures transparent on old 'unvised' maps. 
 
-sv_novis - don't cull any items serverside.  Normally the server culls most items that are hidden behind walls.
-
-Fixed dedicated server (I hope).
+sv_novis - don't cull any items serverside.  Normally the server culls most items that are hidden behind walls or opaque liquids.
 
 Add tab-completion to loadpalette and r_palette.
 
